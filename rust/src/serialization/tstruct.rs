@@ -1,7 +1,7 @@
+use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Type;
 use crate::serialization::core::LqError;
-use crate::serialization::core::ReadResult;
 use crate::serialization::core::TypeId;
 
 pub struct TStruct;
@@ -26,7 +26,7 @@ impl<'a> Type<'a> for TStruct {
     type ReadItem = Struct;
     type WriteItem = Struct;
 
-    fn read(id: TypeId, _: &[u8]) -> Result<ReadResult<Self::ReadItem>, LqError> {
+    fn read<Reader : BinaryReader<'a>>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         unimplemented!()
     }
 

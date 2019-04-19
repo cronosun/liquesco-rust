@@ -17,7 +17,7 @@ pub trait Writer {
 }
 
 pub trait Reader<'a> {
-    fn read<T: Type<'a>>(&mut self) -> Result<T::ReadItem, LqError>;
+    fn read<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError>;
 }
 
 pub struct VecWriter {
@@ -34,7 +34,8 @@ pub trait Type<'a> {
     type ReadItem;
     type WriteItem: ?Sized;
 
-    fn read(id: TypeId, data: &'a [u8]) -> Result<ReadResult<Self::ReadItem>, LqError>;
+    fn read<Reader : BinaryReader<'a>>(
+        id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError>;
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
@@ -58,7 +59,16 @@ pub trait DeSerializable<'a> {
 }
 
 impl<'a> Reader<'a> for SliceReader<'a> {
-    fn read<T: Type<'a>>(&mut self) -> Result<T::ReadItem, LqError> {
+    fn read<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError> {
+        let original_offset = self.offset;
+        let result = self.read_no_error::<T>();
+        if result.is_err() {
+            // TODO
+           result
+        } else {
+            result
+        }
+/*
         self.read_no_error::<T>().map_err(|original| {
             // add some message details
             let original_msg = &original.msg;
@@ -74,25 +84,16 @@ impl<'a> Reader<'a> for SliceReader<'a> {
                 self.offset, original_msg, offset_to_use, data
             );
             original.with_msg(new_message)
-        })
+        })*/
     }
 }
 
 impl<'a> SliceReader<'a> {
-    fn read_no_error<T: Type<'a>>(&mut self) -> Result<T::ReadItem, LqError> {
-        let data_len = self.data.len();
-        let data_with_offset = if self.offset + 1 > data_len {
-            return LqError::err_static("Out of bounds (end of data)");
-        } else if self.offset == data_len {
-            &[0; 0]
-        } else {
-            &self.data[self.offset + 1..]
-        };
-        let type_id = TypeId(self.data[self.offset]);
+    fn read_no_error<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError> {
+        let type_id_byte = self.read_u8()?;
+        let type_id = TypeId(type_id_byte);
 
-        let result = T::read(type_id, data_with_offset)?;
-        self.offset = self.offset + result.num_read + 1;
-        Result::Ok(result.data)
+        T::read(type_id, self)
     }
 
     /// Makes sure the reader has been read completely and there's no additional data.
@@ -146,6 +147,7 @@ pub trait BinaryReader<'a>: std::io::Read {
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
 }
 
+// TODO: Remove
 pub struct ReadResult<Data> {
     pub num_read: usize,
     pub data: Data,

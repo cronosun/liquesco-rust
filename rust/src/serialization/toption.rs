@@ -1,9 +1,9 @@
+use crate::serialization::core::BinaryReader;
 use crate::serialization::types::TYPE_OPTION_ABSENT;
 use crate::serialization::types::TYPE_OPTION_PRESENT;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Type;
 use crate::serialization::core::LqError;
-use crate::serialization::core::ReadResult;
 use crate::serialization::core::TypeId;
 
 pub struct TOption;
@@ -18,10 +18,10 @@ impl<'a> Type<'a> for TOption {
     type ReadItem = Option;
     type WriteItem = Option;
 
-    fn read(id: TypeId, _: &[u8]) -> Result<ReadResult<Self::ReadItem>, LqError> {
+    fn read<Reader : BinaryReader<'a>>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         match id {
-            TYPE_OPTION_PRESENT => ReadResult::new_ok(0, Option::Present),
-            TYPE_OPTION_ABSENT => ReadResult::new_ok(0, Option::Absent),
+            TYPE_OPTION_PRESENT => Result::Ok(Option::Present),
+            TYPE_OPTION_ABSENT => Result::Ok(Option::Absent),
             _ => LqError::err_static("Type is not an option type"),
         }
     }

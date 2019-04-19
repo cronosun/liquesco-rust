@@ -1,10 +1,10 @@
+use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::types::BLOCK_ID_UTF8;
 use crate::serialization::binary::binary_read;
 use crate::serialization::core::LqError;
 use crate::serialization::core::TypeId;
-use crate::serialization::core::ReadResult;
 use crate::serialization::core::Type;
 use std::str::from_utf8;
 
@@ -14,14 +14,14 @@ impl<'a> Type<'a> for TUtf8 {
     type ReadItem = &'a str;
     type WriteItem = str;
 
-    fn read(id: TypeId, data: &'a [u8]) -> Result<ReadResult<Self::ReadItem>, LqError> {
-        let (block, read_result) = binary_read(id, data)?;
+    fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+        let (block, read_result) = binary_read(id, reader)?;
         if block!=BLOCK_ID_UTF8 {
             return LqError::err_static("Type is not utf8 data");
         }
-        let maybe_str = from_utf8(read_result.data);
+        let maybe_str = from_utf8(read_result);
         match maybe_str {
-            Result::Ok(value) => ReadResult::new_ok(read_result.num_read, value),
+            Result::Ok(value) => Result::Ok(value),
             Result::Err(_) => LqError::err_static("Invalid utf8 data found"),
         }
     }

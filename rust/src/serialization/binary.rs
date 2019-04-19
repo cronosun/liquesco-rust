@@ -1,10 +1,8 @@
-use crate::serialization::util::io_result;
-use crate::serialization::core::ReadResult;
-use crate::serialization::core::LqError;
+use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqError;
 use crate::serialization::core::TypeId;
-use crate::serialization::util::safe_read_u8;
-use crate::serialization::util::safe_slice_len;
+use crate::serialization::util::io_result;
 use byteorder::ByteOrder;
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::io::Write;
@@ -65,39 +63,30 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
 }
 
 #[inline]
-pub(crate) fn binary_read<'a>(
+pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
     type_id: TypeId,
-    data: &'a [u8],
-) -> Result<(BlockId, ReadResult<&'a [u8]>), LqError> {
+    reader: &'a mut Reader,
+) -> Result<(BlockId, &'a [u8]), LqError> {
     let bin_info = type_id.extract_binary_info();
-    let mut num_read = 0;
     let (block, len) = match bin_info {
         BinaryInfo::Invalid => return LqError::err_static("Invalid type id for binary data"),
         BinaryInfo::WithLength((block, length)) => (block, length as usize),
         //TODO: Add checks to make sure length is canonical (e.g. len=3 is always embedded)
-        BinaryInfo::U8Length(block) => {
-            num_read = num_read + 1;
-            (block, safe_read_u8(data, 0)? as usize)
-        }
+        BinaryInfo::U8Length(block) => (block, reader.read_u8()? as usize),
         BinaryInfo::U16Length(block) => {
-            num_read = num_read + 2;
-            let sliced_len = safe_slice_len(data, 0, 2)?;
+            let sliced_len = reader.read_slice(2)?;
             (block, LittleEndian::read_u16(sliced_len) as usize)
         }
         BinaryInfo::U24Length(block) => {
-            num_read = num_read + 3;
-            let sliced_len = safe_slice_len(data, 0, 3)?;
+            let sliced_len = reader.read_slice(3)?;
             (block, LittleEndian::read_u24(sliced_len) as usize)
         }
         BinaryInfo::U32Length(block) => {
-            num_read = num_read + 4;
-            let sliced_len = safe_slice_len(data, 0, 4)?;
+            let sliced_len = reader.read_slice(4)?;
             (block, LittleEndian::read_u32(sliced_len) as usize)
         }
     };
-    let header_len = num_read;
-    num_read = num_read + len;
-    let read_result = ReadResult::new(num_read, safe_slice_len(data, header_len, len)?);
+    let read_result = reader.read_slice(len)?;
     Result::Ok((block, read_result))
 }
 
