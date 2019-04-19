@@ -1,1 +1,0 @@
-C:\Users\caelis\src\liquesco\rust\target\debug\librust.rlib: C:\Users\caelis\src\liquesco\rust\src\lib.rs C:\Users\caelis\src\liquesco\rust\src\serialization\core.rs C:\Users\caelis\src\liquesco\rust\src\serialization\mod.rs
