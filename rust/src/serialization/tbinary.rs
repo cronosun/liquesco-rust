@@ -13,7 +13,7 @@ impl<'a> Type<'a> for TBinary {
     type ReadItem = &'a [u8];
     type WriteItem = [u8];
 
-    fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+    fn read<Reader : BinaryReader>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         let (block, read_result) = binary_read(id, reader)?;
         if block!=BLOCK_ID_UTF8 {
             return LqError::err_static("Type is not binary data");

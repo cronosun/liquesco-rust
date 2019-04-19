@@ -18,7 +18,7 @@ impl<'a> Type<'a> for TOption {
     type ReadItem = Option;
     type WriteItem = Option;
 
-    fn read<Reader : BinaryReader<'a>>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+    fn read<Reader : BinaryReader>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         match id {
             TYPE_OPTION_PRESENT => Result::Ok(Option::Present),
             TYPE_OPTION_ABSENT => Result::Ok(Option::Absent),

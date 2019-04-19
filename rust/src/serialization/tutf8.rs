@@ -14,10 +14,11 @@ impl<'a> Type<'a> for TUtf8 {
     type ReadItem = &'a str;
     type WriteItem = str;
 
-    fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+    fn read<Reader : BinaryReader>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         let (block, read_result) = binary_read(id, reader)?;
         if block!=BLOCK_ID_UTF8 {
-            return LqError::err_static("Type is not utf8 data");
+            return LqError::err_new(format!("Type is not utf8 data, block is {:?}",
+            block));
         }
         let maybe_str = from_utf8(read_result);
         match maybe_str {

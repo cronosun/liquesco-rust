@@ -12,7 +12,7 @@ impl<'a> Type<'a> for TBool {
     type ReadItem = bool;
     type WriteItem = bool;
 
-    fn read<Reader : BinaryReader<'a>>(
+    fn read<Reader : BinaryReader>(
         id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         match id {
             TYPE_BOOL_TRUE => Result::Ok(true),

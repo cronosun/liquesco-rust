@@ -34,7 +34,7 @@ pub trait Type<'a> {
     type ReadItem;
     type WriteItem: ?Sized;
 
-    fn read<Reader : BinaryReader<'a>>(
+    fn read<Reader : BinaryReader>(
         id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError>;
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
@@ -142,9 +142,9 @@ pub trait BinaryWriter<'a> {
     fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError>;
 }
 
-pub trait BinaryReader<'a>: std::io::Read {
+pub trait BinaryReader: std::io::Read {
     fn read_u8(&mut self) -> Result<u8, LqError>;
-    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
+    fn read_slice(& mut self, len: usize) -> Result<& [u8], LqError>;
 }
 
 // TODO: Remove
@@ -196,7 +196,7 @@ impl LqError {
     }
 }
 
-impl<'a> BinaryReader<'a> for SliceReader<'a> {
+impl<'a> BinaryReader for SliceReader<'a> {
     #[inline]
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();
@@ -210,7 +210,7 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
     }
 
     #[inline]
-    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
+    fn read_slice(&mut self, len: usize) -> Result<&[u8], LqError> {
         let data_len = self.data.len();
         if self.offset + len > data_len {
             LqError::err_static("End of reader")

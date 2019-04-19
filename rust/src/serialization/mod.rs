@@ -9,3 +9,6 @@ pub mod tutf8;
 pub mod tbinary;
 pub mod toption;
 pub mod tstruct;
+
+#[cfg(test)]
+pub mod test;

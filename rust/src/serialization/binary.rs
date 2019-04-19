@@ -63,7 +63,7 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
 }
 
 #[inline]
-pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
+pub(crate) fn binary_read<'a, Reader: BinaryReader>(
     type_id: TypeId,
     reader: &'a mut Reader,
 ) -> Result<(BlockId, &'a [u8]), LqError> {

@@ -26,7 +26,7 @@ impl<'a> Type<'a> for TStruct {
     type ReadItem = Struct;
     type WriteItem = Struct;
 
-    fn read<Reader : BinaryReader<'a>>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+    fn read<Reader : BinaryReader>(id: TypeId, _: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
         unimplemented!()
     }
 
