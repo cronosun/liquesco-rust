@@ -37,6 +37,6 @@ pub(crate) fn safe_slice_len(
 }
 
 #[inline]
-pub(crate) fn write_result<Ok>(result: Result<Ok, std::io::Error>) -> Result<Ok, LqError> {
+pub(crate) fn io_result<Ok>(result: Result<Ok, std::io::Error>) -> Result<Ok, LqError> {
     result.map_err(|_| LqError::new("Unable to write data"))
 }

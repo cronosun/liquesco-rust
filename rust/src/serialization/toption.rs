@@ -1,6 +1,6 @@
 use crate::serialization::types::TYPE_OPTION_ABSENT;
 use crate::serialization::types::TYPE_OPTION_PRESENT;
-use crate::serialization::core::HeaderWriter;
+use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Type;
 use crate::serialization::core::LqError;
 use crate::serialization::core::ReadResult;
@@ -26,17 +26,17 @@ impl<'a> Type<'a> for TOption {
         }
     }
 
-    fn write<'b, Writer: HeaderWriter<'b> + 'b>(
+    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
     ) -> Result<(), LqError> {
         match item {
             Option::Present => {
-                writer.type_id(TYPE_OPTION_PRESENT);
+                writer.begin(TYPE_OPTION_PRESENT)?;
                 Result::Ok(())
             }
             Option::Absent => {
-                writer.type_id(TYPE_OPTION_ABSENT);
+                writer.begin(TYPE_OPTION_ABSENT)?;
                 Result::Ok(())
             }
         }

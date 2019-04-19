@@ -1,10 +1,10 @@
-use crate::serialization::core::HeaderWriter;
-use crate::serialization::core::LqError;
+use crate::serialization::util::io_result;
 use crate::serialization::core::ReadResult;
+use crate::serialization::core::LqError;
+use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::TypeId;
 use crate::serialization::util::safe_read_u8;
 use crate::serialization::util::safe_slice_len;
-use crate::serialization::util::write_result;
 use byteorder::ByteOrder;
 use byteorder::{LittleEndian, WriteBytesExt};
 use std::io::Write;
@@ -28,7 +28,7 @@ impl TypeId {
 }
 
 #[inline]
-pub(crate) fn binary_write<'a, Writer: HeaderWriter<'a> + 'a>(
+pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
     data: &[u8],
     writer: Writer,
     block: BlockId,
@@ -42,25 +42,25 @@ pub(crate) fn binary_write<'a, Writer: HeaderWriter<'a> + 'a>(
     }
 
     let (type_id, length_type) = type_id(block, bin_len);
-    let writer = writer.type_id(type_id);
+    let writer = writer.begin(type_id)?;
 
     match length_type {
         LengthType::U8 => {
-            write_result(writer.write(&[bin_len as u8]))?;
+            io_result(writer.write(&[bin_len as u8]))?;
         }
         LengthType::U16 => {
-            write_result(writer.write_u16::<LittleEndian>(bin_len as u16))?;
+            io_result(writer.write_u16::<LittleEndian>(bin_len as u16))?;
         }
         LengthType::U24 => {
-            write_result(writer.write_u24::<LittleEndian>(bin_len as u32))?;
+            io_result(writer.write_u24::<LittleEndian>(bin_len as u32))?;
         }
         LengthType::U32 => {
-            write_result(writer.write_u32::<LittleEndian>(bin_len as u32))?;
+            io_result(writer.write_u32::<LittleEndian>(bin_len as u32))?;
         }
         LengthType::Embedded => {}
     }
 
-    write_result(writer.write(data))?;
+    io_result(writer.write(data))?;
     Result::Ok(())
 }
 

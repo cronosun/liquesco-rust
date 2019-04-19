@@ -1,5 +1,5 @@
 use crate::serialization::binary::binary_write;
-use crate::serialization::core::HeaderWriter;
+use crate::serialization::core::BinaryWriter;
 use crate::serialization::types::BLOCK_ID_UTF8;
 use crate::serialization::binary::binary_read;
 use crate::serialization::core::LqError;
@@ -26,7 +26,7 @@ impl<'a> Type<'a> for TUtf8 {
         }
     }
 
-    fn write<'b, Writer: HeaderWriter<'b> + 'b>(
+    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
     ) -> Result<(), LqError> {

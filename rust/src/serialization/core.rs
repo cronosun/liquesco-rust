@@ -1,4 +1,7 @@
+use std::fmt::Display;
+use std::error::Error;
 use std::borrow::Cow;
+use std::io::Read;
 use std::io::Write;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
@@ -32,7 +35,7 @@ pub trait Type<'a> {
     type WriteItem: ?Sized;
 
     fn read(id: TypeId, data: &'a [u8]) -> Result<ReadResult<Self::ReadItem>, LqError>;
-    fn write<'b, Writer: HeaderWriter<'b> + 'b>(
+    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
     ) -> Result<(), LqError>;
@@ -40,10 +43,7 @@ pub trait Type<'a> {
 
 impl<'a> From<&'a [u8]> for SliceReader<'a> {
     fn from(data: &'a [u8]) -> Self {
-        SliceReader {
-            data,
-            offset: 0,
-        }
+        SliceReader { data, offset: 0 }
     }
 }
 
@@ -127,18 +127,23 @@ struct HeaderWriterStruct<'a> {
     data: &'a mut Vec<u8>,
 }
 
-impl<'a> HeaderWriter<'a> for HeaderWriterStruct<'a> {
+impl<'a> BinaryWriter<'a> for HeaderWriterStruct<'a> {
     type Writer = Vec<u8>;
 
-    fn type_id(self, id: TypeId) -> &'a mut Self::Writer {
+    fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError> {
         self.data.push(id.0);
-        self.data
+        Result::Ok(self.data)
     }
 }
 
-pub trait HeaderWriter<'a> {
+pub trait BinaryWriter<'a> {
     type Writer: Write;
-    fn type_id(self, id: TypeId) -> &'a mut Self::Writer;
+    fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError>;
+}
+
+pub trait BinaryReader<'a>: std::io::Read {
+    fn read_u8(&mut self) -> Result<u8, LqError>;
+    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
 }
 
 pub struct ReadResult<Data> {
@@ -161,6 +166,15 @@ pub struct LqError {
     pub msg: Cow<'static, str>,
 }
 
+impl Error for LqError {
+}
+
+impl Display for LqError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "LqError({:?})", self.msg)
+    }
+}
+
 impl LqError {
     pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
         Result::Err(LqError { msg: string.into() })
@@ -177,5 +191,42 @@ impl LqError {
     pub fn with_msg<T: Into<Cow<'static, str>>>(mut self, msg: T) -> LqError {
         self.msg = msg.into();
         self
+    }
+}
+
+impl<'a> BinaryReader<'a> for SliceReader<'a> {
+    #[inline]
+    fn read_u8(&mut self) -> Result<u8, LqError> {
+        let len = self.data.len();
+        if self.offset >= len {
+            LqError::err_static("End of reader")
+        } else {
+            let value = self.data[self.offset];
+            self.offset = self.offset + 1;
+            Result::Ok(value)
+        }
+    }
+
+    #[inline]
+    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
+        let data_len = self.data.len();
+        if self.offset + len > data_len {
+            LqError::err_static("End of reader")
+        } else {
+            let end_index = self.offset + len;
+            let value = &self.data[self.offset..end_index];
+            self.offset = self.offset + len;
+            Result::Ok(value)
+        }
+    }
+}
+
+impl<'a> Read for SliceReader<'a> {
+    fn read(&mut self, mut buf: &mut [u8]) -> std::io::Result<usize> {
+        let len = buf.len();
+        let slice = self.read_slice(len).map_err(|err| {
+            std::io::Error::new(std::io::ErrorKind::Other, err)
+        })?;
+        buf.write(slice)
     }
 }

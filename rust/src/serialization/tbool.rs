@@ -1,6 +1,6 @@
 use crate::serialization::types::TYPE_BOOL_FALSE;
 use crate::serialization::types::TYPE_BOOL_TRUE;
-use crate::serialization::core::HeaderWriter;
+use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Type;
 use crate::serialization::core::LqError;
 use crate::serialization::core::ReadResult;
@@ -20,17 +20,17 @@ impl<'a> Type<'a> for TBool {
         }
     }
 
-    fn write<'b, Writer: HeaderWriter<'b> + 'b>(
+    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
     ) -> Result<(), LqError> {
         match item {
             true => {
-                writer.type_id(TYPE_BOOL_TRUE);
+                writer.begin(TYPE_BOOL_TRUE)?;
                 Result::Ok(())
             }
             false => {
-                writer.type_id(TYPE_BOOL_FALSE);
+                writer.begin(TYPE_BOOL_FALSE)?;
                 Result::Ok(())
             }
         }
