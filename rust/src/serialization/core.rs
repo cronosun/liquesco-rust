@@ -49,7 +49,6 @@ pub trait DeSerializable<'a> {
         Self: Sized;
 }
 
-
 impl Writer for VecWriter {
     fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError> {
         let header_writer = HeaderWriterStruct {

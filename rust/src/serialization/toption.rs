@@ -10,36 +10,36 @@ use crate::serialization::types::TYPE_OPTION_PRESENT;
 pub struct TOption;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum Option {
+pub enum Presence{
     Present,
     Absent,
 }
 
 impl<'a> TypeReader<'a> for TOption {
-    type Item = Option;
+    type Item = Presence;
 
     fn read<Reader: BinaryReader<'a>>(id: TypeId, _: &mut Reader) -> Result<Self::Item, LqError> {
         match id {
-            TYPE_OPTION_PRESENT => Result::Ok(Option::Present),
-            TYPE_OPTION_ABSENT => Result::Ok(Option::Absent),
+            TYPE_OPTION_PRESENT => Result::Ok(Presence::Present),
+            TYPE_OPTION_ABSENT => Result::Ok(Presence::Absent),
             _ => LqError::err_static("Type is not an option type"),
         }
     }
 }
 
 impl TypeWriter for TOption {
-    type Item = Option;
+    type Item = Presence;
 
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::Item,
     ) -> Result<(), LqError> {
         match item {
-            Option::Present => {
+            Presence::Present => {
                 writer.begin(TYPE_OPTION_PRESENT)?;
                 Result::Ok(())
             }
-            Option::Absent => {
+            Presence::Absent => {
                 writer.begin(TYPE_OPTION_ABSENT)?;
                 Result::Ok(())
             }

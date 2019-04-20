@@ -14,7 +14,7 @@ const U24_MAX: usize = 16777215;
 
 impl TypeId {
     fn extract_binary_info(&self) -> BinaryInfo {
-        let block = BlockId(self.0 & 0xF0 / 16);
+        let block = BlockId((self.0 & 0xF0) / 16);
         let data = self.0 & 0x0F;
 
         extract(data, block)

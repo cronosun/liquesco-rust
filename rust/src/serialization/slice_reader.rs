@@ -6,18 +6,18 @@ use crate::serialization::core::TypeId;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
 
-pub struct MemReader<'a> {
+pub struct SliceReader<'a> {
     data: &'a [u8],
     offset: usize,
 }
 
-impl<'a> From<&'a [u8]> for MemReader<'a> {
+impl<'a> From<&'a [u8]> for SliceReader<'a> {
     fn from(data: &'a [u8]) -> Self {
-        MemReader { data , offset: 0 }
+        SliceReader { data , offset: 0 }
     }
 }
 
-impl<'a> Reader<'a> for MemReader<'a> {
+impl<'a> Reader<'a> for SliceReader<'a> {
     fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
         let original_offset = self.offset;
         let result = self.read_no_error::<T>();
@@ -47,7 +47,7 @@ impl<'a> Reader<'a> for MemReader<'a> {
     }
 }
 
-impl<'a> MemReader<'a> {
+impl<'a> SliceReader<'a> {
     fn read_no_error<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
         let type_id_byte = self.read_u8()?;
         let type_id = TypeId(type_id_byte);
@@ -69,7 +69,7 @@ impl<'a> MemReader<'a> {
 }
 
 
-impl<'a> BinaryReader<'a> for MemReader<'a> {
+impl<'a> BinaryReader<'a> for SliceReader<'a> {
     #[inline]
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();
@@ -97,7 +97,7 @@ impl<'a> BinaryReader<'a> for MemReader<'a> {
     }
 }
 
-impl<'a> Read for MemReader<'a> {
+impl<'a> Read for SliceReader<'a> {
     fn read(&mut self, mut buf: &mut [u8]) -> std::io::Result<usize> {
         let len = buf.len();
         let slice = self.read_slice(len).map_err(|err| {
