@@ -7,11 +7,11 @@ use std::io::Write;
 pub struct TypeId(pub u8);
 
 pub trait Writer {
-    fn write<'a, T: Type>(&mut self, item: &T::WriteItem) -> Result<(), LqError>;
+    fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError>;
 }
 
 pub trait Reader<'a> {
-    fn read<T: Type>(&'a mut self) -> Result<T::ReadItem, LqError>;
+    fn read<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError>;
 }
 
 pub struct VecWriter {
@@ -24,15 +24,20 @@ impl Default for VecWriter {
     }
 }
 
-pub trait Type {
-    type ReadItem;
-    type WriteItem: ?Sized;
+pub trait TypeReader<'a> {
+    type Item;    
 
     fn read<Reader : BinaryReader>(
-        id: TypeId, reader: & mut Reader) -> Result<Self::ReadItem, LqError>;
+        id: TypeId, reader: &'a mut Reader) -> Result<Self::Item, LqError>;    
+}
+
+
+pub trait TypeWriter {    
+    type Item: ?Sized;
+
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
-        item: &Self::WriteItem,
+        item: &Self::Item,
     ) -> Result<(), LqError>;
 }
 
@@ -48,7 +53,7 @@ pub trait DeSerializable<'a> {
 
 
 impl Writer for VecWriter {
-    fn write<'a, T: Type>(&mut self, item: &T::WriteItem) -> Result<(), LqError> {
+    fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError> {
         let header_writer = HeaderWriterStruct {
             data: &mut self.data,
         };
@@ -82,7 +87,7 @@ pub trait BinaryWriter<'a> {
 
 pub trait BinaryReader: std::io::Read {
     fn read_u8(&mut self) -> Result<u8, LqError>;
-    fn read_slice(& mut self, len: usize) -> Result<& [u8], LqError>;
+    fn read_slice(&mut self, len: usize) -> Result<&[u8], LqError>;
 }
 
 // TODO: Remove

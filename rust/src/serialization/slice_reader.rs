@@ -1,9 +1,9 @@
+use crate::serialization::core::TypeReader;
 use std::borrow::Cow;
 use std::io::Read;
 use std::io::Write;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::TypeId;
-use crate::serialization::core::Type;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
 
@@ -25,7 +25,7 @@ impl From<Vec<u8>> for MemReader<'static> {
 }
 
 impl<'a> Reader<'a> for MemReader<'a> {
-    fn read<T: Type>(& mut self) -> Result<T::ReadItem, LqError> {
+    fn read<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError> {
         let original_offset = self.offset;
         let result = self.read_no_error::<T>();
         if result.is_err() {
@@ -55,7 +55,7 @@ impl<'a> Reader<'a> for MemReader<'a> {
 }
 
 impl<'a> MemReader<'a> {
-    fn read_no_error<T: Type>(&mut self) -> Result<T::ReadItem, LqError> {
+    fn read_no_error<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError> {
         let type_id_byte = self.read_u8()?;
         let type_id = TypeId(type_id_byte);
 
@@ -96,7 +96,8 @@ impl<'a> BinaryReader for MemReader<'a> {
             LqError::err_static("End of reader")
         } else {
             let end_index = self.offset + len;
-            let value = &self.data[self.offset..end_index];
+            let data = &self.data;
+            let value = &data[self.offset..end_index];
             self.offset = self.offset + len;
             Result::Ok(value)
         }

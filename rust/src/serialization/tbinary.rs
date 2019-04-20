@@ -1,3 +1,5 @@
+use crate::serialization::core::TypeReader;
+use crate::serialization::core::TypeWriter;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
@@ -5,25 +7,28 @@ use crate::serialization::types::BLOCK_ID_UTF8;
 use crate::serialization::binary::binary_read;
 use crate::serialization::core::LqError;
 use crate::serialization::core::TypeId;
-use crate::serialization::core::Type;
 
 pub struct TBinary;
 
-impl<'a> Type for TBinary {
-    type ReadItem = &'a [u8];
-    type WriteItem = [u8];
+impl<'a> TypeReader<'a> for TBinary {
+    type Item = &'a [u8];
 
-    fn read<Reader : BinaryReader>(id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError> {
+    fn read<Reader : BinaryReader>(id: TypeId, reader: &'a mut Reader) -> Result<Self::Item, LqError> {
         let (block, read_result) = binary_read(id, reader)?;
         if block!=BLOCK_ID_UTF8 {
             return LqError::err_static("Type is not binary data");
         }
        Result::Ok(read_result)
-    }
+    }    
+}
+
+impl TypeWriter for TBinary {
+
+    type Item = [u8];
 
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
-        item: &Self::WriteItem,
+        item: &Self::Item,
     ) -> Result<(), LqError> {
         binary_write(item, writer, BLOCK_ID_UTF8)
     }
