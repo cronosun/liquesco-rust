@@ -22,7 +22,7 @@ impl Struct {
     }
 }
 
-impl<'a> Type<'a> for TStruct {
+impl<'a> Type for TStruct {
     type ReadItem = Struct;
     type WriteItem = Struct;
 

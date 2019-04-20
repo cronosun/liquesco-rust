@@ -9,7 +9,7 @@ use crate::serialization::core::Type;
 
 pub struct TBinary;
 
-impl<'a> Type<'a> for TBinary {
+impl<'a> Type for TBinary {
     type ReadItem = &'a [u8];
     type WriteItem = [u8];
 

@@ -25,7 +25,7 @@ impl From<Vec<u8>> for MemReader<'static> {
 }
 
 impl<'a> Reader<'a> for MemReader<'a> {
-    fn read<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError> {
+    fn read<T: Type>(& mut self) -> Result<T::ReadItem, LqError> {
         let original_offset = self.offset;
         let result = self.read_no_error::<T>();
         if result.is_err() {
@@ -55,7 +55,7 @@ impl<'a> Reader<'a> for MemReader<'a> {
 }
 
 impl<'a> MemReader<'a> {
-    fn read_no_error<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError> {
+    fn read_no_error<T: Type>(&mut self) -> Result<T::ReadItem, LqError> {
         let type_id_byte = self.read_u8()?;
         let type_id = TypeId(type_id_byte);
 

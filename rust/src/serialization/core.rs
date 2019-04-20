@@ -7,11 +7,11 @@ use std::io::Write;
 pub struct TypeId(pub u8);
 
 pub trait Writer {
-    fn write<'a, T: Type<'a>>(&mut self, item: &T::WriteItem) -> Result<(), LqError>;
+    fn write<'a, T: Type>(&mut self, item: &T::WriteItem) -> Result<(), LqError>;
 }
 
 pub trait Reader<'a> {
-    fn read<T: Type<'a>>(&'a mut self) -> Result<T::ReadItem, LqError>;
+    fn read<T: Type>(&'a mut self) -> Result<T::ReadItem, LqError>;
 }
 
 pub struct VecWriter {
@@ -24,12 +24,12 @@ impl Default for VecWriter {
     }
 }
 
-pub trait Type<'a> {
+pub trait Type {
     type ReadItem;
     type WriteItem: ?Sized;
 
     fn read<Reader : BinaryReader>(
-        id: TypeId, reader: &'a mut Reader) -> Result<Self::ReadItem, LqError>;
+        id: TypeId, reader: & mut Reader) -> Result<Self::ReadItem, LqError>;
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
         writer: Writer,
         item: &Self::WriteItem,
@@ -48,7 +48,7 @@ pub trait DeSerializable<'a> {
 
 
 impl Writer for VecWriter {
-    fn write<'a, T: Type<'a>>(&mut self, item: &T::WriteItem) -> Result<(), LqError> {
+    fn write<'a, T: Type>(&mut self, item: &T::WriteItem) -> Result<(), LqError> {
         let header_writer = HeaderWriterStruct {
             data: &mut self.data,
         };

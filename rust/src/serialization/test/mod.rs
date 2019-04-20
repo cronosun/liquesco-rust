@@ -13,7 +13,7 @@ fn new_writer() -> VecWriter {
 
 fn de_serialize<T>(input: Vec<u8>) -> T::ReadItem
 where
-    T: Type<'static>,
+    T: Type,
     T::ReadItem : Clone
 {
     let mut reader: MemReader = MemReader::from(input);
@@ -21,9 +21,9 @@ where
     got.clone()
 }
 
-fn serialize<'a, T>(input: &T::WriteItem) -> Vec<u8>
+fn serialize<T>(input: &T::WriteItem) -> Vec<u8>
 where
-    T: Type<'a>,
+    T: Type,
 {
     let mut writer = new_writer();
     writer.write::<T>(input).unwrap();

@@ -14,7 +14,7 @@ pub enum Option {
     Absent
 }
 
-impl<'a> Type<'a> for TOption {
+impl<'a> Type for TOption {
     type ReadItem = Option;
     type WriteItem = Option;
 

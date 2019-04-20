@@ -10,7 +10,7 @@ use std::str::from_utf8;
 
 pub struct TUtf8;
 
-impl<'a> Type<'a> for TUtf8 {
+impl<'a> Type for TUtf8 {
     type ReadItem = &'a str;
     type WriteItem = str;
 

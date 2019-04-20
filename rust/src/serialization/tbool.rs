@@ -8,7 +8,7 @@ use crate::serialization::core::TypeId;
 
 pub struct TBool;
 
-impl<'a> Type<'a> for TBool {
+impl<'a> Type for TBool {
     type ReadItem = bool;
     type WriteItem = bool;
 
