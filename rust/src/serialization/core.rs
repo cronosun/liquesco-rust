@@ -11,7 +11,7 @@ pub trait Writer {
 }
 
 pub trait Reader<'a> {
-    fn read<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError>;
+    fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError>;
 }
 
 pub struct VecWriter {
@@ -27,10 +27,8 @@ impl Default for VecWriter {
 pub trait TypeReader<'a> {
     type Item;    
 
-    fn read<Reader : BinaryReader>(
-        id: TypeId, reader: &'a mut Reader) -> Result<Self::Item, LqError>;    
+    fn read<T : BinaryReader<'a>>(id: TypeId, reader : &mut T) -> Result<Self::Item, LqError>;    
 }
-
 
 pub trait TypeWriter {    
     type Item: ?Sized;
@@ -85,9 +83,9 @@ pub trait BinaryWriter<'a> {
     fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError>;
 }
 
-pub trait BinaryReader: std::io::Read {
+pub trait BinaryReader<'a>: std::io::Read {
     fn read_u8(&mut self) -> Result<u8, LqError>;
-    fn read_slice(&mut self, len: usize) -> Result<&[u8], LqError>;
+    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
 }
 
 // TODO: Remove

@@ -18,7 +18,7 @@ pub enum Option {
 impl<'a> TypeReader<'a> for TOption {
     type Item = Option;
 
-    fn read<Reader: BinaryReader>(id: TypeId, _: &'a mut Reader) -> Result<Self::Item, LqError> {
+    fn read<Reader: BinaryReader<'a>>(id: TypeId, _: &mut Reader) -> Result<Self::Item, LqError> {
         match id {
             TYPE_OPTION_PRESENT => Result::Ok(Option::Present),
             TYPE_OPTION_ABSENT => Result::Ok(Option::Absent),

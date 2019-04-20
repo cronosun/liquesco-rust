@@ -63,10 +63,10 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
 }
 
 #[inline]
-pub(crate) fn binary_read<Reader: BinaryReader>(
+pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
     type_id: TypeId,
     reader: &mut Reader,
-) -> Result<(BlockId, &[u8]), LqError> {
+) -> Result<(BlockId, &'a [u8]), LqError> {
     let bin_info = type_id.extract_binary_info();
     let (block, len) = match bin_info {
         BinaryInfo::Invalid => return LqError::err_static("Invalid type id for binary data"),

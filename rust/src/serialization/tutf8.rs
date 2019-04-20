@@ -14,7 +14,7 @@ pub struct TUtf8;
 impl<'a> TypeReader<'a> for TUtf8 {
     type Item = &'a str;
 
-    fn read<Reader : BinaryReader>(id: TypeId, reader: &'a mut Reader) -> Result<Self::Item, LqError> {
+    fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &mut Reader) -> Result<Self::Item, LqError> {
         let (block, read_result) = binary_read(id, reader)?;
         if block!=BLOCK_ID_UTF8 {
             return LqError::err_new(format!("Type is not utf8 data, block is {:?}",

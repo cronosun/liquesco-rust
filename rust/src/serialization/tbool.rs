@@ -12,7 +12,7 @@ pub struct TBool;
 impl<'a> TypeReader<'a> for TBool {
     type Item = bool;
 
-    fn read<Reader: BinaryReader>(id: TypeId, _: &'a mut Reader) -> Result<Self::Item, LqError> {
+    fn read<Reader: BinaryReader<'a>>(id: TypeId, _: &mut Reader) -> Result<Self::Item, LqError> {
         match id {
             TYPE_BOOL_TRUE => Result::Ok(true),
             TYPE_BOOL_FALSE => Result::Ok(false),

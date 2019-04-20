@@ -22,7 +22,7 @@ fn assert_string_serde_eq(string : &'static str) {
     
     //let restored_string = de_serialize::<TUtf8>(&binary);
 
-        let mut reader = MemReader::from(binary);    
+        let mut reader = MemReader::from(binary.as_slice());    
     let restored = reader.read::<TUtf8>().unwrap();
 
 

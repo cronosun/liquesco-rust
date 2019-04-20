@@ -1,5 +1,4 @@
 use crate::serialization::core::TypeReader;
-use std::borrow::Cow;
 use std::io::Read;
 use std::io::Write;
 use crate::serialization::core::BinaryReader;
@@ -8,24 +7,18 @@ use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
 
 pub struct MemReader<'a> {
-    data: Cow<'a, [u8]>,
+    data: &'a [u8],
     offset: usize,
 }
 
 impl<'a> From<&'a [u8]> for MemReader<'a> {
     fn from(data: &'a [u8]) -> Self {
-        MemReader { data : Cow::Borrowed(data), offset: 0 }
-    }
-}
-
-impl From<Vec<u8>> for MemReader<'static> {
-    fn from(data: Vec<u8>) -> Self {
-        MemReader { data : Cow::Owned(data), offset: 0 }
+        MemReader { data , offset: 0 }
     }
 }
 
 impl<'a> Reader<'a> for MemReader<'a> {
-    fn read<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError> {
+    fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
         let original_offset = self.offset;
         let result = self.read_no_error::<T>();
         if result.is_err() {
@@ -55,7 +48,7 @@ impl<'a> Reader<'a> for MemReader<'a> {
 }
 
 impl<'a> MemReader<'a> {
-    fn read_no_error<T: TypeReader<'a>>(&'a mut self) -> Result<T::Item, LqError> {
+    fn read_no_error<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
         let type_id_byte = self.read_u8()?;
         let type_id = TypeId(type_id_byte);
 
@@ -76,7 +69,7 @@ impl<'a> MemReader<'a> {
 }
 
 
-impl<'a> BinaryReader for MemReader<'a> {
+impl<'a> BinaryReader<'a> for MemReader<'a> {
     #[inline]
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();
@@ -90,13 +83,13 @@ impl<'a> BinaryReader for MemReader<'a> {
     }
 
     #[inline]
-    fn read_slice(&mut self, len: usize) -> Result<&[u8], LqError> {
+    fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
         let data_len = self.data.len();
         if self.offset + len > data_len {
             LqError::err_static("End of reader")
         } else {
             let end_index = self.offset + len;
-            let data = &self.data;
+            let data = self.data;
             let value = &data[self.offset..end_index];
             self.offset = self.offset + len;
             Result::Ok(value)
