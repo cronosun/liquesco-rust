@@ -1,10 +1,13 @@
-use std::fmt::Display;
-use std::error::Error;
 use std::borrow::Cow;
+use std::error::Error;
+use std::fmt::Display;
 use std::io::Write;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct TypeId(pub u8);
+pub struct TypeId(u8);
+
+#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+pub struct TypeBlock(u8);
 
 pub trait Writer {
     fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError>;
@@ -14,23 +17,13 @@ pub trait Reader<'a> {
     fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError>;
 }
 
-pub struct VecWriter {
-    data: Vec<u8>,
-}
-
-impl Default for VecWriter {
-    fn default() -> Self {
-        VecWriter { data: Vec::new() }
-    }
-}
-
 pub trait TypeReader<'a> {
-    type Item;    
+    type Item;
 
-    fn read<T : BinaryReader<'a>>(id: TypeId, reader : &mut T) -> Result<Self::Item, LqError>;    
+    fn read<T: BinaryReader<'a>>(id: TypeId, reader: &mut T) -> Result<Self::Item, LqError>;
 }
 
-pub trait TypeWriter {    
+pub trait TypeWriter {
     type Item: ?Sized;
 
     fn write<'b, Writer: BinaryWriter<'b> + 'b>(
@@ -49,34 +42,6 @@ pub trait DeSerializable<'a> {
         Self: Sized;
 }
 
-impl Writer for VecWriter {
-    fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError> {
-        let header_writer = HeaderWriterStruct {
-            data: &mut self.data,
-        };
-        T::write(header_writer, item)
-    }
-}
-
-impl VecWriter {
-    pub fn finish(self) -> Vec<u8> {
-        self.data
-    }
-}
-
-struct HeaderWriterStruct<'a> {
-    data: &'a mut Vec<u8>,
-}
-
-impl<'a> BinaryWriter<'a> for HeaderWriterStruct<'a> {
-    type Writer = Vec<u8>;
-
-    fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError> {
-        self.data.push(id.0);
-        Result::Ok(self.data)
-    }
-}
-
 pub trait BinaryWriter<'a> {
     type Writer: Write;
     fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError>;
@@ -87,29 +52,12 @@ pub trait BinaryReader<'a>: std::io::Read {
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
 }
 
-// TODO: Remove
-pub struct ReadResult<Data> {
-    pub num_read: usize,
-    pub data: Data,
-}
-
-impl<Data> ReadResult<Data> {
-    pub fn new(num_read: usize, data: Data) -> Self {
-        ReadResult { num_read, data }
-    }
-
-    pub fn new_ok(num_read: usize, data: Data) -> Result<Self, LqError> {
-        Result::Ok(Self::new(num_read, data))
-    }
-}
-
 #[derive(Debug)]
 pub struct LqError {
     pub msg: Cow<'static, str>,
 }
 
-impl Error for LqError {
-}
+impl Error for LqError {}
 
 impl Display for LqError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
@@ -136,3 +84,35 @@ impl LqError {
     }
 }
 
+impl TypeBlock {
+    pub const fn new(block: u8) -> Self {
+        Self(block)
+    }
+
+    #[inline]
+    pub fn id(&self) -> u8 {
+        self.0
+    }
+}
+
+impl TypeId {
+    pub const fn new(id: u8) -> TypeId {
+        TypeId(id)
+    }
+
+    pub const fn from_block(block: TypeBlock, remainder: u8) -> TypeId {
+        TypeId(block.0 * 16u8 + remainder)
+    }
+
+    pub fn id(&self) -> u8 {
+        self.0
+    }
+
+    pub fn block(&self) -> TypeBlock {
+        TypeBlock::new((self.0 & 0xF0) / 16)
+    }
+
+    pub fn remainder(&self) -> u8 {
+        self.0 & 0x0F
+    }
+}

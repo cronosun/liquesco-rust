@@ -1,3 +1,4 @@
+use crate::serialization::core::TypeBlock;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::LqError;
@@ -14,14 +15,7 @@ const U24_MAX: usize = 16777215;
 
 impl TypeId {
     fn extract_binary_info(&self) -> BinaryInfo {
-        let block = BlockId((self.0 & 0xF0) / 16);
-        let data = self.0 & 0x0F;
-
-        extract(data, block)
-    }
-
-    fn from_data(block: BlockId, data: u8) -> TypeId {
-        TypeId(block.0 * 16u8 + data)
+        extract(self.remainder(), self.block())
     }
 }
 
@@ -29,7 +23,7 @@ impl TypeId {
 pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
     data: &[u8],
     writer: Writer,
-    block: BlockId,
+    block: TypeBlock
 ) -> Result<(), LqError> {
     let bin_len = data.len();
     if bin_len > std::u32::MAX as usize {
@@ -66,7 +60,7 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
 pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
     type_id: TypeId,
     reader: &mut Reader,
-) -> Result<(BlockId, &'a [u8]), LqError> {
+) -> Result<(TypeBlock, &'a [u8]), LqError> {
     let bin_info = type_id.extract_binary_info();
     let (block, len) = match bin_info {
         BinaryInfo::Invalid => return LqError::err_static("Invalid type id for binary data"),
@@ -92,37 +86,37 @@ pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
 
 enum BinaryInfo {
     Invalid,
-    WithLength((BlockId, u8)),
-    U8Length(BlockId),
-    U16Length(BlockId),
-    U24Length(BlockId),
-    U32Length(BlockId),
+    WithLength((TypeBlock, u8)),
+    U8Length(TypeBlock),
+    U16Length(TypeBlock),
+    U24Length(TypeBlock),
+    U32Length(TypeBlock),
 }
 
 #[inline]
-fn type_id(block: BlockId, len: usize) -> (TypeId, LengthType) {
+fn type_id(block: TypeBlock, len: usize) -> (TypeId, LengthType) {
     match len {
-        0 => (TypeId::from_data(block, 0), LengthType::Embedded),
-        1 => (TypeId::from_data(block, 1), LengthType::Embedded),
-        2 => (TypeId::from_data(block, 2), LengthType::Embedded),
-        3 => (TypeId::from_data(block, 3), LengthType::Embedded),
-        4 => (TypeId::from_data(block, 4), LengthType::Embedded),
-        5 => (TypeId::from_data(block, 5), LengthType::Embedded),
-        6 => (TypeId::from_data(block, 6), LengthType::Embedded),
-        7 => (TypeId::from_data(block, 7), LengthType::Embedded),
-        8 => (TypeId::from_data(block, 8), LengthType::Embedded),
-        16 => (TypeId::from_data(block, 9), LengthType::Embedded),
-        32 => (TypeId::from_data(block, 10), LengthType::Embedded),
+        0 => (TypeId::from_block(block, 0), LengthType::Embedded),
+        1 => (TypeId::from_block(block, 1), LengthType::Embedded),
+        2 => (TypeId::from_block(block, 2), LengthType::Embedded),
+        3 => (TypeId::from_block(block, 3), LengthType::Embedded),
+        4 => (TypeId::from_block(block, 4), LengthType::Embedded),
+        5 => (TypeId::from_block(block, 5), LengthType::Embedded),
+        6 => (TypeId::from_block(block, 6), LengthType::Embedded),
+        7 => (TypeId::from_block(block, 7), LengthType::Embedded),
+        8 => (TypeId::from_block(block, 8), LengthType::Embedded),
+        16 => (TypeId::from_block(block, 9), LengthType::Embedded),
+        32 => (TypeId::from_block(block, 10), LengthType::Embedded),
         _ => {
             // other size
             if len <= std::u8::MAX as usize {
-                (TypeId::from_data(block, 11), LengthType::U8)
+                (TypeId::from_block(block, 11), LengthType::U8)
             } else if len <= std::u16::MAX as usize {
-                (TypeId::from_data(block, 12), LengthType::U16)
+                (TypeId::from_block(block, 12), LengthType::U16)
             } else if len <= U24_MAX {
-                (TypeId::from_data(block, 13), LengthType::U24)
+                (TypeId::from_block(block, 13), LengthType::U24)
             } else if len <= std::u32::MAX as usize {
-                (TypeId::from_data(block, 15), LengthType::U32)
+                (TypeId::from_block(block, 15), LengthType::U32)
             } else {
                 panic!("Given binary is too large")
             }
@@ -139,7 +133,7 @@ enum LengthType {
 }
 
 #[inline]
-fn extract(data: u8, block: BlockId) -> BinaryInfo {
+fn extract(data: u8, block: TypeBlock) -> BinaryInfo {
     match data {
         0 => BinaryInfo::WithLength((block, 0)),
         1 => BinaryInfo::WithLength((block, 1)),

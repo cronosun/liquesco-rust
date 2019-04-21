@@ -47,7 +47,7 @@ impl<'a> Reader<'a> for SliceReader<'a> {
 impl<'a> SliceReader<'a> {
     fn read_no_error<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
         let type_id_byte = self.read_u8()?;
-        let type_id = TypeId(type_id_byte);
+        let type_id = TypeId::new(type_id_byte);
 
         T::read(type_id, self)
     }

@@ -1,7 +1,6 @@
 pub mod core;
 pub mod slice_reader;
-//pub mod vec_reader;
-//pub mod abstract_reader;
+pub mod vec_writer;
 pub(crate) mod types;
 pub(crate) mod binary;
 pub(crate) mod util;

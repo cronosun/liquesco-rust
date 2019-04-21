@@ -5,7 +5,7 @@ use crate::serialization::core::TypeReader;
 use crate::serialization::core::TypeWriter;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::core::Reader;
-use crate::serialization::core::VecWriter;
+use crate::serialization::vec_writer::VecWriter;
 use crate::serialization::core::Writer;
 
 pub mod binary;
