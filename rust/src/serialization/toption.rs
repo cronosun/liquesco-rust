@@ -5,8 +5,8 @@ use crate::serialization::core::SkipMore;
 use crate::serialization::core::TypeId;
 use crate::serialization::core::TypeReader;
 use crate::serialization::core::TypeWriter;
-use crate::serialization::types::TYPE_OPTION_ABSENT;
-use crate::serialization::types::TYPE_OPTION_PRESENT;
+use crate::serialization::type_ids::TYPE_OPTION_ABSENT;
+use crate::serialization::type_ids::TYPE_OPTION_PRESENT;
 
 pub struct TOption;
 

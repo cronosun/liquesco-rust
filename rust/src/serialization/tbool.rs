@@ -4,8 +4,8 @@ use crate::serialization::core::LqError;
 use crate::serialization::core::TypeId;
 use crate::serialization::core::TypeReader;
 use crate::serialization::core::TypeWriter;
-use crate::serialization::types::TYPE_BOOL_FALSE;
-use crate::serialization::types::TYPE_BOOL_TRUE;
+use crate::serialization::type_ids::TYPE_BOOL_FALSE;
+use crate::serialization::type_ids::TYPE_BOOL_TRUE;
 
 pub struct TBool;
 

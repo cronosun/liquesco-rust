@@ -1,13 +1,14 @@
+use crate::serialization::core::Reader;
 use crate::serialization::core::SkipMore;
-use crate::serialization::types::TYPE_STRUCT_0;
-use crate::serialization::types::TYPE_STRUCT_1;
-use crate::serialization::types::TYPE_STRUCT_2;
-use crate::serialization::types::TYPE_STRUCT_3;
-use crate::serialization::types::TYPE_STRUCT_4;
-use crate::serialization::types::TYPE_STRUCT_5;
-use crate::serialization::types::TYPE_STRUCT_6;
-use crate::serialization::types::TYPE_STRUCT_U16;
-use crate::serialization::types::TYPE_STRUCT_U8;
+use crate::serialization::type_ids::TYPE_STRUCT_0;
+use crate::serialization::type_ids::TYPE_STRUCT_1;
+use crate::serialization::type_ids::TYPE_STRUCT_2;
+use crate::serialization::type_ids::TYPE_STRUCT_3;
+use crate::serialization::type_ids::TYPE_STRUCT_4;
+use crate::serialization::type_ids::TYPE_STRUCT_5;
+use crate::serialization::type_ids::TYPE_STRUCT_6;
+use crate::serialization::type_ids::TYPE_STRUCT_U16;
+use crate::serialization::type_ids::TYPE_STRUCT_U8;
 use crate::serialization::util::io_result;
 
 use crate::serialization::core::BinaryReader;
@@ -37,13 +38,32 @@ impl StructInfo {
     }
 
     // TODO: Need to have assert_minimum and then skip the rest of the fields
-    pub fn assert(&self, number_of_fields: usize) -> Result<(), LqError> {
-        if self.number_of_fields != number_of_fields {
+    pub fn begin_reading(&self, wanted_number_of_fields: usize) -> Result<StructRead, LqError> {
+        if wanted_number_of_fields < self.number_of_fields {
             LqError::err_new(format!(
-                "Expecting to have a struct with {:?}; 
+                "Expecting to have a struct with at least {:?} fields; 
             have {:?} fields.",
-                number_of_fields, self.number_of_fields
+                wanted_number_of_fields, self.number_of_fields
             ))
+        } else {
+            Result::Ok(StructRead {
+                actual_number_of_fields: self.number_of_fields,
+                wanted_number_of_fields,
+            })
+        }
+    }
+}
+
+pub struct StructRead {
+    actual_number_of_fields: usize,
+    wanted_number_of_fields: usize,
+}
+
+impl StructRead {
+    pub fn finish<'a, T: Reader<'a>>(self, reader: &mut T) -> Result<(), LqError> {
+        let fields_to_skip = self.actual_number_of_fields - self.wanted_number_of_fields;
+        if fields_to_skip > 0 {
+            reader.skip(fields_to_skip)
         } else {
             Result::Ok(())
         }

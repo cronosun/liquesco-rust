@@ -30,10 +30,12 @@ impl<'a> DeSerializable<'a> for Address<'a> {
     where
         Self: Sized,
     {
-        reader.read::<TStruct>()?.assert(1)?;
-        Result::Ok(Self {
+        let reading = reader.read::<TStruct>()?.begin_reading(1)?;
+        let result = Result::Ok(Self {
             street: Cow::Borrowed(reader.read::<TUtf8>()?),
-        })
+        });
+        reading.finish(reader)?;
+        result
     }
 }
 
@@ -49,7 +51,7 @@ impl<'a> DeSerializable<'a> for Person<'a> {
     where
         Self: Sized,
     {
-        reader.read::<TStruct>()?.assert(4)?;
+        let struct_read = reader.read::<TStruct>()?.begin_reading(4)?;
         let first_name = reader.read::<TUtf8>()?;
         let last_name = reader.read::<TUtf8>()?;
         let male = reader.read::<TBool>()?;
@@ -61,7 +63,8 @@ impl<'a> DeSerializable<'a> for Person<'a> {
             Presence::Absent => {
                 Option::None
             }
-        } ;
+        };        
+        // TODO struct_read.finish(reader)?;
         Result::Ok(Self {
             first_name: Cow::Borrowed(first_name),
             last_name: Cow::Borrowed(last_name),

@@ -1,4 +1,4 @@
-use crate::serialization::types::BLOCK_ID_BINARY;
+use crate::serialization::type_ids::BLOCK_ID_BINARY;
 use crate::serialization::core::TypeReader;
 use crate::serialization::core::TypeWriter;
 use crate::serialization::core::BinaryReader;

@@ -42,6 +42,10 @@ impl<'a> Reader<'a> for SliceReader<'a> {
             result
         }
     }
+
+    fn skip(&mut self, number_of_fields : usize) -> Result<(), LqError> {
+        unimplemented!()
+    }
 }
 
 impl<'a> SliceReader<'a> {
