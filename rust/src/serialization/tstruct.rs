@@ -1,3 +1,4 @@
+use crate::serialization::core::SkipMore;
 use crate::serialization::types::TYPE_STRUCT_0;
 use crate::serialization::types::TYPE_STRUCT_1;
 use crate::serialization::types::TYPE_STRUCT_2;
@@ -90,6 +91,13 @@ impl<'a> TypeReader<'a> for TStruct {
             _ => return LqError::err_static("Not a structure (invalid type)"),
         };
         Result::Ok(value)
+    }
+
+    fn skip<Reader: BinaryReader<'a>>(
+        id: TypeId,
+        reader: &mut Reader,
+    ) -> Result<SkipMore, LqError> {
+        Result::Ok(SkipMore::new(Self::read(id, reader)?.number_of_fields()))
     }
 }
 
