@@ -1,9 +1,9 @@
+use crate::serialization::types::BLOCK_ID_BINARY;
 use crate::serialization::core::TypeReader;
 use crate::serialization::core::TypeWriter;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
-use crate::serialization::types::BLOCK_ID_UTF8;
 use crate::serialization::binary::binary_read;
 use crate::serialization::core::LqError;
 use crate::serialization::core::TypeId;
@@ -15,7 +15,7 @@ impl<'a> TypeReader<'a> for TBinary {
 
     fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &mut Reader) -> Result<Self::Item, LqError> {
         let (block, read_result) = binary_read(id, reader)?;
-        if block!=BLOCK_ID_UTF8 {
+        if block!=BLOCK_ID_BINARY {
             return LqError::err_static("Type is not binary data");
         }
        Result::Ok(read_result)
@@ -30,6 +30,6 @@ impl TypeWriter for TBinary {
         writer: Writer,
         item: &Self::Item,
     ) -> Result<(), LqError> {
-        binary_write(item, writer, BLOCK_ID_UTF8)
+        binary_write(item, writer, BLOCK_ID_BINARY)
     }
 }

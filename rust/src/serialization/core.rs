@@ -21,6 +21,30 @@ pub trait TypeReader<'a> {
     type Item;
 
     fn read<T: BinaryReader<'a>>(id: TypeId, reader: &mut T) -> Result<Self::Item, LqError>;
+
+    /// Skips the data of this type. For types that do not contain embedded data (like
+    /// bool or int) it's the same as `read` (this is what this default implementation does).
+    fn skip<T: BinaryReader<'a>>(id: TypeId, reader: &mut T) -> Result<SkipMore, LqError> {
+        Self::read(id, reader)?;
+        Result::Ok(SkipMore::new(0))
+    }
+}
+
+/// Sometimes a data is not alone but contains embedded items. For example the
+/// optional type contains the present value (if present) - or structs contain
+/// 0-n fields.
+///
+/// When skipping we also might want too skip those embedded data.
+pub struct SkipMore(usize);
+
+impl SkipMore {
+    pub fn new(number_of_additional_items: usize) -> Self {
+        Self(number_of_additional_items)
+    }
+
+    pub fn number_of_additional_items(&self) -> usize {
+        self.0
+    }
 }
 
 pub trait TypeWriter {
