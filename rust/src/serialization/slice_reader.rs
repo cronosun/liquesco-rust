@@ -2,7 +2,7 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
 use crate::serialization::core::TypeId;
-use crate::serialization::core::TypeReader;
+use crate::serialization::core::DeSerializer;
 use std::io::Read;
 use std::io::Write;
 
@@ -18,7 +18,7 @@ impl<'a> From<&'a [u8]> for SliceReader<'a> {
 }
 
 impl<'a> Reader<'a> for SliceReader<'a> {
-    fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
+    fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError> {
         let original_offset = self.offset;
         let result = self.read_no_error::<T>();
         if result.is_err() {
@@ -49,11 +49,11 @@ impl<'a> Reader<'a> for SliceReader<'a> {
 }
 
 impl<'a> SliceReader<'a> {
-    fn read_no_error<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError> {
-        let type_id_byte = self.read_u8()?;
-        let type_id = TypeId::new(type_id_byte);
+    fn read_no_error<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError> {
+        /*let type_id_byte = self.read_u8()?;
+        let type_id = TypeId::new(type_id_byte);*/
 
-        T::read(type_id, self)
+        T::de_serialize(self)
     }
 
     /// Makes sure the reader has been read completely and there's no additional data.
@@ -93,6 +93,24 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
             let value = &data[self.offset..end_index];
             self.offset = self.offset + len;
             Result::Ok(value)
+        }
+    }
+
+    #[inline]
+    fn type_id(&mut self) -> Result<TypeId, LqError> {
+        let type_id_byte = self.read_u8()?;
+        let type_id = TypeId::new(type_id_byte);
+        Result::Ok(type_id)
+    }
+
+    #[inline]
+    fn preview_type_id(&self) -> Result<TypeId, LqError> {
+        let len = self.data.len();
+        if self.offset >= len {
+            LqError::err_static("End of reader")
+        } else {
+            let value = self.data[self.offset];
+            Result::Ok(TypeId::new(value))
         }
     }
 }

@@ -1,14 +1,11 @@
-use crate::serialization::toption::TOption;
+use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::BinaryReader;
 use crate::serialization::toption::Presence;
 
-use crate::serialization::core::DeSerializable;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqError;
-use crate::serialization::core::Reader;
-use crate::serialization::core::Serializable;
-use crate::serialization::core::Writer;
-use crate::serialization::tbool::TBool;
+use crate::serialization::core::Serializer;
 use crate::serialization::tstruct::StructInfo;
-use crate::serialization::tstruct::TStruct;
 use crate::serialization::tutf8::TUtf8;
 use std::borrow::Cow;
 
@@ -25,37 +22,37 @@ struct Address<'a> {
     street: Cow<'a, str>,
 }
 
-impl<'a> DeSerializable<'a> for Address<'a> {
-    fn de_serialize<T: Reader<'a>>(reader: &mut T) -> Result<Self, LqError>
-    where
-        Self: Sized,
-    {
-        let reading = reader.read::<TStruct>()?.begin_reading(1)?;
+impl<'a> DeSerializer<'a> for Address<'a> {
+    type Item = Self;
+
+    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
+        let reading = StructInfo::de_serialize(reader)?.begin(1)?;
         let result = Result::Ok(Self {
-            street: Cow::Borrowed(reader.read::<TUtf8>()?),
+            street: Cow::Borrowed(TUtf8::de_serialize(reader)?),
         });
         reading.finish(reader)?;
         result
-    }
+    }   
 }
 
-impl<'a> Serializable for Address<'a> {
-    fn serialize<T: Writer>(&self, writer: &mut T) -> Result<(), LqError> {
-        writer.write::<TStruct>(&StructInfo::new(1))?;
-        writer.write::<TUtf8>(&self.street)
-    }
+impl<'a> Serializer for Address<'a> {
+    type Item = Self;
+
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+        StructInfo::serialize(writer, &StructInfo::new(1))?;
+        TUtf8::serialize(writer, &item.street)
+    }   
 }
 
-impl<'a> DeSerializable<'a> for Person<'a> {
-    fn de_serialize<T: Reader<'a>>(reader: &'a mut T) -> Result<Self, LqError>
-    where
-        Self: Sized,
-    {
-        let struct_read = reader.read::<TStruct>()?.begin_reading(4)?;
-        let first_name = reader.read::<TUtf8>()?;
-        let last_name = reader.read::<TUtf8>()?;
-        let male = reader.read::<TBool>()?;
-        let has_address = reader.read::<TOption>()?;
+impl<'a> DeSerializer<'a> for Person<'a> {
+    type Item = Self;
+
+    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
+        let struct_read = StructInfo::de_serialize(reader)?.begin(4)?;
+        let first_name = TUtf8::de_serialize(reader)?;
+        let last_name = TUtf8::de_serialize(reader)?;
+        let male = bool::de_serialize(reader)?;
+        let has_address = Presence::de_serialize(reader)?;
         let maybe_address = match has_address {
             Presence::Present => {
                 Option::Some(Address::de_serialize(reader)?)
@@ -64,7 +61,7 @@ impl<'a> DeSerializable<'a> for Person<'a> {
                 Option::None
             }
         };        
-        // TODO struct_read.finish(reader)?;
+        struct_read.finish(reader)?;
         Result::Ok(Self {
             first_name: Cow::Borrowed(first_name),
             last_name: Cow::Borrowed(last_name),
@@ -74,18 +71,20 @@ impl<'a> DeSerializable<'a> for Person<'a> {
     }
 }
 
-impl<'a> Serializable for Person<'a> {
-    fn serialize<T: Writer>(&self, writer: &mut T) -> Result<(), LqError> {
-        writer.write::<TStruct>(&StructInfo::new(4))?;
-        writer.write::<TUtf8>(&self.first_name)?;
-        writer.write::<TUtf8>(&self.last_name)?;
-        writer.write::<TBool>(&self.male)?;
-        match &self.address {
+impl<'a> Serializer for Person<'a> {
+    type Item = Self;
+
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+        StructInfo::serialize(writer, &StructInfo::new(4))?;
+        TUtf8::serialize(writer, &item.first_name)?;
+        TUtf8::serialize(writer, &item.last_name)?;
+        bool::serialize(writer, &item.male)?;
+        match &item.address {
             Option::Some(address) => {
-                writer.write::<TOption>(&Presence::Present)?;
-                address.serialize(writer)?
+                Presence::serialize(writer, &Presence::Present)?;
+                Address::serialize(writer, address)?
             },
-            Option::None => writer.write::<TOption>(&Presence::Absent)?
+            Option::None => Presence::serialize(writer, &Presence::Absent)?
         };
         Result::Ok(())
     }

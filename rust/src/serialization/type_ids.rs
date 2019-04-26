@@ -3,6 +3,11 @@ use crate::serialization::core::TypeId;
 
 // 4 blocks are reserved for base types (one block = 16 types).
 
+pub const BLOCK_ID_BASE0 : TypeBlock = TypeBlock::new(0);
+pub const BLOCK_ID_BASE1 : TypeBlock = TypeBlock::new(1);
+pub const BLOCK_ID_BASE2 : TypeBlock = TypeBlock::new(2);
+pub const BLOCK_ID_BASE3 : TypeBlock = TypeBlock::new(3);
+
 pub const BLOCK_ID_BINARY : TypeBlock = TypeBlock::new(4);
 pub const BLOCK_ID_UTF8 : TypeBlock = TypeBlock::new(5);
 pub const BLOCK_ID_EMBEDDED : TypeBlock = TypeBlock::new(6); // TODO: Do we really need this?

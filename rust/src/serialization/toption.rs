@@ -1,14 +1,11 @@
+use crate::serialization::core::SkipMore;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::LqError;
-use crate::serialization::core::SkipMore;
-use crate::serialization::core::TypeId;
-use crate::serialization::core::TypeReader;
-use crate::serialization::core::TypeWriter;
+use crate::serialization::core::DeSerializer;
+use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_OPTION_ABSENT;
 use crate::serialization::type_ids::TYPE_OPTION_PRESENT;
-
-pub struct TOption;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Presence {
@@ -16,10 +13,11 @@ pub enum Presence {
     Absent,
 }
 
-impl<'a> TypeReader<'a> for TOption {
-    type Item = Presence;
+impl<'a> DeSerializer<'a> for Presence {
+    type Item = Self;
 
-    fn read<Reader: BinaryReader<'a>>(id: TypeId, _: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+        let id = reader.type_id()?;
         match id {
             TYPE_OPTION_PRESENT => Result::Ok(Presence::Present),
             TYPE_OPTION_ABSENT => Result::Ok(Presence::Absent),
@@ -27,31 +25,26 @@ impl<'a> TypeReader<'a> for TOption {
         }
     }
 
-    fn skip<Reader: BinaryReader<'a>>(
-        id: TypeId,
-        reader: &mut Reader,
-    ) -> Result<SkipMore, LqError> {
-        match Self::read(id, reader)? {
+    fn skip<T: BinaryReader<'a>>(reader: &mut T) -> Result<SkipMore, LqError> {
+        let presence = Self::de_serialize(reader)?;
+        match presence {
             Presence::Present => Result::Ok(SkipMore::new(1)),
-            Presence::Absent => Result::Ok(SkipMore::new(0)),
-        }
-    }
+            Presence::Absent => Result::Ok(SkipMore::new(0))
+        }        
+    }   
 }
 
-impl TypeWriter for TOption {
-    type Item = Presence;
+impl Serializer for Presence {
+    type Item = Self;
 
-    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
-        writer: Writer,
-        item: &Self::Item,
-    ) -> Result<(), LqError> {
+    fn serialize<'b, T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Presence::Present => {
-                writer.begin(TYPE_OPTION_PRESENT)?;
+                writer.type_id(TYPE_OPTION_PRESENT)?;
                 Result::Ok(())
             }
             Presence::Absent => {
-                writer.begin(TYPE_OPTION_ABSENT)?;
+                writer.type_id(TYPE_OPTION_ABSENT)?;
                 Result::Ok(())
             }
         }

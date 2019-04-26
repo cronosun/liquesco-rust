@@ -1,21 +1,20 @@
-use crate::serialization::core::TypeWriter;
-use crate::serialization::core::TypeReader;
+use crate::serialization::core::Serializer;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::type_ids::BLOCK_ID_UTF8;
 use crate::serialization::binary::binary_read;
 use crate::serialization::core::LqError;
-use crate::serialization::core::TypeId;
 use std::str::from_utf8;
 
 pub struct TUtf8;
 
-impl<'a> TypeReader<'a> for TUtf8 {
+impl<'a> DeSerializer<'a> for TUtf8 {
     type Item = &'a str;
 
-    fn read<Reader : BinaryReader<'a>>(id: TypeId, reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let (block, read_result) = binary_read(id, reader)?;
+    fn de_serialize<Reader : BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+        let (block, read_result) = binary_read(reader)?;
         if block!=BLOCK_ID_UTF8 {
             return LqError::err_new(format!("Type is not utf8 data, block is {:?}",
             block));
@@ -28,11 +27,11 @@ impl<'a> TypeReader<'a> for TUtf8 {
     }
 }
 
-impl TypeWriter for TUtf8 {
+impl Serializer for TUtf8 {
     type Item = str;
 
-    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
-        writer: Writer,
+    fn serialize<'b, T: BinaryWriter>(
+        writer: &mut T,
         item: &Self::Item,
     ) -> Result<(), LqError> {
         let as_utf8 = item.as_bytes();

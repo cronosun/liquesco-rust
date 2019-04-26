@@ -1,3 +1,4 @@
+use crate::serialization::core::TypeRemainder;
 use crate::serialization::core::TypeBlock;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
@@ -6,7 +7,6 @@ use crate::serialization::core::TypeId;
 use crate::serialization::util::io_result;
 use byteorder::ByteOrder;
 use byteorder::{LittleEndian, WriteBytesExt};
-use std::io::Write;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct BlockId(pub u8);
@@ -20,9 +20,9 @@ impl TypeId {
 }
 
 #[inline]
-pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
+pub(crate) fn binary_write<T: BinaryWriter>(
     data: &[u8],
-    writer: Writer,
+    writer: &mut T,
     block: TypeBlock
 ) -> Result<(), LqError> {
     let bin_len = data.len();
@@ -34,7 +34,7 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
     }
 
     let (type_id, length_type) = type_id(block, bin_len);
-    let writer = writer.begin(type_id)?;
+    writer.type_id(type_id)?;
 
     match length_type {
         LengthType::U8 => {
@@ -58,9 +58,9 @@ pub(crate) fn binary_write<'a, Writer: BinaryWriter<'a> + 'a>(
 
 #[inline]
 pub(crate) fn binary_read<'a, Reader: BinaryReader<'a>>(
-    type_id: TypeId,
     reader: &mut Reader,
 ) -> Result<(TypeBlock, &'a [u8]), LqError> {
+    let type_id = reader.type_id()?;
     let bin_info = type_id.extract_binary_info();
     let (block, len) = match bin_info {
         BinaryInfo::Invalid => return LqError::err_static("Invalid type id for binary data"),
@@ -133,8 +133,8 @@ enum LengthType {
 }
 
 #[inline]
-fn extract(data: u8, block: TypeBlock) -> BinaryInfo {
-    match data {
+fn extract(data: TypeRemainder, block: TypeBlock) -> BinaryInfo {
+    match data.id() {
         0 => BinaryInfo::WithLength((block, 0)),
         1 => BinaryInfo::WithLength((block, 1)),
         2 => BinaryInfo::WithLength((block, 2)),

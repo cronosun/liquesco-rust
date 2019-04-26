@@ -1,35 +1,37 @@
 use std::borrow::Cow;
 use std::error::Error;
 use std::fmt::Display;
-use std::io::Write;
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub struct TypeId(u8);
 
-#[derive(Debug, Copy, Clone, Eq, PartialEq)]
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub struct TypeBlock(u8);
 
+#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
+pub struct TypeRemainder(u8);
+
 pub trait Writer {
-    fn write<T: TypeWriter>(&mut self, item: &T::Item) -> Result<(), LqError>;
+    fn write<T: Serializer>(&mut self, item: &T::Item) -> Result<(), LqError>;
 }
 
 pub trait Reader<'a> {
-    fn read<T: TypeReader<'a>>(&mut self) -> Result<T::Item, LqError>;
+    fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError>;
 
-    fn skip(&mut self, number_of_fields : usize) -> Result<(), LqError>;
+    fn skip(&mut self, number_of_fields: usize) -> Result<(), LqError>;
 }
 
-pub trait TypeReader<'a> {
+pub trait DeSerializer<'a> {
     type Item;
 
-    fn read<T: BinaryReader<'a>>(id: TypeId, reader: &mut T) -> Result<Self::Item, LqError>;
+    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;
 
     /// Skips the data of this type. For types that do not contain embedded data (like
-    /// bool or int) it's the same as `read` (this is what this default implementation does).
-    fn skip<T: BinaryReader<'a>>(id: TypeId, reader: &mut T) -> Result<SkipMore, LqError> {
-        Self::read(id, reader)?;
+    ///  bool or int) it's the same as `read` (this is what this default implementation does).
+    fn skip<T: BinaryReader<'a>>(reader: &mut T) -> Result<SkipMore, LqError> {
+        Self::de_serialize(reader)?;
         Result::Ok(SkipMore::new(0))
-    }
+    }   
 }
 
 /// Sometimes a data is not alone but contains embedded items. For example the
@@ -49,33 +51,23 @@ impl SkipMore {
     }
 }
 
-pub trait TypeWriter {
+pub trait Serializer {
     type Item: ?Sized;
 
-    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
-        writer: Writer,
-        item: &Self::Item,
-    ) -> Result<(), LqError>;
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError>;
 }
 
-pub trait Serializable {
-    fn serialize<T: Writer>(&self, writer: &mut T) -> Result<(), LqError>;
-}
-
-pub trait DeSerializable<'a> {
-    fn de_serialize<T: Reader<'a>>(reader: &'a mut T) -> Result<Self, LqError>
-    where
-        Self: Sized;
-}
-
-pub trait BinaryWriter<'a> {
-    type Writer: Write;
-    fn begin(self, id: TypeId) -> Result<&'a mut Self::Writer, LqError>;
+pub trait BinaryWriter: std::io::Write {
+    fn write_u8(&mut self, data: u8) -> Result<(), LqError>;
+    fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError>;
+    fn type_id(&mut self, id: TypeId) -> Result<(), LqError>;
 }
 
 pub trait BinaryReader<'a>: std::io::Read {
     fn read_u8(&mut self) -> Result<u8, LqError>;
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
+    fn type_id(&mut self) -> Result<TypeId, LqError>;
+    fn preview_type_id(&self) -> Result<TypeId, LqError>;
 }
 
 #[derive(Debug)]
@@ -138,7 +130,13 @@ impl TypeId {
         TypeBlock::new((self.0 & 0xF0) / 16)
     }
 
-    pub fn remainder(&self) -> u8 {
-        self.0 & 0x0F
+    pub fn remainder(&self) -> TypeRemainder {
+        TypeRemainder(self.0 & 0x0F)
+    }
+}
+
+impl TypeRemainder {
+    pub fn id(&self) -> u8 {
+        self.0
     }
 }

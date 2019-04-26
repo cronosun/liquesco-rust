@@ -1,8 +1,8 @@
-use std::fmt::Debug;
-use crate::serialization::core::Serializable;
-use crate::serialization::core::DeSerializable;
-use crate::serialization::core::TypeReader;
-use crate::serialization::core::TypeWriter;
+//use std::fmt::Debug;
+//use crate::serialization::core::Serializable;
+//use crate::serialization::core::DeSerializable;
+use crate::serialization::core::DeSerializer;
+use crate::serialization::core::Serializer;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::core::Reader;
 use crate::serialization::vec_writer::VecWriter;
@@ -18,7 +18,7 @@ fn new_writer() -> VecWriter {
 
 fn de_serialize<'a, T>(input: &'a [u8]) -> T::Item
 where
-    T: TypeReader<'a>,
+    T: DeSerializer<'a>,
 {
     let mut reader = SliceReader::from(input);    
     reader.read::<T>().unwrap()
@@ -26,7 +26,7 @@ where
 
 fn serialize<T>(input: &T::Item) -> Vec<u8>
 where
-    T: TypeWriter,
+    T: Serializer,
 {
     let mut writer = new_writer();
     writer.write::<T>(input).unwrap();
@@ -34,7 +34,7 @@ where
 }
 
 fn assert_binary<T>(input : &T::Item, expected : &[u8]) where
-    T: TypeWriter {
+    T: Serializer {
     let binary = serialize::<T>(input);
     assert_eq!(expected, binary.as_slice());
 }

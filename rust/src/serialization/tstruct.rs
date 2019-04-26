@@ -1,4 +1,4 @@
-use crate::serialization::core::Reader;
+use crate::serialization::skipper::skip_all;
 use crate::serialization::core::SkipMore;
 use crate::serialization::type_ids::TYPE_STRUCT_0;
 use crate::serialization::type_ids::TYPE_STRUCT_1;
@@ -13,16 +13,12 @@ use crate::serialization::util::io_result;
 
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqError;
-use crate::serialization::core::TypeId;
-use crate::serialization::core::TypeReader;
-use crate::serialization::core::TypeWriter;
+use crate::serialization::core::Serializer;
 
 use byteorder::ByteOrder;
 use byteorder::{LittleEndian, WriteBytesExt};
-use std::io::Write;
-
-pub struct TStruct;
 
 pub struct StructInfo {
     number_of_fields: usize,
@@ -38,7 +34,7 @@ impl StructInfo {
     }
 
     // TODO: Need to have assert_minimum and then skip the rest of the fields
-    pub fn begin_reading(&self, wanted_number_of_fields: usize) -> Result<StructRead, LqError> {
+    pub fn begin(&self, wanted_number_of_fields: usize) -> Result<StructRead, LqError> {
         if wanted_number_of_fields < self.number_of_fields {
             LqError::err_new(format!(
                 "Expecting to have a struct with at least {:?} fields; 
@@ -60,23 +56,21 @@ pub struct StructRead {
 }
 
 impl StructRead {
-    pub fn finish<'a, T: Reader<'a>>(self, reader: &mut T) -> Result<(), LqError> {
+    pub fn finish<'a, T: BinaryReader<'a>>(self, reader: &mut T) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_fields - self.wanted_number_of_fields;
         if fields_to_skip > 0 {
-            reader.skip(fields_to_skip)
+            skip_all(reader, fields_to_skip)
         } else {
             Result::Ok(())
         }
     }
 }
 
-impl<'a> TypeReader<'a> for TStruct {
-    type Item = StructInfo;
+impl<'a> DeSerializer<'a> for StructInfo {
+    type Item = Self;
 
-    fn read<Reader: BinaryReader<'a>>(
-        id: TypeId,
-        reader: &mut Reader,
-    ) -> Result<Self::Item, LqError> {
+    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+        let id = reader.type_id()?;
         let value = match id {
             TYPE_STRUCT_0 => StructInfo::new(0),
             TYPE_STRUCT_1 => StructInfo::new(1),
@@ -113,39 +107,32 @@ impl<'a> TypeReader<'a> for TStruct {
         Result::Ok(value)
     }
 
-    fn skip<Reader: BinaryReader<'a>>(
-        id: TypeId,
-        reader: &mut Reader,
-    ) -> Result<SkipMore, LqError> {
-        Result::Ok(SkipMore::new(Self::read(id, reader)?.number_of_fields()))
+    fn skip<T: BinaryReader<'a>>(reader: &mut T) -> Result<SkipMore, LqError> {
+        let struct_info = Self::de_serialize(reader)?;
+        Result::Ok(SkipMore::new(struct_info.number_of_fields()))
     }
 }
 
-impl<'a> TypeWriter for TStruct {
-    type Item = StructInfo;
+impl<'a> Serializer for StructInfo {
+    type Item = Self;
 
-    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
-        writer: Writer,
-        item: &Self::Item,
-    ) -> Result<(), LqError> {
+    fn serialize<'b, T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let number_of_fields = item.number_of_fields;
         match number_of_fields {
-            0 => writer.begin(TYPE_STRUCT_0)?,
-            1 => writer.begin(TYPE_STRUCT_1)?,
-            2 => writer.begin(TYPE_STRUCT_2)?,
-            3 => writer.begin(TYPE_STRUCT_3)?,
-            4 => writer.begin(TYPE_STRUCT_4)?,
-            5 => writer.begin(TYPE_STRUCT_5)?,
-            6 => writer.begin(TYPE_STRUCT_6)?,
+            0 => writer.type_id(TYPE_STRUCT_0)?,
+            1 => writer.type_id(TYPE_STRUCT_1)?,
+            2 => writer.type_id(TYPE_STRUCT_2)?,
+            3 => writer.type_id(TYPE_STRUCT_3)?,
+            4 => writer.type_id(TYPE_STRUCT_4)?,
+            5 => writer.type_id(TYPE_STRUCT_5)?,
+            6 => writer.type_id(TYPE_STRUCT_6)?,
             _ => {
                 if number_of_fields <= std::u8::MAX as usize {
-                    let body_writer = writer.begin(TYPE_STRUCT_U8)?;
-                    io_result(body_writer.write(&[number_of_fields as u8]))?;
-                    body_writer
+                    writer.type_id(TYPE_STRUCT_U8)?;
+                    io_result(writer.write(&[number_of_fields as u8]))?;
                 } else if number_of_fields <= std::u16::MAX as usize {
-                    let body_writer = writer.begin(TYPE_STRUCT_U16)?;
-                    io_result(body_writer.write_u16::<LittleEndian>(number_of_fields as u16))?;
-                    body_writer
+                    writer.type_id(TYPE_STRUCT_U16)?;
+                    io_result(writer.write_u16::<LittleEndian>(number_of_fields as u16))?;
                 } else {
                     return LqError::err_static("Stucture can contain at max 2^16-1 fields.");
                 }

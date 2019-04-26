@@ -1,18 +1,16 @@
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::LqError;
-use crate::serialization::core::TypeId;
-use crate::serialization::core::TypeReader;
-use crate::serialization::core::TypeWriter;
+use crate::serialization::core::DeSerializer;
+use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_BOOL_FALSE;
 use crate::serialization::type_ids::TYPE_BOOL_TRUE;
 
-pub struct TBool;
+impl<'a> DeSerializer<'a> for bool {
+    type Item = Self;
 
-impl<'a> TypeReader<'a> for TBool {
-    type Item = bool;
-
-    fn read<Reader: BinaryReader<'a>>(id: TypeId, _: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+        let id = reader.type_id()?;
         match id {
             TYPE_BOOL_TRUE => Result::Ok(true),
             TYPE_BOOL_FALSE => Result::Ok(false),
@@ -21,20 +19,17 @@ impl<'a> TypeReader<'a> for TBool {
     }
 }
 
-impl TypeWriter for TBool {
-    type Item = bool;
+impl Serializer for bool {
+    type Item = Self;
 
-    fn write<'b, Writer: BinaryWriter<'b> + 'b>(
-        writer: Writer,
-        item: &Self::Item,
-    ) -> Result<(), LqError> {
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         match item {
             true => {
-                writer.begin(TYPE_BOOL_TRUE)?;
+                writer.type_id(TYPE_BOOL_TRUE)?;
                 Result::Ok(())
             }
             false => {
-                writer.begin(TYPE_BOOL_FALSE)?;
+                writer.type_id(TYPE_BOOL_FALSE)?;
                 Result::Ok(())
             }
         }
