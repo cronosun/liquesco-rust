@@ -16,25 +16,6 @@ pub struct TypeId(u8);
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub struct TypeHeader(u8);
 
-// true
-// false
-// absent
-
-// 16: Length
-
-// --- length: 6 items (eigentlich 8)
-// 0
-// 1
-// 2
-// 4
-// 8
-// varint: a varint for the length follows (the length does not include itself)
-// container: a varint for number of items + a var int for length follows (the length does not include itself)
-
-// wir hätten nun 32 typen frei
-
-// usize kann 8, 16, 24 und 32 sein
-
 /// Allowed range: 0 to 9 (inclusive)
 #[EnumRepr(type = "u8")]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
@@ -72,14 +53,7 @@ pub trait Reader<'a> {
 pub trait DeSerializer<'a> {
     type Item;
 
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;
-
-    /// Skips the data of this type. For types that do not contain embedded data (like
-    ///  bool or int) it's the same as `read` (this is what this default implementation does).
-    fn skip<T: BinaryReader<'a>>(reader: &mut T) -> Result<SkipMore, LqError> {
-        Self::de_serialize(reader)?;
-        Result::Ok(SkipMore::new(0))
-    }
+    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;   
 }
 
 /// Sometimes a data is not alone but contains embedded items. For example the
@@ -281,14 +255,21 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
         }
     }
     
-    /// Skips a type.
+    /// Skips a type and all embedded items.
     fn skip(&mut self) ->  Result<(), LqError> {
         let header = self.read_header()?;
         match header.length_marker() {
             LengthMarker::ContainerVarIntVarInt | LengthMarker::ConainerVarIntEmpty | LengthMarker::ConainerOneEmpty => {
                 // it's a container type
                 let container_info = self.read_header_container(header)?;
-                self.skip_bytes(container_info.self_length)
+                self.skip_bytes(container_info.self_length)?;
+                let number_of_embedded_types = container_info.number_of_items();
+                if number_of_embedded_types>0 {
+                    for _ in 0..number_of_embedded_types {
+                        self.skip()?;
+                    }
+                }
+                Result::Ok(())
             },
              LengthMarker::Len0 => self.skip_bytes(0),
             LengthMarker::Len1 => self.skip_bytes(1),
@@ -386,5 +367,13 @@ impl ContainerHeader {
             number_of_items,
             self_length,
         }
+    }
+
+    pub fn self_length(&self) -> usize {
+        self.self_length
+    }
+
+    pub fn number_of_items(&self) -> usize {
+        self.number_of_items
     }
 }

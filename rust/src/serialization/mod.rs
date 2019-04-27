@@ -6,13 +6,13 @@ pub mod vec_writer;
 pub(crate) mod type_ids;
 pub(crate) mod binary;
 pub(crate) mod util;
-//pub(crate) mod skipper;
 
 pub mod tbool;
 pub mod tutf8;
 pub mod tbinary;
 pub mod toption;
 pub mod tstruct;
+pub mod tenum;
 
 #[cfg(test)]
 pub mod test;

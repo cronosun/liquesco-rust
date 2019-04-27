@@ -2,13 +2,8 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
-use crate::serialization::core::TypeId;
-use crate::serialization::core::TypeHeader;
-use crate::serialization::core::LengthMarker;
 use std::io::Read;
 use std::io::Write;
-use byteorder::ByteOrder;
-use byteorder::{LittleEndian};
 
 pub struct SliceReader<'a> {
     data: &'a [u8],
@@ -95,37 +90,7 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
             Result::Ok(value)
         }
     }
-
-    /*#[inline]
-    fn type_id(&mut self) -> Result<TypeId, LqError> {
-        let type_id_byte = self.read_u8()?;
-        let type_id = TypeId::new(type_id_byte);
-        Result::Ok(type_id)
-    }
-
-    #[inline]
-    fn preview_type_id(&self) -> Result<TypeId, LqError> {
-        let len = self.data.len();
-        if self.offset >= len {
-            LqError::err_static("End of reader")
-        } else {
-            let value = self.data[self.offset];
-            Result::Ok(TypeId::new(value))
-        }
-    }*/
 }
-
-/*
-fn read_length<'a, T : BinaryReader<'a>>(reader : T, marker : LengthMarker) -> Result<usize, LqError> {
-    match marker {
-            LengthMarker::Len0 => Result::Ok(0),
-            LengthMarker::Len1 => Result::Ok(1),
-            LengthMarker::Len2 => Result::Ok(2),
-            LengthMarker::Len4 => Result::Ok(4),
-            LengthMarker::LenU8 => Result::Ok(reader.read_u8()? as usize),
-            LengthMarker::LenU16 => Result::Ok(reader.read_u8()? as usize),
-    }
-}*/
 
 impl<'a> Read for SliceReader<'a> {
     fn read(&mut self, mut buf: &mut [u8]) -> std::io::Result<usize> {

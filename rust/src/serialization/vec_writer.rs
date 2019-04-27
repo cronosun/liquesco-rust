@@ -1,13 +1,7 @@
-use crate::serialization::util::io_result;
-use crate::serialization::core::TypeHeader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::LqError;
-use crate::serialization::core::LengthMarker;
-use crate::serialization::core::TypeId;
 use crate::serialization::core::Serializer;
 use crate::serialization::core::Writer;
-use byteorder::ByteOrder;
-use byteorder::{LittleEndian, WriteBytesExt};
 
 pub struct VecWriter {
     data: Vec<u8>,

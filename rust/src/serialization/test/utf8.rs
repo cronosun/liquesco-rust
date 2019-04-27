@@ -18,12 +18,12 @@ fn small_strings_utf8() {
 
 #[test]
 fn test_small_utf8() {
-    assert_binary::<TUtf8>("hello", &[0x55, 104, 101, 108, 108, 111]);
-    assert_binary::<TUtf8>("hell", &[0x54, 104, 101, 108, 108]);
-    assert_binary::<TUtf8>("hel", &[0x53, 104, 101, 108]);
-    assert_binary::<TUtf8>("he", &[0x52, 104, 101]);
-    assert_binary::<TUtf8>("h", &[0x51, 104]);
-    assert_binary::<TUtf8>("", &[0x50]);
+    assert_binary::<TUtf8>("hello", &[55, 5, 104, 101, 108, 108, 111]);
+    assert_binary::<TUtf8>("hell", &[35, 104, 101, 108, 108]);
+    assert_binary::<TUtf8>("hel", &[55, 3, 104, 101, 108]);
+    assert_binary::<TUtf8>("he", &[25, 104, 101]);
+    assert_binary::<TUtf8>("h", &[15, 104]);
+    assert_binary::<TUtf8>("", &[5]);
 }
 
 #[test]
@@ -39,18 +39,18 @@ fn u8_utf8_binary() {
     // longer than 8 bytes
     assert_binary::<TUtf8>(
         "of_11_bytes",
-        &[0x5B, 11, 111, 102, 95, 49, 49, 95, 98, 121, 116, 101, 115],
+        &[55, 11, 111, 102, 95, 49, 49, 95, 98, 121, 116, 101, 115],
     );
     assert_binary::<TUtf8>(
         "16_bytes_ooooooo",
         &[
-            0x59, 49, 54, 95, 98, 121, 116, 101, 115, 95, 111, 111, 111, 111, 111, 111, 111,
+            55, 16, 49, 54, 95, 98, 121, 116, 101, 115, 95, 111, 111, 111, 111, 111, 111, 111,
         ],
     );
     assert_binary::<TUtf8>(
         "32_bytes_oooooooiiiiiiiiiiiiiiii",
         &[
-            0x5A, 51, 50, 95, 98, 121, 116, 101, 115, 95, 111, 111, 111, 111, 111, 111, 111, 105,
+            55, 32, 51, 50, 95, 98, 121, 116, 101, 115, 95, 111, 111, 111, 111, 111, 111, 111, 105,
             105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105, 105,
         ],
     );
