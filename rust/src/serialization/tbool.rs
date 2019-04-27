@@ -10,7 +10,7 @@ impl<'a> DeSerializer<'a> for bool {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let id = reader.type_id()?;
+        let id = reader.read_header_const(0)?;
         match id {
             TYPE_BOOL_TRUE => Result::Ok(true),
             TYPE_BOOL_FALSE => Result::Ok(false),
@@ -25,11 +25,11 @@ impl Serializer for bool {
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         match item {
             true => {
-                writer.type_id(TYPE_BOOL_TRUE)?;
+                writer.write_header_u8(TYPE_BOOL_TRUE, 0)?;
                 Result::Ok(())
             }
             false => {
-                writer.type_id(TYPE_BOOL_FALSE)?;
+                writer.write_header_u8(TYPE_BOOL_FALSE, 0)?;                
                 Result::Ok(())
             }
         }

@@ -1,11 +1,11 @@
-use crate::serialization::core::SkipMore;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
-use crate::serialization::core::LqError;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LengthMarker;
+use crate::serialization::core::LqError;
 use crate::serialization::core::Serializer;
-use crate::serialization::type_ids::TYPE_OPTION_ABSENT;
-use crate::serialization::type_ids::TYPE_OPTION_PRESENT;
+use crate::serialization::core::ContainerHeader;
+use crate::serialization::type_ids::TYPE_OPTION;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Presence {
@@ -17,21 +17,16 @@ impl<'a> DeSerializer<'a> for Presence {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let id = reader.type_id()?;
-        match id {
-            TYPE_OPTION_PRESENT => Result::Ok(Presence::Present),
-            TYPE_OPTION_ABSENT => Result::Ok(Presence::Absent),
-            _ => LqError::err_static("Type is not an option type"),
+        let header = reader.read_header()?;
+        if header.type_id() != TYPE_OPTION {
+            return LqError::err_static("Given type is not the option type");
+        }
+        match header.length_marker() {
+            LengthMarker::Len0 => Result::Ok(Presence::Absent),
+            LengthMarker::ConainerOneEmpty => Result::Ok(Presence::Present),
+            _ => return LqError::err_static("Invalid option type"),
         }
     }
-
-    fn skip<T: BinaryReader<'a>>(reader: &mut T) -> Result<SkipMore, LqError> {
-        let presence = Self::de_serialize(reader)?;
-        match presence {
-            Presence::Present => Result::Ok(SkipMore::new(1)),
-            Presence::Absent => Result::Ok(SkipMore::new(0))
-        }        
-    }   
 }
 
 impl Serializer for Presence {
@@ -40,13 +35,9 @@ impl Serializer for Presence {
     fn serialize<'b, T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Presence::Present => {
-                writer.type_id(TYPE_OPTION_PRESENT)?;
-                Result::Ok(())
+                writer.write_container_header(TYPE_OPTION, ContainerHeader::new(1, 0))
             }
-            Presence::Absent => {
-                writer.type_id(TYPE_OPTION_ABSENT)?;
-                Result::Ok(())
-            }
+            Presence::Absent => writer.write_header_u8(TYPE_OPTION, 0),
         }
     }
 }

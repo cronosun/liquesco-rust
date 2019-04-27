@@ -1,8 +1,13 @@
+use crate::serialization::util::io_result;
+use crate::serialization::core::TypeHeader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::LqError;
+use crate::serialization::core::LengthMarker;
 use crate::serialization::core::TypeId;
 use crate::serialization::core::Serializer;
 use crate::serialization::core::Writer;
+use byteorder::ByteOrder;
+use byteorder::{LittleEndian, WriteBytesExt};
 
 pub struct VecWriter {
     data: Vec<u8>,
@@ -40,10 +45,6 @@ impl BinaryWriter for VecWriter {
     fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError> {
         self.data.extend_from_slice(buf);
         Result::Ok(())
-    }
-
-    fn type_id(&mut self, id: TypeId) -> Result<(), LqError> {
-        self.write_u8(id.id())
     }
 }
 
