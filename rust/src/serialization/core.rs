@@ -17,8 +17,6 @@ pub trait Writer {
 
 pub trait Reader<'a> {
     fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError>;
-
-    fn skip(&mut self, number_of_fields: usize) -> Result<(), LqError>;
 }
 
 pub trait DeSerializer<'a> {

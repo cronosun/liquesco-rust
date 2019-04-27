@@ -1,8 +1,8 @@
 use crate::serialization::core::BinaryReader;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Reader;
 use crate::serialization::core::TypeId;
-use crate::serialization::core::DeSerializer;
 use std::io::Read;
 use std::io::Write;
 
@@ -41,10 +41,6 @@ impl<'a> Reader<'a> for SliceReader<'a> {
         } else {
             result
         }
-    }
-
-    fn skip(&mut self, number_of_fields : usize) -> Result<(), LqError> {
-        unimplemented!()
     }
 }
 
