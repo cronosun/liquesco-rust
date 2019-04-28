@@ -13,6 +13,7 @@ use crate::serialization::core::LengthMarker;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Serializer;
 
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumData {
     ordinal: usize,
     has_value: bool,
@@ -31,6 +32,14 @@ impl EnumData {
             ordinal,
             has_value: true,
         }
+    }
+
+    pub fn has_value(&self) -> bool {
+        self.has_value
+    }
+
+    pub fn ordinal(&self) -> usize {
+        self.ordinal
     }
 }
 

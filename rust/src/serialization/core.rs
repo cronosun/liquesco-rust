@@ -173,8 +173,14 @@ pub trait BinaryWriter: std::io::Write + Sized {
 }
 
 pub trait BinaryReader<'a>: std::io::Read + Sized {
+    fn peek_u8(&self) -> Result<u8, LqError>;
     fn read_u8(&mut self) -> Result<u8, LqError>;
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
+
+    fn peek_header(&self) -> Result<TypeHeader, LqError> {
+        let value = self.peek_u8()?;
+        Result::Ok(TypeHeader::from_u8(value))
+    }
 
     fn read_varint(&mut self) -> Result<usize, LqError> {
         io_result(VarIntReader::read_varint(self))

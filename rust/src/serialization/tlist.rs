@@ -17,7 +17,7 @@ impl ListData {
         ListData { length }
     }
 
-    pub fn number_of_fields(&self) -> usize {
+    pub fn length(&self) -> usize {
         self.length
     }
 

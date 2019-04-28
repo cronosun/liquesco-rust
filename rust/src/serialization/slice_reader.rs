@@ -78,6 +78,17 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
     }
 
     #[inline]
+    fn peek_u8(&self) -> Result<u8, LqError> {
+        let len = self.data.len();
+        if self.offset >= len {
+            LqError::err_static("End of reader")
+        } else {
+            let value = self.data[self.offset];
+            Result::Ok(value)
+        }
+    }
+
+    #[inline]
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
         let data_len = self.data.len();
         if self.offset + len > data_len {
