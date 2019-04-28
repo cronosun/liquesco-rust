@@ -30,7 +30,7 @@ impl<'a> DeSerializer<'a> for TUtf8 {
 impl Serializer for TUtf8 {
     type Item = str;
 
-    fn serialize<'b, T: BinaryWriter>(
+    fn serialize<T: BinaryWriter>(
         writer: &mut T,
         item: &Self::Item,
     ) -> Result<(), LqError> {

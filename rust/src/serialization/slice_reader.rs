@@ -72,7 +72,7 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
             LqError::err_static("End of reader")
         } else {
             let value = self.data[self.offset];
-            self.offset = self.offset + 1;
+            self.offset += 1;
             Result::Ok(value)
         }
     }
@@ -86,7 +86,7 @@ impl<'a> BinaryReader<'a> for SliceReader<'a> {
             let end_index = self.offset + len;
             let data = self.data;
             let value = &data[self.offset..end_index];
-            self.offset = self.offset + len;
+            self.offset += len;
             Result::Ok(value)
         }
     }

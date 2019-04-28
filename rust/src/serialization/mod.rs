@@ -1,7 +1,7 @@
 pub mod core;
 pub mod slice_reader;
 pub mod vec_writer;
-//pub mod types;
+pub mod value;
 
 pub(crate) mod type_ids;
 pub(crate) mod binary;
@@ -11,8 +11,10 @@ pub mod tbool;
 pub mod tutf8;
 pub mod tbinary;
 pub mod toption;
-pub mod tstruct;
+pub mod tlist;
 pub mod tenum;
+pub mod tuint;
+pub mod tsint;
 
 #[cfg(test)]
 pub mod test;

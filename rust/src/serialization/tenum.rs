@@ -84,7 +84,7 @@ impl<'a> DeSerializer<'a> for EnumData {
 impl<'a> Serializer for EnumData {
     type Item = Self;
 
-    fn serialize<'b, T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let ordinal = item.ordinal;
         if ordinal > 2 {
             // need a container

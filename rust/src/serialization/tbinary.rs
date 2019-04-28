@@ -25,7 +25,7 @@ impl Serializer for TBinary {
 
     type Item = [u8];
 
-    fn serialize<'b, T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         binary_write(item, writer, TYPE_BINARY)
     }
 }

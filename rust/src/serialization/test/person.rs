@@ -5,7 +5,7 @@ use crate::serialization::toption::Presence;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqError;
 use crate::serialization::core::Serializer;
-use crate::serialization::tstruct::StructData;
+use crate::serialization::tlist::ListData;
 use crate::serialization::tutf8::TUtf8;
 use std::borrow::Cow;
 
@@ -26,7 +26,7 @@ impl<'a> DeSerializer<'a> for Address<'a> {
     type Item = Self;
 
     fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
-        let reading = StructData::de_serialize(reader)?.begin(1)?;
+        let reading = ListData::de_serialize(reader)?.begin(1)?;
         let result = Result::Ok(Self {
             street: Cow::Borrowed(TUtf8::de_serialize(reader)?),
         });
@@ -39,7 +39,7 @@ impl<'a> Serializer for Address<'a> {
     type Item = Self;
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
-        StructData::serialize(writer, &StructData::new(1))?;
+        ListData::serialize(writer, &ListData::new(1))?;
         TUtf8::serialize(writer, &item.street)
     }   
 }
@@ -48,7 +48,7 @@ impl<'a> DeSerializer<'a> for Person<'a> {
     type Item = Self;
 
     fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
-        let struct_read = StructData::de_serialize(reader)?.begin(4)?;
+        let struct_read = ListData::de_serialize(reader)?.begin(4)?;
         let first_name = TUtf8::de_serialize(reader)?;
         let last_name = TUtf8::de_serialize(reader)?;
         let male = bool::de_serialize(reader)?;
@@ -75,7 +75,7 @@ impl<'a> Serializer for Person<'a> {
     type Item = Self;
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
-        StructData::serialize(writer, &StructData::new(4))?;
+        ListData::serialize(writer, &ListData::new(4))?;
         TUtf8::serialize(writer, &item.first_name)?;
         TUtf8::serialize(writer, &item.last_name)?;
         bool::serialize(writer, &item.male)?;

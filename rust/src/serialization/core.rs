@@ -99,6 +99,22 @@ pub trait BinaryWriter: std::io::Write + Sized {
         io_result(WriteBytesExt::write_u64::<LittleEndian>(self, data))
     }
 
+    fn write_i8(&mut self, data: i8) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_i8(self, data))
+    }
+
+    fn write_i16(&mut self, data: i16) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_i16::<LittleEndian>(self, data))
+    }
+
+    fn write_i32(&mut self, data: i32) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_i32::<LittleEndian>(self, data))
+    }
+
+    fn write_i64(&mut self, data: i64) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_i64::<LittleEndian>(self, data))
+    }
+
     fn write_header(&mut self, header: TypeHeader) -> Result<(), LqError> {
         BinaryWriter::write_u8(self, header.id())
     }
@@ -129,9 +145,8 @@ pub trait BinaryWriter: std::io::Write + Sized {
             _ => LengthMarker::VarInt,
         };
         self.write_header(TypeHeader::new(marker, type_id))?;
-        match marker {
-            LengthMarker::VarInt => BinaryWriter::write_u8(self, len as u8)?,
-            _ => {}
+        if  marker==LengthMarker::VarInt {
+            BinaryWriter::write_u8(self, len as u8)?;
         }
         Result::Ok(())
     }
@@ -182,10 +197,26 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
         Result::Ok(TypeHeader::from_u8(header_byte))
     }
 
+    fn read_i8(&mut self) -> Result<i8, LqError> {
+        io_result(ReadBytesExt::read_i8(self))
+    }
+
+    fn read_i16(&mut self) -> Result<i16, LqError> {
+        io_result(ReadBytesExt::read_i16::<LittleEndian>(self))
+    }
+
+    fn read_i32(&mut self) -> Result<i32, LqError> {
+        io_result(ReadBytesExt::read_i32::<LittleEndian>(self))
+    }
+
+    fn read_i64(&mut self) -> Result<i64, LqError> {
+        io_result(ReadBytesExt::read_i64::<LittleEndian>(self))
+    }
+
     fn read_header_const(&mut self, len: u8) -> Result<TypeId, LqError> {
         let header = self.read_header_u64()?;
         let real_len = header.1;
-        if len as u64 != real_len {
+        if u64::from(len) != real_len {
             LqError::err_new(format!(
                 "Invalid type length, expecting {:?} but have {:?}",
                 len, real_len
@@ -331,7 +362,7 @@ impl TypeId {
         TypeId(id)
     }
 
-    pub fn id(&self) -> u8 {
+    pub fn id(self) -> u8 {
         self.0
     }
 }
@@ -346,17 +377,17 @@ impl TypeHeader {
         TypeHeader(byte)
     }
 
-    pub fn length_marker(&self) -> LengthMarker {
+    pub fn length_marker(self) -> LengthMarker {
         let len_byte = self.0 / 10;
         LengthMarker::from_repr(len_byte).unwrap()
     }
 
-    pub fn type_id(&self) -> TypeId {
+    pub fn type_id(self) -> TypeId {
         let id_byte = self.0 % 10;
         TypeId(id_byte)
     }
 
-    pub fn id(&self) -> u8 {
+    pub fn id(self) -> u8 {
         self.0
     }
 }
