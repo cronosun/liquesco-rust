@@ -32,8 +32,7 @@ pub enum Value<'a> {
     Utf8(Cow<'a, str>),
     Binary(Cow<'a, [u8]>),
     Option(Option<ValueRef<'a>>),
-    //List(Cow<'a, [Cow<'a, Value<'a>>]>),
-    List(Cow<'a, [ValueRef<'a>]>),
+    List(ValueList<'a>), 
     Enum((usize, Option<ValueRef<'a>>)),
     UInt(u64),
     SInt(i64),
@@ -43,6 +42,23 @@ pub enum Value<'a> {
 pub enum ValueRef<'a> {
     Borrowed(&'a Value<'a>),
     Boxed(Box<Value<'a>>),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub enum ValueList<'a> {
+    Owned(Vec<Value<'a>>),
+    Borrowed(&'a [Value<'a>])
+}
+
+impl<'a> Deref for ValueList<'a> {
+    type Target = [Value<'a>];
+
+    fn deref(&self) -> &Self::Target {
+        match self {
+            ValueList::Borrowed(value) => value,
+            ValueList::Owned(value) => value
+        }
+    }
 }
 
 impl<'a> Deref for ValueRef<'a> {
@@ -101,9 +117,9 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let length = list_data.length();
                 let mut vec = Vec::with_capacity(length);
                 for _ in 0..length {
-                    vec.push(ValueRef::Boxed(Box::new(Value::de_serialize(reader)?)));
+                    vec.push(Value::de_serialize(reader)?);
                 }
-                Value::List(Cow::Owned(vec))
+                Value::List(ValueList::Owned(vec))
             }
             TYPE_BINARY => {
                 let bin = TBinary::de_serialize(reader)?;
