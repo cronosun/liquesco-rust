@@ -2,6 +2,7 @@ pub mod core;
 pub mod slice_reader;
 pub mod vec_writer;
 pub mod value;
+pub mod value_into;
 
 pub(crate) mod type_ids;
 pub(crate) mod binary;

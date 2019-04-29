@@ -32,8 +32,8 @@ pub enum Value<'a> {
     Utf8(Cow<'a, str>),
     Binary(Cow<'a, [u8]>),
     Option(Option<ValueRef<'a>>),
-    List(ValueList<'a>), 
-    Enum((usize, Option<ValueRef<'a>>)),
+    List(ValueList<'a>),
+    Enum(EnumValue<'a>),
     UInt(u64),
     SInt(i64),
 }
@@ -47,7 +47,35 @@ pub enum ValueRef<'a> {
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum ValueList<'a> {
     Owned(Vec<Value<'a>>),
-    Borrowed(&'a [Value<'a>])
+    Borrowed(&'a [Value<'a>]),
+}
+
+#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+pub struct EnumValue<'a> {
+    ordinal: usize,
+    value: Option<ValueRef<'a>>,
+}
+
+impl<'a> EnumValue<'a> {
+    pub fn ordinal(&self) -> usize {
+        self.ordinal
+    }
+
+    pub fn value(&self) -> &Option<ValueRef<'a>> {
+        &self.value
+    }
+}
+
+impl<'a> From<Value<'a>> for ValueRef<'a> {
+    fn from(value: Value<'a>) -> Self {
+        ValueRef::Boxed(Box::new(value))
+    }
+}
+
+impl<'a> From<&'a Value<'a>> for ValueRef<'a> {
+    fn from(value: &'a Value<'a>) -> Self {
+        ValueRef::Borrowed(value)
+    }
 }
 
 impl<'a> Deref for ValueList<'a> {
@@ -56,7 +84,7 @@ impl<'a> Deref for ValueList<'a> {
     fn deref(&self) -> &Self::Target {
         match self {
             ValueList::Borrowed(value) => value,
-            ValueList::Owned(value) => value
+            ValueList::Owned(value) => value,
         }
     }
 }
@@ -69,30 +97,6 @@ impl<'a> Deref for ValueRef<'a> {
             ValueRef::Borrowed(value) => *value,
             ValueRef::Boxed(value) => &value,
         }
-    }
-}
-
-impl From<bool> for Value<'static> {
-    fn from(value: bool) -> Self {
-        Value::Bool(value)
-    }
-}
-
-impl From<String> for Value<'static> {
-    fn from(value: String) -> Self {
-        Value::Utf8(Cow::Owned(value))
-    }
-}
-
-impl<'a> From<&'a str> for Value<'a> {
-    fn from(value: &'a str) -> Self {
-        Value::Utf8(Cow::Borrowed(value))
-    }
-}
-
-impl<'a> From<&'a [u8]> for Value<'a> {
-    fn from(value: &'a [u8]) -> Self {
-        Value::Binary(Cow::Borrowed(value))
     }
 }
 
@@ -133,9 +137,15 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let enum_data = EnumData::de_serialize(reader)?;
                 if enum_data.has_value() {
                     let value = Box::new(Value::de_serialize(reader)?);
-                    Value::Enum((enum_data.ordinal(), Option::Some(ValueRef::Boxed(value))))
+                    Value::Enum(EnumValue {
+                        ordinal: enum_data.ordinal(),
+                        value: Option::Some(ValueRef::Boxed(value)),
+                    })
                 } else {
-                    Value::Enum((enum_data.ordinal(), Option::None))
+                    Value::Enum(EnumValue {
+                        ordinal: enum_data.ordinal(),
+                        value: Option::None,
+                    })
                 }
             }
             TYPE_UINT => {
@@ -175,14 +185,14 @@ impl<'a> Serializer for Value<'a> {
             }
             Value::Binary(value) => TBinary::serialize(writer, value),
             Value::Utf8(value) => TUtf8::serialize(writer, value),
-            Value::Enum((ordinal, maybe_value)) => {
-                let enum_data = if maybe_value.is_some() {
-                    EnumData::new_with_value(*ordinal)
+            Value::Enum(value) => {
+                let enum_data = if value.value.is_some() {
+                    EnumData::new_with_value(value.ordinal)
                 } else {
-                    EnumData::new(*ordinal)
+                    EnumData::new(value.ordinal)
                 };
                 EnumData::serialize(writer, &enum_data)?;
-                if let Option::Some(some) = maybe_value {
+                if let Option::Some(some) = &value.value {
                     Value::serialize(writer, some)
                 } else {
                     Result::Ok(())
