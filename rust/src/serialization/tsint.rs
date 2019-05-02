@@ -17,11 +17,11 @@ impl<'a> DeSerializer<'a> for TSInt {
             return LqError::err_static("Given type is not an unsigned integer type");
         }
         match header.length_marker() {
-            LengthMarker::Len0 => Result::Ok(i64::from(reader.read_i8()?)),
+            LengthMarker::Len1 => Result::Ok(i64::from(reader.read_i8()?)),
             LengthMarker::Len2 => Result::Ok(i64::from(reader.read_i16()?)),
             LengthMarker::Len4 => Result::Ok(i64::from(reader.read_i32()?)),
             LengthMarker::Len8 => reader.read_i64(),
-            _ => LqError::err_static("Invalid length for unsigned integer type"),
+            _ => LqError::err_static("Invalid length for signed integer type"),
         }
     }
 }

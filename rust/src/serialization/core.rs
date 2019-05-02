@@ -53,7 +53,7 @@ pub trait Reader<'a> {
 pub trait DeSerializer<'a> {
     type Item;
 
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;   
+    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;
 }
 
 /// Sometimes a data is not alone but contains embedded items. For example the
@@ -145,8 +145,8 @@ pub trait BinaryWriter: std::io::Write + Sized {
             _ => LengthMarker::VarInt,
         };
         self.write_header(TypeHeader::new(marker, type_id))?;
-        if  marker==LengthMarker::VarInt {
-            BinaryWriter::write_u8(self, len as u8)?;
+        if marker == LengthMarker::VarInt {
+            BinaryWriter::write_varint(self, len)?;
         }
         Result::Ok(())
     }
@@ -247,7 +247,9 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
             LengthMarker::Len4 => Result::Ok(4),
             LengthMarker::Len8 => Result::Ok(8),
             LengthMarker::VarInt => Result::Ok(self.read_varint()?),
-            LengthMarker::ContainerVarIntVarInt | LengthMarker::ConainerVarIntEmpty | LengthMarker::ConainerOneEmpty => LqError::err_static(
+            LengthMarker::ContainerVarIntVarInt
+            | LengthMarker::ConainerVarIntEmpty
+            | LengthMarker::ConainerOneEmpty => LqError::err_static(
                 "This is a container; the called function cannot be used for containers.",
             ),
             LengthMarker::Reserved => LqError::err_static(
@@ -257,58 +259,50 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
         Result::Ok((header.type_id(), length))
     }
 
-    fn read_header_container(&mut self, header : TypeHeader) -> Result<ContainerHeader, LqError> {
+    fn read_header_container(&mut self, header: TypeHeader) -> Result<ContainerHeader, LqError> {
         match header.length_marker() {
-            LengthMarker::ContainerVarIntVarInt  => {
+            LengthMarker::ContainerVarIntVarInt => {
                 let number_of_items = self.read_varint()?;
                 let self_length = self.read_varint()?;
-                Result::Ok(
-                    ContainerHeader {
-                        number_of_items,
-                        self_length,
-                    }
-                )
-            },
-            LengthMarker::ConainerOneEmpty => {
-                 Result::Ok(
-                    ContainerHeader {
-                        number_of_items : 1,
-                        self_length : 0,
-                    }
-                )
-            },
+                Result::Ok(ContainerHeader {
+                    number_of_items,
+                    self_length,
+                })
+            }
+            LengthMarker::ConainerOneEmpty => Result::Ok(ContainerHeader {
+                number_of_items: 1,
+                self_length: 0,
+            }),
             LengthMarker::ConainerVarIntEmpty => {
                 let number_of_items = self.read_varint()?;
-                  Result::Ok(
-                    ContainerHeader {
-                        number_of_items,
-                        self_length : 0,
-                    }
-                )
-            },
-            _ => {
-                LqError::err_static("Not a container type")
+                Result::Ok(ContainerHeader {
+                    number_of_items,
+                    self_length: 0,
+                })
             }
+            _ => LqError::err_static("Not a container type"),
         }
     }
-    
+
     /// Skips a type and all embedded items.
-    fn skip(&mut self) ->  Result<(), LqError> {
+    fn skip(&mut self) -> Result<(), LqError> {
         let header = self.read_header()?;
         match header.length_marker() {
-            LengthMarker::ContainerVarIntVarInt | LengthMarker::ConainerVarIntEmpty | LengthMarker::ConainerOneEmpty => {
+            LengthMarker::ContainerVarIntVarInt
+            | LengthMarker::ConainerVarIntEmpty
+            | LengthMarker::ConainerOneEmpty => {
                 // it's a container type
                 let container_info = self.read_header_container(header)?;
                 self.skip_bytes(container_info.self_length)?;
                 let number_of_embedded_types = container_info.number_of_items();
-                if number_of_embedded_types>0 {
+                if number_of_embedded_types > 0 {
                     for _ in 0..number_of_embedded_types {
                         self.skip()?;
                     }
                 }
                 Result::Ok(())
-            },
-             LengthMarker::Len0 => self.skip_bytes(0),
+            }
+            LengthMarker::Len0 => self.skip_bytes(0),
             LengthMarker::Len1 => self.skip_bytes(1),
             LengthMarker::Len2 => self.skip_bytes(2),
             LengthMarker::Len4 => self.skip_bytes(4),
@@ -316,14 +310,14 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
             LengthMarker::VarInt => {
                 let number_to_skip = self.read_varint()?;
                 self.skip_bytes(number_to_skip)
-            },
+            }
             LengthMarker::Reserved => {
                 LqError::err_static("Reserved entry! Reserved for further extensions")
             }
-        }        
+        }
     }
 
-    fn skip_bytes(&mut self,  number_of_bytes : usize) -> Result<(), LqError> {
+    fn skip_bytes(&mut self, number_of_bytes: usize) -> Result<(), LqError> {
         for _ in 0..number_of_bytes {
             self.read_u8()?;
         }
@@ -376,7 +370,7 @@ impl TypeId {
 impl TypeHeader {
     pub fn new(len: LengthMarker, id: TypeId) -> TypeHeader {
         let len_byte = len as u8;
-        TypeHeader(len_byte * 10 + id.0)
+        TypeHeader(id.0 * 10 + len_byte)
     }
 
     pub(crate) fn from_u8(byte: u8) -> TypeHeader {
@@ -384,12 +378,12 @@ impl TypeHeader {
     }
 
     pub fn length_marker(self) -> LengthMarker {
-        let len_byte = self.0 / 10;
+        let len_byte = self.0 % 10;
         LengthMarker::from_repr(len_byte).unwrap()
     }
 
     pub fn type_id(self) -> TypeId {
-        let id_byte = self.0 % 10;
+        let id_byte = self.0 / 10;
         TypeId(id_byte)
     }
 

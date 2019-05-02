@@ -16,6 +16,3 @@ pub mod tlist;
 pub mod tenum;
 pub mod tuint;
 pub mod tsint;
-
-#[cfg(test)]
-pub mod test;

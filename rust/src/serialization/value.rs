@@ -57,6 +57,20 @@ pub struct EnumValue<'a> {
 }
 
 impl<'a> EnumValue<'a> {
+    pub fn new_no_value(ordinal: usize) -> EnumValue<'static> {
+        EnumValue {
+            ordinal,
+            value: Option::None,
+        }
+    }
+
+    pub fn new_value<'b, T: Into<ValueRef<'b>>>(ordinal: usize, value: T) -> EnumValue<'b> {
+        EnumValue {
+            ordinal,
+            value: Option::Some(value.into()),
+        }
+    }
+
     pub fn ordinal(&self) -> usize {
         self.ordinal
     }
@@ -171,8 +185,11 @@ impl<'a> Serializer for Value<'a> {
         match item {
             Value::Bool(value) => bool::serialize(writer, value),
             Value::Option(value) => match value {
-                Option::Some(present) => Value::serialize(writer, present),
-                Option::None => Result::Ok(()),
+                Option::Some(present) => {
+                    Presence::serialize(writer, &Presence::Present)?;
+                    Value::serialize(writer, present)
+                }
+                Option::None => Presence::serialize(writer, &Presence::Absent),
             },
             Value::List(value) => {
                 let len = value.len();

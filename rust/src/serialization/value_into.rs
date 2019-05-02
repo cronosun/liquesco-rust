@@ -19,6 +19,12 @@ impl From<String> for Value<'static> {
     }
 }
 
+impl<'a> From<&'a String> for Value<'a> {
+    fn from(value : &'a String) -> Self {
+        Value::Utf8(Cow::Borrowed(value))
+    }
+}
+
 impl<'a> From<&'a str> for Value<'a> {
     fn from(value: &'a str) -> Self {
         Value::Utf8(Cow::Borrowed(value))
@@ -28,6 +34,24 @@ impl<'a> From<&'a str> for Value<'a> {
 impl<'a> From<&'a [u8]> for Value<'a> {
     fn from(value: &'a [u8]) -> Self {
         Value::Binary(Cow::Borrowed(value))
+    }
+}
+
+impl From<Vec<u8>> for Value<'static> {
+    fn from(value : Vec<u8>) -> Self {
+        Value::Binary(Cow::Owned(value))
+    }
+}
+
+impl<'a> From<&'a Vec<u8>> for Value<'a> {
+    fn from(value : &'a Vec<u8>) -> Self {
+        Value::Binary(Cow::Borrowed(value.as_slice()))
+    }
+}
+
+impl<'a> From<&'a [Value<'a>]> for Value<'a> {
+    fn from(value : &'a [Value<'a>]) -> Self {
+        Value::List(ValueList::Borrowed(value))
     }
 }
 
@@ -49,6 +73,12 @@ impl<'a, T: Into<Value<'a>>> From<Vec<T>> for Value<'a> {
             vec.push(item.into());
         }
         Value::List(ValueList::Owned(vec))
+    }
+}
+
+impl<'a> From<EnumValue<'a>> for Value<'a> {
+    fn from(value : EnumValue<'a>) -> Self {
+        Value::Enum(value)
     }
 }
 

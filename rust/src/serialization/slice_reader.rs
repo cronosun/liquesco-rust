@@ -16,6 +16,12 @@ impl<'a> From<&'a [u8]> for SliceReader<'a> {
     }
 }
 
+impl<'a> From<&'a Vec<u8>> for SliceReader<'a> {
+    fn from(data : &'a Vec<u8>) -> Self {
+        SliceReader { data : data.as_slice(), offset : 0 }
+    }
+}
+
 impl<'a> Reader<'a> for SliceReader<'a> {
     fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError> {
         let original_offset = self.offset;

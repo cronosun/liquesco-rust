@@ -17,7 +17,7 @@ impl<'a> DeSerializer<'a> for TUInt {
             return LqError::err_static("Given type is not an unsigned integer type");
         }
         match header.length_marker() {
-            LengthMarker::Len0 => Result::Ok(u64::from(reader.read_u8()?)),
+            LengthMarker::Len1 => Result::Ok(u64::from(reader.read_u8()?)),
             LengthMarker::Len2 => Result::Ok(u64::from(reader.read_u16()?)),
             LengthMarker::Len4 => Result::Ok(u64::from(reader.read_u32()?)),
             LengthMarker::Len8 => reader.read_u64(),
