@@ -3,7 +3,7 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContainerHeader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LengthMarker;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_OPTION;
 

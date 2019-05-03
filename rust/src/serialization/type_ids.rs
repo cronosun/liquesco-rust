@@ -17,12 +17,15 @@ pub const TYPE_ENUM_N: TypeId = TypeId::new(9);
 pub const TYPE_UINT: TypeId = TypeId::new(10);
 pub const TYPE_SINT: TypeId = TypeId::new(11);
 
+pub const TYPE_UUID: TypeId = TypeId::new(12);
+
 //pub const TYPE_DEC128: TypeId = TypeId::new(12);
 
+// -> ne, glaube custom brauchts nicht.. dazu haben wir ja das schema
 // custom0: 20
 // custom1: 21
 // custom2: 22
 // custom3: 23
 // custom_arb: 24
 
-// TODO: Integer types (2), timestamp (1), floats (2), Decimal128, Extension
+// TODO: Integer types (2), timestamp (1), time of day, day (calendar), floats (2), Decimal128, Extension, UUID? reverse domain?

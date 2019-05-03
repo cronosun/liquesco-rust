@@ -5,7 +5,7 @@ use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::type_ids::TYPE_UTF8;
 use crate::serialization::binary::binary_read;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use std::str::from_utf8;
 
 pub struct TUtf8;

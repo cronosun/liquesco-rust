@@ -1,14 +1,15 @@
+use crate::serialization::tuuid::Uuid;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
-use crate::serialization::tbinary::TBinary;
-use crate::serialization::tenum::EnumData;
-use crate::serialization::tlist::ListData;
+use crate::serialization::tenum::EnumHeader;
+use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::TSInt;
 use crate::serialization::tuint::TUInt;
+use crate::serialization::tbinary::TBinary;
 use crate::serialization::tutf8::TUtf8;
 use crate::serialization::type_ids::TYPE_BINARY;
 use crate::serialization::type_ids::TYPE_BOOL_FALSE;
@@ -22,6 +23,7 @@ use crate::serialization::type_ids::TYPE_OPTION;
 use crate::serialization::type_ids::TYPE_SINT;
 use crate::serialization::type_ids::TYPE_UINT;
 use crate::serialization::type_ids::TYPE_UTF8;
+use crate::serialization::type_ids::TYPE_UUID;
 use std::ops::Deref;
 
 use std::borrow::Cow;
@@ -36,6 +38,7 @@ pub enum Value<'a> {
     Enum(EnumValue<'a>),
     UInt(u64),
     SInt(i64),
+    Uuid(Uuid)
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -131,7 +134,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 }
             }
             TYPE_LIST => {
-                let list_data = ListData::de_serialize(reader)?;
+                let list_data = ListHeader::de_serialize(reader)?;
                 let length = list_data.length();
                 let mut vec = Vec::with_capacity(length);
                 for _ in 0..length {
@@ -148,7 +151,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 Value::Utf8(Cow::Borrowed(string))
             }
             TYPE_ENUM_0 | TYPE_ENUM_1 | TYPE_ENUM_2 | TYPE_ENUM_N => {
-                let enum_data = EnumData::de_serialize(reader)?;
+                let enum_data = EnumHeader::de_serialize(reader)?;
                 if enum_data.has_value() {
                     let value = Box::new(Value::de_serialize(reader)?);
                     Value::Enum(EnumValue {
@@ -169,7 +172,11 @@ impl<'a> DeSerializer<'a> for Value<'a> {
             TYPE_SINT => {
                 let value = TSInt::de_serialize(reader)?;
                 Value::SInt(value)
-            }
+            },
+            TYPE_UUID => {
+                let value = Uuid::de_serialize(reader)?;
+                Value::Uuid(value)
+            },
             _ => {
                 return LqError::err_new(format!("Unknown type {:?}", type_id));
             }
@@ -193,22 +200,22 @@ impl<'a> Serializer for Value<'a> {
             },
             Value::List(value) => {
                 let len = value.len();
-                let list_data = ListData::new(len);
-                ListData::serialize(writer, &list_data)?;
+                let list_data = ListHeader::new(len);
+                ListHeader::serialize(writer, &list_data)?;
                 for item in value.deref() {
                     Value::serialize(writer, item)?;
                 }
                 Result::Ok(())
-            }
+            },
             Value::Binary(value) => TBinary::serialize(writer, value),
             Value::Utf8(value) => TUtf8::serialize(writer, value),
             Value::Enum(value) => {
                 let enum_data = if value.value.is_some() {
-                    EnumData::new_with_value(value.ordinal)
+                    EnumHeader::new_with_value(value.ordinal)
                 } else {
-                    EnumData::new(value.ordinal)
+                    EnumHeader::new(value.ordinal)
                 };
-                EnumData::serialize(writer, &enum_data)?;
+                EnumHeader::serialize(writer, &enum_data)?;
                 if let Option::Some(some) = &value.value {
                     Value::serialize(writer, some)
                 } else {
@@ -217,6 +224,7 @@ impl<'a> Serializer for Value<'a> {
             }
             Value::UInt(value) => TUInt::serialize(writer, value),
             Value::SInt(value) => TSInt::serialize(writer, value),
+            Value::Uuid(value) => Uuid::serialize(writer, value),
         }
     }
 }

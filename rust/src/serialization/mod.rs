@@ -3,6 +3,7 @@ pub mod slice_reader;
 pub mod vec_writer;
 pub mod value;
 pub mod value_into;
+pub mod dyn_reader;
 
 pub(crate) mod type_ids;
 pub(crate) mod binary;
@@ -16,3 +17,4 @@ pub mod tlist;
 pub mod tenum;
 pub mod tuint;
 pub mod tsint;
+pub mod tuuid;

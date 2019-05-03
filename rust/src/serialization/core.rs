@@ -1,12 +1,10 @@
 use crate::serialization::util::io_result;
 use crate::serialization::util::try_from_int_result;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
-use integer_encoding::VarIntReader;
-use integer_encoding::VarIntWriter;
-use std::borrow::Cow;
+use varuint::*;
+
 use std::convert::TryFrom;
-use std::error::Error;
-use std::fmt::Display;
+use crate::common::error::LqError;
 
 use enum_repr::EnumRepr;
 
@@ -56,23 +54,6 @@ pub trait DeSerializer<'a> {
     fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;
 }
 
-/// Sometimes a data is not alone but contains embedded items. For example the
-/// optional type contains the present value (if present) - or structs contain
-/// 0-n fields.
-///
-/// When skipping we also might want too skip those embedded data.
-pub struct SkipMore(usize);
-
-impl SkipMore {
-    pub fn new(number_of_additional_items: usize) -> Self {
-        Self(number_of_additional_items)
-    }
-
-    pub fn number_of_additional_items(&self) -> usize {
-        self.0
-    }
-}
-
 pub trait Serializer {
     type Item: ?Sized;
 
@@ -84,7 +65,11 @@ pub trait BinaryWriter: std::io::Write + Sized {
     fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError>;
 
     fn write_varint(&mut self, value: usize) -> Result<(), LqError> {
-        io_result(VarIntWriter::write_varint(self, value)).map(|_| {})
+        // TODO: limitation: cannot write more then u64
+        if value > std::u64::MAX as usize {
+            return LqError::err_static("Given value is too large for this machine (usize>u64)");
+        }
+        io_result(WriteVarint::<u64>::write_varint(self, value as u64).map(|_| {}))
     }
 
     fn write_u16(&mut self, data: u16) -> Result<(), LqError> {
@@ -172,7 +157,7 @@ pub trait BinaryWriter: std::io::Write + Sized {
     }
 }
 
-pub trait BinaryReader<'a>: std::io::Read + Sized {
+pub trait BinaryReader<'a>: std::io::Read {
     fn peek_u8(&self) -> Result<u8, LqError>;
     fn read_u8(&mut self) -> Result<u8, LqError>;
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
@@ -182,8 +167,13 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
         Result::Ok(TypeHeader::from_u8(value))
     }
 
-    fn read_varint(&mut self) -> Result<usize, LqError> {
-        io_result(VarIntReader::read_varint(self))
+    fn read_varint(&mut self) -> Result<usize, LqError> {        
+        let value = io_result(ReadVarint::<u64>::read_varint(self))?;
+        // TODO: currently limited
+        if value>std::usize::MAX as u64 {
+            return LqError::err_static("Given value is too large for this machine (usize<u64)");
+        }
+        Result::Ok(value as usize)
     }
 
     fn read_u16(&mut self) -> Result<u16, LqError> {
@@ -322,38 +312,6 @@ pub trait BinaryReader<'a>: std::io::Read + Sized {
             self.read_u8()?;
         }
         Result::Ok(())
-    }
-}
-
-#[derive(Debug)]
-pub struct LqError {
-    pub msg: Cow<'static, str>,
-}
-
-impl Error for LqError {}
-
-impl Display for LqError {
-    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "LqError({:?})", self.msg)
-    }
-}
-
-impl LqError {
-    pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
-        Result::Err(LqError { msg: string.into() })
-    }
-
-    pub fn new<T: Into<Cow<'static, str>>>(msg: T) -> Self {
-        LqError { msg: msg.into() }
-    }
-
-    pub fn err_new<Ok, T: Into<Cow<'static, str>>>(msg: T) -> Result<Ok, Self> {
-        Result::Err(Self::new(msg))
-    }
-
-    pub fn with_msg<T: Into<Cow<'static, str>>>(mut self, msg: T) -> LqError {
-        self.msg = msg.into();
-        self
     }
 }
 

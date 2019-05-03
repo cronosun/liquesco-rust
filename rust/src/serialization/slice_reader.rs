@@ -1,6 +1,6 @@
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use crate::serialization::core::Reader;
 use std::io::Read;
 use std::io::Write;

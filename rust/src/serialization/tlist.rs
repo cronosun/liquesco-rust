@@ -5,16 +5,16 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContainerHeader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LengthMarker;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 
-pub struct ListData {
+pub struct ListHeader {
     length: usize,
 }
 
-impl ListData {
+impl ListHeader {
     pub fn new(length: usize) -> Self {
-        ListData { length }
+        ListHeader { length }
     }
 
     pub fn length(&self) -> usize {
@@ -56,14 +56,14 @@ impl ListRead {
     }
 }
 
-impl<'a> DeSerializer<'a> for ListData {
+impl<'a> DeSerializer<'a> for ListHeader {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
         let header = reader.read_header()?;
         // special case for zero sized lists
         if header.length_marker() == LengthMarker::Len0 {
-            Result::Ok(Self::Item { length: 0 })
+            Result::Ok(Self{ length: 0 })
         } else {
             // if it's not zero sized, it's a container
             let container_info = reader.read_header_container(header)?;
@@ -73,14 +73,14 @@ impl<'a> DeSerializer<'a> for ListData {
             if container_info.self_length() != 0 {
                 return LqError::err_static("Invalid encoding; length of struct must be 0.");
             }
-            Result::Ok(Self::Item {
+            Result::Ok(Self {
                 length: container_info.number_of_items(),
             })
         }
     }
 }
 
-impl<'a> Serializer for ListData {
+impl<'a> Serializer for ListHeader {
     type Item = Self;
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {

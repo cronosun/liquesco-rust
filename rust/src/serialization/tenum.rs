@@ -5,30 +5,30 @@ use crate::serialization::type_ids::TYPE_ENUM_N;
 use crate::serialization::util::try_from_int_result;
 use std::convert::TryFrom;
 
+use crate::common::error::LqError;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContainerHeader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LengthMarker;
-use crate::serialization::core::LqError;
 use crate::serialization::core::Serializer;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
-pub struct EnumData {
+pub struct EnumHeader {
     ordinal: usize,
     has_value: bool,
 }
 
-impl EnumData {
+impl EnumHeader {
     pub fn new(ordinal: usize) -> Self {
-        Self {
+        EnumHeader {
             ordinal,
             has_value: false,
         }
     }
 
     pub fn new_with_value(ordinal: usize) -> Self {
-        Self {
+        EnumHeader {
             ordinal,
             has_value: true,
         }
@@ -43,7 +43,7 @@ impl EnumData {
     }
 }
 
-impl<'a> DeSerializer<'a> for EnumData {
+impl<'a> DeSerializer<'a> for EnumHeader {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
@@ -71,7 +71,7 @@ impl<'a> DeSerializer<'a> for EnumData {
                     return LqError::err_static("Invalid enum self length.");
                 }
             };
-            Result::Ok(Self::Item { ordinal, has_value })
+            Result::Ok(Self { ordinal, has_value })
         } else {
             // no a container type
             let ordinal = match header.type_id() {
@@ -85,12 +85,12 @@ impl<'a> DeSerializer<'a> for EnumData {
                 LengthMarker::Len0 => false,
                 _ => return LqError::err_static("Invalid length marker for enum."),
             };
-            Result::Ok(Self::Item { ordinal, has_value })
+            Result::Ok(Self { ordinal, has_value })
         }
     }
 }
 
-impl<'a> Serializer for EnumData {
+impl<'a> Serializer for EnumHeader {
     type Item = Self;
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {

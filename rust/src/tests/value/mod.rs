@@ -8,3 +8,4 @@ pub mod list;
 pub mod enumeration;
 pub mod unsigned_int;
 pub mod signed_int;
+pub mod uuid;

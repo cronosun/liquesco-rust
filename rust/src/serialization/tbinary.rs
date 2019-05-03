@@ -5,7 +5,7 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::binary::binary_read;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 
 pub struct TBinary;
 

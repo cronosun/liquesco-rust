@@ -1,4 +1,4 @@
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use std::num::TryFromIntError;
 
 #[inline]

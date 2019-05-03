@@ -2,7 +2,7 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LengthMarker;
-use crate::serialization::core::LqError;
+use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_SINT;
 
@@ -17,6 +17,7 @@ impl<'a> DeSerializer<'a> for TSInt {
             return LqError::err_static("Given type is not an unsigned integer type");
         }
         match header.length_marker() {
+            LengthMarker::Len0 => Result::Ok(0),
             LengthMarker::Len1 => Result::Ok(i64::from(reader.read_i8()?)),
             LengthMarker::Len2 => Result::Ok(i64::from(reader.read_i16()?)),
             LengthMarker::Len4 => Result::Ok(i64::from(reader.read_i32()?)),
@@ -32,6 +33,7 @@ impl Serializer for TSInt {
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let deref_item = *item;
         match deref_item {
+            0 => writer.write_header_u8(TYPE_SINT, 0),
             n if n >= i64::from(std::i8::MIN) && n <= i64::from(std::i8::MAX) => {
                 writer.write_header_u8(TYPE_SINT, 1)?;
                 writer.write_i8(deref_item as i8)

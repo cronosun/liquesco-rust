@@ -1,4 +1,5 @@
-use crate::serialization::core::LqError;
+use crate::serialization::tuuid::Uuid;
+use crate::common::error::LqError;
 use crate::serialization::value::EnumValue;
 use crate::serialization::value::Value;
 use crate::serialization::value::ValueList;
@@ -103,6 +104,12 @@ impl From<u32> for Value<'static> {
 impl From<i32> for Value<'static> {
     fn from(value: i32) -> Self {
         Value::SInt(i64::from(value))
+    }
+}
+
+impl From<Uuid> for Value<'static> {
+    fn from(value : Uuid) -> Self {
+        Value::Uuid(value)
     }
 }
 
