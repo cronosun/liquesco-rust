@@ -35,6 +35,19 @@ impl ListHeader {
             })
         }
     }
+
+    /// Calls `begin`, reads the list (struct) (see `function`) and then calls `finish`.
+    pub fn read_struct<'a, TResult, T: BinaryReader<'a>, ReadFn: FnOnce(&mut T)
+        -> Result<TResult, LqError>>(
+        &self,
+        reader: &mut T,
+        number_of_fields: usize,
+        function: ReadFn) -> Result<TResult, LqError> {
+        let list_reader = self.begin(number_of_fields)?;
+        let result = function(reader)?;
+        list_reader.finish(reader)?;
+        Result::Ok(result)
+    }
 }
 
 pub struct ListRead {
@@ -63,7 +76,7 @@ impl<'a> DeSerializer<'a> for ListHeader {
         let header = reader.read_header()?;
         // special case for zero sized lists
         if header.length_marker() == LengthMarker::Len0 {
-            Result::Ok(Self{ length: 0 })
+            Result::Ok(Self { length: 0 })
         } else {
             // if it's not zero sized, it's a container
             let container_info = reader.read_header_container(header)?;

@@ -10,3 +10,5 @@ enum-repr = "0.2.4"
 varuint = "0.6.0"
 decimal = "2.0.4"
 uuid = { version = "0.7.4", features = ["v4"] }
+smallvec = "0.6.9"
+derive-new = "0.5"

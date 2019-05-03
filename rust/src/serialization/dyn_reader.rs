@@ -3,7 +3,19 @@ use crate::serialization::core::BinaryReader;
 
 /// Wraps a `BinaryReader` so we can use it for dynamic calls (e.g. in traits).
 pub struct DynReader<'a> {
-    reader : &'a mut BinaryReader<'a>
+    reader: &'a mut BinaryReader<'a>,
+}
+
+impl<'a, 'b> DynReader<'a> {
+    pub fn from<T : BinaryReader<'a>>(reader : &'a mut T) -> Self {
+        Self { reader  }
+    }
+}
+
+impl<'a, 'b> From<&'a mut BinaryReader<'a>> for DynReader<'a> {
+    fn from(reader: &'a mut BinaryReader<'a>) -> Self {
+        Self { reader }
+    }
 }
 
 impl<'a> BinaryReader<'a> for DynReader<'a> {

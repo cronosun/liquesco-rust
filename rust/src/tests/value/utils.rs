@@ -4,7 +4,7 @@ use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::value::Value;
 use crate::serialization::vec_writer::VecWriter;
 
-pub fn check_value<'a>(value: &Value<'a>) {
+pub fn check_value(value: &Value) {
     // serialize the data
     let mut writer = VecWriter::default();
     Value::serialize(&mut writer, value).expect("Unable to serialize value");
