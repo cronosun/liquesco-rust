@@ -1,5 +1,7 @@
+use crate::schema::validators::Validators;
 use crate::common::error::LqError;
-use crate::schema::context::DeSerializeContextStruct;
+use crate::schema::default_de_serialization_context::DefaultDeSerializationContext;
+use crate::schema::default_schema_builder::DefaultSchemaBuilder;
 use crate::serialization::core::BinaryReader;
 
 pub trait Validator<'a> {
@@ -51,7 +53,18 @@ pub trait DeSerializationContext<'a> {
 pub fn new_deserialzation_context<'a, R: BinaryReader<'a>>(
     reader: &'a mut R,
 ) -> impl DeSerializationContext<'a> {
-    DeSerializeContextStruct::new(reader)
+    DefaultDeSerializationContext::new(reader)
+}
+
+pub trait SchemaBuilder<'a> {
+    type Schema: Schema<'a>;
+
+    fn add(&mut self, validator : Validators<'a>) -> ValidatorRef;
+    fn into_schema(self, config: Config) -> Self::Schema;
+}
+
+pub fn new_schema_builder<'a>() -> impl SchemaBuilder<'a> {
+    DefaultSchemaBuilder::default()
 }
 
 pub trait Schema<'a> {

@@ -5,9 +5,9 @@ use crate::serialization::core::TypeId;
 use crate::serialization::util::io_result;
 
 #[inline]
-pub fn binary_write<T: BinaryWriter>(
+pub fn binary_write<W: BinaryWriter>(
     data: &[u8],
-    writer: &mut T,
+    writer: &mut W,
     type_id: TypeId
 ) -> Result<(), LqError> {
     let bin_len = data.len();
@@ -17,8 +17,8 @@ pub fn binary_write<T: BinaryWriter>(
 }
 
 #[inline]
-pub fn binary_read<'a, Reader: BinaryReader<'a>>(
-    reader: &mut Reader,
+pub fn binary_read<'a, R: BinaryReader<'a>>(
+    reader: &mut R,
 ) -> Result<(TypeId, &'a [u8]), LqError> {
     let (type_id, len) = reader.read_header_usize()?;
     let read_result = reader.read_slice(len)?;
