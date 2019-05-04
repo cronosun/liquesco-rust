@@ -1,8 +1,9 @@
-use crate::schema::validators::Validators;
 use crate::common::error::LqError;
 use crate::schema::default_de_serialization_context::DefaultDeSerializationContext;
 use crate::schema::default_schema_builder::DefaultSchemaBuilder;
+use crate::schema::validators::Validators;
 use crate::serialization::core::BinaryReader;
+use crate::serialization::core::BinaryWriter;
 
 pub trait Validator<'a> {
     type DeSerItem;
@@ -15,6 +16,11 @@ pub trait Validator<'a> {
     fn de_serialize<C>(context: &mut C) -> Result<Self::DeSerItem, LqError>
     where
         C: DeSerializationContext<'a>;
+
+    fn serialize<S, W>(&self, schema: &S, writer: &mut W) -> Result<(), LqError>
+    where
+        S: Schema<'a>,
+        W: BinaryWriter;
 }
 
 #[derive(new)]
@@ -56,10 +62,13 @@ pub fn new_deserialzation_context<'a, R: BinaryReader<'a>>(
     DefaultDeSerializationContext::new(reader)
 }
 
-pub trait SchemaBuilder<'a> {
+pub trait ValidatorReceiver<'a> {
+    fn add(&mut self, validator: Validators<'a>) -> ValidatorRef;
+}
+
+pub trait SchemaBuilder<'a> : ValidatorReceiver<'a> {
     type Schema: Schema<'a>;
 
-    fn add(&mut self, validator : Validators<'a>) -> ValidatorRef;
     fn into_schema(self, config: Config) -> Self::Schema;
 }
 
@@ -73,6 +82,20 @@ pub trait Schema<'a> {
         R: BinaryReader<'a>;
 
     fn config(&self) -> &Config;
+
+    fn validator(&self, reference: ValidatorRef) -> Result<&Validators<'a>, LqError>;
+
+    fn serialize<W: BinaryWriter>(
+        &self,
+        writer: &mut W,
+        reference: ValidatorRef,
+    ) -> Result<(), LqError>
+    where
+        Self: Sized,
+    {
+        let validator = self.validator(reference)?;
+        validator.serialize(self, writer)
+    }
 }
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]

@@ -2,8 +2,11 @@ use crate::common::error::LqError;
 use crate::schema::core::Validator;
 use crate::schema::core::{DeSerializationContext, Schema, ValidatorRef};
 use crate::schema::identifier::Identifier;
+use crate::schema::validators::Validators;
 use crate::serialization::core::BinaryReader;
+use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::Serializer;
 use crate::serialization::tlist::ListHeader;
 use smallvec::SmallVec;
 
@@ -25,13 +28,26 @@ impl<'a> Field<'a> {
     }
 }
 
+impl<'a> Default for VStruct<'a> {
+    fn default() -> Self {
+        Self(Fields::new())
+    }
+}
+
+impl<'a> VStruct<'a> {
+    pub fn add(&mut self, field : Field<'a>) {
+        self.0.push(field)
+    }
+}
+
 impl<'a> Validator<'a> for VStruct<'a> {
     type DeSerItem = Self;
 
-    fn validate<S, R>(&self, schema: &S, reader : &mut R) -> Result<(), LqError>
+    fn validate<S, R>(&self, schema: &S, reader: &mut R) -> Result<(), LqError>
     where
         S: Schema<'a>,
-        R : BinaryReader<'a> {
+        R: BinaryReader<'a>,
+    {
         let list = ListHeader::de_serialize(reader)?;
         let schema_number_of_fields = self.0.len();
         let number_of_items = list.length();
@@ -79,6 +95,26 @@ impl<'a> Validator<'a> for VStruct<'a> {
         }
         Result::Ok(Self(fields))
     }
+
+    fn serialize<S, W>(&self, schema: &S, writer: &mut W) -> Result<(), LqError>
+    where
+        S: Schema<'a>,
+        W: BinaryWriter,
+    {
+        let number_of_fields = self.0.len();
+        ListHeader::serialize(writer, &ListHeader::new(number_of_fields))?;
+
+        for field in &self.0 {
+            serialize_field(field, schema, writer)?;
+        }
+        Result::Ok(())
+    }
+}
+
+impl<'a> From<VStruct<'a>> for Validators<'a> {
+    fn from(value: VStruct<'a>) -> Self {
+        Validators::Struct(value)
+    }
 }
 
 fn de_serialize_field<'a, TContext>(context: &mut TContext) -> Result<Field<'a>, LqError>
@@ -99,4 +135,14 @@ where
     list_reader.finish(context.reader())?;
 
     result
+}
+
+fn serialize_field<'a, S, W>(field: &Field<'a>, schema: &S, writer: &mut W) -> Result<(), LqError>
+where
+    S: Schema<'a>,
+    W: BinaryWriter,
+{
+    ListHeader::serialize(writer, &ListHeader::new(2))?;
+    Identifier::serialize(writer, field.identifier())?;
+    schema.serialize(writer, field.validator)
 }
