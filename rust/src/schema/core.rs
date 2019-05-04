@@ -1,48 +1,66 @@
 use crate::common::error::LqError;
+use crate::schema::context::DeSerializeContextStruct;
 use crate::serialization::core::BinaryReader;
-use crate::serialization::dyn_reader::DynReader;
 
 pub trait Validator<'a> {
     type DeSerItem;
 
-    fn validate<TContext, T>(
-        &self,
-        context: &mut TContext,
-        reader: &mut T) -> Result<(), LqError> where
-        TContext: ValidateContext,
-        T: BinaryReader<'a>;
+    fn validate<S, R>(&self, schema: &S, reader: &mut R) -> Result<(), LqError>
+    where
+        S: Schema<'a>,
+        R: BinaryReader<'a>;
 
-    fn de_serialize<TContext, T>(
-        context: &mut TContext,
-        reader: &mut T) -> Result<Self::DeSerItem, LqError> where
-        TContext: DeSerializeContext,
-        T: BinaryReader<'a>;
+    fn de_serialize<C>(context: &mut C) -> Result<Self::DeSerItem, LqError>
+    where
+        C: DeSerializationContext<'a>;
 }
 
-// TODO: Can be removed?
+#[derive(new)]
 pub struct Config {
-    no_extension: bool
+    #[new(value = "false")]
+    no_extension: bool,
 }
 
-// TODO: Can be removed?
 impl Config {
+    /// This returns true if e.g. extensions in structures (e.g. have more fields than defined in
+    /// the schema) is not allowed.
     pub fn no_extension(&self) -> bool {
         self.no_extension
     }
 }
 
-pub trait DeSerializeContext<'a> {
-    type Reader : BinaryReader<'a>;
-    fn de_serialize(&mut self, reader: &mut Self::Reader) -> Result<ValidatorRef, LqError>;
+pub trait DeSerializationContext<'a> {
+    type Reader: BinaryReader<'a>;
+    type Schema: Schema<'a>;
+
+    fn reader(&mut self) -> &mut Self::Reader;
+    fn de_serialize(&mut self) -> Result<ValidatorRef, LqError>;
+
+    fn into_schema(self, config: Config) -> Result<(Self::Schema, ValidatorRef), LqError>;
+
+    fn validate<R>(self, config: Config, reader: &mut R) -> Result<(), LqError>
+    where
+        R: BinaryReader<'a>,
+        Self: Sized,
+    {
+        let (schema, reference) = self.into_schema(config)?;
+        schema.validate(reader, reference)
+    }
 }
 
-pub trait ValidateContext {
-    fn validate(&mut self, reference: ValidatorRef) -> Result<(), LqError>;
+pub fn new_deserialzation_context<'a, R: BinaryReader<'a>>(
+    reader: &'a mut R,
+) -> impl DeSerializationContext<'a> {
+    DeSerializeContextStruct::new(reader)
+}
 
-    /// This returns true if e.g. extensions in structures (e.g. have more fields than defined in
-    /// the schema) is not allowed.
-    fn no_extension(&self) -> bool;
+pub trait Schema<'a> {
+    fn validate<R>(&self, reader: &mut R, reference: ValidatorRef) -> Result<(), LqError>
+    where
+        R: BinaryReader<'a>;
+
+    fn config(&self) -> &Config;
 }
 
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
-pub struct ValidatorRef(usize);
+pub struct ValidatorRef(pub(crate) usize);

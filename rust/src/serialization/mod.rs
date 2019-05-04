@@ -5,9 +5,9 @@ pub mod value;
 pub mod value_into;
 pub mod dyn_reader;
 
-pub(crate) mod type_ids;
-pub(crate) mod binary;
-pub(crate) mod util;
+pub(self) mod type_ids;
+pub(self) mod binary;
+pub(self) mod util;
 
 pub mod tbool;
 pub mod tutf8;
