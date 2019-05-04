@@ -1,13 +1,14 @@
 use crate::common::error::LqError;
-use crate::schema::core::Config;
+use crate::schema::core::{Config, ValidateContext, DeSerializeContext, ValidatorRef};
 use crate::schema::core::Validator;
 use crate::schema::identifier::Identifier;
-use crate::schema::validators::Validators;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tlist::ListHeader;
+use smallvec::SmallVec;
 
-type Fields<'a> = Vec<Field<'a>>;
+/// Use a small vec with 5 items (should be enough for maybe 80% of all fields)
+type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
 #[derive(new)]
 pub struct VStruct<'a>(Fields<'a>);
@@ -15,7 +16,7 @@ pub struct VStruct<'a>(Fields<'a>);
 #[derive(new)]
 pub struct Field<'a> {
     identifier: Identifier<'a>,
-    validator: Validators<'a>,
+    validator: ValidatorRef,
 }
 
 impl<'a> Field<'a> {
@@ -25,7 +26,15 @@ impl<'a> Field<'a> {
 }
 
 impl<'a> Validator<'a> for VStruct<'a> {
-    fn validate<T: BinaryReader<'a>>(&self, reader: &mut T, config: &Config) -> Result<(), LqError> {
+    type DeSerItem = Self;
+
+
+    fn validate<TContext, T>(
+        &self,
+        context: &mut TContext,
+        reader: &mut T) -> Result<(), LqError> where
+        TContext: ValidateContext,
+        T: BinaryReader<'a> {
         let list = ListHeader::de_serialize(reader)?;
         let schema_number_of_fields = self.0.len();
         let number_of_items = list.length();
@@ -43,11 +52,11 @@ impl<'a> Validator<'a> for VStruct<'a> {
                                                 schema_number_of_fields, number_of_items));
             }
         }
-        // check each item
+        // validate each item
         for index in 0..schema_number_of_fields {
             let field = &self.0[index];
             let validator = &field.validator;
-            validator.validate(reader, config)?;
+            context.validate(validator)?;
         }
         // skip the rest
         let to_skip = number_of_items - schema_number_of_fields;
@@ -56,15 +65,15 @@ impl<'a> Validator<'a> for VStruct<'a> {
         }
         Result::Ok(())
     }
-}
 
-impl<'a> DeSerializer<'a> for VStruct<'a> {
-    type Item = Self;
-
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
+    fn de_serialize<TContext, T>(
+        context: &mut TContext,
+        reader: &mut T) -> Result<Self::DeSerItem, LqError> where
+        TContext: DeSerializeContext,
+        T: BinaryReader<'a> {
         let list_header = ListHeader::de_serialize(reader)?;
         let number_of_fields = list_header.length();
-        let mut fields = Vec::with_capacity(number_of_fields);
+        let mut fields = Fields::with_capacity(number_of_fields);
         for _ in 0..number_of_fields {
             fields.push(Field::de_serialize(reader)?);
         }
@@ -72,18 +81,18 @@ impl<'a> DeSerializer<'a> for VStruct<'a> {
     }
 }
 
-impl<'a> DeSerializer<'a> for Field<'a> {
-    type Item = Self;
-
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
-        let list_header = ListHeader::de_serialize(reader)?;
-        list_header.read_struct(reader, 2, |reader| {
-            let identifier = Identifier::de_serialize(reader)?;
-            let validator = Validators::de_serialize(reader)?;
-            Result::Ok(Field {
-                identifier,
-                validator,
-            })
+fn de_serialize_field<'a, TContext, T>(
+    context: &mut TContext,
+    reader: &mut T) -> Result<Field<'a>, LqError> where
+    TContext: DeSerializeContext,
+    T: BinaryReader<'a> {
+    let list_header = ListHeader::de_serialize(reader)?;
+    list_header.read_struct(reader, 2, |reader| {
+        let identifier = Identifier::de_serialize(reader)?;
+        let validator = context.de_serialize(reader)?;
+        Result::Ok(Field {
+            identifier,
+            validator,
         })
-    }
+    })
 }
