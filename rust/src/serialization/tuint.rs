@@ -11,7 +11,7 @@ pub struct TUInt;
 impl<'a> DeSerializer<'a> for TUInt {
     type Item = u64;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let header = reader.read_header()?;
         if header.type_id() != TYPE_UINT {
             return LqError::err_static("Given type is not an unsigned integer type");
@@ -30,7 +30,7 @@ impl<'a> DeSerializer<'a> for TUInt {
 impl Serializer for TUInt {
     type Item = u64;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         let item_deref = *item;
         match item_deref {
             0 => writer.write_header_u8(TYPE_UINT, 0),

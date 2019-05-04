@@ -46,7 +46,7 @@ impl EnumHeader {
 impl<'a> DeSerializer<'a> for EnumHeader {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let header = reader.read_header()?;
 
         if header.type_id() == TYPE_ENUM_N {
@@ -93,7 +93,7 @@ impl<'a> DeSerializer<'a> for EnumHeader {
 impl<'a> Serializer for EnumHeader {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         let ordinal = item.ordinal;
         if ordinal > 2 {
             // need a container

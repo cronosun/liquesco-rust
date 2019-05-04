@@ -13,7 +13,7 @@ pub struct TUtf8;
 impl<'a> DeSerializer<'a> for TUtf8 {
     type Item = &'a str;
 
-    fn de_serialize<Reader : BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id!=TYPE_UTF8 {
             return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
@@ -30,8 +30,8 @@ impl<'a> DeSerializer<'a> for TUtf8 {
 impl Serializer for TUtf8 {
     type Item = str;
 
-    fn serialize<T: BinaryWriter>(
-        writer: &mut T,
+    fn serialize<W: BinaryWriter>(
+        writer: &mut W,
         item: &Self::Item,
     ) -> Result<(), LqError> {
         let as_utf8 = item.as_bytes();

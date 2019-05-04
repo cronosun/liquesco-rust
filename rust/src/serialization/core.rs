@@ -41,23 +41,23 @@ pub struct ContainerHeader {
 }
 
 pub trait Writer {
-    fn write<T: Serializer>(&mut self, item: &T::Item) -> Result<(), LqError>;
+    fn write<S: Serializer>(&mut self, item: &S::Item) -> Result<(), LqError>;
 }
 
 pub trait Reader<'a> {
-    fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError>;
+    fn read<D: DeSerializer<'a>>(&mut self) -> Result<D::Item, LqError>;
 }
 
 pub trait DeSerializer<'a> {
     type Item;
 
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError>;
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError>;
 }
 
 pub trait Serializer {
     type Item: ?Sized;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError>;
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError>;
 }
 
 pub trait BinaryWriter: std::io::Write + Sized {

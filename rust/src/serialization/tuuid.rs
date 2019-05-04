@@ -13,7 +13,7 @@ pub struct Uuid([u8; 16]);
 impl<'a> DeSerializer<'a> for Uuid {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id != TYPE_UUID {
             return LqError::err_static("Type is not a UUID");
@@ -34,7 +34,7 @@ impl<'a> DeSerializer<'a> for Uuid {
 impl Serializer for Uuid {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         binary_write(&item.0, writer, TYPE_UUID)
     }
 }

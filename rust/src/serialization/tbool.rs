@@ -9,7 +9,7 @@ use crate::serialization::type_ids::TYPE_BOOL_TRUE;
 impl<'a> DeSerializer<'a> for bool {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let id = reader.read_header_const(0)?;
         match id {
             TYPE_BOOL_TRUE => Result::Ok(true),
@@ -22,7 +22,7 @@ impl<'a> DeSerializer<'a> for bool {
 impl Serializer for bool {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         match item {
             true => {
                 writer.write_header_u8(TYPE_BOOL_TRUE, 0)?;

@@ -16,7 +16,7 @@ pub enum Presence {
 impl<'a> DeSerializer<'a> for Presence {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let header = reader.read_header()?;
         if header.type_id() != TYPE_OPTION {
             return LqError::err_static("Given type is not the option type");
@@ -32,7 +32,7 @@ impl<'a> DeSerializer<'a> for Presence {
 impl Serializer for Presence {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Presence::Present => {
                 writer.write_container_header(TYPE_OPTION, ContainerHeader::new(1, 0))

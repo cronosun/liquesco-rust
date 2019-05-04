@@ -37,12 +37,12 @@ impl ListHeader {
     }
 
     /// Calls `begin`, reads the list (struct) (see `function`) and then calls `finish`.
-    pub fn read_struct<'a, TResult, T: BinaryReader<'a>, ReadFn: FnOnce(&mut T)
-        -> Result<TResult, LqError>>(
+    pub fn read_struct<'a, Ret, R: BinaryReader<'a>, ReadFn: FnOnce(&mut R)
+        -> Result<Ret, LqError>>(
         &self,
-        reader: &mut T,
+        reader: &mut R,
         number_of_fields: usize,
-        function: ReadFn) -> Result<TResult, LqError> {
+        function: ReadFn) -> Result<Ret, LqError> {
         let list_reader = self.begin(number_of_fields)?;
         let result = function(reader)?;
         list_reader.finish(reader)?;
@@ -56,7 +56,7 @@ pub struct ListRead {
 }
 
 impl ListRead {
-    pub fn finish<'a, T: BinaryReader<'a>>(self, reader: &mut T) -> Result<(), LqError> {
+    pub fn finish<'a, R: BinaryReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
         if fields_to_skip > 0 {
             for _ in 0..fields_to_skip {

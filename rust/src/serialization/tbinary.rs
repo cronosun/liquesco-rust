@@ -12,7 +12,7 @@ pub struct TBinary;
 impl<'a> DeSerializer<'a> for TBinary {
     type Item = &'a [u8];
 
-    fn de_serialize<Reader : BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id!=TYPE_BINARY {
             return LqError::err_static("Type is not binary data");
@@ -25,7 +25,7 @@ impl Serializer for TBinary {
 
     type Item = [u8];
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         binary_write(item, writer, TYPE_BINARY)
     }
 }
