@@ -1,3 +1,4 @@
+use crate::schema::vascii::VAscii;
 use crate::common::error::LqError;
 use crate::schema::core::DeSerializationContext;
 use crate::schema::core::Schema;
@@ -12,10 +13,12 @@ use crate::serialization::tenum::EnumHeader;
 
 const ENUM_STRUCT: usize = 0;
 const ENUM_UINT: usize = 1;
+const ENUM_ASCII: usize = 2;
 
 pub enum Validators<'a> {
     Struct(VStruct<'a>),
     UInt(VUInt),
+    Ascii(VAscii),
 }
 
 impl<'a> Validators<'a> {
@@ -34,6 +37,7 @@ impl<'a> Validators<'a> {
         match ordinal {
             ENUM_STRUCT => Result::Ok(Validators::Struct(VStruct::de_serialize(context)?)),
             ENUM_UINT => Result::Ok(Validators::UInt(VUInt::de_serialize(context)?)),
+            ENUM_ASCII => Result::Ok(Validators::Ascii(VAscii::de_serialize(context)?)),
             _ => LqError::err_new(format!(
                 "Unknown validator type. Enum ordinal \
                  is {:?}",
@@ -50,6 +54,7 @@ impl<'a> Validators<'a> {
         match self {
             Validators::Struct(value) => value.validate(schema, reader),
             Validators::UInt(value) => value.validate(schema, reader),
+            Validators::Ascii(value) => value.validate(schema, reader)
         }
     }
 
@@ -65,6 +70,10 @@ impl<'a> Validators<'a> {
             }
             Validators::UInt(value) => {
                 write_header(writer, ENUM_UINT)?;
+                value.serialize(schema, writer)
+            },
+            Validators::Ascii(value) => {
+                write_header(writer, ENUM_ASCII)?;
                 value.serialize(schema, writer)
             }
         }

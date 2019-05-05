@@ -38,3 +38,30 @@ impl Serializer for TUtf8 {
         binary_write(as_utf8, writer, TYPE_UTF8)
     }
 }
+
+
+pub struct TUncheckedUtf8;
+
+impl<'a> DeSerializer<'a> for TUncheckedUtf8 {
+    type Item = &'a [u8];
+
+    fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let (id, read_result) = binary_read(reader)?;
+        if id!=TYPE_UTF8 {
+            return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
+            id));
+        }
+        Result::Ok(read_result)
+    }
+}
+
+impl Serializer for TUncheckedUtf8 {
+    type Item = [u8];
+
+    fn serialize<W: BinaryWriter>(
+        writer: &mut W,
+        item: &Self::Item,
+    ) -> Result<(), LqError> {
+        binary_write(item, writer, TYPE_UTF8)
+    }
+}

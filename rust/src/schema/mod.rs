@@ -8,4 +8,5 @@ pub(crate) mod default_schema;
 
 pub mod vstruct;
 pub mod vuint;
+pub mod vascii;
 

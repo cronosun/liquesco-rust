@@ -16,7 +16,7 @@ use crate::serialization::core::Serializer;
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {
     ordinal: usize,
-    has_value: bool,
+    has_value: bool, // Mussten das wohl zu einem usize ändern, damit man das extenden kann... (schema evolution) ... oder wir forcieren immer structs als values?
 }
 
 impl EnumHeader {

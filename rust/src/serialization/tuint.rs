@@ -7,6 +7,7 @@ use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_UINT;
 
 pub struct TUInt;
+pub struct TUIntU8;
 
 impl<'a> DeSerializer<'a> for TUInt {
     type Item = u64;
@@ -51,5 +52,27 @@ impl Serializer for TUInt {
                 writer.write_u64(item_deref)
             }
         }
+    }
+}
+
+
+impl<'a> DeSerializer<'a> for TUIntU8 {
+    type Item = u8;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let int = TUInt::de_serialize(reader)?;
+        if int>std::u8::MAX as u64 {
+            return LqError::err_new(format!("Value is not within the u8 integer range (0-255). Value is {:?}.",
+            int));
+        }
+        Result::Ok(int as u8)
+    }
+}
+
+impl Serializer for TUIntU8 {
+    type Item = u8;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TUInt::serialize(writer, &(*item as u64))
     }
 }
