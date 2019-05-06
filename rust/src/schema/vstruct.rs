@@ -7,8 +7,10 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
+use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::tlist::ListHeader;
 use smallvec::SmallVec;
+use std::convert::TryFrom;
 
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
@@ -49,7 +51,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         R: BinaryReader<'a>,
     {
         let list = ListHeader::de_serialize(reader)?;
-        let schema_number_of_fields = self.0.len() as u32; // TODO: Overflow
+        let schema_number_of_fields = try_from_int_result(u32::try_from(self.0.len()))?;
         let number_of_items = list.length();
         // length check
         if schema.config().no_extension() {
@@ -70,7 +72,8 @@ impl<'a> Validator<'a> for VStruct<'a> {
             }
         }
         // validate each item
-        for index in 0..schema_number_of_fields as usize { // TODO: Overflow
+        let schema_number_of_fields_usize = try_from_int_result(usize::try_from(schema_number_of_fields))?;
+        for index in 0..schema_number_of_fields_usize { 
             let field = &self.0[index];
             let validator = field.validator;
             schema.validate(reader, validator)?;
@@ -89,7 +92,8 @@ impl<'a> Validator<'a> for VStruct<'a> {
     {
         let list_header = ListHeader::de_serialize(context.reader())?;
         let number_of_fields = list_header.length();
-        let mut fields = Fields::with_capacity(number_of_fields as usize); // TODO: Overflow
+        let number_of_fields_usize = try_from_int_result(usize::try_from(number_of_fields))?;
+        let mut fields = Fields::with_capacity(number_of_fields_usize);
         for _ in 0..number_of_fields {
             fields.push(de_serialize_field(context)?);
         }
@@ -101,8 +105,8 @@ impl<'a> Validator<'a> for VStruct<'a> {
         S: Schema<'a>,
         W: BinaryWriter,
     {
-        let number_of_fields = self.0.len() as u32; // TODO: Overflow
-        ListHeader::serialize(writer, &ListHeader::new(number_of_fields))?;
+        let number_of_fields_u32 = try_from_int_result(u32::try_from(self.0.len()))?;
+            ListHeader::serialize(writer, &ListHeader::new(number_of_fields_u32))?;
 
         for field in &self.0 {
             serialize_field(field, schema, writer)?;

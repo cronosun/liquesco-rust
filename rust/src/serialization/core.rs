@@ -3,7 +3,7 @@ use enum_repr::EnumRepr;
 use varuint::*;
 
 use crate::common::error::LqError;
-use crate::serialization::util::io_result;
+use crate::common::internal_utils::io_result;
 
 /// The major type can be within 0-24 (inclusive).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
@@ -206,7 +206,6 @@ pub trait BinaryReader<'a>: std::io::Read {
         io_result(ReadBytesExt::read_i64::<LittleEndian>(self))
     }
 
-    // TODO: Is this used?
     fn read_expect_content_description(
         &mut self,
         self_len: u64,

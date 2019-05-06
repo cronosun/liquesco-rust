@@ -7,7 +7,6 @@ pub mod dyn_reader;
 
 pub(self) mod type_ids;
 pub(self) mod binary;
-pub(self) mod util;
 
 pub mod tbool;
 pub mod tutf8;

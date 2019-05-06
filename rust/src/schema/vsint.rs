@@ -8,15 +8,15 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::tlist::ListHeader;
-use crate::serialization::tuint::TUInt;
+use crate::serialization::tsint::TSInt;
 
-pub struct VUInt {
-    min_value: u64,
-    max_value: u64,
+pub struct VSInt {
+    min_value: i64,
+    max_value: i64,
 }
 
-impl VUInt {
-    pub fn try_new(min_value: u64, max_value: u64) -> Result<Self, LqError> {
+impl VSInt {
+    pub fn try_new(min_value: i64, max_value: i64) -> Result<Self, LqError> {
         if min_value > max_value {
             LqError::err_new(format!(
                 "Min value ({:?}) is greater then max value ({:?}).",
@@ -31,13 +31,13 @@ impl VUInt {
     }
 }
 
-impl<'a> From<VUInt> for Validators<'a> {
-    fn from(value: VUInt) -> Self {
-        Validators::UInt(value)
+impl<'a> From<VSInt> for Validators<'a> {
+    fn from(value: VSInt) -> Self {
+        Validators::SInt(value)
     }
 }
 
-impl<'a> Validator<'a> for VUInt {
+impl<'a> Validator<'a> for VSInt {
     type DeSerItem = Self;
 
     fn validate<S, R>(&self, _: &S, reader: &mut R) -> Result<(), LqError>
@@ -45,7 +45,7 @@ impl<'a> Validator<'a> for VUInt {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let int_value = TUInt::de_serialize(reader)?;
+        let int_value = TSInt::de_serialize(reader)?;
         if int_value < self.min_value {
             return LqError::err_new(format!(
                 "Given integer {:?} is too small (minimum \
@@ -69,7 +69,7 @@ impl<'a> Validator<'a> for VUInt {
     {
         let header = ListHeader::de_serialize(context.reader())?;
         header.read_struct(context.reader(), 2, |reader| {
-            Self::DeSerItem::try_new(TUInt::de_serialize(reader)?, TUInt::de_serialize(reader)?)
+            Self::DeSerItem::try_new(TSInt::de_serialize(reader)?, TSInt::de_serialize(reader)?)
         })
     }
 
@@ -80,7 +80,7 @@ impl<'a> Validator<'a> for VUInt {
     {
         let header = ListHeader::new(2);
         ListHeader::serialize(writer, &header)?;
-        TUInt::serialize(writer, &self.min_value)?;
-        TUInt::serialize(writer, &self.max_value)
+        TSInt::serialize(writer, &self.min_value)?;
+        TSInt::serialize(writer, &self.max_value)
     }
 }

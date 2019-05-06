@@ -1,8 +1,9 @@
-use crate::schema::vascii::VAscii;
 use crate::common::error::LqError;
 use crate::schema::core::DeSerializationContext;
 use crate::schema::core::Schema;
 use crate::schema::core::Validator;
+use crate::schema::vascii::VAscii;
+use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
 use crate::serialization::core::BinaryReader;
@@ -13,11 +14,13 @@ use crate::serialization::tenum::EnumHeader;
 
 const ENUM_STRUCT: u32 = 0;
 const ENUM_UINT: u32 = 1;
-const ENUM_ASCII: u32 = 2;
+const ENUM_SINT: u32 = 2;
+const ENUM_ASCII: u32 = 3;
 
 pub enum Validators<'a> {
     Struct(VStruct<'a>),
     UInt(VUInt),
+    SInt(VSInt),
     Ascii(VAscii),
 }
 
@@ -27,7 +30,7 @@ impl<'a> Validators<'a> {
     ) -> Result<Validators<'a>, LqError> {
         let enum_header = EnumHeader::de_serialize(context.reader())?;
         let ordinal = enum_header.ordinal();
-        if enum_header.number_of_values()<1 {
+        if enum_header.number_of_values() < 1 {
             return LqError::err_new(format!(
                 "Expecting an enum with at least one value; got no value; \
                  ordinal {:?}",
@@ -37,6 +40,7 @@ impl<'a> Validators<'a> {
         match ordinal {
             ENUM_STRUCT => Result::Ok(Validators::Struct(VStruct::de_serialize(context)?)),
             ENUM_UINT => Result::Ok(Validators::UInt(VUInt::de_serialize(context)?)),
+            ENUM_SINT => Result::Ok(Validators::SInt(VSInt::de_serialize(context)?)),
             ENUM_ASCII => Result::Ok(Validators::Ascii(VAscii::de_serialize(context)?)),
             _ => LqError::err_new(format!(
                 "Unknown validator type. Enum ordinal \
@@ -54,7 +58,8 @@ impl<'a> Validators<'a> {
         match self {
             Validators::Struct(value) => value.validate(schema, reader),
             Validators::UInt(value) => value.validate(schema, reader),
-            Validators::Ascii(value) => value.validate(schema, reader)
+            Validators::SInt(value) => value.validate(schema, reader),
+            Validators::Ascii(value) => value.validate(schema, reader),
         }
     }
 
@@ -71,7 +76,11 @@ impl<'a> Validators<'a> {
             Validators::UInt(value) => {
                 write_header(writer, ENUM_UINT)?;
                 value.serialize(schema, writer)
-            },
+            }
+            Validators::SInt(value) => {
+                write_header(writer, ENUM_SINT)?;
+                value.serialize(schema, writer)
+            }
             Validators::Ascii(value) => {
                 write_header(writer, ENUM_ASCII)?;
                 value.serialize(schema, writer)
