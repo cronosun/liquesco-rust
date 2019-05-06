@@ -11,9 +11,9 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::tenum::EnumHeader;
 
-const ENUM_STRUCT: usize = 0;
-const ENUM_UINT: usize = 1;
-const ENUM_ASCII: usize = 2;
+const ENUM_STRUCT: u32 = 0;
+const ENUM_UINT: u32 = 1;
+const ENUM_ASCII: u32 = 2;
 
 pub enum Validators<'a> {
     Struct(VStruct<'a>),
@@ -27,9 +27,9 @@ impl<'a> Validators<'a> {
     ) -> Result<Validators<'a>, LqError> {
         let enum_header = EnumHeader::de_serialize(context.reader())?;
         let ordinal = enum_header.ordinal();
-        if !enum_header.has_value() {
+        if enum_header.number_of_values()<1 {
             return LqError::err_new(format!(
-                "Expecting an enum with a value; got no value; \
+                "Expecting an enum with at least one value; got no value; \
                  ordinal {:?}",
                 ordinal
             ));
@@ -81,9 +81,9 @@ impl<'a> Validators<'a> {
 }
 
 #[inline]
-fn write_header<W>(writer: &mut W, ordinal: usize) -> Result<(), LqError>
+fn write_header<W>(writer: &mut W, ordinal: u32) -> Result<(), LqError>
 where
     W: BinaryWriter,
 {
-    EnumHeader::serialize(writer, &EnumHeader::new_with_value(ordinal))
+    EnumHeader::serialize(writer, &EnumHeader::new(ordinal, 1))
 }

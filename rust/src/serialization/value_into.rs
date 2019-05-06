@@ -1,5 +1,5 @@
-use crate::serialization::tuuid::Uuid;
 use crate::common::error::LqError;
+use crate::serialization::tuuid::Uuid;
 use crate::serialization::value::EnumValue;
 use crate::serialization::value::Value;
 use crate::serialization::value::ValueList;
@@ -21,7 +21,7 @@ impl From<String> for Value<'static> {
 }
 
 impl<'a> From<&'a String> for Value<'a> {
-    fn from(value : &'a String) -> Self {
+    fn from(value: &'a String) -> Self {
         Value::Utf8(Cow::Borrowed(value))
     }
 }
@@ -39,19 +39,19 @@ impl<'a> From<&'a [u8]> for Value<'a> {
 }
 
 impl From<Vec<u8>> for Value<'static> {
-    fn from(value : Vec<u8>) -> Self {
+    fn from(value: Vec<u8>) -> Self {
         Value::Binary(Cow::Owned(value))
     }
 }
 
 impl<'a> From<&'a Vec<u8>> for Value<'a> {
-    fn from(value : &'a Vec<u8>) -> Self {
+    fn from(value: &'a Vec<u8>) -> Self {
         Value::Binary(Cow::Borrowed(value.as_slice()))
     }
 }
 
 impl<'a> From<&'a [Value<'a>]> for Value<'a> {
-    fn from(value : &'a [Value<'a>]) -> Self {
+    fn from(value: &'a [Value<'a>]) -> Self {
         Value::List(ValueList::Borrowed(value))
     }
 }
@@ -69,16 +69,20 @@ impl<'a, T: Into<Value<'a>>> From<Option<T>> for Value<'a> {
 
 impl<'a, T: Into<Value<'a>>> From<Vec<T>> for Value<'a> {
     fn from(value: Vec<T>) -> Self {
-        let mut vec: Vec<Value<'a>> = Vec::with_capacity(value.len());
-        for item in value {
-            vec.push(item.into());
+        if value.is_empty() {
+            Value::List(ValueList::Empty)
+        } else {
+            let mut vec: Vec<Value<'a>> = Vec::with_capacity(value.len());
+            for item in value {
+                vec.push(item.into());
+            }
+            Value::List(ValueList::Owned(vec))
         }
-        Value::List(ValueList::Owned(vec))
     }
 }
 
 impl<'a> From<EnumValue<'a>> for Value<'a> {
-    fn from(value : EnumValue<'a>) -> Self {
+    fn from(value: EnumValue<'a>) -> Self {
         Value::Enum(value)
     }
 }
@@ -108,7 +112,7 @@ impl From<i32> for Value<'static> {
 }
 
 impl From<Uuid> for Value<'static> {
-    fn from(value : Uuid) -> Self {
+    fn from(value: Uuid) -> Self {
         Value::Uuid(value)
     }
 }

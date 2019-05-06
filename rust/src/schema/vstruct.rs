@@ -49,7 +49,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         R: BinaryReader<'a>,
     {
         let list = ListHeader::de_serialize(reader)?;
-        let schema_number_of_fields = self.0.len();
+        let schema_number_of_fields = self.0.len() as u32; // TODO: Overflow
         let number_of_items = list.length();
         // length check
         if schema.config().no_extension() {
@@ -70,7 +70,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
             }
         }
         // validate each item
-        for index in 0..schema_number_of_fields {
+        for index in 0..schema_number_of_fields as usize { // TODO: Overflow
             let field = &self.0[index];
             let validator = field.validator;
             schema.validate(reader, validator)?;
@@ -89,7 +89,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
     {
         let list_header = ListHeader::de_serialize(context.reader())?;
         let number_of_fields = list_header.length();
-        let mut fields = Fields::with_capacity(number_of_fields);
+        let mut fields = Fields::with_capacity(number_of_fields as usize); // TODO: Overflow
         for _ in 0..number_of_fields {
             fields.push(de_serialize_field(context)?);
         }
@@ -101,7 +101,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         S: Schema<'a>,
         W: BinaryWriter,
     {
-        let number_of_fields = self.0.len();
+        let number_of_fields = self.0.len() as u32; // TODO: Overflow
         ListHeader::serialize(writer, &ListHeader::new(number_of_fields))?;
 
         for field in &self.0 {

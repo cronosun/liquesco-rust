@@ -56,7 +56,7 @@ pub trait DeSerializationContext<'a> {
     }
 }
 
-pub fn new_deserialzation_context<'a, R: BinaryReader<'a>>(
+pub fn new_de_serialization_context<'a, R: BinaryReader<'a>>(
     reader: &'a mut R,
 ) -> impl DeSerializationContext<'a> {
     DefaultDeSerializationContext::new(reader)

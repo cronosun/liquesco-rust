@@ -1,16 +1,16 @@
-use crate::serialization::tuuid::Uuid;
+use crate::common::error::LqError;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
-use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
+use crate::serialization::tbinary::TBinary;
 use crate::serialization::tenum::EnumHeader;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::TSInt;
 use crate::serialization::tuint::TUInt;
-use crate::serialization::tbinary::TBinary;
 use crate::serialization::tutf8::TUtf8;
+use crate::serialization::tuuid::Uuid;
 use crate::serialization::type_ids::TYPE_BINARY;
 use crate::serialization::type_ids::TYPE_BOOL_FALSE;
 use crate::serialization::type_ids::TYPE_BOOL_TRUE;
@@ -38,7 +38,7 @@ pub enum Value<'a> {
     Enum(EnumValue<'a>),
     UInt(u64),
     SInt(i64),
-    Uuid(Uuid)
+    Uuid(Uuid),
 }
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -51,35 +51,42 @@ pub enum ValueRef<'a> {
 pub enum ValueList<'a> {
     Owned(Vec<Value<'a>>),
     Borrowed(&'a [Value<'a>]),
+    Empty,
 }
+
+const EMPTY_VALUE_VEC: &'static [Value<'static>] = &[];
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumValue<'a> {
-    ordinal: usize,
-    value: Option<ValueRef<'a>>,
+    ordinal: u32,
+    values: ValueList<'a>,
 }
 
 impl<'a> EnumValue<'a> {
-    pub fn new_no_value(ordinal: usize) -> EnumValue<'static> {
+    pub fn new_no_value(ordinal: u32) -> EnumValue<'static> {
         EnumValue {
             ordinal,
-            value: Option::None,
+            values: ValueList::Empty,
         }
     }
 
-    pub fn new_value<'b, T: Into<ValueRef<'b>>>(ordinal: usize, value: T) -> EnumValue<'b> {
+    pub fn new<'b>(ordinal: u32, value: Value<'b>) -> EnumValue<'b> {
         EnumValue {
             ordinal,
-            value: Option::Some(value.into()),
+            values: ValueList::Owned(vec![value]),
         }
     }
 
-    pub fn ordinal(&self) -> usize {
+    pub fn new_values<'b>(ordinal: u32, values: ValueList<'b>) -> EnumValue<'b> {
+        EnumValue { ordinal, values }
+    }
+
+    pub fn ordinal(&self) -> u32 {
         self.ordinal
     }
 
-    pub fn value(&self) -> &Option<ValueRef<'a>> {
-        &self.value
+    pub fn values(&self) -> &ValueList<'a> {
+        &self.values
     }
 }
 
@@ -102,6 +109,7 @@ impl<'a> Deref for ValueList<'a> {
         match self {
             ValueList::Borrowed(value) => value,
             ValueList::Owned(value) => value,
+            ValueList::Empty => EMPTY_VALUE_VEC,
         }
     }
 }
@@ -121,8 +129,8 @@ impl<'a> DeSerializer<'a> for Value<'a> {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let type_id = reader.peek_header()?.type_id();
-        let value = match type_id {
+        let major_type = reader.peek_header()?.major_type();
+        let value = match major_type {
             TYPE_BOOL_FALSE | TYPE_BOOL_TRUE => Value::Bool(bool::de_serialize(reader)?),
             TYPE_OPTION => {
                 let presence = Presence::de_serialize(reader)?;
@@ -136,11 +144,15 @@ impl<'a> DeSerializer<'a> for Value<'a> {
             TYPE_LIST => {
                 let list_data = ListHeader::de_serialize(reader)?;
                 let length = list_data.length();
-                let mut vec = Vec::with_capacity(length);
-                for _ in 0..length {
-                    vec.push(Value::de_serialize(reader)?);
+                if length == 0 {
+                    Value::List(ValueList::Empty)
+                } else {
+                    let mut vec = Vec::with_capacity(length as usize); // TODO: Overflow
+                    for _ in 0..length {
+                        vec.push(Value::de_serialize(reader)?);
+                    }
+                    Value::List(ValueList::Owned(vec))
                 }
-                Value::List(ValueList::Owned(vec))
             }
             TYPE_BINARY => {
                 let bin = TBinary::de_serialize(reader)?;
@@ -151,17 +163,22 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 Value::Utf8(Cow::Borrowed(string))
             }
             TYPE_ENUM_0 | TYPE_ENUM_1 | TYPE_ENUM_2 | TYPE_ENUM_N => {
-                let enum_data = EnumHeader::de_serialize(reader)?;
-                if enum_data.has_value() {
-                    let value = Box::new(Value::de_serialize(reader)?);
+                let enum_header = EnumHeader::de_serialize(reader)?;
+                let number_of_values = enum_header.number_of_values();
+                if number_of_values > 0 {
+                    // de-serialize data
+                    let mut values = Vec::with_capacity(number_of_values as usize); // TODO: Overflow
+                    for _ in 0..number_of_values {
+                        values.push(Value::de_serialize(reader)?);
+                    }
                     Value::Enum(EnumValue {
-                        ordinal: enum_data.ordinal(),
-                        value: Option::Some(ValueRef::Boxed(value)),
+                        ordinal: enum_header.ordinal(),
+                        values: ValueList::Owned(values),
                     })
                 } else {
                     Value::Enum(EnumValue {
-                        ordinal: enum_data.ordinal(),
-                        value: Option::None,
+                        ordinal: enum_header.ordinal(),
+                        values: ValueList::Empty,
                     })
                 }
             }
@@ -172,13 +189,13 @@ impl<'a> DeSerializer<'a> for Value<'a> {
             TYPE_SINT => {
                 let value = TSInt::de_serialize(reader)?;
                 Value::SInt(value)
-            },
+            }
             TYPE_UUID => {
                 let value = Uuid::de_serialize(reader)?;
                 Value::Uuid(value)
-            },
+            }
             _ => {
-                return LqError::err_new(format!("Unknown type {:?}", type_id));
+                return LqError::err_new(format!("Unknown type {:?}", major_type));
             }
         };
         Result::Ok(value)
@@ -200,27 +217,27 @@ impl<'a> Serializer for Value<'a> {
             },
             Value::List(value) => {
                 let len = value.len();
-                let list_data = ListHeader::new(len);
+                let list_data = ListHeader::new(len as u32); // TODO: Overflow
                 ListHeader::serialize(writer, &list_data)?;
                 for item in value.deref() {
                     Value::serialize(writer, item)?;
                 }
                 Result::Ok(())
-            },
+            }
             Value::Binary(value) => TBinary::serialize(writer, value),
             Value::Utf8(value) => TUtf8::serialize(writer, value),
             Value::Enum(value) => {
-                let enum_data = if value.value.is_some() {
-                    EnumHeader::new_with_value(value.ordinal)
-                } else {
-                    EnumHeader::new(value.ordinal)
-                };
-                EnumHeader::serialize(writer, &enum_data)?;
-                if let Option::Some(some) = &value.value {
-                    Value::serialize(writer, some)
-                } else {
-                    Result::Ok(())
+                let number_of_items = (&(value.values)).len();
+                let enum_header = EnumHeader::new(value.ordinal(), number_of_items as u32); // TODO: Overflow
+                EnumHeader::serialize(writer, &enum_header)?;
+
+                // write values
+                if number_of_items > 0 {
+                    for value in value.values.deref() {
+                        Value::serialize(writer, value)?;
+                    }
                 }
+                Result::Ok(())
             }
             Value::UInt(value) => TUInt::serialize(writer, value),
             Value::SInt(value) => TSInt::serialize(writer, value),

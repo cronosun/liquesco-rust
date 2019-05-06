@@ -1,43 +1,52 @@
-use crate::serialization::util::io_result;
-use crate::serialization::util::try_from_int_result;
 use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
+use enum_repr::EnumRepr;
 use varuint::*;
 
-use std::convert::TryFrom;
 use crate::common::error::LqError;
+use crate::serialization::util::io_result;
 
-use enum_repr::EnumRepr;
-
+/// The major type can be within 0-24 (inclusive).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
-pub struct TypeId(u8);
+pub struct MajorType(u8);
 
+/// Combines the `MajorType` and the `ContentInfo`.
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub struct TypeHeader(u8);
 
+/// Information about the content: How many bytes does the type take and are there
+/// embedded values?
+///
 /// Allowed range: 0 to 9 (inclusive)
 #[EnumRepr(type = "u8")]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
-pub enum LengthMarker {
+pub enum ContentInfo {
+    /// An item with no length and no embedded items.
     Len0 = 0,
+    /// An item with length 1 and no embedded items.
     Len1 = 1,
+    /// An item with length 2 and no embedded items.
     Len2 = 2,
+    /// An item with length 3 and no embedded items.
     Len4 = 3,
+    /// An item with length 4 and no embedded items.
     Len8 = 4,
+    /// An item with length followed by varint and no embedded items.
     VarInt = 5,
     /// container type: Followed by var int for number of items and var int for self length
     ContainerVarIntVarInt = 6,
-    // container type: Followed by var int for number of items. Has no self length.
-    ConainerVarIntEmpty = 7,
-    // container type: Has one item and no self length.
-    ConainerOneEmpty = 8,
-    // reserved for further extensions
+    /// container type: Followed by var int for number of items. Has no self length.
+    ContainerVarIntEmpty = 7,
+    /// container type: Has one item and no self length.
+    ContainerOneEmpty = 8,
+    /// reserved for further extensions
     Reserved = 9,
 }
 
+/// Description about the content of one type: How many bytes and how many embedded items?
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub struct ContainerHeader {
-    number_of_items: usize,
-    self_length: usize,
+pub struct ContentDescription {
+    number_of_embedded_values: u32,
+    self_length: u64,
 }
 
 pub trait Writer {
@@ -64,12 +73,12 @@ pub trait BinaryWriter: std::io::Write + Sized {
     fn write_u8(&mut self, data: u8) -> Result<(), LqError>;
     fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError>;
 
-    fn write_varint(&mut self, value: usize) -> Result<(), LqError> {
-        // TODO: limitation: cannot write more then u64
-        if value > std::u64::MAX as usize {
-            return LqError::err_static("Given value is too large for this machine (usize>u64)");
-        }
-        io_result(WriteVarint::<u64>::write_varint(self, value as u64).map(|_| {}))
+    fn write_varint_u64(&mut self, value: u64) -> Result<(), LqError> {
+        io_result(WriteVarint::<u64>::write_varint(self, value).map(|_| {}))
+    }
+
+    fn write_varint_u32(&mut self, value: u32) -> Result<(), LqError> {
+        io_result(WriteVarint::<u32>::write_varint(self, value).map(|_| {}))
     }
 
     fn write_u16(&mut self, data: u16) -> Result<(), LqError> {
@@ -104,55 +113,44 @@ pub trait BinaryWriter: std::io::Write + Sized {
         BinaryWriter::write_u8(self, header.id())
     }
 
-    fn write_header_u8(&mut self, type_id: TypeId, len: u8) -> Result<(), LqError> {
-        self.write_header_usize(type_id, len as usize)
-    }
-
-    fn write_header_u16(&mut self, type_id: TypeId, len: u16) -> Result<(), LqError> {
-        self.write_header_usize(type_id, len as usize)
-    }
-
-    fn write_header_u32(&mut self, type_id: TypeId, len: u32) -> Result<(), LqError> {
-        self.write_header_usize(type_id, try_from_int_result(usize::try_from(len))?)
-    }
-
-    fn write_header_u64(&mut self, type_id: TypeId, len: u64) -> Result<(), LqError> {
-        self.write_header_usize(type_id, try_from_int_result(usize::try_from(len))?)
-    }
-
-    fn write_header_usize(&mut self, type_id: TypeId, len: usize) -> Result<(), LqError> {
-        let marker = match len {
-            0 => LengthMarker::Len0,
-            1 => LengthMarker::Len1,
-            2 => LengthMarker::Len2,
-            4 => LengthMarker::Len4,
-            8 => LengthMarker::Len8,
-            _ => LengthMarker::VarInt,
-        };
-        self.write_header(TypeHeader::new(marker, type_id))?;
-        if marker == LengthMarker::VarInt {
-            BinaryWriter::write_varint(self, len)?;
-        }
-        Result::Ok(())
-    }
-
-    fn write_container_header(
+    fn write_content_description(
         &mut self,
-        type_id: TypeId,
-        conainer_header: ContainerHeader,
+        major_type: MajorType,
+        content_description: &ContentDescription,
     ) -> Result<(), LqError> {
-        if conainer_header.self_length == 0 && conainer_header.number_of_items == 1 {
-            self.write_header(TypeHeader::new(LengthMarker::ConainerOneEmpty, type_id))
-        } else if conainer_header.self_length == 0 {
-            self.write_header(TypeHeader::new(LengthMarker::ConainerVarIntEmpty, type_id))?;
-            self.write_varint(conainer_header.number_of_items)
+        let self_len = content_description.self_length;
+        let number_of_embedded_values = content_description.number_of_embedded_values;
+        if number_of_embedded_values == 0 {
+            let marker = match self_len {
+                0 => ContentInfo::Len0,
+                1 => ContentInfo::Len1,
+                2 => ContentInfo::Len2,
+                4 => ContentInfo::Len4,
+                8 => ContentInfo::Len8,
+                _ => ContentInfo::VarInt,
+            };
+            self.write_header(TypeHeader::new(marker, major_type))?;
+            if marker == ContentInfo::VarInt {
+                BinaryWriter::write_varint_u64(self, self_len)?;
+            }
+            Result::Ok(())
         } else {
-            self.write_header(TypeHeader::new(
-                LengthMarker::ContainerVarIntVarInt,
-                type_id,
-            ))?;
-            self.write_varint(conainer_header.number_of_items)?;
-            self.write_varint(conainer_header.self_length)
+            if self_len == 0 && number_of_embedded_values == 1 {
+                self.write_header(TypeHeader::new(ContentInfo::ContainerOneEmpty, major_type))
+            } else if self_len == 0 {
+                self.write_header(TypeHeader::new(
+                    ContentInfo::ContainerVarIntEmpty,
+                    major_type,
+                ))?;
+                self.write_varint_u32(number_of_embedded_values)
+            } else {
+                self.write_header(TypeHeader::new(
+                    ContentInfo::ContainerVarIntVarInt,
+                    major_type,
+                ))?;
+                self.write_varint_u32(number_of_embedded_values)?;
+                self.write_varint_u64(self_len)
+            }
         }
     }
 }
@@ -167,13 +165,12 @@ pub trait BinaryReader<'a>: std::io::Read {
         Result::Ok(TypeHeader::from_u8(value))
     }
 
-    fn read_varint(&mut self) -> Result<usize, LqError> {        
-        let value = io_result(ReadVarint::<u64>::read_varint(self))?;
-        // TODO: currently limited
-        if value>std::usize::MAX as u64 {
-            return LqError::err_static("Given value is too large for this machine (usize<u64)");
-        }
-        Result::Ok(value as usize)
+    fn read_varint_u32(&mut self) -> Result<u32, LqError> {
+        io_result(ReadVarint::<u32>::read_varint(self))
+    }
+
+    fn read_varint_u64(&mut self) -> Result<u64, LqError> {
+        io_result(ReadVarint::<u64>::read_varint(self))
     }
 
     fn read_u16(&mut self) -> Result<u16, LqError> {
@@ -188,7 +185,7 @@ pub trait BinaryReader<'a>: std::io::Read {
         io_result(ReadBytesExt::read_u64::<LittleEndian>(self))
     }
 
-    fn read_header(&mut self) -> Result<TypeHeader, LqError> {
+    fn read_type_header(&mut self) -> Result<TypeHeader, LqError> {
         let header_byte = BinaryReader::read_u8(self)?;
         Result::Ok(TypeHeader::from_u8(header_byte))
     }
@@ -209,102 +206,114 @@ pub trait BinaryReader<'a>: std::io::Read {
         io_result(ReadBytesExt::read_i64::<LittleEndian>(self))
     }
 
-    fn read_header_const(&mut self, len: u8) -> Result<TypeId, LqError> {
-        let header = self.read_header_u64()?;
-        let real_len = header.1;
-        if u64::from(len) != real_len {
-            LqError::err_new(format!(
-                "Invalid type length, expecting {:?} but have {:?}",
-                len, real_len
-            ))
-        } else {
-            Result::Ok(header.0)
+    // TODO: Is this used?
+    fn read_expect_content_description(
+        &mut self,
+        self_len: u64,
+        number_of_embedded_values: u32,
+    ) -> Result<MajorType, LqError> {
+        let type_header = self.read_type_header()?;
+        let content_description = self.read_content_description_given_type_header(type_header)?;
+
+        if content_description.number_of_embedded_values != number_of_embedded_values {
+            return LqError::err_new(format!(
+                "Expecting to have {:?} embedded values for this type; have {:?} embedded values.",
+                number_of_embedded_values, content_description.number_of_embedded_values
+            ));
         }
+
+        if content_description.self_length != self_len {
+            return LqError::err_new(format!(
+                "Expecting to a length of {:?} bytes but have a length of {:?} bytes.",
+                self_len, content_description.self_length
+            ));
+        }
+
+        Result::Ok(type_header.major_type())
     }
 
-    fn read_header_u64(&mut self) -> Result<(TypeId, u64), LqError> {
-        let (id, size) = self.read_header_usize()?;
-        Result::Ok((id, try_from_int_result(u64::try_from(size))?))
+    fn read_content_description(&mut self) -> Result<ContentDescription, LqError> {
+        let type_header = self.read_type_header()?;
+        self.read_content_description_given_type_header(type_header)
     }
 
-    fn read_header_usize(&mut self) -> Result<(TypeId, usize), LqError> {
-        let header = self.read_header()?;
-        let marker = header.length_marker();
-        let length = match marker {
-            LengthMarker::Len0 => Result::Ok(0),
-            LengthMarker::Len1 => Result::Ok(1),
-            LengthMarker::Len2 => Result::Ok(2),
-            LengthMarker::Len4 => Result::Ok(4),
-            LengthMarker::Len8 => Result::Ok(8),
-            LengthMarker::VarInt => Result::Ok(self.read_varint()?),
-            LengthMarker::ContainerVarIntVarInt
-            | LengthMarker::ConainerVarIntEmpty
-            | LengthMarker::ConainerOneEmpty => LqError::err_static(
-                "This is a container; the called function cannot be used for containers.",
-            ),
-            LengthMarker::Reserved => LqError::err_static(
-                "Encoding error. Got the reserved value (reserved for future use).",
-            ),
-        }?;
-        Result::Ok((header.type_id(), length))
-    }
-
-    fn read_header_container(&mut self, header: TypeHeader) -> Result<ContainerHeader, LqError> {
-        match header.length_marker() {
-            LengthMarker::ContainerVarIntVarInt => {
-                let number_of_items = self.read_varint()?;
-                let self_length = self.read_varint()?;
-                Result::Ok(ContainerHeader {
-                    number_of_items,
+    fn read_content_description_given_type_header(
+        &mut self,
+        header: TypeHeader,
+    ) -> Result<ContentDescription, LqError> {
+        match header.content_info() {
+            ContentInfo::Len0 => Result::Ok(ContentDescription {
+                number_of_embedded_values: 0,
+                self_length: 0,
+            }),
+            ContentInfo::Len1 => Result::Ok(ContentDescription {
+                number_of_embedded_values: 0,
+                self_length: 1,
+            }),
+            ContentInfo::Len2 => Result::Ok(ContentDescription {
+                number_of_embedded_values: 0,
+                self_length: 2,
+            }),
+            ContentInfo::Len4 => Result::Ok(ContentDescription {
+                number_of_embedded_values: 0,
+                self_length: 4,
+            }),
+            ContentInfo::Len8 => Result::Ok(ContentDescription {
+                number_of_embedded_values: 0,
+                self_length: 8,
+            }),
+            ContentInfo::VarInt => {
+                let self_length = self.read_varint_u64()?;
+                Result::Ok(ContentDescription {
+                    number_of_embedded_values: 0,
                     self_length,
                 })
             }
-            LengthMarker::ConainerOneEmpty => Result::Ok(ContainerHeader {
-                number_of_items: 1,
+            ContentInfo::ContainerVarIntVarInt => {
+                let number_of_embedded_values = self.read_varint_u32()?;
+                let self_length = self.read_varint_u64()?;
+                Result::Ok(ContentDescription {
+                    number_of_embedded_values,
+                    self_length,
+                })
+            }
+            ContentInfo::ContainerOneEmpty => Result::Ok(ContentDescription {
+                number_of_embedded_values: 1,
                 self_length: 0,
             }),
-            LengthMarker::ConainerVarIntEmpty => {
-                let number_of_items = self.read_varint()?;
-                Result::Ok(ContainerHeader {
-                    number_of_items,
+            ContentInfo::ContainerVarIntEmpty => {
+                let number_of_embedded_values = self.read_varint_u32()?;
+                Result::Ok(ContentDescription {
+                    number_of_embedded_values,
                     self_length: 0,
                 })
             }
-            _ => LqError::err_static("Not a container type"),
+            ContentInfo::Reserved => {
+                return LqError::err_static(
+                    "Cannot decode content description: Got the reserved content info 
+                (must not be found; this is reserved for future extensions).",
+                )
+            }
         }
     }
 
     /// Skips a type and all embedded items.
     fn skip(&mut self) -> Result<(), LqError> {
-        let header = self.read_header()?;
-        match header.length_marker() {
-            LengthMarker::ContainerVarIntVarInt
-            | LengthMarker::ConainerVarIntEmpty
-            | LengthMarker::ConainerOneEmpty => {
-                // it's a container type
-                let container_info = self.read_header_container(header)?;
-                self.skip_bytes(container_info.self_length)?;
-                let number_of_embedded_types = container_info.number_of_items();
-                if number_of_embedded_types > 0 {
-                    for _ in 0..number_of_embedded_types {
-                        self.skip()?;
-                    }
-                }
-                Result::Ok(())
-            }
-            LengthMarker::Len0 => self.skip_bytes(0),
-            LengthMarker::Len1 => self.skip_bytes(1),
-            LengthMarker::Len2 => self.skip_bytes(2),
-            LengthMarker::Len4 => self.skip_bytes(4),
-            LengthMarker::Len8 => self.skip_bytes(8),
-            LengthMarker::VarInt => {
-                let number_to_skip = self.read_varint()?;
-                self.skip_bytes(number_to_skip)
-            }
-            LengthMarker::Reserved => {
-                LqError::err_static("Reserved entry! Reserved for further extensions")
+        let header = self.read_type_header()?;
+        let content_description = self.read_content_description_given_type_header(header)?;
+        // first skip "myself"
+        let self_length = content_description.self_length;
+        if self_length > 0 {
+            self.skip_bytes_u64(content_description.self_length)?;
+        }
+        // then skip all embedded values
+        let number_of_embedded_values = content_description.number_of_embedded_values;
+        if number_of_embedded_values > 0 {
+            for _ in 0..number_of_embedded_values {
+                self.skip()?;
             }
         }
+        Result::Ok(())
     }
 
     fn skip_bytes(&mut self, number_of_bytes: usize) -> Result<(), LqError> {
@@ -313,11 +322,18 @@ pub trait BinaryReader<'a>: std::io::Read {
         }
         Result::Ok(())
     }
+
+    fn skip_bytes_u64(&mut self, number_of_bytes: u64) -> Result<(), LqError> {
+        for _ in 0..number_of_bytes {
+            self.read_u8()?;
+        }
+        Result::Ok(())
+    }
 }
 
-impl TypeId {
-    pub const fn new(id: u8) -> TypeId {
-        TypeId(id)
+impl MajorType {
+    pub const fn new(id: u8) -> MajorType {
+        MajorType(id)
     }
 
     pub fn id(self) -> u8 {
@@ -326,7 +342,7 @@ impl TypeId {
 }
 
 impl TypeHeader {
-    pub fn new(len: LengthMarker, id: TypeId) -> TypeHeader {
+    pub fn new(len: ContentInfo, id: MajorType) -> TypeHeader {
         let len_byte = len as u8;
         TypeHeader(id.0 * 10 + len_byte)
     }
@@ -335,14 +351,14 @@ impl TypeHeader {
         TypeHeader(byte)
     }
 
-    pub fn length_marker(self) -> LengthMarker {
+    pub fn content_info(self) -> ContentInfo {
         let len_byte = self.0 % 10;
-        LengthMarker::from_repr(len_byte).unwrap()
+        ContentInfo::from_repr(len_byte).unwrap()
     }
 
-    pub fn type_id(self) -> TypeId {
+    pub fn major_type(self) -> MajorType {
         let id_byte = self.0 / 10;
-        TypeId(id_byte)
+        MajorType(id_byte)
     }
 
     pub fn id(self) -> u8 {
@@ -350,19 +366,45 @@ impl TypeHeader {
     }
 }
 
-impl ContainerHeader {
-    pub fn new(number_of_items: usize, self_length: usize) -> Self {
-        Self {
-            number_of_items,
-            self_length,
-        }
-    }
-
-    pub fn self_length(&self) -> usize {
+impl ContentDescription {
+    /// How many bytes does this type occupy itself (excluding) embedded types.
+    pub fn self_length(&self) -> u64 {
         self.self_length
     }
 
-    pub fn number_of_items(&self) -> usize {
-        self.number_of_items
+    /// How many embedded values does this value have.
+    pub fn number_of_embedded_values(&self) -> u32 {
+        self.number_of_embedded_values
+    }
+
+    pub fn set_number_of_embedded_values(&mut self, number_of_embedded_values: u32) {
+        self.number_of_embedded_values = number_of_embedded_values;
+    }
+
+    pub fn set_self_length(&mut self, self_length: u64) {
+        self.self_length = self_length;
+    }
+
+    pub fn new_self_length(self_length: u64) -> Self {
+        ContentDescription {
+            self_length,
+            number_of_embedded_values: 0,
+        }
+    }
+
+    pub fn new_number_of_embedded_values(number_of_embedded_values: u32) -> Self {
+        ContentDescription {
+            self_length: 0,
+            number_of_embedded_values,
+        }
+    }
+}
+
+impl Default for ContentDescription {
+    fn default() -> Self {
+        ContentDescription {
+            self_length: 0,
+            number_of_embedded_values: 0,
+        }
     }
 }

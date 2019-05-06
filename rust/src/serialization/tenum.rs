@@ -2,43 +2,35 @@ use crate::serialization::type_ids::TYPE_ENUM_0;
 use crate::serialization::type_ids::TYPE_ENUM_1;
 use crate::serialization::type_ids::TYPE_ENUM_2;
 use crate::serialization::type_ids::TYPE_ENUM_N;
-use crate::serialization::util::try_from_int_result;
-use std::convert::TryFrom;
 
 use crate::common::error::LqError;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
-use crate::serialization::core::ContainerHeader;
+use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LengthMarker;
 use crate::serialization::core::Serializer;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {
-    ordinal: usize,
-    has_value: bool, // Mussten das wohl zu einem usize ändern, damit man das extenden kann... (schema evolution) ... oder wir forcieren immer structs als values?
+    ordinal: u32,
+    number_of_values: u32,
 }
 
 impl EnumHeader {
-    pub fn new(ordinal: usize) -> Self {
+    pub fn new(ordinal: u32, number_of_values: u32) -> Self {
         EnumHeader {
             ordinal,
-            has_value: false,
+            number_of_values,
         }
     }
 
-    pub fn new_with_value(ordinal: usize) -> Self {
-        EnumHeader {
-            ordinal,
-            has_value: true,
-        }
+    /// Usually enums have 0 to 1 embedded values. But we also allow more values: this can be used
+    /// for schema evolution - e.g. you can add additional values in the future.
+    pub fn number_of_values(&self) -> u32 {
+        self.number_of_values
     }
 
-    pub fn has_value(&self) -> bool {
-        self.has_value
-    }
-
-    pub fn ordinal(&self) -> usize {
+    pub fn ordinal(&self) -> u32 {
         self.ordinal
     }
 }
@@ -47,46 +39,42 @@ impl<'a> DeSerializer<'a> for EnumHeader {
     type Item = Self;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let header = reader.read_header()?;
+        let type_header = reader.read_type_header()?;
+        let content_description = reader.read_content_description_given_type_header(type_header)?;
+        let major_type = type_header.major_type();
+        let self_length = content_description.self_length();
 
-        if header.type_id() == TYPE_ENUM_N {
-            // container type
-            let container = reader.read_header_container(header)?;
-            let has_value = match container.number_of_items() {
-                0 => false,
-                1 => true,
-                _ => {
-                    return LqError::err_static(
-                        "Enum can contain at max one item. Has more than one embedded item.",
-                    );
-                }
-            };
-            // read ordinal
-            let self_len = container.self_length();
-            let ordinal = match self_len {
-                1 => reader.read_u8()? as usize,
-                2 => reader.read_u16()? as usize,
-                4 => try_from_int_result(usize::try_from(reader.read_u32()?))?,
+        // first we read the ordinal
+        let ordinal: u32 = match major_type {
+            TYPE_ENUM_N => match self_length {
+                1 => reader.read_u8()? as u32,
+                2 => reader.read_u16()? as u32,
+                4 => reader.read_u32()?,
                 _ => {
                     return LqError::err_static("Invalid enum self length.");
                 }
-            };
-            Result::Ok(Self { ordinal, has_value })
-        } else {
-            // no a container type
-            let ordinal = match header.type_id() {
-                TYPE_ENUM_0 => 0,
-                TYPE_ENUM_1 => 1,
-                TYPE_ENUM_2 => 2,
-                _ => return LqError::err_static("Not an enum type."),
-            };
-            let has_value = match header.length_marker() {
-                LengthMarker::ConainerOneEmpty => true,
-                LengthMarker::Len0 => false,
-                _ => return LqError::err_static("Invalid length marker for enum."),
-            };
-            Result::Ok(Self { ordinal, has_value })
-        }
+            },
+            _ => {
+                // length has to be 0 here
+                if self_length != 0 {
+                    return LqError::err_new(format!(
+                        "Expecting to have a self length of 0; have {:?}.",
+                        self_length
+                    ));
+                }
+                match major_type {
+                    TYPE_ENUM_0 => 0,
+                    TYPE_ENUM_1 => 1,
+                    TYPE_ENUM_2 => 2,
+                    _ => return LqError::err_static("Not an enum type."),
+                }
+            }
+        };
+
+        Result::Ok(Self {
+            ordinal,
+            number_of_values: content_description.number_of_embedded_values(),
+        })
     }
 }
 
@@ -95,47 +83,48 @@ impl<'a> Serializer for EnumHeader {
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         let ordinal = item.ordinal;
-        if ordinal > 2 {
-            // need a container
-            let number_of_items = if item.has_value { 1 } else { 0 };
-            let self_len = match ordinal {
-                n if n <= std::u8::MAX as usize => 1,
-                n if n <= std::u16::MAX as usize => 2,
-                n if n <= std::u32::MAX as usize => 4,
+        let major_type = match ordinal {
+            0 => TYPE_ENUM_0,
+            1 => TYPE_ENUM_1,
+            2 => TYPE_ENUM_2,
+            _ => TYPE_ENUM_N,
+        };
+
+        let self_len = if major_type == TYPE_ENUM_N {
+            match ordinal {
+                n if n <= std::u8::MAX as u32 => 1,
+                n if n <= std::u16::MAX as u32 => 2,
+                n if n <= std::u32::MAX as u32 => 4,
                 _ => {
                     return LqError::err_static(
                         "Enum ordinal is too large; supports at max 2^32-1.",
                     )
                 }
-            };
-            let container_header = ContainerHeader::new(number_of_items, self_len);
-            writer.write_container_header(TYPE_ENUM_N, container_header)?;
+            }
+        } else {
+            0
+        };
 
-            // write ordinal
+        // write header
+        let mut content_description = ContentDescription::default();
+        content_description.set_self_length(self_len);
+        content_description.set_number_of_embedded_values(item.number_of_values);
+        writer.write_content_description(major_type, &content_description)?;
+
+        // depending on the ordinal we also have to write the ordinal
+        if major_type == TYPE_ENUM_N {
             match ordinal {
-                n if n <= std::u8::MAX as usize => writer.write_u8(ordinal as u8),
-                n if n <= std::u16::MAX as usize => writer.write_u16(ordinal as u16),
-                n if n <= std::u32::MAX as usize => writer.write_u32(ordinal as u32),
+                n if n <= std::u8::MAX as u32 => writer.write_u8(ordinal as u8),
+                n if n <= std::u16::MAX as u32 => writer.write_u16(ordinal as u16),
+                n if n <= std::u32::MAX as u32 => writer.write_u32(ordinal as u32),
                 _ => {
                     return LqError::err_static(
                         "Enum ordinal is too large; supports at max 2^32-1.",
                     )
                 }
             }?;
-            Result::Ok(())
-        } else {
-            let type_id = match ordinal {
-                0 => TYPE_ENUM_0,
-                1 => TYPE_ENUM_1,
-                2 => TYPE_ENUM_2,
-                _ => return LqError::err_static("Impelentation error"),
-            };
-            if item.has_value {
-                let container_header = ContainerHeader::new(1, 0);
-                writer.write_container_header(type_id, container_header)
-            } else {
-                writer.write_header_u8(type_id, 0)
-            }
         }
+
+        Result::Ok(())
     }
 }

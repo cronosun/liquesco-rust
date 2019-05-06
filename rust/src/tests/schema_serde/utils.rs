@@ -1,4 +1,4 @@
-use crate::schema::core::new_deserialzation_context;
+use crate::schema::core::new_de_serialization_context;
 use crate::schema::core::new_schema_builder;
 use crate::schema::core::Config;
 use crate::schema::core::DeSerializationContext;
@@ -24,7 +24,7 @@ where
 
     // and de-serialize the same thing
     let mut reader: SliceReader = vec.as_slice().into();
-    let deserialization = new_deserialzation_context(&mut reader);
+    let deserialization = new_de_serialization_context(&mut reader);
     let (out_schema, out_reference) = deserialization
         .into_schema(Config::new())
         .expect("Into schema");

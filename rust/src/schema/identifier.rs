@@ -110,10 +110,10 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
     fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
         let list_header = ListHeader::de_serialize(reader)?;
         let number_of_segments = list_header.length();
-        Identifier::validate_number_of_segments(number_of_segments)?;
+        Identifier::validate_number_of_segments(number_of_segments as usize)?; // TODO: Overflow
 
         let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(
-            number_of_segments);
+            number_of_segments as usize); // TODO: Overflow
         for _ in 0..number_of_segments {
             let segment_str = TUtf8::de_serialize(reader)?;
             segments.push(Segment::try_from(segment_str)?);
@@ -127,7 +127,7 @@ impl<'a> Serializer for Identifier<'a> {
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let number_of_segments = item.len();
-        let list_header = ListHeader::new(number_of_segments);
+        let list_header = ListHeader::new(number_of_segments as u32); // TODO: Overflow
         ListHeader::serialize(writer, &list_header)?;
 
         for segment in item.segments() {
