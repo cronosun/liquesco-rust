@@ -315,6 +315,14 @@ pub trait BinaryReader<'a>: std::io::Read {
         Result::Ok(())
     }
 
+    /// Same as `skip` but can skip multiple values.
+    fn skip_n_values(&mut self, number_of_values : usize) -> Result<(), LqError> {
+        for _ in 0..number_of_values {
+            self.skip()?;
+        }
+        Result::Ok(())
+    }
+
     fn skip_bytes(&mut self, number_of_bytes: usize) -> Result<(), LqError> {
         for _ in 0..number_of_bytes {
             self.read_u8()?;

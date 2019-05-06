@@ -10,4 +10,5 @@ pub mod vstruct;
 pub mod vuint;
 pub mod vsint;
 pub mod vascii;
+pub mod vbool;
 

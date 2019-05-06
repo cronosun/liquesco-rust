@@ -1,11 +1,13 @@
 use crate::serialization::type_ids::TYPE_LIST;
 
 use crate::common::error::LqError;
+use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
+use std::convert::TryFrom;
 
 pub struct ListHeader {
     length: u32,
@@ -62,14 +64,7 @@ pub struct ListRead {
 impl ListRead {
     pub fn finish<'a, R: BinaryReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
-        if fields_to_skip > 0 {
-            for _ in 0..fields_to_skip {
-                reader.skip()?;
-            }
-            Result::Ok(())
-        } else {
-            Result::Ok(())
-        }
+        reader.skip_n_values(try_from_int_result(usize::try_from(fields_to_skip))?)        
     }
 }
 
