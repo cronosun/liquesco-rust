@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::fmt::Display;
 use std::error::Error;
 
-#[derive(Debug)]
+#[derive(Debug, Clone, PartialEq, Eq)]
 pub struct LqError {
     pub msg: Cow<'static, str>,
 }

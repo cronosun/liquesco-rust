@@ -8,6 +8,7 @@ use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
 use std::str::from_utf8;
 
+// TODO: Maybe rename to "unicode", since UTF8 implies how we encode
 pub struct TUtf8;
 
 impl<'a> DeSerializer<'a> for TUtf8 {

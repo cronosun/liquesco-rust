@@ -9,7 +9,7 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::tuint::TUInt;
-use crate::serialization::tuint::TUIntU8;
+use crate::serialization::tuint::TUInt8;
 use crate::serialization::tutf8::TUncheckedUtf8;
 
 pub struct VAscii {
@@ -112,8 +112,8 @@ impl<'a> Validator<'a> for VAscii {
             Self::DeSerItem::try_new(
                 TUInt::de_serialize(reader)?,
                 TUInt::de_serialize(reader)?,
-                TUIntU8::de_serialize(reader)?,
-                TUIntU8::de_serialize(reader)?,
+                TUInt8::de_serialize(reader)?,
+                TUInt8::de_serialize(reader)?,
             )
         })
     }
@@ -127,7 +127,7 @@ impl<'a> Validator<'a> for VAscii {
         ListHeader::serialize(writer, &header)?;
         TUInt::serialize(writer, &self.min_characters)?;
         TUInt::serialize(writer, &self.max_characters)?;
-        TUIntU8::serialize(writer, &self.min_value)?;
-        TUIntU8::serialize(writer, &self.max_value)
+        TUInt8::serialize(writer, &self.min_value)?;
+        TUInt8::serialize(writer, &self.max_value)
     }
 }

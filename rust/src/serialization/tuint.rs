@@ -1,3 +1,4 @@
+use crate::common::internal_utils::try_from_int_result;
 use crate::common::error::LqError;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
@@ -5,9 +6,9 @@ use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_UINT;
+use std::convert::TryFrom;
 
 pub struct TUInt;
-pub struct TUIntU8;
 
 impl<'a> DeSerializer<'a> for TUInt {
     type Item = u64;
@@ -73,23 +74,57 @@ impl Serializer for TUInt {
     }
 }
 
-impl<'a> DeSerializer<'a> for TUIntU8 {
+pub struct TUInt8;
+
+impl<'a> DeSerializer<'a> for TUInt8 {
     type Item = u8;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let int = TUInt::de_serialize(reader)?;
-        if int > std::u8::MAX as u64 {
-            return LqError::err_new(format!(
-                "Value is not within the u8 integer range (0-255). Value is {:?}.",
-                int
-            ));
-        }
-        Result::Ok(int as u8)
+        let value = TUInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
     }
 }
 
-impl Serializer for TUIntU8 {
+impl Serializer for TUInt8 {
     type Item = u8;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TUInt::serialize(writer, &(*item as u64))
+    }
+}
+
+pub struct TUInt16;
+
+impl<'a> DeSerializer<'a> for TUInt16 {
+    type Item = u16;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = TUInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
+    }
+}
+
+impl Serializer for TUInt16 {
+    type Item = u16;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TUInt::serialize(writer, &(*item as u64))
+    }
+}
+
+pub struct TUInt32;
+
+impl<'a> DeSerializer<'a> for TUInt32 {
+    type Item = u32;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = TUInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
+    }
+}
+
+impl Serializer for TUInt32 {
+    type Item = u32;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         TUInt::serialize(writer, &(*item as u64))

@@ -7,6 +7,8 @@ use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_BOOL_FALSE;
 use crate::serialization::type_ids::TYPE_BOOL_TRUE;
 
+// TODO: Change bool to TBool (to be consistent with rest)
+
 impl<'a> DeSerializer<'a> for bool {
     type Item = Self;
 

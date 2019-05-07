@@ -1,10 +1,12 @@
 use crate::common::error::LqError;
+use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::type_ids::TYPE_SINT;
+use std::convert::TryFrom;
 
 pub struct TSInt;
 
@@ -71,3 +73,63 @@ impl Serializer for TSInt {
         }
     }
 }
+
+pub struct TSInt8;
+
+impl<'a> DeSerializer<'a> for TSInt8 {
+    type Item = i8;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = TSInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
+    }
+}
+
+impl Serializer for TSInt8 {
+    type Item = i8;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TSInt::serialize(writer, &(*item as i64))
+    }
+}
+
+pub struct TSInt16;
+
+impl<'a> DeSerializer<'a> for TSInt16 {
+    type Item = i16;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = TSInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
+    }
+}
+
+impl Serializer for TSInt16 {
+    type Item = i16;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TSInt::serialize(writer, &(*item as i64))
+    }
+}
+
+pub struct TSInt32;
+
+impl<'a> DeSerializer<'a> for TSInt32 {
+    type Item = i32;
+
+    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = TSInt::de_serialize(reader)?;
+        try_from_int_result(Self::Item::try_from(value))
+    }
+}
+
+impl Serializer for TSInt32 {
+    type Item = i32;
+
+    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        TSInt::serialize(writer, &(*item as i64))
+    }
+}
+
+
+
