@@ -14,3 +14,4 @@ smallvec = "0.6.9"
 derive-new = "0.5"
 serde = {version = "1.0.91", features = ["derive"]}
 #serde_derive = "1.0.91"
+maplit = "1.0.1"

@@ -247,11 +247,18 @@ where
         self.deserialize_seq_like(Option::Some(len), visitor)
     }
 
-    fn deserialize_map<V>(mut self, visitor: V) -> Result<V::Value>
+    /// A map is just a list of lists, like this: [[key1, value1][key2, value2]]
+    fn deserialize_map<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        unimplemented!("TODO")
+        let list_header = ListHeader::de_serialize(&mut self.reader)?;
+        let usize_list_header = try_from_int_result(usize::try_from(list_header.length()))?;
+
+        visitor.visit_map(MapAccessStruct {
+            deserializer: self,
+            items_left: usize_list_header,
+        })
     }
 
     fn deserialize_struct<V>(
@@ -277,7 +284,7 @@ where
     {
         visitor.visit_enum(EnumAccessStruct {
             deserializer: self,
-            input_data_len : 0,
+            input_data_len: 0,
         })
     }
 
@@ -302,7 +309,8 @@ struct EnumAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
     input_data_len: usize,
 }
 
-impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::EnumAccess<'de> for EnumAccessStruct<'a, 'de, R>
+impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::EnumAccess<'de>
+    for EnumAccessStruct<'a, 'de, R>
 where
     R: BinaryReader<'de>,
 {
@@ -339,7 +347,7 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
     {
         let value = serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
         let to_skip = self.input_data_len - 1;
-        if to_skip>0 {
+        if to_skip > 0 {
             self.deserializer.reader.skip_n_values(to_skip)?;
         }
         Ok(value)
@@ -349,7 +357,8 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
     where
         V: serde::de::Visitor<'de>,
     {
-        self.deserializer.deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
+        self.deserializer
+            .deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
     }
 
     fn struct_variant<V>(self, fields: &'static [&'static str], visitor: V) -> Result<V::Value>
@@ -357,7 +366,8 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
         V: serde::de::Visitor<'de>,
     {
         let len = fields.len();
-        self.deserializer.deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
+        self.deserializer
+            .deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
     }
 }
 
@@ -442,5 +452,52 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de>
 
     fn size_hint(&self) -> Option<usize> {
         Some(self.remaining_len)
+    }
+}
+
+struct MapAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+    deserializer: &'a mut Deserializer<'de, R>,
+    items_left: usize,
+}
+
+impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::MapAccess<'de>
+    for MapAccessStruct<'a, 'de, R>
+{
+    type Error = SLqError;
+
+    fn next_key_seed<K>(&mut self, seed: K) -> Result<Option<K::Value>>
+    where
+        K: serde::de::DeserializeSeed<'de>,
+    {
+        if self.items_left > 0 {
+            // Now a pair of key+value starts... so the list _always_ has to have a length of 2
+            let list_header = ListHeader::de_serialize(&mut self.deserializer.reader)?;
+            if list_header.length() != 2 {
+                return Err(LqError::new(
+                    format!("You're trying to deserialize a map. A map has to \
+                be a list of entries; every entry has to be a list of 2 items (key and value). So \
+                a map looks like this: [[key1; value1]; [key2; value2]; [key3; value3]; ...]. The \
+                input list I got does not have 2 items (key and value) for an entry, it has \
+                {:?} items.", list_header.length()),
+                )
+                .into());
+            }
+
+            self.items_left -= 1;
+            Ok(Some(seed.deserialize(&mut *self.deserializer)?))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn next_value_seed<V>(&mut self, seed: V) -> Result<V::Value>
+    where
+        V: serde::de::DeserializeSeed<'de>,
+    {
+        Ok(seed.deserialize(&mut *self.deserializer)?)
+    }
+
+    fn size_hint(&self) -> Option<usize> {
+        Some(self.items_left)
     }
 }
