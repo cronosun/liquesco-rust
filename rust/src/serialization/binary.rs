@@ -1,10 +1,10 @@
-use crate::common::internal_utils::try_from_int_result;
 use crate::common::error::LqError;
+use crate::common::internal_utils::io_result;
+use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::MajorType;
-use crate::common::internal_utils::io_result;
 use std::convert::TryFrom;
 
 #[inline]
@@ -31,9 +31,12 @@ pub fn binary_read<'a, R: BinaryReader<'a>>(
     let len = content_description.self_length();
     // binaries can never contain embedded values
     if content_description.number_of_embedded_values() != 0 {
-        return LqError::err_new(format!("Binary types can never contain embedded values. Got {:?} 
-        embedded values. Major type {:?}.",
-        content_description.number_of_embedded_values(), header.major_type()));
+        return LqError::err_new(format!(
+            "Binary types can never contain embedded values. Got {:?} \
+             embedded values. Major type {:?}.",
+            content_description.number_of_embedded_values(),
+            header.major_type()
+        ));
     }
 
     let usize_len = try_from_int_result(usize::try_from(len))?;

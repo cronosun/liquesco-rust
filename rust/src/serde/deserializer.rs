@@ -4,48 +4,42 @@ use crate::serde::error::SLqError;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tbinary::TBinary;
 use crate::serialization::tbool::TBool;
+use crate::serialization::tenum::EnumHeader;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
 use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
 use crate::serialization::tutf8::TUtf8;
 use serde::de::DeserializeSeed;
+use serde::de::IntoDeserializer;
 use serde::de::SeqAccess;
 use serde::de::Visitor;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 
-use serde::de;
-
 use crate::serialization::core::BinaryReader;
-
-pub fn new_deserializer<'de, R>(reader : R) -> Deserializer<'de, R> where R : BinaryReader<'de> {
-    Deserializer {
-        reader,
-        _marker: &PhantomData,
-    }
-}
 
 pub struct Deserializer<'de, R: BinaryReader<'de>> {
     reader: R,
-    _marker: &'de PhantomData<()>,
+    _phantom: &'de PhantomData<()>,
 }
 
-impl<'de, R: BinaryReader<'de>> Deserializer<'de, R> {
-    pub fn new(reader: R) -> Self {
-        Self {
-            reader,
-            _marker: &PhantomData,
-        }
+pub fn new_deserializer<'de, R: BinaryReader<'de>>(reader: R) -> Deserializer<'de, R> {
+    Deserializer {
+        reader,
+        _phantom: &PhantomData,
     }
 }
 
 type Result<Ok> = std::result::Result<Ok, SLqError>;
 
-impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<'de, R> {
+impl<'de, 'a, R> serde::Deserializer<'de> for &'a mut Deserializer<'de, R>
+where
+    R: BinaryReader<'de>,
+{
     type Error = SLqError;
 
-    fn deserialize_any<V>(self, visitor: V) -> Result<V::Value>
+    fn deserialize_any<V>(self, _: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
@@ -60,8 +54,6 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
         visitor.visit_bool(value)
     }
 
-    // The `parse_signed` function is generic over the integer type `T` so here
-    // it is invoked with `T=i8`. The next 8 methods are similar.
     fn deserialize_i8<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
@@ -158,8 +150,6 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
         }
     }
 
-    // Refer to the "Understanding deserializer lifetimes" page for information
-    // about the three deserialization flavors of strings in Serde.
     fn deserialize_str<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
@@ -237,16 +227,14 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
     where
         V: Visitor<'de>,
     {
-        let list_like = ListLike::unknown_length(self)?;
-        visitor.visit_seq(list_like)
+        self.deserialize_seq_like(Option::None, visitor)
     }
 
     fn deserialize_tuple<V>(self, len: usize, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        let list_like = ListLike::fixed_length(self, len)?;
-        visitor.visit_seq(list_like)
+        self.deserialize_seq_like(Option::Some(len), visitor)
     }
 
     fn deserialize_tuple_struct<V>(
@@ -258,8 +246,7 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
     where
         V: Visitor<'de>,
     {
-        let list_like = ListLike::fixed_length(self, len)?;
-        visitor.visit_seq(list_like)
+        self.deserialize_seq_like(Option::Some(len), visitor)
     }
 
     fn deserialize_map<V>(mut self, visitor: V) -> Result<V::Value>
@@ -278,8 +265,7 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
     where
         V: Visitor<'de>,
     {
-        let list_like = ListLike::fixed_length(self, fields.len())?;
-        visitor.visit_seq(list_like)        
+        self.deserialize_seq_like(Option::Some(fields.len()), visitor)
     }
 
     fn deserialize_enum<V>(
@@ -291,7 +277,7 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
     where
         V: Visitor<'de>,
     {
-        unimplemented!("TODO")
+        visitor.visit_enum(self)
     }
 
     fn deserialize_identifier<V>(self, _: V) -> Result<V::Value>
@@ -310,64 +296,140 @@ impl<'de, R: BinaryReader<'de>> de::Deserializer<'de> for &'de mut Deserializer<
     }
 }
 
-struct ListLike<'de, R : BinaryReader<'de>> {
-    deserializer: &'de mut Deserializer<'de, R>,
-    number_of_items_left: u32,
-    items_to_skip: u32,
-    _marker: &'de PhantomData<()>,
-}
+impl<'de, 'a, R: 'a> serde::de::EnumAccess<'de> for &'a mut Deserializer<'de, R>
+where
+    R: BinaryReader<'de>,
+{
+    type Error = SLqError;
+    type Variant = Self;
 
-impl<'de, R: BinaryReader<'de>> ListLike<'de, R> {
-    fn unknown_length(deserializer: &'de mut Deserializer<'de, R>) -> Result<Self> {
-        let header = ListHeader::de_serialize(&mut deserializer.reader)?;
-        Ok(Self {
-            deserializer,
-            number_of_items_left: header.length(),
-            items_to_skip: 0,
-            _marker: &PhantomData,
-        })
-    }
+    fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant)>
+    where
+        V: serde::de::DeserializeSeed<'de>,
+    {
+        let enum_header = EnumHeader::de_serialize(&mut self.reader)?;
+        let ordinal = enum_header.ordinal();
+        let number_of_values = enum_header.number_of_values();
 
-    fn fixed_length(deserializer: &'de mut Deserializer<'de, R>, length: usize) -> Result<Self> {
-        let header = ListHeader::de_serialize(&mut deserializer.reader)?;
-        let real_length = header.length();
-        let u32_length = try_from_int_result(u32::try_from(length))?;
-        if real_length < u32_length {
-            return Err(LqError::new(format!(
-                "Got a sequence and need at least {:?} items but only \
-                 have {:?} items.",
-                u32_length, real_length
-            ))
-            .into());
-        }
-        let items_to_skip = real_length - u32_length;
-
-        Ok(Self {
-            deserializer,
-            number_of_items_left: header.length(),
-            items_to_skip: items_to_skip,
-            _marker: &PhantomData,
-        })
+        let val: std::result::Result<_, Self::Error> =
+            seed.deserialize(ordinal.into_deserializer());
+        Ok((val?, self))
     }
 }
 
-impl<'de, R: BinaryReader<'de>> SeqAccess<'de> for ListLike<'de, R> {
+// TODO: Irgendwie müssten wir da die richtige läge haben für extensions...
+impl<'de, 'a, R> serde::de::VariantAccess<'de> for &'a mut Deserializer<'de, R>
+where
+    R: BinaryReader<'de>,
+{
     type Error = SLqError;
 
-    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
+    fn unit_variant(self) -> Result<()> {
+        Ok(())
+    }
+
+    fn newtype_variant_seed<T>(self, seed: T) -> Result<T::Value>
     where
-        T: DeserializeSeed<'de>,
+        T: serde::de::DeserializeSeed<'de>,
     {
-        if self.number_of_items_left == 0 {
-            // 99% case this is 0
-            if self.items_to_skip > 0 {
-                let usize_items_to_skip = try_from_int_result(usize::try_from(self.items_to_skip))?;
-                self.deserializer.reader.skip_n_values(usize_items_to_skip)?;
-            }
-            return Ok(None);
-        } else {            
-            self.number_of_items_left = self.number_of_items_left - 1;
-            seed.deserialize(self.deserializer).map(Some)
+        serde::de::DeserializeSeed::deserialize(seed, self)
+    }
+
+    fn tuple_variant<V>(self, len: usize, visitor: V) -> Result<V::Value>
+    where
+        V: serde::de::Visitor<'de>,
+    {
+        self.deserialize_seq_no_header(Option::Some(len), len, visitor)
+    }
+
+    fn struct_variant<V>(self, fields: &'static [&'static str], visitor: V) -> Result<V::Value>
+    where
+        V: serde::de::Visitor<'de>,
+    {
+        let len = fields.len();
+        self.deserialize_seq_no_header(Option::Some(len), len, visitor)
+    }
+}
+
+impl<'de, 'a, R> Deserializer<'de, R>
+where
+    R: BinaryReader<'de>,
+{
+    #[inline]
+    fn deserialize_seq_like<V>(&'a mut self, len: Option<usize>, visitor: V) -> Result<V::Value>
+    where
+        V: Visitor<'de>,
+    {
+        // read length
+        let list_header = ListHeader::de_serialize(&mut self.reader)?;
+        let len_in_input_data = list_header.length();
+        let usize_len_in_input_data = try_from_int_result(usize::try_from(len_in_input_data))?;
+
+        self.deserialize_seq_no_header(len, usize_len_in_input_data, visitor)
+    }
+
+    #[inline]
+    fn deserialize_seq_no_header<V>(
+        &'a mut self,
+        len: Option<usize>,
+        real_len: usize,
+        visitor: V,
+    ) -> Result<V::Value>
+    where
+        V: Visitor<'de>,
+    {
+        struct Access<'a, 'de, R: BinaryReader<'de> + 'a> {
+            deserializer: &'a mut Deserializer<'de, R>,
+            remaining_len: usize,
+            to_skip: usize,
         }
+
+        impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de> for Access<'a, 'de, R> {
+            type Error = SLqError;
+
+            fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
+            where
+                T: serde::de::DeserializeSeed<'de>,
+            {
+                if self.remaining_len > 0 {
+                    self.remaining_len -= 1;
+                    let value =
+                        serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
+
+                    // we skip here, since there's no guarantee we're called again by serde
+                    if self.remaining_len == 0 {
+                        if self.to_skip > 0 {
+                            self.deserializer.reader.skip_n_values(self.to_skip)?;
+                        }
+                    }
+                    Ok(Some(value))
+                } else {
+                    Ok(None)
+                }
+            }
+
+            fn size_hint(&self) -> Option<usize> {
+                Some(self.remaining_len)
+            }
+        }
+
+        let to_read = match len {
+            Option::Some(given_len) => {
+                if given_len > real_len {
+                    real_len
+                } else {
+                    given_len
+                }
+            }
+            Option::None => real_len,
+        };
+
+        let to_skip = real_len - to_read;
+
+        visitor.visit_seq(Access {
+            deserializer: self,
+            remaining_len: to_read,
+            to_skip,
+        })
     }
 }

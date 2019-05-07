@@ -1,5 +1,4 @@
 use crate::serialization::core::BinaryReader;
-use crate::serialization::core::DeSerializer;
 use crate::common::error::LqError;
 use std::io::Read;
 use std::io::Write;
@@ -21,14 +20,7 @@ impl<'a> From<&'a Vec<u8>> for SliceReader<'a> {
     }
 }
 
-impl<'a> SliceReader<'a> {
-    fn read_no_error<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError> {
-        /*let type_id_byte = self.read_u8()?;
-        let type_id = TypeId::new(type_id_byte);*/
-
-        T::de_serialize(self)
-    }
-
+impl<'a> SliceReader<'a> {    
     /// Makes sure the reader has been read completely and there's no additional data.
     pub fn finish(&self) -> Result<(), LqError> {
         if self.offset != self.data.len() {
