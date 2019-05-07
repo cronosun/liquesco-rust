@@ -1,4 +1,5 @@
 use crate::common::error::LqError;
+use crate::common::internal_utils::try_from_int_result;
 use crate::schema::core::Validator;
 use crate::schema::core::{DeSerializationContext, Schema, ValidatorRef};
 use crate::schema::identifier::Identifier;
@@ -7,7 +8,6 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::tlist::ListHeader;
 use smallvec::SmallVec;
 use std::convert::TryFrom;
@@ -37,7 +37,7 @@ impl<'a> Default for VStruct<'a> {
 }
 
 impl<'a> VStruct<'a> {
-    pub fn add(&mut self, field : Field<'a>) {
+    pub fn add(&mut self, field: Field<'a>) {
         self.0.push(field)
     }
 }
@@ -62,18 +62,17 @@ impl<'a> Validator<'a> for VStruct<'a> {
                     schema_number_of_fields, number_of_items
                 ));
             }
-        } else {
-            if number_of_items < schema_number_of_fields {
-                return LqError::err_new(format!(
-                    "Some fields are missing in the given struct. \
-                     Need at least {:?} fields, have {:?} fields.",
-                    schema_number_of_fields, number_of_items
-                ));
-            }
+        } else if number_of_items < schema_number_of_fields {
+            return LqError::err_new(format!(
+                "Some fields are missing in the given struct. \
+                 Need at least {:?} fields, have {:?} fields.",
+                schema_number_of_fields, number_of_items
+            ));
         }
         // validate each item
-        let schema_number_of_fields_usize = try_from_int_result(usize::try_from(schema_number_of_fields))?;
-        for index in 0..schema_number_of_fields_usize { 
+        let schema_number_of_fields_usize =
+            try_from_int_result(usize::try_from(schema_number_of_fields))?;
+        for index in 0..schema_number_of_fields_usize {
             let field = &self.0[index];
             let validator = field.validator;
             schema.validate(reader, validator)?;
@@ -106,7 +105,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         W: BinaryWriter,
     {
         let number_of_fields_u32 = try_from_int_result(u32::try_from(self.0.len()))?;
-            ListHeader::serialize(writer, &ListHeader::new(number_of_fields_u32))?;
+        ListHeader::serialize(writer, &ListHeader::new(number_of_fields_u32))?;
 
         for field in &self.0 {
             serialize_field(field, schema, writer)?;

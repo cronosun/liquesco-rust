@@ -126,23 +126,21 @@ pub trait BinaryWriter: std::io::Write + Sized {
                 BinaryWriter::write_varint_u64(self, self_len)?;
             }
             Result::Ok(())
+        } else if self_len == 0 && number_of_embedded_values == 1 {
+            self.write_header(TypeHeader::new(ContentInfo::ContainerOneEmpty, major_type))
+        } else if self_len == 0 {
+            self.write_header(TypeHeader::new(
+                ContentInfo::ContainerVarIntEmpty,
+                major_type,
+            ))?;
+            self.write_varint_u32(number_of_embedded_values)
         } else {
-            if self_len == 0 && number_of_embedded_values == 1 {
-                self.write_header(TypeHeader::new(ContentInfo::ContainerOneEmpty, major_type))
-            } else if self_len == 0 {
-                self.write_header(TypeHeader::new(
-                    ContentInfo::ContainerVarIntEmpty,
-                    major_type,
-                ))?;
-                self.write_varint_u32(number_of_embedded_values)
-            } else {
-                self.write_header(TypeHeader::new(
-                    ContentInfo::ContainerVarIntVarInt,
-                    major_type,
-                ))?;
-                self.write_varint_u32(number_of_embedded_values)?;
-                self.write_varint_u64(self_len)
-            }
+            self.write_header(TypeHeader::new(
+                ContentInfo::ContainerVarIntVarInt,
+                major_type,
+            ))?;
+            self.write_varint_u32(number_of_embedded_values)?;
+            self.write_varint_u64(self_len)
         }
     }
 }
@@ -279,12 +277,10 @@ pub trait BinaryReader<'a>: std::io::Read {
                     self_length: 0,
                 })
             }
-            ContentInfo::Reserved => {
-                return LqError::err_static(
-                    "Cannot decode content description: Got the reserved content info 
+            ContentInfo::Reserved => LqError::err_static(
+                "Cannot decode content description: Got the reserved content info 
                 (must not be found; this is reserved for future extensions).",
-                )
-            }
+            ),
         }
     }
 
@@ -308,7 +304,7 @@ pub trait BinaryReader<'a>: std::io::Read {
     }
 
     /// Same as `skip` but can skip multiple values.
-    fn skip_n_values(&mut self, number_of_values : usize) -> Result<(), LqError> {
+    fn skip_n_values(&mut self, number_of_values: usize) -> Result<(), LqError> {
         for _ in 0..number_of_values {
             self.skip()?;
         }

@@ -56,7 +56,7 @@ pub enum ValueList<'a> {
     Empty,
 }
 
-const EMPTY_VALUE_VEC: &'static [Value<'static>] = &[];
+const EMPTY_VALUE_VEC: &[Value<'static>] = &[];
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumValue<'a> {
@@ -72,14 +72,14 @@ impl<'a> EnumValue<'a> {
         }
     }
 
-    pub fn new<'b>(ordinal: u32, value: Value<'b>) -> EnumValue<'b> {
+    pub fn new(ordinal: u32, value: Value) -> EnumValue {
         EnumValue {
             ordinal,
             values: ValueList::Owned(vec![value]),
         }
     }
 
-    pub fn new_values<'b>(ordinal: u32, values: ValueList<'b>) -> EnumValue<'b> {
+    pub fn new_values(ordinal: u32, values: ValueList) -> EnumValue {
         EnumValue { ordinal, values }
     }
 

@@ -47,8 +47,8 @@ impl<'a> DeSerializer<'a> for EnumHeader {
         // first we read the ordinal
         let ordinal: u32 = match major_type {
             TYPE_ENUM_N => match self_length {
-                1 => reader.read_u8()? as u32,
-                2 => reader.read_u16()? as u32,
+                1 => u32::from(reader.read_u8()?),
+                2 => u32::from(reader.read_u16()?),
                 4 => reader.read_u32()?,
                 _ => {
                     return LqError::err_static("Invalid enum self length.");
@@ -82,7 +82,7 @@ impl<'a> Serializer for EnumHeader {
     type Item = Self;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        let ordinal = item.ordinal;
+        let ordinal : u32 = item.ordinal;
         let major_type = match ordinal {
             0 => TYPE_ENUM_0,
             1 => TYPE_ENUM_1,
@@ -92,14 +92,9 @@ impl<'a> Serializer for EnumHeader {
 
         let self_len = if major_type == TYPE_ENUM_N {
             match ordinal {
-                n if n <= std::u8::MAX as u32 => 1,
-                n if n <= std::u16::MAX as u32 => 2,
-                n if n <= std::u32::MAX as u32 => 4,
-                _ => {
-                    return LqError::err_static(
-                        "Enum ordinal is too large; supports at max 2^32-1.",
-                    )
-                }
+                n if n <= u32::from(std::u8::MAX) => 1,
+                n if n <= u32::from(std::u16::MAX) => 2,
+                _ => 4,                
             }
         } else {
             0
@@ -114,14 +109,9 @@ impl<'a> Serializer for EnumHeader {
         // depending on the ordinal we also have to write the ordinal
         if major_type == TYPE_ENUM_N {
             match ordinal {
-                n if n <= std::u8::MAX as u32 => writer.write_u8(ordinal as u8),
-                n if n <= std::u16::MAX as u32 => writer.write_u16(ordinal as u16),
-                n if n <= std::u32::MAX as u32 => writer.write_u32(ordinal as u32),
-                _ => {
-                    return LqError::err_static(
-                        "Enum ordinal is too large; supports at max 2^32-1.",
-                    )
-                }
+                n if n <= u32::from(std::u8::MAX) => writer.write_u8(ordinal as u8),
+                n if n <= u32::from(std::u16::MAX) => writer.write_u16(ordinal as u16),
+                _ => writer.write_u32(ordinal),                
             }?;
         }
 

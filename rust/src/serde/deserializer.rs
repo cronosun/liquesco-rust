@@ -439,10 +439,8 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de>
             let value = serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
 
             // we skip here, since there's no guarantee we're called again by serde
-            if self.remaining_len == 0 {
-                if self.to_skip > 0 {
-                    self.deserializer.reader.skip_n_values(self.to_skip)?;
-                }
+            if self.remaining_len == 0 && self.to_skip > 0 {
+                self.deserializer.reader.skip_n_values(self.to_skip)?;
             }
             Ok(Some(value))
         } else {
