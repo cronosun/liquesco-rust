@@ -2,7 +2,7 @@ use crate::tests::serde::utils::can_decode_from;
 use serde::{Deserialize, Serialize};
 
 /// It's always OK when there's more input data than required (this
-/// can be used for schema evolution)
+/// can be used for schema evolution).
 ///
 /// Source has more fields than destination.
 #[test]

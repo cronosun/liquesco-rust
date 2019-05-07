@@ -10,9 +10,7 @@ use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
 use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
 use crate::serialization::tutf8::TUtf8;
-use serde::de::DeserializeSeed;
 use serde::de::IntoDeserializer;
-use serde::de::SeqAccess;
 use serde::de::Visitor;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
@@ -277,7 +275,10 @@ where
     where
         V: Visitor<'de>,
     {
-        visitor.visit_enum(self)
+        visitor.visit_enum(EnumAccessStruct {
+            deserializer: self,
+            input_data_len : 0,
+        })
     }
 
     fn deserialize_identifier<V>(self, _: V) -> Result<V::Value>
@@ -296,20 +297,26 @@ where
     }
 }
 
-impl<'de, 'a, R: 'a> serde::de::EnumAccess<'de> for &'a mut Deserializer<'de, R>
+struct EnumAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+    deserializer: &'a mut Deserializer<'de, R>,
+    input_data_len: usize,
+}
+
+impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::EnumAccess<'de> for EnumAccessStruct<'a, 'de, R>
 where
     R: BinaryReader<'de>,
 {
     type Error = SLqError;
     type Variant = Self;
 
-    fn variant_seed<V>(self, seed: V) -> Result<(V::Value, Self::Variant)>
+    fn variant_seed<V>(mut self, seed: V) -> Result<(V::Value, Self::Variant)>
     where
         V: serde::de::DeserializeSeed<'de>,
     {
-        let enum_header = EnumHeader::de_serialize(&mut self.reader)?;
+        let enum_header = EnumHeader::de_serialize(&mut self.deserializer.reader)?;
         let ordinal = enum_header.ordinal();
         let number_of_values = enum_header.number_of_values();
+        self.input_data_len = try_from_int_result(usize::try_from(number_of_values))?;
 
         let val: std::result::Result<_, Self::Error> =
             seed.deserialize(ordinal.into_deserializer());
@@ -317,10 +324,8 @@ where
     }
 }
 
-// TODO: Irgendwie müssten wir da die richtige läge haben für extensions...
-impl<'de, 'a, R> serde::de::VariantAccess<'de> for &'a mut Deserializer<'de, R>
-where
-    R: BinaryReader<'de>,
+impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
+    for EnumAccessStruct<'a, 'de, R>
 {
     type Error = SLqError;
 
@@ -332,14 +337,19 @@ where
     where
         T: serde::de::DeserializeSeed<'de>,
     {
-        serde::de::DeserializeSeed::deserialize(seed, self)
+        let value = serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
+        let to_skip = self.input_data_len - 1;
+        if to_skip>0 {
+            self.deserializer.reader.skip_n_values(to_skip)?;
+        }
+        Ok(value)
     }
 
     fn tuple_variant<V>(self, len: usize, visitor: V) -> Result<V::Value>
     where
         V: serde::de::Visitor<'de>,
     {
-        self.deserialize_seq_no_header(Option::Some(len), len, visitor)
+        self.deserializer.deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
     }
 
     fn struct_variant<V>(self, fields: &'static [&'static str], visitor: V) -> Result<V::Value>
@@ -347,7 +357,7 @@ where
         V: serde::de::Visitor<'de>,
     {
         let len = fields.len();
-        self.deserialize_seq_no_header(Option::Some(len), len, visitor)
+        self.deserializer.deserialize_seq_no_header(Option::Some(len), self.input_data_len, visitor)
     }
 }
 
@@ -378,41 +388,6 @@ where
     where
         V: Visitor<'de>,
     {
-        struct Access<'a, 'de, R: BinaryReader<'de> + 'a> {
-            deserializer: &'a mut Deserializer<'de, R>,
-            remaining_len: usize,
-            to_skip: usize,
-        }
-
-        impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de> for Access<'a, 'de, R> {
-            type Error = SLqError;
-
-            fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
-            where
-                T: serde::de::DeserializeSeed<'de>,
-            {
-                if self.remaining_len > 0 {
-                    self.remaining_len -= 1;
-                    let value =
-                        serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
-
-                    // we skip here, since there's no guarantee we're called again by serde
-                    if self.remaining_len == 0 {
-                        if self.to_skip > 0 {
-                            self.deserializer.reader.skip_n_values(self.to_skip)?;
-                        }
-                    }
-                    Ok(Some(value))
-                } else {
-                    Ok(None)
-                }
-            }
-
-            fn size_hint(&self) -> Option<usize> {
-                Some(self.remaining_len)
-            }
-        }
-
         let to_read = match len {
             Option::Some(given_len) => {
                 if given_len > real_len {
@@ -426,10 +401,46 @@ where
 
         let to_skip = real_len - to_read;
 
-        visitor.visit_seq(Access {
+        visitor.visit_seq(SeqAccessStruct {
             deserializer: self,
             remaining_len: to_read,
             to_skip,
         })
+    }
+}
+
+struct SeqAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+    deserializer: &'a mut Deserializer<'de, R>,
+    remaining_len: usize,
+    to_skip: usize,
+}
+
+impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de>
+    for SeqAccessStruct<'a, 'de, R>
+{
+    type Error = SLqError;
+
+    fn next_element_seed<T>(&mut self, seed: T) -> Result<Option<T::Value>>
+    where
+        T: serde::de::DeserializeSeed<'de>,
+    {
+        if self.remaining_len > 0 {
+            self.remaining_len -= 1;
+            let value = serde::de::DeserializeSeed::deserialize(seed, &mut *self.deserializer)?;
+
+            // we skip here, since there's no guarantee we're called again by serde
+            if self.remaining_len == 0 {
+                if self.to_skip > 0 {
+                    self.deserializer.reader.skip_n_values(self.to_skip)?;
+                }
+            }
+            Ok(Some(value))
+        } else {
+            Ok(None)
+        }
+    }
+
+    fn size_hint(&self) -> Option<usize> {
+        Some(self.remaining_len)
     }
 }
