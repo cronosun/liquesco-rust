@@ -49,14 +49,6 @@ pub struct ContentDescription {
     self_length: u64,
 }
 
-pub trait Writer {
-    fn write<S: Serializer>(&mut self, item: &S::Item) -> Result<(), LqError>;
-}
-
-pub trait Reader<'a> {
-    fn read<D: DeSerializer<'a>>(&mut self) -> Result<D::Item, LqError>;
-}
-
 pub trait DeSerializer<'a> {
     type Item;
 

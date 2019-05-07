@@ -1,5 +1,6 @@
 use std::fmt::Display;
 use serde::ser;
+use serde::de;
 
 use crate::common::error::LqError;
 
@@ -13,6 +14,12 @@ impl Display for SLqError {
 }
 
 impl ser::Error for SLqError {
+    fn custom<T: Display>(msg: T) -> Self {
+        LqError::new(msg.to_string()).into()
+    }
+}
+
+impl de::Error for SLqError {
     fn custom<T: Display>(msg: T) -> Self {
         LqError::new(msg.to_string()).into()
     }

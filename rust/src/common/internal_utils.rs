@@ -11,8 +11,8 @@ pub fn try_from_int_result<Ok>(result: Result<Ok, TryFromIntError>) -> Result<Ok
     result.map_err(|err| {
         LqError::new(format!(
             "The given integers could not be converted (casted); this \
-    can happen on platforms with small usize. In general this library only works with things as \
-    big as this platform supports; error: {:?}",
+    can either happen on platforms with small usize (in general this library only works with things as \
+    big as this platform supports) - or there's a serialization problem; error: {:?}",
             err
         ))
     })

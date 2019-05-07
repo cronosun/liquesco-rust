@@ -1,7 +1,6 @@
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::DeSerializer;
 use crate::common::error::LqError;
-use crate::serialization::core::Reader;
 use std::io::Read;
 use std::io::Write;
 
@@ -19,33 +18,6 @@ impl<'a> From<&'a [u8]> for SliceReader<'a> {
 impl<'a> From<&'a Vec<u8>> for SliceReader<'a> {
     fn from(data : &'a Vec<u8>) -> Self {
         SliceReader { data : data.as_slice(), offset : 0 }
-    }
-}
-
-impl<'a> Reader<'a> for SliceReader<'a> {
-    fn read<T: DeSerializer<'a>>(&mut self) -> Result<T::Item, LqError> {
-        let original_offset = self.offset;
-        let result = self.read_no_error::<T>();
-        if result.is_err() {
-            result.map_err(|original| {
-                // add some message details
-                let original_msg = &original.msg;
-                let data_len = self.data.len();
-                let offset_to_use = if original_offset < data_len {
-                    self.offset
-                } else {
-                    data_len
-                };
-                let data = &self.data[offset_to_use..];
-                let new_message = format!(
-                "Error reading any data at offset {:?}: \"{:?}\". Binary at offset {:?} is {:?}.",
-                self.offset, original_msg, offset_to_use, data
-            );
-                original.with_msg(new_message)
-            })
-        } else {
-            result
-        }
     }
 }
 

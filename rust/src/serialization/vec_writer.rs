@@ -1,7 +1,5 @@
 use crate::serialization::core::BinaryWriter;
 use crate::common::error::LqError;
-use crate::serialization::core::Serializer;
-use crate::serialization::core::Writer;
 
 pub struct VecWriter {
     data: Vec<u8>,
@@ -10,12 +8,6 @@ pub struct VecWriter {
 impl Default for VecWriter {
     fn default() -> Self {
         VecWriter { data: Vec::new() }
-    }
-}
-
-impl Writer for VecWriter {
-    fn write<T: Serializer>(&mut self, item: &T::Item) -> Result<(), LqError> {
-        T::serialize(self, item)
     }
 }
 
