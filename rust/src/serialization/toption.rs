@@ -4,7 +4,7 @@ use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
-use crate::serialization::type_ids::TYPE_OPTION;
+use crate::serialization::major_types::TYPE_OPTION;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub enum Presence {

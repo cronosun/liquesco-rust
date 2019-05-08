@@ -1,4 +1,4 @@
-use crate::serialization::type_ids::TYPE_LIST;
+use crate::serialization::major_types::TYPE_LIST;
 
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;

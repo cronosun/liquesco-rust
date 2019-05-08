@@ -5,7 +5,7 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
-use crate::serialization::type_ids::TYPE_UUID;
+use crate::serialization::major_types::TYPE_UUID;
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
 pub struct Uuid([u8; 16]);

@@ -1,4 +1,4 @@
-use crate::serialization::type_ids::TYPE_BINARY;
+use crate::serialization::major_types::TYPE_BINARY;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::core::BinaryReader;

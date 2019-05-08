@@ -5,7 +5,7 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::serialization::type_ids::TYPE_UINT;
+use crate::serialization::major_types::TYPE_UINT;
 use std::convert::TryFrom;
 
 pub struct TUInt;

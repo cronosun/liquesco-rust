@@ -9,7 +9,7 @@ use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
 use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
-use crate::serialization::tutf8::TUtf8;
+use crate::serialization::tunicode::TUnicode;
 use std::convert::TryFrom;
 
 use serde::ser;
@@ -91,7 +91,7 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
     }
 
     fn serialize_str(self, v: &str) -> Result<()> {
-        Ok(TUtf8::serialize(self.writer, v)?)
+        Ok(TUnicode::serialize(self.writer, v)?)
     }
 
     fn serialize_bytes(self, v: &[u8]) -> Result<()> {

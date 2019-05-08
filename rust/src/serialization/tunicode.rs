@@ -3,19 +3,19 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::binary::binary_write;
 use crate::serialization::core::BinaryWriter;
-use crate::serialization::type_ids::TYPE_UTF8;
+use crate::serialization::major_types::TYPE_UNICODE;
 use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
 use std::str::from_utf8;
 
-pub struct Unicode;
+pub struct TUnicode;
 
-impl<'a> DeSerializer<'a> for Unicode {
+impl<'a> DeSerializer<'a> for TUnicode {
     type Item = &'a str;
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
-        if id!=TYPE_UTF8 {
+        if id!= TYPE_UNICODE {
             return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
             id));
         }
@@ -27,7 +27,7 @@ impl<'a> DeSerializer<'a> for Unicode {
     }
 }
 
-impl Serializer for Unicode {
+impl Serializer for TUnicode {
     type Item = str;
 
     fn serialize<W: BinaryWriter>(
@@ -35,19 +35,18 @@ impl Serializer for Unicode {
         item: &Self::Item,
     ) -> Result<(), LqError> {
         let as_utf8 = item.as_bytes();
-        binary_write(as_utf8, writer, TYPE_UTF8)
+        binary_write(as_utf8, writer, TYPE_UNICODE)
     }
 }
 
+pub struct TUncheckedUnicode;
 
-pub struct TUncheckedUtf8;
-
-impl<'a> DeSerializer<'a> for TUncheckedUtf8 {
+impl<'a> DeSerializer<'a> for TUncheckedUnicode {
     type Item = &'a [u8];
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
-        if id!=TYPE_UTF8 {
+        if id!= TYPE_UNICODE {
             return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
             id));
         }
@@ -55,13 +54,13 @@ impl<'a> DeSerializer<'a> for TUncheckedUtf8 {
     }
 }
 
-impl Serializer for TUncheckedUtf8 {
+impl Serializer for TUncheckedUnicode {
     type Item = [u8];
 
     fn serialize<W: BinaryWriter>(
         writer: &mut W,
         item: &Self::Item,
     ) -> Result<(), LqError> {
-        binary_write(item, writer, TYPE_UTF8)
+        binary_write(item, writer, TYPE_UNICODE)
     }
 }

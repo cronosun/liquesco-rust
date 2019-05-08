@@ -16,19 +16,19 @@ impl From<bool> for Value<'static> {
 
 impl From<String> for Value<'static> {
     fn from(value: String) -> Self {
-        Value::Utf8(Cow::Owned(value))
+        Value::Unicode(Cow::Owned(value))
     }
 }
 
 impl<'a> From<&'a String> for Value<'a> {
     fn from(value: &'a String) -> Self {
-        Value::Utf8(Cow::Borrowed(value))
+        Value::Unicode(Cow::Borrowed(value))
     }
 }
 
 impl<'a> From<&'a str> for Value<'a> {
     fn from(value: &'a str) -> Self {
-        Value::Utf8(Cow::Borrowed(value))
+        Value::Unicode(Cow::Borrowed(value))
     }
 }
 
@@ -181,7 +181,7 @@ impl<'a> TryFrom<&'a Value<'a>> for &'a str {
     type Error = LqError;
 
     fn try_from(value: &'a Value<'a>) -> Result<Self, Self::Error> {
-        if let Value::Utf8(utf8) = value {
+        if let Value::Unicode(utf8) = value {
             Result::Ok(utf8)
         } else {
             invalid_type("utf8", value)

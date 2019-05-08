@@ -1,7 +1,7 @@
-use crate::serialization::type_ids::TYPE_ENUM_0;
-use crate::serialization::type_ids::TYPE_ENUM_1;
-use crate::serialization::type_ids::TYPE_ENUM_2;
-use crate::serialization::type_ids::TYPE_ENUM_N;
+use crate::serialization::major_types::TYPE_ENUM_0;
+use crate::serialization::major_types::TYPE_ENUM_1;
+use crate::serialization::major_types::TYPE_ENUM_2;
+use crate::serialization::major_types::TYPE_ENUM_N;
 
 use crate::common::error::LqError;
 use crate::serialization::core::BinaryReader;

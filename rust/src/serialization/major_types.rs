@@ -7,7 +7,7 @@ pub const TYPE_BOOL_TRUE: MajorType = MajorType::new(1);
 pub const TYPE_OPTION: MajorType = MajorType::new(2);
 pub const TYPE_LIST: MajorType = MajorType::new(3);
 pub const TYPE_BINARY: MajorType = MajorType::new(4);
-pub const TYPE_UTF8: MajorType = MajorType::new(5);
+pub const TYPE_UNICODE: MajorType = MajorType::new(5);
 
 pub const TYPE_ENUM_0: MajorType = MajorType::new(6);
 pub const TYPE_ENUM_1: MajorType = MajorType::new(7);

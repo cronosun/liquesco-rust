@@ -10,7 +10,7 @@ use crate::serialization::core::Serializer;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::tuint::TUInt;
 use crate::serialization::tuint::TUInt8;
-use crate::serialization::tutf8::TUncheckedUtf8;
+use crate::serialization::tunicode::TUncheckedUnicode;
 
 pub struct VAscii {
     /// Minimum number of characters required (inclusive).
@@ -70,7 +70,7 @@ impl<'a> Validator<'a> for VAscii {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let bytes = TUncheckedUtf8::de_serialize(reader)?;
+        let bytes = TUncheckedUnicode::de_serialize(reader)?;
 
         // first check length (that's faster)
         let length = bytes.len();

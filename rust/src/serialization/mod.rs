@@ -5,11 +5,11 @@ pub mod value;
 pub mod value_into;
 pub mod dyn_reader;
 
-pub(self) mod type_ids;
+pub(self) mod major_types;
 pub(self) mod binary;
 
 pub mod tbool;
-pub mod tutf8;
+pub mod tunicode;
 pub mod tbinary;
 pub mod toption;
 pub mod tlist;

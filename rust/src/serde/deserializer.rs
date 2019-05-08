@@ -9,7 +9,7 @@ use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
 use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
-use crate::serialization::tutf8::TUtf8;
+use crate::serialization::tunicode::TUnicode;
 use serde::de::IntoDeserializer;
 use serde::de::Visitor;
 use std::convert::TryFrom;
@@ -152,7 +152,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUtf8::de_serialize(&mut self.reader)?;
+        let value = TUnicode::de_serialize(&mut self.reader)?;
         visitor.visit_borrowed_str(value)
     }
 
@@ -160,7 +160,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUtf8::de_serialize(&mut self.reader)?;
+        let value = TUnicode::de_serialize(&mut self.reader)?;
         visitor.visit_string(value.into())
     }
 

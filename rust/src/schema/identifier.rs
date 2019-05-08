@@ -6,7 +6,7 @@ use core::convert::TryFrom;
 use crate::common::error::LqError;
 use std::borrow::Cow;
 use smallvec::SmallVec;
-use crate::serialization::tutf8::TUtf8;
+use crate::serialization::tunicode::TUnicode;
 use std::ops::Deref;
 
 const SEGMENT_MIN_LEN: usize = 1;
@@ -117,7 +117,7 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
         let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(
             usize_number_of_segments);
         for _ in 0..number_of_segments {
-            let segment_str = TUtf8::de_serialize(reader)?;
+            let segment_str = TUnicode::de_serialize(reader)?;
             segments.push(Segment::try_from(segment_str)?);
         }
         Result::Ok(Identifier(segments))
@@ -134,7 +134,7 @@ impl<'a> Serializer for Identifier<'a> {
         ListHeader::serialize(writer, &list_header)?;
 
         for segment in item.segments() {
-            TUtf8::serialize(writer, &segment)?;
+            TUnicode::serialize(writer, &segment)?;
         }
         Result::Ok(())
     }

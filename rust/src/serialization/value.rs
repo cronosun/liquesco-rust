@@ -10,21 +10,21 @@ use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::TSInt;
 use crate::serialization::tuint::TUInt;
-use crate::serialization::tutf8::TUtf8;
+use crate::serialization::tunicode::TUnicode;
 use crate::serialization::tuuid::Uuid;
-use crate::serialization::type_ids::TYPE_BINARY;
-use crate::serialization::type_ids::TYPE_BOOL_FALSE;
-use crate::serialization::type_ids::TYPE_BOOL_TRUE;
-use crate::serialization::type_ids::TYPE_ENUM_0;
-use crate::serialization::type_ids::TYPE_ENUM_1;
-use crate::serialization::type_ids::TYPE_ENUM_2;
-use crate::serialization::type_ids::TYPE_ENUM_N;
-use crate::serialization::type_ids::TYPE_LIST;
-use crate::serialization::type_ids::TYPE_OPTION;
-use crate::serialization::type_ids::TYPE_SINT;
-use crate::serialization::type_ids::TYPE_UINT;
-use crate::serialization::type_ids::TYPE_UTF8;
-use crate::serialization::type_ids::TYPE_UUID;
+use crate::serialization::major_types::TYPE_BINARY;
+use crate::serialization::major_types::TYPE_BOOL_FALSE;
+use crate::serialization::major_types::TYPE_BOOL_TRUE;
+use crate::serialization::major_types::TYPE_ENUM_0;
+use crate::serialization::major_types::TYPE_ENUM_1;
+use crate::serialization::major_types::TYPE_ENUM_2;
+use crate::serialization::major_types::TYPE_ENUM_N;
+use crate::serialization::major_types::TYPE_LIST;
+use crate::serialization::major_types::TYPE_OPTION;
+use crate::serialization::major_types::TYPE_SINT;
+use crate::serialization::major_types::TYPE_UINT;
+use crate::serialization::major_types::TYPE_UNICODE;
+use crate::serialization::major_types::TYPE_UUID;
 use std::convert::TryFrom;
 use std::ops::Deref;
 
@@ -33,7 +33,7 @@ use std::borrow::Cow;
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Value<'a> {
     Bool(bool),
-    Utf8(Cow<'a, str>),
+    Unicode(Cow<'a, str>),
     Binary(Cow<'a, [u8]>),
     Option(Option<ValueRef<'a>>),
     List(ValueList<'a>),
@@ -161,9 +161,9 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let bin = TBinary::de_serialize(reader)?;
                 Value::Binary(Cow::Borrowed(bin))
             }
-            TYPE_UTF8 => {
-                let string = TUtf8::de_serialize(reader)?;
-                Value::Utf8(Cow::Borrowed(string))
+            TYPE_UNICODE => {
+                let string = TUnicode::de_serialize(reader)?;
+                Value::Unicode(Cow::Borrowed(string))
             }
             TYPE_ENUM_0 | TYPE_ENUM_1 | TYPE_ENUM_2 | TYPE_ENUM_N => {
                 let enum_header = EnumHeader::de_serialize(reader)?;
@@ -231,7 +231,7 @@ impl<'a> Serializer for Value<'a> {
                 Result::Ok(())
             }
             Value::Binary(value) => TBinary::serialize(writer, value),
-            Value::Utf8(value) => TUtf8::serialize(writer, value),
+            Value::Unicode(value) => TUnicode::serialize(writer, value),
             Value::Enum(value) => {
                 let number_of_items = (&(value.values)).len();
                 let u32_number_of_items = try_from_int_result(u32::try_from(number_of_items))?;
