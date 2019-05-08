@@ -6,6 +6,7 @@ use crate::schema::vbool::VBool;
 use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
+use crate::schema::venum::VEnum;
 
 #[derive(Clone)]
 pub enum AnyValidator<'a> {
@@ -14,6 +15,7 @@ pub enum AnyValidator<'a> {
     SInt(VSInt),
     Ascii(VAscii),
     Bool(VBool),
+    Enum(VEnum<'a>),
 }
 
 impl<'a> Validator<'a> for AnyValidator<'a> {
@@ -27,6 +29,7 @@ impl<'a> Validator<'a> for AnyValidator<'a> {
             AnyValidator::SInt(value) => value.validate(context),
             AnyValidator::Ascii(value) => value.validate(context),
             AnyValidator::Bool(value) => value.validate(context),
+            AnyValidator::Enum(value) => value.validate(context),
         }
     }
 }

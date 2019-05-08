@@ -8,4 +8,5 @@ pub mod vuint;
 pub mod vsint;
 pub mod vascii;
 pub mod vbool;
+pub mod venum;
 
