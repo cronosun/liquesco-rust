@@ -11,8 +11,9 @@ use crate::serialization::major_types::TYPE_BOOL_TRUE;
 use crate::serialization::major_types::TYPE_ENUM_0;
 use crate::serialization::major_types::TYPE_ENUM_1;
 use crate::serialization::major_types::TYPE_ENUM_2;
+use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
-use crate::serialization::major_types::TYPE_LIST;
+use crate::serialization::major_types::TYPE_SEQ;
 use crate::serialization::major_types::TYPE_OPTION;
 use crate::serialization::major_types::TYPE_SINT;
 use crate::serialization::major_types::TYPE_UINT;
@@ -144,7 +145,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                     Presence::Absent => Value::Option(Option::None),
                 }
             }
-            TYPE_LIST => {
+            TYPE_SEQ => {
                 let list_data = SeqHeader::de_serialize(reader)?;
                 let length = list_data.length();
                 if length == 0 {
@@ -166,7 +167,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let string = Unicode::de_serialize(reader)?;
                 Value::Unicode(Cow::Borrowed(string))
             }
-            TYPE_ENUM_0 | TYPE_ENUM_1 | TYPE_ENUM_2 | TYPE_ENUM_N => {
+            TYPE_ENUM_0 | TYPE_ENUM_1 | TYPE_ENUM_2 | TYPE_ENUM_3 | TYPE_ENUM_N => {
                 let enum_header = EnumHeader::de_serialize(reader)?;
                 let number_of_values = enum_header.number_of_values();
                 if number_of_values > 0 {

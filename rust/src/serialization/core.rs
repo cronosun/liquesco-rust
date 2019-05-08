@@ -16,7 +16,7 @@ pub struct TypeHeader(u8);
 /// Information about the content: How many bytes does the type take and are there
 /// embedded values?
 ///
-/// Allowed range: 0 to 11 (inclusive; 12 items)
+/// Allowed range: 0 to 12 (inclusive; 13 items)
 #[EnumRepr(type = "u8")]
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub enum ContentInfo {
@@ -34,16 +34,18 @@ pub enum ContentInfo {
     Len16 = 5,
     /// An item with length 32 and no embedded items.    
     VarInt = 6,
-    /// container type: Followed by var int for number of items and var int for self length
-    ContainerVarIntVarInt = 7,
-    /// container type: Followed by var int for number of items. Has no self length.
-    ContainerVarIntEmpty = 8,
-    /// container type: Has one item and no self length.
-    ContainerOneEmpty = 9,
-    /// container type: Has two items and no self length.
-    ContainerTwoEmpty = 10,
+    /// Container: #embedded items: 1; self length: 0.
+    ContainerOneEmpty = 7,
+    /// Container: #embedded items: 2; self length: 0.
+    ContainerTwoEmpty = 8,
+    /// Container: #embedded items: 1; self length: 1.
+    ContainerOneOne = 9,
+    /// Container: #embedded items: encoded as var int; self length: 0.
+    ContainerVarIntEmpty = 10,
+    /// Container: #embedded items: encoded as var int; self length: encoded as var int.    
+    ContainerVarIntVarInt = 11,
     /// reserved for further extensions
-    Reserved = 11,
+    Reserved = 12,
 }
 
 /// Description about the content of one type: How many bytes and how many embedded items?
@@ -143,6 +145,8 @@ pub trait BinaryWriter: std::io::Write + Sized {
             self.write_header(TypeHeader::new(ContentInfo::ContainerOneEmpty, major_type))
         } else if self_len == 0 && number_of_embedded_values == 2 {
             self.write_header(TypeHeader::new(ContentInfo::ContainerTwoEmpty, major_type))
+        } else if self_len == 1 && number_of_embedded_values == 1 {
+            self.write_header(TypeHeader::new(ContentInfo::ContainerOneOne, major_type))
         } else if self_len == 0 {
             self.write_header(TypeHeader::new(
                 ContentInfo::ContainerVarIntEmpty,
@@ -274,7 +278,7 @@ pub trait BinaryReader<'a>: std::io::Read {
                 number_of_embedded_values: 0,
                 self_length: 8,
             }),
-                        ContentInfo::Len16 => Result::Ok(ContentDescription {
+            ContentInfo::Len16 => Result::Ok(ContentDescription {
                 number_of_embedded_values: 0,
                 self_length: 16,
             }),
@@ -296,6 +300,10 @@ pub trait BinaryReader<'a>: std::io::Read {
             ContentInfo::ContainerOneEmpty => Result::Ok(ContentDescription {
                 number_of_embedded_values: 1,
                 self_length: 0,
+            }),
+            ContentInfo::ContainerOneOne => Result::Ok(ContentDescription {
+                number_of_embedded_values: 1,
+                self_length: 1,
             }),
             ContentInfo::ContainerTwoEmpty => Result::Ok(ContentDescription {
                 number_of_embedded_values: 2,
@@ -367,10 +375,12 @@ impl MajorType {
     }
 }
 
+const FACTOR: u8 = 13;
+
 impl TypeHeader {
     pub fn new(len: ContentInfo, id: MajorType) -> TypeHeader {
         let len_byte = len as u8;
-        TypeHeader(id.0 * 12 + len_byte)
+        TypeHeader(id.0 * FACTOR + len_byte)
     }
 
     pub(crate) fn from_u8(byte: u8) -> TypeHeader {
@@ -378,12 +388,12 @@ impl TypeHeader {
     }
 
     pub fn content_info(self) -> ContentInfo {
-        let len_byte = self.0 % 12;
+        let len_byte = self.0 % FACTOR;
         ContentInfo::from_repr(len_byte).unwrap()
     }
 
     pub fn major_type(self) -> MajorType {
-        let id_byte = self.0 / 12;
+        let id_byte = self.0 / FACTOR;
         MajorType(id_byte)
     }
 

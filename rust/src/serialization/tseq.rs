@@ -1,4 +1,4 @@
-use crate::serialization::major_types::TYPE_LIST;
+use crate::serialization::major_types::TYPE_SEQ;
 
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
@@ -73,7 +73,7 @@ impl<'a> DeSerializer<'a> for SeqHeader {
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
-        if type_header.major_type() != TYPE_LIST {
+        if type_header.major_type() != TYPE_SEQ {
             return LqError::err_static("Not a list type");
         }
         let content_description = reader.read_content_description_given_type_header(type_header)?;
@@ -95,7 +95,7 @@ impl<'a> Serializer for SeqHeader {
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         writer.write_content_description(
-            TYPE_LIST,
+            TYPE_SEQ,
             &ContentDescription::new_number_of_embedded_values(item.length),
         )
     }

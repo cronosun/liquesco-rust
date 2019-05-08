@@ -1,6 +1,7 @@
 use crate::serialization::major_types::TYPE_ENUM_0;
 use crate::serialization::major_types::TYPE_ENUM_1;
 use crate::serialization::major_types::TYPE_ENUM_2;
+use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
 
 use crate::common::error::LqError;
@@ -66,6 +67,7 @@ impl<'a> DeSerializer<'a> for EnumHeader {
                     TYPE_ENUM_0 => 0,
                     TYPE_ENUM_1 => 1,
                     TYPE_ENUM_2 => 2,
+                    TYPE_ENUM_3 => 3,
                     _ => return LqError::err_static("Not an enum type."),
                 }
             }
@@ -87,6 +89,7 @@ impl<'a> Serializer for EnumHeader {
             0 => TYPE_ENUM_0,
             1 => TYPE_ENUM_1,
             2 => TYPE_ENUM_2,
+            3 => TYPE_ENUM_3,
             _ => TYPE_ENUM_N,
         };
 
