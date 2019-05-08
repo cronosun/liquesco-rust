@@ -1,31 +1,27 @@
+use crate::schema::core::Context;
 use crate::common::error::LqError;
-use crate::schema::core::DeSerializationContext;
-use crate::schema::core::Schema;
 use crate::schema::core::Validator;
 use crate::schema::validators::Validators;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::Serializer;
-use crate::serialization::tseq::SeqHeader;
 use crate::serialization::tsint::SInt64;
 
+#[derive(Clone)]
 pub struct VSInt {
-    min_value: i64,
-    max_value: i64,
+    min: i64,
+    max: i64,
 }
 
 impl VSInt {
-    pub fn try_new(min_value: i64, max_value: i64) -> Result<Self, LqError> {
-        if min_value > max_value {
+    pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
+        if min > max {
             LqError::err_new(format!(
                 "Min value ({:?}) is greater then max value ({:?}).",
-                min_value, max_value
+                min, max
             ))
         } else {
             Result::Ok(Self {
-                min_value,
-                max_value,
+                min,
+                max,
             })
         }
     }
@@ -38,49 +34,25 @@ impl<'a> From<VSInt> for Validators<'a> {
 }
 
 impl<'a> Validator<'a> for VSInt {
-    type DeSerItem = Self;
 
-    fn validate<S, R>(&self, _: &S, reader: &mut R) -> Result<(), LqError>
+    fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        S: Schema<'a>,
-        R: BinaryReader<'a>,
-    {
-        let int_value = SInt64::de_serialize(reader)?;
-        if int_value < self.min_value {
+        C: Context<'c> {
+        let int_value = SInt64::de_serialize(context.reader())?;
+        if int_value < self.min {
             return LqError::err_new(format!(
                 "Given integer {:?} is too small (minimum \
                  allowed is {:?})",
-                int_value, self.min_value
+                int_value, self.min
             ));
         }
-        if int_value > self.max_value {
+        if int_value > self.max {
             return LqError::err_new(format!(
                 "Given integer {:?} is too large (maximum \
                  allowed is {:?})",
-                int_value, self.max_value
+                int_value, self.max
             ));
         }
         Result::Ok(())
-    }
-
-    fn de_serialize<TContext>(context: &mut TContext) -> Result<Self::DeSerItem, LqError>
-    where
-        TContext: DeSerializationContext<'a>,
-    {
-        let header = SeqHeader::de_serialize(context.reader())?;
-        header.read_struct(context.reader(), 2, |reader| {
-            Self::DeSerItem::try_new(SInt64::de_serialize(reader)?, SInt64::de_serialize(reader)?)
-        })
-    }
-
-    fn serialize<S, W>(&self, _: &S, writer: &mut W) -> Result<(), LqError>
-    where
-        S: Schema<'a>,
-        W: BinaryWriter,
-    {
-        let header = SeqHeader::new(2);
-        SeqHeader::serialize(writer, &header)?;
-        SInt64::serialize(writer, &self.min_value)?;
-        SInt64::serialize(writer, &self.max_value)
     }
 }

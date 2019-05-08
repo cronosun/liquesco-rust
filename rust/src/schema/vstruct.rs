@@ -1,13 +1,12 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
+use crate::schema::core::Context;
 use crate::schema::core::Validator;
-use crate::schema::core::{DeSerializationContext, Schema, ValidatorRef};
+use crate::schema::core::ValidatorRef;
 use crate::schema::identifier::Identifier;
 use crate::schema::validators::Validators;
 use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::Serializer;
 use crate::serialization::tseq::SeqHeader;
 use smallvec::SmallVec;
 use std::convert::TryFrom;
@@ -15,10 +14,10 @@ use std::convert::TryFrom;
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
-#[derive(new)]
+#[derive(new, Clone)]
 pub struct VStruct<'a>(Fields<'a>);
 
-#[derive(new)]
+#[derive(new, Clone)]
 pub struct Field<'a> {
     identifier: Identifier<'a>,
     validator: ValidatorRef,
@@ -43,18 +42,15 @@ impl<'a> VStruct<'a> {
 }
 
 impl<'a> Validator<'a> for VStruct<'a> {
-    type DeSerItem = Self;
-
-    fn validate<S, R>(&self, schema: &S, reader: &mut R) -> Result<(), LqError>
+    fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        S: Schema<'a>,
-        R: BinaryReader<'a>,
+        C: Context<'c>,
     {
-        let list = SeqHeader::de_serialize(reader)?;
+        let list = SeqHeader::de_serialize(context.reader())?;
         let schema_number_of_fields = try_from_int_result(u32::try_from(self.0.len()))?;
         let number_of_items = list.length();
         // length check
-        if schema.config().no_extension() {
+        if context.config().no_extension() {
             if number_of_items != schema_number_of_fields {
                 return LqError::err_new(format!(
                     "Invalid number of items in struct. \
@@ -75,40 +71,12 @@ impl<'a> Validator<'a> for VStruct<'a> {
         for index in 0..schema_number_of_fields_usize {
             let field = &self.0[index];
             let validator = field.validator;
-            schema.validate(reader, validator)?;
+            context.validate(validator)?;
         }
-        // skip the rest
+        // skip the rest of the fields
         let to_skip = number_of_items - schema_number_of_fields;
         for _ in 0..to_skip {
-            reader.skip()?;
-        }
-        Result::Ok(())
-    }
-
-    fn de_serialize<TContext>(context: &mut TContext) -> Result<Self::DeSerItem, LqError>
-    where
-        TContext: DeSerializationContext<'a>,
-    {
-        let list_header = SeqHeader::de_serialize(context.reader())?;
-        let number_of_fields = list_header.length();
-        let number_of_fields_usize = try_from_int_result(usize::try_from(number_of_fields))?;
-        let mut fields = Fields::with_capacity(number_of_fields_usize);
-        for _ in 0..number_of_fields {
-            fields.push(de_serialize_field(context)?);
-        }
-        Result::Ok(Self(fields))
-    }
-
-    fn serialize<S, W>(&self, schema: &S, writer: &mut W) -> Result<(), LqError>
-    where
-        S: Schema<'a>,
-        W: BinaryWriter,
-    {
-        let number_of_fields_u32 = try_from_int_result(u32::try_from(self.0.len()))?;
-        SeqHeader::serialize(writer, &SeqHeader::new(number_of_fields_u32))?;
-
-        for field in &self.0 {
-            serialize_field(field, schema, writer)?;
+            context.reader().skip()?;
         }
         Result::Ok(())
     }
@@ -120,32 +88,32 @@ impl<'a> From<VStruct<'a>> for Validators<'a> {
     }
 }
 
-fn de_serialize_field<'a, TContext>(context: &mut TContext) -> Result<Field<'a>, LqError>
-where
-    TContext: DeSerializationContext<'a>,
-{
-    let list_header = SeqHeader::de_serialize(context.reader())?;
-
-    let list_reader = list_header.begin(2)?;
-
-    let identifier = Identifier::de_serialize(context.reader())?;
-    let validator = context.de_serialize()?;
-    let result = Result::Ok(Field {
-        identifier,
-        validator,
-    });
-
-    list_reader.finish(context.reader())?;
-
-    result
+impl<'a> VStruct<'a> {
+    pub fn builder() -> Builder<'a> {
+        Builder {
+            fields: Fields::new(),
+        }
+    }
 }
 
-fn serialize_field<'a, S, W>(field: &Field<'a>, schema: &S, writer: &mut W) -> Result<(), LqError>
-where
-    S: Schema<'a>,
-    W: BinaryWriter,
-{
-    SeqHeader::serialize(writer, &SeqHeader::new(2))?;
-    Identifier::serialize(writer, field.identifier())?;
-    schema.serialize(writer, field.validator)
+pub struct Builder<'a> {
+    fields: Fields<'a>,
+}
+
+impl<'a> Builder<'a> {
+    pub fn field<I: Into<Identifier<'a>>>(
+        mut self,
+        identifier: I,
+        validator: ValidatorRef,
+    ) -> Self {
+        self.fields.push(Field {
+            identifier: identifier.into(),
+            validator,
+        });
+        self
+    }
+
+    pub fn build(self) -> VStruct<'a> {
+        VStruct(self.fields)
+    }
 }

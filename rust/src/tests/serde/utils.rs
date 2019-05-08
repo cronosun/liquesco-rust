@@ -4,7 +4,7 @@ use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::vec_writer::VecWriter;
 use std::fmt::Debug;
 
-pub fn assert_serde<'a, S>(item: S)
+pub fn assert_serde<S>(item: S)
 where
   S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {

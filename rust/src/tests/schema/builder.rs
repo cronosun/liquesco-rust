@@ -1,0 +1,55 @@
+use crate::schema::core::Validator;
+use crate::schema::core::ValidatorContainer;
+use crate::schema::core::ValidatorRef;
+use crate::schema::schema::DefaultSchema;
+use crate::schema::validators::Validators;
+
+pub struct Builder<'a> {
+    validators: Vec<Validators<'a>>,
+}
+
+pub fn builder<'a>() -> Builder<'a> {
+    Builder::default()
+}
+
+impl<'a> Default for Builder<'a> {
+    fn default() -> Self {
+        Self {
+            validators: Vec::new(),
+        }
+    }
+}
+
+pub struct Container<'a> {
+    validators: Vec<Validators<'a>>,
+}
+
+impl<'a> ValidatorContainer<'a> for Container<'a> {
+    fn validators(&self, reference: ValidatorRef) -> Option<&Validators<'a>> {
+        let len = self.validators.len();
+        if reference.0 >= len {
+            Option::None
+        } else {
+            Option::Some(&self.validators[reference.0])
+        }
+    }
+}
+
+impl<'a> Builder<'a> {
+    pub fn add<V: Validator<'a>>(&mut self, validator: V) -> ValidatorRef {
+        let reference = ValidatorRef(self.validators.len());
+        self.validators.push(validator.into_any_validator());
+        reference
+    }
+
+    pub fn finish<V: Validator<'a>>(
+        mut self,
+        validator: V,
+    ) -> DefaultSchema<'a, Container<'a>> {
+        let reference = self.add(validator);
+        let container = Container {
+            validators: self.validators,
+        };
+        DefaultSchema::new(container, reference)
+    }
+}
