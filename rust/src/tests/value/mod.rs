@@ -9,3 +9,4 @@ pub mod enumeration;
 pub mod unsigned_int;
 pub mod signed_int;
 pub mod uuid;
+pub mod float;

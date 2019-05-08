@@ -5,6 +5,8 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Serializer as S;
 use crate::serialization::tbinary::TBinary;
 use crate::serialization::tenum::EnumHeader;
+use crate::serialization::tfloat::TFloat32;
+use crate::serialization::tfloat::TFloat64;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
@@ -77,12 +79,12 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
         Ok(TUInt::serialize(self.writer, &v)?)
     }
 
-    fn serialize_f32(self, _v: f32) -> Result<()> {
-        unimplemented!("TODO: Implement float types")
+    fn serialize_f32(self, v: f32) -> Result<()> {
+        Ok(TFloat32::serialize(self.writer, &v)?)        
     }
 
-    fn serialize_f64(self, _v: f64) -> Result<()> {
-        unimplemented!("TODO: Implement float types")
+    fn serialize_f64(self, v: f64) -> Result<()> {
+        Ok(TFloat64::serialize(self.writer, &v)?)
     }
 
     // Serialize as integer

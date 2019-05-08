@@ -5,6 +5,8 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::tbinary::TBinary;
 use crate::serialization::tbool::TBool;
 use crate::serialization::tenum::EnumHeader;
+use crate::serialization::tfloat::TFloat32;
+use crate::serialization::tfloat::TFloat64;
 use crate::serialization::tlist::ListHeader;
 use crate::serialization::toption::Presence;
 use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
@@ -116,18 +118,20 @@ where
         visitor.visit_u64(value)
     }
 
-    fn deserialize_f32<V>(self, _visitor: V) -> Result<V::Value>
+    fn deserialize_f32<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        unimplemented!("floats not yet implemented")
+        let value = TFloat32::de_serialize(&mut self.reader)?;
+        visitor.visit_f32(value)
     }
 
-    fn deserialize_f64<V>(self, _visitor: V) -> Result<V::Value>
+    fn deserialize_f64<V>(self, visitor: V) -> Result<V::Value>
     where
         V: Visitor<'de>,
     {
-        unimplemented!("floats not yet implemented")
+        let value = TFloat64::de_serialize(&mut self.reader)?;
+        visitor.visit_f64(value)
     }
 
     // Characters are just u32

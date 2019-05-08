@@ -17,11 +17,11 @@ pub const TYPE_ENUM_N: MajorType = MajorType::new(9);
 pub const TYPE_UINT: MajorType = MajorType::new(10);
 pub const TYPE_SINT: MajorType = MajorType::new(11);
 
+pub const TYPE_FLOAT: MajorType = MajorType::new(12);
+
 // TOOD: Ne, ich glaube wir lassen das eher... denn das zeugs kann serde alles nicht serialisieren.. Ich würde da eher das binary nehmen oder eine struct und dann das nur im schema drinn haben... vielleicht noch das int128 rein nehmen?
 // man könnte dann auch die breite erhähen, damit man in der länge auch 128bit noch drinn hätte... ggf. auch noch das 256 bit und das 256bit
 // dann hätte man auch noch platz für einen zusätzliche enum
-
-pub const TYPE_UUID: MajorType = MajorType::new(12);
 
 //pub const TYPE_DEC128: TypeId = TypeId::new(12);
 

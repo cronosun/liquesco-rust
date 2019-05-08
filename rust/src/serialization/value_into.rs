@@ -1,3 +1,4 @@
+use crate::serialization::tfloat::Float;
 use crate::common::error::LqError;
 use crate::serialization::tuuid::Uuid;
 use crate::serialization::value::EnumValue;
@@ -53,6 +54,24 @@ impl<'a> From<&'a Vec<u8>> for Value<'a> {
 impl<'a> From<&'a [Value<'a>]> for Value<'a> {
     fn from(value: &'a [Value<'a>]) -> Self {
         Value::List(ValueList::Borrowed(value))
+    }
+}
+
+impl From<Float> for Value<'static> {
+    fn from(value : Float) -> Self {
+        Value::Float(value)
+    }
+}
+
+impl From<f32> for Value<'static> {
+    fn from(value : f32) -> Self {
+        Value::Float(value.into())
+    }
+}
+
+impl From<f64> for Value<'static> {
+    fn from(value : f64) -> Self {
+        Value::Float(value.into())
     }
 }
 
@@ -113,7 +132,7 @@ impl From<i32> for Value<'static> {
 
 impl From<Uuid> for Value<'static> {
     fn from(value: Uuid) -> Self {
-        Value::Uuid(value)
+        Value::Binary(Cow::Owned(Vec::from(value.as_slice())))
     }
 }
 

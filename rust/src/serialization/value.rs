@@ -1,17 +1,10 @@
+use crate::serialization::tfloat::Float;
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::serialization::tbinary::TBinary;
-use crate::serialization::tenum::EnumHeader;
-use crate::serialization::tlist::ListHeader;
-use crate::serialization::toption::Presence;
-use crate::serialization::tsint::TSInt;
-use crate::serialization::tuint::TUInt;
-use crate::serialization::tunicode::TUnicode;
-use crate::serialization::tuuid::Uuid;
 use crate::serialization::major_types::TYPE_BINARY;
 use crate::serialization::major_types::TYPE_BOOL_FALSE;
 use crate::serialization::major_types::TYPE_BOOL_TRUE;
@@ -24,13 +17,20 @@ use crate::serialization::major_types::TYPE_OPTION;
 use crate::serialization::major_types::TYPE_SINT;
 use crate::serialization::major_types::TYPE_UINT;
 use crate::serialization::major_types::TYPE_UNICODE;
-use crate::serialization::major_types::TYPE_UUID;
+use crate::serialization::major_types::TYPE_FLOAT;
+use crate::serialization::tbinary::TBinary;
+use crate::serialization::tenum::EnumHeader;
+use crate::serialization::tlist::ListHeader;
+use crate::serialization::toption::Presence;
+use crate::serialization::tsint::TSInt;
+use crate::serialization::tuint::TUInt;
+use crate::serialization::tunicode::TUnicode;
 use std::convert::TryFrom;
 use std::ops::Deref;
 
 use std::borrow::Cow;
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub enum Value<'a> {
     Bool(bool),
     Unicode(Cow<'a, str>),
@@ -40,16 +40,16 @@ pub enum Value<'a> {
     Enum(EnumValue<'a>),
     UInt(u64),
     SInt(i64),
-    Uuid(Uuid),
+    Float(Float),
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub enum ValueRef<'a> {
     Borrowed(&'a Value<'a>),
     Boxed(Box<Value<'a>>),
 }
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub enum ValueList<'a> {
     Owned(Vec<Value<'a>>),
     Borrowed(&'a [Value<'a>]),
@@ -58,7 +58,7 @@ pub enum ValueList<'a> {
 
 const EMPTY_VALUE_VEC: &[Value<'static>] = &[];
 
-#[derive(Clone, Debug, Eq, PartialEq, Hash)]
+#[derive(Clone, Debug, PartialEq, Hash)]
 pub struct EnumValue<'a> {
     ordinal: u32,
     values: ValueList<'a>,
@@ -194,10 +194,10 @@ impl<'a> DeSerializer<'a> for Value<'a> {
             TYPE_SINT => {
                 let value = TSInt::de_serialize(reader)?;
                 Value::SInt(value)
-            }
-            TYPE_UUID => {
-                let value = Uuid::de_serialize(reader)?;
-                Value::Uuid(value)
+            },
+            TYPE_FLOAT => {
+                let value = Float::de_serialize(reader)?;
+                Value::Float(value)
             }
             _ => {
                 return LqError::err_new(format!("Unknown type {:?}", major_type));
@@ -248,7 +248,7 @@ impl<'a> Serializer for Value<'a> {
             }
             Value::UInt(value) => TUInt::serialize(writer, value),
             Value::SInt(value) => TSInt::serialize(writer, value),
-            Value::Uuid(value) => Uuid::serialize(writer, value),
+            Value::Float(value) => Float::serialize(writer, value)
         }
     }
 }

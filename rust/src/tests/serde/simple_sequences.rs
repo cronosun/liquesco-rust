@@ -24,14 +24,17 @@ struct OneFieldStruct {
 
 #[test]
 fn two_fields_struct() {
-    let value = TwoFieldsStruct { x: 45584, y: 4 };
+    let value = TwoFieldsStruct {
+        x: 45584.5,
+        y: 4.487,
+    };
     assert_serde(value);
 }
 
-#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+#[derive(Serialize, Deserialize, Debug, PartialEq)]
 struct TwoFieldsStruct {
-    x: usize,
-    y: usize,
+    x: f64,
+    y: f64,
 }
 
 #[test]
@@ -84,7 +87,7 @@ fn bytes_slice() {
 
 #[test]
 fn tuple_and_struct_serialize_to_same1() {
-    serialize_to_same(TwoFieldsStruct { x: 48, y: 47 }, (48usize, 47usize));
+    serialize_to_same(TwoFieldsStruct { x: 48.447, y: 47.3 }, (48.447f64, 47.3f64));
 }
 
 #[test]
@@ -101,7 +104,13 @@ fn tuple_and_struct_serialize_to_same2() {
 
 #[test]
 fn vec_and_struct_serialize_to_same() {
-    serialize_to_same(TwoFieldsStruct { x: 4587, y: 47 }, vec![4587usize, 47usize]);
+    serialize_to_same(
+        TwoFieldsStruct {
+            x: 4587.0,
+            y: 47.2447747,
+        },
+        vec![4587.0f64, 47.2447747f64],
+    );
 }
 
 #[test]

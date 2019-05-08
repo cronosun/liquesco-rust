@@ -17,3 +17,4 @@ pub mod tenum;
 pub mod tuint;
 pub mod tsint;
 pub mod tuuid;
+pub mod tfloat;

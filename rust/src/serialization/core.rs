@@ -101,6 +101,14 @@ pub trait BinaryWriter: std::io::Write + Sized {
         io_result(WriteBytesExt::write_i64::<LittleEndian>(self, data))
     }
 
+    fn write_f32(&mut self, data: f32) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_f32::<LittleEndian>(self, data))
+    }
+
+    fn write_f64(&mut self, data: f64) -> Result<(), LqError> {
+        io_result(WriteBytesExt::write_f64::<LittleEndian>(self, data))
+    }
+
     fn write_header(&mut self, header: TypeHeader) -> Result<(), LqError> {
         BinaryWriter::write_u8(self, header.id())
     }
@@ -194,6 +202,14 @@ pub trait BinaryReader<'a>: std::io::Read {
 
     fn read_i64(&mut self) -> Result<i64, LqError> {
         io_result(ReadBytesExt::read_i64::<LittleEndian>(self))
+    }
+
+    fn read_f32(&mut self) -> Result<f32, LqError> {
+        io_result(ReadBytesExt::read_f32::<LittleEndian>(self))
+    }
+
+    fn read_f64(&mut self) -> Result<f64, LqError> {
+        io_result(ReadBytesExt::read_f64::<LittleEndian>(self))
     }
 
     fn read_expect_content_description(

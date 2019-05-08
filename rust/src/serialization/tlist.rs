@@ -9,6 +9,8 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use std::convert::TryFrom;
 
+// TODO: Rename to Seq?
+
 pub struct ListHeader {
     length: u32,
 }
