@@ -1,7 +1,7 @@
 use crate::schema::core::Context;
 use crate::common::error::LqError;
 use crate::schema::core::Validator;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tbool::Bool;
 
@@ -34,9 +34,9 @@ impl Default for VBool {
     }
 }
 
-impl<'a> From<VBool> for Validators<'a> {
+impl<'a> From<VBool> for AnyValidator<'a> {
     fn from(value: VBool) -> Self {
-        Validators::Bool(value)
+        AnyValidator::Bool(value)
     }
 }
 

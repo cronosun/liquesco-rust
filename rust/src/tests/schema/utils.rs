@@ -4,7 +4,7 @@ use crate::schema::core::Schema;
 use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
 use crate::schema::schema::DefaultSchema;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 use crate::serde::serialize;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::vec_writer::VecWriter;
@@ -59,7 +59,7 @@ where
     assert_valid_invalid(item, schema, Config::strict(), false);
 }
 
-pub fn single_schema<'a, V: Into<Validators<'a>>>(
+pub fn single_schema<'a, V: Into<AnyValidator<'a>>>(
     validator: V,
 ) -> DefaultSchema<'a, SingleContainer<'a>> {
     let conv_validator = validator.into();
@@ -72,11 +72,11 @@ pub fn single_schema<'a, V: Into<Validators<'a>>>(
 }
 
 pub struct SingleContainer<'a> {
-    validator: Validators<'a>,
+    validator: AnyValidator<'a>,
 }
 
 impl<'a> ValidatorContainer<'a> for SingleContainer<'a> {
-    fn validators(&self, reference: ValidatorRef) -> Option<&Validators<'a>> {
+    fn validator(&self, reference: ValidatorRef) -> Option<&AnyValidator<'a>> {
         if reference.0 == 0 {
             Option::Some(&self.validator)
         } else {

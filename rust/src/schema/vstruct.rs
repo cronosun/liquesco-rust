@@ -4,7 +4,7 @@ use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
 use crate::schema::identifier::Identifier;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tseq::SeqHeader;
@@ -82,9 +82,9 @@ impl<'a> Validator<'a> for VStruct<'a> {
     }
 }
 
-impl<'a> From<VStruct<'a>> for Validators<'a> {
+impl<'a> From<VStruct<'a>> for AnyValidator<'a> {
     fn from(value: VStruct<'a>) -> Self {
-        Validators::Struct(value)
+        AnyValidator::Struct(value)
     }
 }
 

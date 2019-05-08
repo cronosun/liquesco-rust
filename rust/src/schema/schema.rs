@@ -1,5 +1,5 @@
 use crate::common::error::LqError;
-use crate::schema::core::Config;
+use crate::schema::core::{Config, Validator};
 use crate::schema::core::Context;
 use crate::schema::core::Schema;
 use crate::schema::core::ValidatorContainer;
@@ -63,7 +63,7 @@ impl<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<'r>> Context<'r>
     type Reader = R;
 
     fn validate(&mut self, reference: ValidatorRef) -> Result<(), LqError> {
-        if let Some(validator) = self.validators.validators(reference) {
+        if let Some(validator) = self.validators.validator(reference) {
             validator.validate(self)
         } else {
             LqError::err_new(format!(

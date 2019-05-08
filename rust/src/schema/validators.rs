@@ -7,9 +7,8 @@ use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
 
-// TODO: Rename to AnyValidator?
 #[derive(Clone)]
-pub enum Validators<'a> {
+pub enum AnyValidator<'a> {
     Struct(VStruct<'a>),
     UInt(VUInt),
     SInt(VSInt),
@@ -17,19 +16,17 @@ pub enum Validators<'a> {
     Bool(VBool),
 }
 
-impl<'a> Validators<'a> {
-   
-    // TODO: Actually it's exactly the same inteface as 'Validator'...
-    pub fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-    where
-        C: Context<'c>,
+impl<'a> Validator<'a> for AnyValidator<'a> {
+    fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
+        where
+            C: Context<'c>,
     {
         match self {
-            Validators::Struct(value) => value.validate(context),
-            Validators::UInt(value) => value.validate(context),
-            Validators::SInt(value) => value.validate(context),
-            Validators::Ascii(value) => value.validate(context),
-            Validators::Bool(value) => value.validate(context),
+            AnyValidator::Struct(value) => value.validate(context),
+            AnyValidator::UInt(value) => value.validate(context),
+            AnyValidator::SInt(value) => value.validate(context),
+            AnyValidator::Ascii(value) => value.validate(context),
+            AnyValidator::Bool(value) => value.validate(context),
         }
     }
 }

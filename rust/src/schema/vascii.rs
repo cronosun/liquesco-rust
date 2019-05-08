@@ -1,7 +1,7 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tunicode::UncheckedUnicode;
 
@@ -51,9 +51,9 @@ impl VAscii {
     }
 }
 
-impl<'a> From<VAscii> for Validators<'a> {
+impl<'a> From<VAscii> for AnyValidator<'a> {
     fn from(value: VAscii) -> Self {
-        Validators::Ascii(value)
+        AnyValidator::Ascii(value)
     }
 }
 

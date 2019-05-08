@@ -2,10 +2,10 @@ use crate::schema::core::Validator;
 use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
 use crate::schema::schema::DefaultSchema;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 
 pub struct Builder<'a> {
-    validators: Vec<Validators<'a>>,
+    validators: Vec<AnyValidator<'a>>,
 }
 
 pub fn builder<'a>() -> Builder<'a> {
@@ -21,11 +21,11 @@ impl<'a> Default for Builder<'a> {
 }
 
 pub struct Container<'a> {
-    validators: Vec<Validators<'a>>,
+    validators: Vec<AnyValidator<'a>>,
 }
 
 impl<'a> ValidatorContainer<'a> for Container<'a> {
-    fn validators(&self, reference: ValidatorRef) -> Option<&Validators<'a>> {
+    fn validator(&self, reference: ValidatorRef) -> Option<&AnyValidator<'a>> {
         let len = self.validators.len();
         if reference.0 >= len {
             Option::None

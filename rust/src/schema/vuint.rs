@@ -1,7 +1,7 @@
 use crate::schema::core::Context;
 use crate::common::error::LqError;
 use crate::schema::core::Validator;
-use crate::schema::validators::Validators;
+use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tuint::UInt64;
 
@@ -27,9 +27,9 @@ impl VUInt {
     }
 }
 
-impl<'a> From<VUInt> for Validators<'a> {
+impl<'a> From<VUInt> for AnyValidator<'a> {
     fn from(value: VUInt) -> Self {
-        Validators::UInt(value)
+        AnyValidator::UInt(value)
     }
 }
 
