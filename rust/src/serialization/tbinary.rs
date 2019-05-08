@@ -7,9 +7,9 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
 
-pub struct TBinary;
+pub struct Binary;
 
-impl<'a> DeSerializer<'a> for TBinary {
+impl<'a> DeSerializer<'a> for Binary {
     type Item = &'a [u8];
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -21,7 +21,7 @@ impl<'a> DeSerializer<'a> for TBinary {
     }    
 }
 
-impl Serializer for TBinary {
+impl Serializer for Binary {
 
     type Item = [u8];
 

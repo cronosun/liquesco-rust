@@ -9,6 +9,7 @@ use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::tenum::EnumHeader;
+use crate::serialization::tbool::Bool;
 use std::convert::TryFrom;
 
 const TRUE_FALSE: u32 = 0;
@@ -56,7 +57,7 @@ impl<'a> Validator<'a> for VBool {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let bool_value = bool::de_serialize(reader)?;
+        let bool_value = Bool::de_serialize(reader)?;
         match self.values {
             BoolValues::TrueFalse => (),
             BoolValues::TrueOnly => {

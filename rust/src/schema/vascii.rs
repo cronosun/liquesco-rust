@@ -7,10 +7,10 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::serialization::tlist::ListHeader;
-use crate::serialization::tuint::TUInt;
-use crate::serialization::tuint::TUInt8;
-use crate::serialization::tunicode::TUncheckedUnicode;
+use crate::serialization::tseq::SeqHeader;
+use crate::serialization::tuint::UInt64;
+use crate::serialization::tuint::UInt8;
+use crate::serialization::tunicode::UncheckedUnicode;
 
 pub struct VAscii {
     /// Minimum number of characters required (inclusive).
@@ -70,7 +70,7 @@ impl<'a> Validator<'a> for VAscii {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let bytes = TUncheckedUnicode::de_serialize(reader)?;
+        let bytes = UncheckedUnicode::de_serialize(reader)?;
 
         // first check length (that's faster)
         let length = bytes.len();
@@ -107,13 +107,13 @@ impl<'a> Validator<'a> for VAscii {
     where
         TContext: DeSerializationContext<'a>,
     {
-        let header = ListHeader::de_serialize(context.reader())?;
+        let header = SeqHeader::de_serialize(context.reader())?;
         header.read_struct(context.reader(), 4, |reader| {
             Self::DeSerItem::try_new(
-                TUInt::de_serialize(reader)?,
-                TUInt::de_serialize(reader)?,
-                TUInt8::de_serialize(reader)?,
-                TUInt8::de_serialize(reader)?,
+                UInt64::de_serialize(reader)?,
+                UInt64::de_serialize(reader)?,
+                UInt8::de_serialize(reader)?,
+                UInt8::de_serialize(reader)?,
             )
         })
     }
@@ -123,11 +123,11 @@ impl<'a> Validator<'a> for VAscii {
         S: Schema<'a>,
         W: BinaryWriter,
     {
-        let header = ListHeader::new(4);
-        ListHeader::serialize(writer, &header)?;
-        TUInt::serialize(writer, &self.min_characters)?;
-        TUInt::serialize(writer, &self.max_characters)?;
-        TUInt8::serialize(writer, &self.min_value)?;
-        TUInt8::serialize(writer, &self.max_value)
+        let header = SeqHeader::new(4);
+        SeqHeader::serialize(writer, &header)?;
+        UInt64::serialize(writer, &self.min_characters)?;
+        UInt64::serialize(writer, &self.max_characters)?;
+        UInt8::serialize(writer, &self.min_value)?;
+        UInt8::serialize(writer, &self.max_value)
     }
 }

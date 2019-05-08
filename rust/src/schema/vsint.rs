@@ -7,8 +7,8 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::serialization::tlist::ListHeader;
-use crate::serialization::tsint::TSInt;
+use crate::serialization::tseq::SeqHeader;
+use crate::serialization::tsint::SInt64;
 
 pub struct VSInt {
     min_value: i64,
@@ -45,7 +45,7 @@ impl<'a> Validator<'a> for VSInt {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let int_value = TSInt::de_serialize(reader)?;
+        let int_value = SInt64::de_serialize(reader)?;
         if int_value < self.min_value {
             return LqError::err_new(format!(
                 "Given integer {:?} is too small (minimum \
@@ -67,9 +67,9 @@ impl<'a> Validator<'a> for VSInt {
     where
         TContext: DeSerializationContext<'a>,
     {
-        let header = ListHeader::de_serialize(context.reader())?;
+        let header = SeqHeader::de_serialize(context.reader())?;
         header.read_struct(context.reader(), 2, |reader| {
-            Self::DeSerItem::try_new(TSInt::de_serialize(reader)?, TSInt::de_serialize(reader)?)
+            Self::DeSerItem::try_new(SInt64::de_serialize(reader)?, SInt64::de_serialize(reader)?)
         })
     }
 
@@ -78,9 +78,9 @@ impl<'a> Validator<'a> for VSInt {
         S: Schema<'a>,
         W: BinaryWriter,
     {
-        let header = ListHeader::new(2);
-        ListHeader::serialize(writer, &header)?;
-        TSInt::serialize(writer, &self.min_value)?;
-        TSInt::serialize(writer, &self.max_value)
+        let header = SeqHeader::new(2);
+        SeqHeader::serialize(writer, &header)?;
+        SInt64::serialize(writer, &self.min_value)?;
+        SInt64::serialize(writer, &self.max_value)
     }
 }

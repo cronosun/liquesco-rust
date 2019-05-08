@@ -8,9 +8,9 @@ use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
 use std::str::from_utf8;
 
-pub struct TUnicode;
+pub struct Unicode;
 
-impl<'a> DeSerializer<'a> for TUnicode {
+impl<'a> DeSerializer<'a> for Unicode {
     type Item = &'a str;
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -27,7 +27,7 @@ impl<'a> DeSerializer<'a> for TUnicode {
     }
 }
 
-impl Serializer for TUnicode {
+impl Serializer for Unicode {
     type Item = str;
 
     fn serialize<W: BinaryWriter>(
@@ -39,9 +39,9 @@ impl Serializer for TUnicode {
     }
 }
 
-pub struct TUncheckedUnicode;
+pub struct UncheckedUnicode;
 
-impl<'a> DeSerializer<'a> for TUncheckedUnicode {
+impl<'a> DeSerializer<'a> for UncheckedUnicode {
     type Item = &'a [u8];
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -54,7 +54,7 @@ impl<'a> DeSerializer<'a> for TUncheckedUnicode {
     }
 }
 
-impl Serializer for TUncheckedUnicode {
+impl Serializer for UncheckedUnicode {
     type Item = [u8];
 
     fn serialize<W: BinaryWriter>(

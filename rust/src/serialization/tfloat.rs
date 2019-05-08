@@ -114,9 +114,9 @@ impl Hash for Float {
     }
 }
 
-pub struct TFloat32;
+pub struct Float32;
 
-impl<'a> DeSerializer<'a> for TFloat32 {
+impl<'a> DeSerializer<'a> for Float32 {
     type Item = f32;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -129,7 +129,7 @@ impl<'a> DeSerializer<'a> for TFloat32 {
     }
 }
 
-impl Serializer for TFloat32 {
+impl Serializer for Float32 {
     type Item = f32;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
@@ -138,9 +138,9 @@ impl Serializer for TFloat32 {
     }
 }
 
-pub struct TFloat64;
+pub struct Float64;
 
-impl<'a> DeSerializer<'a> for TFloat64 {
+impl<'a> DeSerializer<'a> for Float64 {
     type Item = f64;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -153,7 +153,7 @@ impl<'a> DeSerializer<'a> for TFloat64 {
     }
 }
 
-impl Serializer for TFloat64 {
+impl Serializer for Float64 {
     type Item = f64;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {

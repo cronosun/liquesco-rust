@@ -3,15 +3,16 @@ use crate::common::internal_utils::try_from_int_result;
 use crate::serde::error::SLqError;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::Serializer as S;
-use crate::serialization::tbinary::TBinary;
+use crate::serialization::tbinary::Binary;
 use crate::serialization::tenum::EnumHeader;
-use crate::serialization::tfloat::TFloat32;
-use crate::serialization::tfloat::TFloat64;
-use crate::serialization::tlist::ListHeader;
+use crate::serialization::tfloat::Float32;
+use crate::serialization::tfloat::Float64;
+use crate::serialization::tseq::SeqHeader;
 use crate::serialization::toption::Presence;
-use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
-use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
-use crate::serialization::tunicode::TUnicode;
+use crate::serialization::tsint::{SInt64, SInt16, SInt32, SInt8};
+use crate::serialization::tuint::{UInt64, UInt16, UInt32, UInt8};
+use crate::serialization::tunicode::Unicode;
+use crate::serialization::tbool::Bool;
 use std::convert::TryFrom;
 
 use serde::ser;
@@ -44,60 +45,60 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
     type SerializeStructVariant = Self;
 
     fn serialize_bool(self, v: bool) -> Result<()> {
-        Ok(bool::serialize(self.writer, &v)?)
+        Ok(Bool::serialize(self.writer, &v)?)
     }
 
     fn serialize_i8(self, v: i8) -> Result<()> {
-        Ok(TSInt8::serialize(self.writer, &v)?)
+        Ok(SInt8::serialize(self.writer, &v)?)
     }
 
     fn serialize_i16(self, v: i16) -> Result<()> {
-        Ok(TSInt16::serialize(self.writer, &v)?)
+        Ok(SInt16::serialize(self.writer, &v)?)
     }
 
     fn serialize_i32(self, v: i32) -> Result<()> {
-        Ok(TSInt32::serialize(self.writer, &v)?)
+        Ok(SInt32::serialize(self.writer, &v)?)
     }
 
     fn serialize_i64(self, v: i64) -> Result<()> {
-        Ok(TSInt::serialize(self.writer, &v)?)
+        Ok(SInt64::serialize(self.writer, &v)?)
     }
 
     fn serialize_u8(self, v: u8) -> Result<()> {
-        Ok(TUInt8::serialize(self.writer, &v)?)
+        Ok(UInt8::serialize(self.writer, &v)?)
     }
 
     fn serialize_u16(self, v: u16) -> Result<()> {
-        Ok(TUInt16::serialize(self.writer, &v)?)
+        Ok(UInt16::serialize(self.writer, &v)?)
     }
 
     fn serialize_u32(self, v: u32) -> Result<()> {
-        Ok(TUInt32::serialize(self.writer, &v)?)
+        Ok(UInt32::serialize(self.writer, &v)?)
     }
 
     fn serialize_u64(self, v: u64) -> Result<()> {
-        Ok(TUInt::serialize(self.writer, &v)?)
+        Ok(UInt64::serialize(self.writer, &v)?)
     }
 
     fn serialize_f32(self, v: f32) -> Result<()> {
-        Ok(TFloat32::serialize(self.writer, &v)?)        
+        Ok(Float32::serialize(self.writer, &v)?)
     }
 
     fn serialize_f64(self, v: f64) -> Result<()> {
-        Ok(TFloat64::serialize(self.writer, &v)?)
+        Ok(Float64::serialize(self.writer, &v)?)
     }
 
     // Serialize as integer
     fn serialize_char(self, v: char) -> Result<()> {
-        Ok(TUInt32::serialize(self.writer, &(v as u32))?)
+        Ok(UInt32::serialize(self.writer, &(v as u32))?)
     }
 
     fn serialize_str(self, v: &str) -> Result<()> {
-        Ok(TUnicode::serialize(self.writer, v)?)
+        Ok(Unicode::serialize(self.writer, v)?)
     }
 
     fn serialize_bytes(self, v: &[u8]) -> Result<()> {
-        Ok(TBinary::serialize(self.writer, v)?)
+        Ok(Binary::serialize(self.writer, v)?)
     }
 
     fn serialize_none(self) -> Result<()> {
@@ -160,15 +161,15 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
             "Only supports sequences with computed length.",
         ))?;
         let u32_len = try_from_int_result(u32::try_from(present_len))?;
-        let list_header = ListHeader::new(u32_len);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_len);
+        SeqHeader::serialize(self.writer, &list_header)?;
         Ok(self)
     }
 
     fn serialize_tuple(self, len: usize) -> Result<Self::SerializeTuple> {
         let u32_len = try_from_int_result(u32::try_from(len))?;
-        let list_header = ListHeader::new(u32_len);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_len);
+        SeqHeader::serialize(self.writer, &list_header)?;
         Ok(self)
     }
 
@@ -178,8 +179,8 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
         len: usize,
     ) -> Result<Self::SerializeTupleStruct> {
         let u32_len = try_from_int_result(u32::try_from(len))?;
-        let list_header = ListHeader::new(u32_len);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_len);
+        SeqHeader::serialize(self.writer, &list_header)?;
         Ok(self)
     }
 
@@ -201,15 +202,15 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
             "Only supports sequences with computed length.",
         ))?;
         let u32_len = try_from_int_result(u32::try_from(present_len))?;
-        let list_header = ListHeader::new(u32_len);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_len);
+        SeqHeader::serialize(self.writer, &list_header)?;
         Ok(self)
     }
 
     fn serialize_struct(self, _name: &'static str, len: usize) -> Result<Self::SerializeStruct> {
         let u32_len = try_from_int_result(u32::try_from(len))?;
-        let list_header = ListHeader::new(u32_len);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_len);
+        SeqHeader::serialize(self.writer, &list_header)?;
         Ok(self)
     }
 
@@ -304,8 +305,8 @@ impl<'a, W: BinaryWriter> ser::SerializeMap for &'a mut Serializer<'a, W> {
         T: ?Sized + ser::Serialize,
     {
         // key-value is wrapped inside a list (length = 2).
-        let list_header = ListHeader::new(2);
-        ListHeader::serialize(self.writer, &list_header)?;
+        let list_header = SeqHeader::new(2);
+        SeqHeader::serialize(self.writer, &list_header)?;
         self.serialize_inner(key)
     }
 

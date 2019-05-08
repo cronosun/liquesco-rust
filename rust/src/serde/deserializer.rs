@@ -2,16 +2,16 @@ use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::serde::error::SLqError;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tbinary::TBinary;
-use crate::serialization::tbool::TBool;
+use crate::serialization::tbinary::Binary;
+use crate::serialization::tbool::Bool;
 use crate::serialization::tenum::EnumHeader;
-use crate::serialization::tfloat::TFloat32;
-use crate::serialization::tfloat::TFloat64;
-use crate::serialization::tlist::ListHeader;
+use crate::serialization::tfloat::Float32;
+use crate::serialization::tfloat::Float64;
+use crate::serialization::tseq::SeqHeader;
 use crate::serialization::toption::Presence;
-use crate::serialization::tsint::{TSInt, TSInt16, TSInt32, TSInt8};
-use crate::serialization::tuint::{TUInt, TUInt16, TUInt32, TUInt8};
-use crate::serialization::tunicode::TUnicode;
+use crate::serialization::tsint::{SInt64, SInt16, SInt32, SInt8};
+use crate::serialization::tuint::{UInt64, UInt16, UInt32, UInt8};
+use crate::serialization::tunicode::Unicode;
 use serde::de::IntoDeserializer;
 use serde::de::Visitor;
 use std::convert::TryFrom;
@@ -50,7 +50,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TBool::de_serialize(&mut self.reader)?;
+        let value = Bool::de_serialize(&mut self.reader)?;
         visitor.visit_bool(value)
     }
 
@@ -58,7 +58,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TSInt8::de_serialize(&mut self.reader)?;
+        let value = SInt8::de_serialize(&mut self.reader)?;
         visitor.visit_i8(value)
     }
 
@@ -66,7 +66,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TSInt16::de_serialize(&mut self.reader)?;
+        let value = SInt16::de_serialize(&mut self.reader)?;
         visitor.visit_i16(value)
     }
 
@@ -74,7 +74,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TSInt32::de_serialize(&mut self.reader)?;
+        let value = SInt32::de_serialize(&mut self.reader)?;
         visitor.visit_i32(value)
     }
 
@@ -82,7 +82,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TSInt::de_serialize(&mut self.reader)?;
+        let value = SInt64::de_serialize(&mut self.reader)?;
         visitor.visit_i64(value)
     }
 
@@ -90,7 +90,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUInt8::de_serialize(&mut self.reader)?;
+        let value = UInt8::de_serialize(&mut self.reader)?;
         visitor.visit_u8(value)
     }
 
@@ -98,7 +98,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUInt16::de_serialize(&mut self.reader)?;
+        let value = UInt16::de_serialize(&mut self.reader)?;
         visitor.visit_u16(value)
     }
 
@@ -106,7 +106,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUInt32::de_serialize(&mut self.reader)?;
+        let value = UInt32::de_serialize(&mut self.reader)?;
         visitor.visit_u32(value)
     }
 
@@ -114,7 +114,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUInt::de_serialize(&mut self.reader)?;
+        let value = UInt64::de_serialize(&mut self.reader)?;
         visitor.visit_u64(value)
     }
 
@@ -122,7 +122,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TFloat32::de_serialize(&mut self.reader)?;
+        let value = Float32::de_serialize(&mut self.reader)?;
         visitor.visit_f32(value)
     }
 
@@ -130,7 +130,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TFloat64::de_serialize(&mut self.reader)?;
+        let value = Float64::de_serialize(&mut self.reader)?;
         visitor.visit_f64(value)
     }
 
@@ -139,7 +139,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUInt32::de_serialize(&mut self.reader)?;
+        let value = UInt32::de_serialize(&mut self.reader)?;
         let maybe_char = std::char::from_u32(value);
         if let Some(chr) = maybe_char {
             visitor.visit_char(chr)
@@ -156,7 +156,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUnicode::de_serialize(&mut self.reader)?;
+        let value = Unicode::de_serialize(&mut self.reader)?;
         visitor.visit_borrowed_str(value)
     }
 
@@ -164,7 +164,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TUnicode::de_serialize(&mut self.reader)?;
+        let value = Unicode::de_serialize(&mut self.reader)?;
         visitor.visit_string(value.into())
     }
 
@@ -172,7 +172,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TBinary::de_serialize(&mut self.reader)?;
+        let value = Binary::de_serialize(&mut self.reader)?;
         visitor.visit_bytes(value)
     }
 
@@ -180,7 +180,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let value = TBinary::de_serialize(&mut self.reader)?;
+        let value = Binary::de_serialize(&mut self.reader)?;
         visitor.visit_byte_buf(value.into())
     }
 
@@ -256,7 +256,7 @@ where
     where
         V: Visitor<'de>,
     {
-        let list_header = ListHeader::de_serialize(&mut self.reader)?;
+        let list_header = SeqHeader::de_serialize(&mut self.reader)?;
         let usize_list_header = try_from_int_result(usize::try_from(list_header.length()))?;
 
         visitor.visit_map(MapAccessStruct {
@@ -385,7 +385,7 @@ where
         V: Visitor<'de>,
     {
         // read length
-        let list_header = ListHeader::de_serialize(&mut self.reader)?;
+        let list_header = SeqHeader::de_serialize(&mut self.reader)?;
         let len_in_input_data = list_header.length();
         let usize_len_in_input_data = try_from_int_result(usize::try_from(len_in_input_data))?;
 
@@ -473,7 +473,7 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::MapAccess<'de>
     {
         if self.items_left > 0 {
             // Now a pair of key+value starts... so the list _always_ has to have a length of 2
-            let list_header = ListHeader::de_serialize(&mut self.deserializer.reader)?;
+            let list_header = SeqHeader::de_serialize(&mut self.deserializer.reader)?;
             if list_header.length() != 2 {
                 return Err(LqError::new(
                     format!("You're trying to deserialize a map. A map has to \

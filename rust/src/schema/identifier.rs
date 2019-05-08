@@ -1,12 +1,12 @@
 use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::{BinaryReader, Serializer, BinaryWriter};
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tlist::ListHeader;
+use crate::serialization::tseq::SeqHeader;
 use core::convert::TryFrom;
 use crate::common::error::LqError;
 use std::borrow::Cow;
 use smallvec::SmallVec;
-use crate::serialization::tunicode::TUnicode;
+use crate::serialization::tunicode::Unicode;
 use std::ops::Deref;
 
 const SEGMENT_MIN_LEN: usize = 1;
@@ -109,7 +109,7 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
     type Item = Self;
 
     fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
-        let list_header = ListHeader::de_serialize(reader)?;
+        let list_header = SeqHeader::de_serialize(reader)?;
         let number_of_segments = list_header.length();
         let usize_number_of_segments = try_from_int_result(usize::try_from(number_of_segments))?;
         Identifier::validate_number_of_segments(usize_number_of_segments)?; 
@@ -117,7 +117,7 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
         let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(
             usize_number_of_segments);
         for _ in 0..number_of_segments {
-            let segment_str = TUnicode::de_serialize(reader)?;
+            let segment_str = Unicode::de_serialize(reader)?;
             segments.push(Segment::try_from(segment_str)?);
         }
         Result::Ok(Identifier(segments))
@@ -130,11 +130,11 @@ impl<'a> Serializer for Identifier<'a> {
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let number_of_segments = item.len();
         let u32_number_of_segments = try_from_int_result(u32::try_from(number_of_segments))?;
-        let list_header = ListHeader::new(u32_number_of_segments);
-        ListHeader::serialize(writer, &list_header)?;
+        let list_header = SeqHeader::new(u32_number_of_segments);
+        SeqHeader::serialize(writer, &list_header)?;
 
         for segment in item.segments() {
-            TUnicode::serialize(writer, &segment)?;
+            Unicode::serialize(writer, &segment)?;
         }
         Result::Ok(())
     }

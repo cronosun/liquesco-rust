@@ -1,7 +1,7 @@
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tbinary::TBinary;
+use crate::serialization::tbinary::Binary;
 use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 
@@ -13,7 +13,7 @@ impl<'a> DeSerializer<'a> for Uuid {
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         // it's just a normal binary
-        let binary = TBinary::de_serialize(reader)?;
+        let binary = Binary::de_serialize(reader)?;
         let mut uuid_bytes: [u8; 16] = [0; 16];
         let src_len = binary.len();
         if src_len != 16 {
@@ -31,7 +31,7 @@ impl Serializer for Uuid {
     type Item = Self;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        TBinary::serialize(writer, &item.0)        
+        Binary::serialize(writer, &item.0)
     }
 }
 

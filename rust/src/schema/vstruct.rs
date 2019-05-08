@@ -8,7 +8,7 @@ use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
-use crate::serialization::tlist::ListHeader;
+use crate::serialization::tseq::SeqHeader;
 use smallvec::SmallVec;
 use std::convert::TryFrom;
 
@@ -50,7 +50,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         S: Schema<'a>,
         R: BinaryReader<'a>,
     {
-        let list = ListHeader::de_serialize(reader)?;
+        let list = SeqHeader::de_serialize(reader)?;
         let schema_number_of_fields = try_from_int_result(u32::try_from(self.0.len()))?;
         let number_of_items = list.length();
         // length check
@@ -89,7 +89,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
     where
         TContext: DeSerializationContext<'a>,
     {
-        let list_header = ListHeader::de_serialize(context.reader())?;
+        let list_header = SeqHeader::de_serialize(context.reader())?;
         let number_of_fields = list_header.length();
         let number_of_fields_usize = try_from_int_result(usize::try_from(number_of_fields))?;
         let mut fields = Fields::with_capacity(number_of_fields_usize);
@@ -105,7 +105,7 @@ impl<'a> Validator<'a> for VStruct<'a> {
         W: BinaryWriter,
     {
         let number_of_fields_u32 = try_from_int_result(u32::try_from(self.0.len()))?;
-        ListHeader::serialize(writer, &ListHeader::new(number_of_fields_u32))?;
+        SeqHeader::serialize(writer, &SeqHeader::new(number_of_fields_u32))?;
 
         for field in &self.0 {
             serialize_field(field, schema, writer)?;
@@ -124,7 +124,7 @@ fn de_serialize_field<'a, TContext>(context: &mut TContext) -> Result<Field<'a>,
 where
     TContext: DeSerializationContext<'a>,
 {
-    let list_header = ListHeader::de_serialize(context.reader())?;
+    let list_header = SeqHeader::de_serialize(context.reader())?;
 
     let list_reader = list_header.begin(2)?;
 
@@ -145,7 +145,7 @@ where
     S: Schema<'a>,
     W: BinaryWriter,
 {
-    ListHeader::serialize(writer, &ListHeader::new(2))?;
+    SeqHeader::serialize(writer, &SeqHeader::new(2))?;
     Identifier::serialize(writer, field.identifier())?;
     schema.serialize(writer, field.validator)
 }

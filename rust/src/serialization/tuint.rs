@@ -8,9 +8,9 @@ use crate::serialization::core::Serializer;
 use crate::serialization::major_types::TYPE_UINT;
 use std::convert::TryFrom;
 
-pub struct TUInt;
+pub struct UInt64;
 
-impl<'a> DeSerializer<'a> for TUInt {
+impl<'a> DeSerializer<'a> for UInt64 {
     type Item = u64;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -35,7 +35,7 @@ impl<'a> DeSerializer<'a> for TUInt {
     }
 }
 
-impl Serializer for TUInt {
+impl Serializer for UInt64 {
     type Item = u64;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
@@ -74,59 +74,59 @@ impl Serializer for TUInt {
     }
 }
 
-pub struct TUInt8;
+pub struct UInt8;
 
-impl<'a> DeSerializer<'a> for TUInt8 {
+impl<'a> DeSerializer<'a> for UInt8 {
     type Item = u8;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = TUInt::de_serialize(reader)?;
+        let value = UInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
 }
 
-impl Serializer for TUInt8 {
+impl Serializer for UInt8 {
     type Item = u8;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        TUInt::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &(*item as u64))
     }
 }
 
-pub struct TUInt16;
+pub struct UInt16;
 
-impl<'a> DeSerializer<'a> for TUInt16 {
+impl<'a> DeSerializer<'a> for UInt16 {
     type Item = u16;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = TUInt::de_serialize(reader)?;
+        let value = UInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
 }
 
-impl Serializer for TUInt16 {
+impl Serializer for UInt16 {
     type Item = u16;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        TUInt::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &(*item as u64))
     }
 }
 
-pub struct TUInt32;
+pub struct UInt32;
 
-impl<'a> DeSerializer<'a> for TUInt32 {
+impl<'a> DeSerializer<'a> for UInt32 {
     type Item = u32;
 
     fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = TUInt::de_serialize(reader)?;
+        let value = UInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
 }
 
-impl Serializer for TUInt32 {
+impl Serializer for UInt32 {
     type Item = u32;
 
     fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        TUInt::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &(*item as u64))
     }
 }

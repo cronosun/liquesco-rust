@@ -12,7 +12,7 @@ pub mod tbool;
 pub mod tunicode;
 pub mod tbinary;
 pub mod toption;
-pub mod tlist;
+pub mod tseq;
 pub mod tenum;
 pub mod tuint;
 pub mod tsint;
