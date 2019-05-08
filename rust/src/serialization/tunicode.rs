@@ -8,10 +8,9 @@ use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
 use std::str::from_utf8;
 
-// TODO: Maybe rename to "unicode", since UTF8 implies how we encode
-pub struct TUtf8;
+pub struct Unicode;
 
-impl<'a> DeSerializer<'a> for TUtf8 {
+impl<'a> DeSerializer<'a> for Unicode {
     type Item = &'a str;
 
     fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
@@ -28,7 +27,7 @@ impl<'a> DeSerializer<'a> for TUtf8 {
     }
 }
 
-impl Serializer for TUtf8 {
+impl Serializer for Unicode {
     type Item = str;
 
     fn serialize<W: BinaryWriter>(
