@@ -9,22 +9,20 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use std::convert::TryFrom;
 
-// TODO: Rename to Seq?
-
-pub struct ListHeader {
+pub struct SeqHeader {
     length: u32,
 }
 
-impl ListHeader {
+impl SeqHeader {
     pub fn new(length: u32) -> Self {
-        ListHeader { length }
+        SeqHeader { length }
     }
 
     pub fn length(&self) -> u32 {
         self.length
     }
 
-    pub fn begin(&self, wanted_number_of_items: u32) -> Result<ListRead, LqError> {
+    pub fn begin(&self, wanted_number_of_items: u32) -> Result<SeqRead, LqError> {
         if wanted_number_of_items < self.length {
             LqError::err_new(format!(
                 "Expecting to have a struct with at least {:?} fields; 
@@ -32,7 +30,7 @@ impl ListHeader {
                 wanted_number_of_items, self.length
             ))
         } else {
-            Result::Ok(ListRead {
+            Result::Ok(SeqRead {
                 actual_number_of_items: self.length,
                 wanted_number_of_items,
             })
@@ -58,19 +56,19 @@ impl ListHeader {
     }
 }
 
-pub struct ListRead {
+pub struct SeqRead {
     actual_number_of_items: u32,
     wanted_number_of_items: u32,
 }
 
-impl ListRead {
+impl SeqRead {
     pub fn finish<'a, R: BinaryReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
         reader.skip_n_values(try_from_int_result(usize::try_from(fields_to_skip))?)        
     }
 }
 
-impl<'a> DeSerializer<'a> for ListHeader {
+impl<'a> DeSerializer<'a> for SeqHeader {
     type Item = Self;
 
     fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
@@ -92,7 +90,7 @@ impl<'a> DeSerializer<'a> for ListHeader {
     }
 }
 
-impl<'a> Serializer for ListHeader {
+impl<'a> Serializer for SeqHeader {
     type Item = Self;
 
     fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
