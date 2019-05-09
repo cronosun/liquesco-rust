@@ -1,9 +1,9 @@
 use crate::common::error::LqError;
-use crate::schema::core::{Config, Validator};
 use crate::schema::core::Context;
 use crate::schema::core::Schema;
 use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
+use crate::schema::core::{Config, Validator};
 use crate::serialization::core::BinaryReader;
 use std::marker::PhantomData;
 
@@ -42,6 +42,8 @@ impl<'a, C: ValidatorContainer<'a>> DefaultSchema<'a, C> {
             validators: &self.validators,
             config,
             reader,
+            anchor_index: Option::None,
+            max_used_anchor_index: Option::None,
             _phantom1: &PhantomData,
             _phantom2: &PhantomData,
         };
@@ -53,6 +55,8 @@ struct ValidationContext<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<
     validators: &'s C,
     config: Config,
     reader: &'s mut R,
+    anchor_index: Option<u32>,
+    max_used_anchor_index: Option<u32>,
     _phantom1: &'c PhantomData<()>,
     _phantom2: &'r PhantomData<()>,
 }
@@ -80,5 +84,21 @@ impl<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<'r>> Context<'r>
 
     fn reader(&mut self) -> &mut Self::Reader {
         &mut self.reader
+    }
+
+    fn anchor_index(&self) -> Option<u32> {
+        self.anchor_index
+    }
+
+    fn set_anchor_index(&mut self, value: Option<u32>) {
+        self.anchor_index = value
+    }
+
+    fn max_used_anchor_index(&self) -> Option<u32> {
+        self.max_used_anchor_index
+    }
+
+    fn set_max_used_anchor_index(&mut self, value: Option<u32>) {
+        self.max_used_anchor_index = value;
     }
 }

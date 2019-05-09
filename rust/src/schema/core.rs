@@ -2,7 +2,7 @@ use crate::common::error::LqError;
 use crate::schema::validators::AnyValidator;
 use crate::serialization::core::BinaryReader;
 
-pub trait Validator<'a> : Into<AnyValidator<'a>> {
+pub trait Validator<'a>: Into<AnyValidator<'a>> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>;
@@ -20,6 +20,12 @@ pub trait Context<'a> {
     fn config(&self) -> &Config;
 
     fn reader(&mut self) -> &mut Self::Reader;
+
+    fn anchor_index(&self) -> Option<u32>;
+    fn set_anchor_index(&mut self, value: Option<u32>);
+
+    fn max_used_anchor_index(&self) -> Option<u32>;
+    fn set_max_used_anchor_index(&mut self, value: Option<u32>);
 }
 
 #[derive(new)]
@@ -36,9 +42,7 @@ impl Config {
     }
 
     pub fn strict() -> Self {
-        Self {
-            no_extension : true
-        }
+        Self { no_extension: true }
     }
 }
 

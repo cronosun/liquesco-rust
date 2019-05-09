@@ -18,7 +18,8 @@ impl<'a> DeSerializer<'a> for SInt64 {
         let content_description = reader.read_content_description_given_type_header(type_header)?;
 
         if type_header.major_type() != TYPE_SINT {
-            return LqError::err_static("Given type is not an unsigned integer type");
+            return LqError::err_new(format!("Given type is not a signed integer type; \
+            major type is {:?}.", type_header.major_type()));
         }
         if content_description.number_of_embedded_values() != 0 {
             return LqError::err_static("Integer types must not contain embedded values.");

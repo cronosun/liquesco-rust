@@ -1,0 +1,60 @@
+use crate::common::error::LqError;
+use crate::schema::core::Context;
+use crate::schema::core::Validator;
+use crate::schema::validators::AnyValidator;
+use crate::serialization::core::DeSerializer;
+use crate::serialization::tuint::UInt32;
+
+/// A reference can be used in combination with `VAnchors`. You can reference
+/// one anchor.
+#[derive(Clone)]
+pub struct VReference;
+
+impl<'a> Validator<'static> for VReference {
+    fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
+    where
+        C: Context<'c>,
+    {
+        // reference is a uint32.
+        let reference = UInt32::de_serialize(context.reader())?;
+
+        // We can only increment max used index by at max one
+        let opt_max_used_index = context.max_used_anchor_index();
+        let opt_current_index = context.anchor_index();
+
+        if let (Some(current_index), Some(max_used_index)) = (opt_current_index, opt_max_used_index)
+        {
+            if reference > max_used_index + 1 {
+                return LqError::err_new(format!(
+                    "The current anchor index is {:?}. The last reference is {:?}. It's only possible to \
+                    reference next item - so reference has to be within the range [0 - {:?}] (inclusive). \
+                    This usually happens when ordering of anchors is invalid. Anchors have to be \
+                    ordered to make sure data is canonical.",
+                    current_index,
+                    max_used_index,
+                    max_used_index + 1,
+                ));
+            }
+            if reference > max_used_index {
+                context.set_max_used_anchor_index(Option::Some(reference));
+            }
+        } else {
+            return LqError::err_new(format!(
+                "Found a reference referencing \
+                 anchor {:?}. Problem: There's no anchors and or no max used index. References \
+                 can only be used \
+                 as children of anchors. If you see this message, something with your \
+                 schema might be wrong.",
+                reference
+            ));
+        };        
+
+        Result::Ok(())
+    }
+}
+
+impl From<VReference> for AnyValidator<'static> {
+    fn from(value: VReference) -> Self {
+        AnyValidator::Reference(value)
+    }
+}

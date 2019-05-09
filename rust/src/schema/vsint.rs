@@ -27,13 +27,13 @@ impl VSInt {
     }
 }
 
-impl<'a> From<VSInt> for AnyValidator<'a> {
+impl From<VSInt> for AnyValidator<'static> {
     fn from(value: VSInt) -> Self {
         AnyValidator::SInt(value)
     }
 }
 
-impl<'a> Validator<'a> for VSInt {
+impl Validator<'static> for VSInt {
 
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where

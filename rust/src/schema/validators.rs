@@ -1,3 +1,4 @@
+use crate::schema::vanchors::VAnchors;
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
@@ -7,6 +8,8 @@ use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
 use crate::schema::venum::VEnum;
+use crate::schema::vseq::VSeq;
+use crate::schema::vreference::VReference;
 
 #[derive(Clone)]
 pub enum AnyValidator<'a> {
@@ -16,6 +19,9 @@ pub enum AnyValidator<'a> {
     Ascii(VAscii),
     Bool(VBool),
     Enum(VEnum<'a>),
+    Anchors(VAnchors),
+    Reference(VReference),
+    Seq(VSeq),
 }
 
 impl<'a> Validator<'a> for AnyValidator<'a> {
@@ -30,6 +36,9 @@ impl<'a> Validator<'a> for AnyValidator<'a> {
             AnyValidator::Ascii(value) => value.validate(context),
             AnyValidator::Bool(value) => value.validate(context),
             AnyValidator::Enum(value) => value.validate(context),
+            AnyValidator::Anchors(value) => value.validate(context),
+            AnyValidator::Reference(value) => value.validate(context),
+            AnyValidator::Seq(value) => value.validate(context),
         }
     }
 }

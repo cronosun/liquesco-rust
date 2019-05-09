@@ -34,13 +34,13 @@ impl Default for VBool {
     }
 }
 
-impl<'a> From<VBool> for AnyValidator<'a> {
+impl<'a> From<VBool> for AnyValidator<'static> {
     fn from(value: VBool) -> Self {
         AnyValidator::Bool(value)
     }
 }
 
-impl<'a> Validator<'a> for VBool {
+impl Validator<'static> for VBool {
 
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where

@@ -1,5 +1,5 @@
-use crate::common::internal_utils::try_from_int_result;
 use crate::common::error::LqError;
+use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::BinaryReader;
 use crate::serialization::core::BinaryWriter;
 use crate::serialization::core::ContentDescription;
@@ -18,7 +18,11 @@ impl<'a> DeSerializer<'a> for UInt64 {
         let content_description = reader.read_content_description_given_type_header(type_header)?;
 
         if type_header.major_type() != TYPE_UINT {
-            return LqError::err_static("Given type is not an unsigned integer type");
+            return LqError::err_new(format!(
+                "Given type is not an unsigned integer type. \
+                 Major type is {:?}.",
+                type_header.major_type()
+            ));
         }
         if content_description.number_of_embedded_values() != 0 {
             return LqError::err_static("Integer types must not contain embedded values.");

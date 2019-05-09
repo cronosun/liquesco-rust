@@ -27,13 +27,13 @@ impl VUInt {
     }
 }
 
-impl<'a> From<VUInt> for AnyValidator<'a> {
+impl<'a> From<VUInt> for AnyValidator<'static> {
     fn from(value: VUInt) -> Self {
         AnyValidator::UInt(value)
     }
 }
 
-impl<'a> Validator<'a> for VUInt {
+impl Validator<'static> for VUInt {
 
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
