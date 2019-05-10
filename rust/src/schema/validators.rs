@@ -1,18 +1,20 @@
-use crate::schema::vanchors::VAnchors;
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
+use crate::schema::vanchors::VAnchors;
 use crate::schema::vascii::VAscii;
 use crate::schema::vbool::VBool;
+use crate::schema::venum::VEnum;
+use crate::schema::vfloat::VFloat32;
+use crate::schema::vfloat::VFloat64;
+use crate::schema::vint_range::VSIntRange;
+use crate::schema::vint_range::VUIntRange;
+use crate::schema::voption::VOption;
+use crate::schema::vreference::VReference;
+use crate::schema::vseq::VSeq;
 use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
-use crate::schema::venum::VEnum;
-use crate::schema::vseq::VSeq;
-use crate::schema::vfloat::VFloat32;
-use crate::schema::vfloat::VFloat64;
-use crate::schema::voption::VOption;
-use crate::schema::vreference::VReference;
 
 #[derive(Clone)]
 pub enum AnyValidator<'a> {
@@ -28,12 +30,14 @@ pub enum AnyValidator<'a> {
     Float32(VFloat32),
     Float64(VFloat64),
     Option(VOption),
+    SIntRange(VSIntRange),
+    UIntRange(VUIntRange),
 }
 
 impl<'a> Validator<'a> for AnyValidator<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         match self {
             AnyValidator::Struct(value) => value.validate(context),
@@ -48,6 +52,8 @@ impl<'a> Validator<'a> for AnyValidator<'a> {
             AnyValidator::Float32(value) => value.validate(context),
             AnyValidator::Float64(value) => value.validate(context),
             AnyValidator::Option(value) => value.validate(context),
+            AnyValidator::SIntRange(value) => value.validate(context),
+            AnyValidator::UIntRange(value) => value.validate(context),
         }
     }
 }

@@ -1,6 +1,7 @@
 # Missing types
 
- * Int range
  * Float range?
  * Instant, Duration
  * Decimal128
+  
+TODO: Eigentlich brauchts die ranges nicht,wenn wir seq length = 2 machen und ordered können.

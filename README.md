@@ -40,3 +40,4 @@ The schema can be used to validate data and to generate source code (generate da
  * **Text format [ToDo]**: Schemas usually are serialized using the liquesco serialization format but it's also possible to deserialize from a human readable text format: XML. Why XML, isn't XML dead? I don't think so: Unlike most other formats XML has great editor/IDE support given XSD.
 
 
+

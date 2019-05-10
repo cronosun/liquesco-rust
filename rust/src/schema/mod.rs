@@ -14,3 +14,4 @@ pub mod vreference;
 pub mod vseq;
 pub mod vfloat;
 pub mod voption;
+pub mod vint_range;
