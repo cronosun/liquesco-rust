@@ -1,5 +1,5 @@
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::common::error::LqError;
@@ -15,7 +15,7 @@ pub enum Presence {
 impl<'a> DeSerializer<'a> for Presence {
     type Item = Self;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
         let content_description = reader.read_content_description_given_type_header(type_header)?;
 
@@ -39,7 +39,7 @@ impl<'a> DeSerializer<'a> for Presence {
 impl Serializer for Presence {
     type Item = Self;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Presence::Present => {
                 writer.write_content_description(TYPE_OPTION, &ContentDescription::new_number_of_embedded_values(1))                

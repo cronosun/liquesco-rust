@@ -4,7 +4,7 @@ use crate::schema::core::Schema;
 use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
 use crate::schema::core::{Config, Validator};
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 use std::marker::PhantomData;
 
 pub struct DefaultSchema<'a, C: ValidatorContainer<'a>> {
@@ -14,7 +14,7 @@ pub struct DefaultSchema<'a, C: ValidatorContainer<'a>> {
 }
 
 impl<'a, C: ValidatorContainer<'a>> Schema for DefaultSchema<'a, C> {
-    fn validate<'r, R: BinaryReader<'r>>(
+    fn validate<'r, R: LqReader<'r>>(
         &self,
         config: Config,
         reader: &mut R,
@@ -33,7 +33,7 @@ impl<'a, C: ValidatorContainer<'a>> DefaultSchema<'a, C> {
     }
 
     #[inline]
-    fn validate_internal<'c, 'r, R: BinaryReader<'r>>(
+    fn validate_internal<'c, 'r, R: LqReader<'r>>(
         &'c self,
         config: Config,
         reader: &'c mut R,
@@ -51,7 +51,7 @@ impl<'a, C: ValidatorContainer<'a>> DefaultSchema<'a, C> {
     }
 }
 
-struct ValidationContext<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<'r>> {
+struct ValidationContext<'s, 'c, 'r, C: ValidatorContainer<'c>, R: LqReader<'r>> {
     validators: &'s C,
     config: Config,
     reader: &'s mut R,
@@ -61,7 +61,7 @@ struct ValidationContext<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<
     _phantom2: &'r PhantomData<()>,
 }
 
-impl<'s, 'c, 'r, C: ValidatorContainer<'c>, R: BinaryReader<'r>> Context<'r>
+impl<'s, 'c, 'r, C: ValidatorContainer<'c>, R: LqReader<'r>> Context<'r>
     for ValidationContext<'s, 'c, 'r, C, R>
 {
     type Reader = R;

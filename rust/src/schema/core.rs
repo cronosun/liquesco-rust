@@ -1,6 +1,6 @@
 use crate::common::error::LqError;
 use crate::schema::validators::AnyValidator;
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 
 pub trait Validator<'a>: Into<AnyValidator<'a>> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
@@ -13,7 +13,7 @@ pub trait Validator<'a>: Into<AnyValidator<'a>> {
 }
 
 pub trait Context<'a> {
-    type Reader: BinaryReader<'a>;
+    type Reader: LqReader<'a>;
 
     fn validate(&mut self, reference: ValidatorRef) -> Result<(), LqError>;
 
@@ -54,7 +54,7 @@ pub trait ValidatorContainer<'a> {
 }
 
 pub trait Schema {
-    fn validate<'r, R: BinaryReader<'r>>(
+    fn validate<'r, R: LqReader<'r>>(
         &self,
         config: Config,
         reader: &mut R,

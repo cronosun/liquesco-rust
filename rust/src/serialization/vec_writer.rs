@@ -1,4 +1,4 @@
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqWriter;
 use crate::common::error::LqError;
 
 pub struct VecWriter {
@@ -22,7 +22,7 @@ impl std::io::Write for VecWriter {
     }
 }
 
-impl BinaryWriter for VecWriter {
+impl LqWriter for VecWriter {
     fn write_u8(&mut self, data: u8) -> Result<(), LqError> {
         self.data.push(data);
         Result::Ok(())

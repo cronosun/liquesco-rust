@@ -9,6 +9,8 @@ use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
 use crate::schema::venum::VEnum;
 use crate::schema::vseq::VSeq;
+use crate::schema::vfloat::VFloat32;
+use crate::schema::vfloat::VFloat64;
 use crate::schema::vreference::VReference;
 
 #[derive(Clone)]
@@ -22,6 +24,8 @@ pub enum AnyValidator<'a> {
     Anchors(VAnchors),
     Reference(VReference),
     Seq(VSeq),
+    Float32(VFloat32),
+    Float64(VFloat64),
 }
 
 impl<'a> Validator<'a> for AnyValidator<'a> {
@@ -39,6 +43,8 @@ impl<'a> Validator<'a> for AnyValidator<'a> {
             AnyValidator::Anchors(value) => value.validate(context),
             AnyValidator::Reference(value) => value.validate(context),
             AnyValidator::Seq(value) => value.validate(context),
+            AnyValidator::Float32(value) => value.validate(context),
+            AnyValidator::Float64(value) => value.validate(context),
         }
     }
 }

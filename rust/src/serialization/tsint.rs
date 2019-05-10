@@ -1,7 +1,7 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
@@ -13,7 +13,7 @@ pub struct SInt64;
 impl<'a> DeSerializer<'a> for SInt64 {
     type Item = i64;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
         let content_description = reader.read_content_description_given_type_header(type_header)?;
 
@@ -39,7 +39,7 @@ impl<'a> DeSerializer<'a> for SInt64 {
 impl Serializer for SInt64 {
     type Item = i64;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         let deref_item = *item;
         match deref_item {
             0 => writer.write_content_description(TYPE_SINT, &ContentDescription::default()),
@@ -80,7 +80,7 @@ pub struct SInt8;
 impl<'a> DeSerializer<'a> for SInt8 {
     type Item = i8;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
@@ -89,7 +89,7 @@ impl<'a> DeSerializer<'a> for SInt8 {
 impl Serializer for SInt8 {
     type Item = i8;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         SInt64::serialize(writer, &(*item as i64))
     }
 }
@@ -99,7 +99,7 @@ pub struct SInt16;
 impl<'a> DeSerializer<'a> for SInt16 {
     type Item = i16;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
@@ -108,7 +108,7 @@ impl<'a> DeSerializer<'a> for SInt16 {
 impl Serializer for SInt16 {
     type Item = i16;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         SInt64::serialize(writer, &(*item as i64))
     }
 }
@@ -118,7 +118,7 @@ pub struct SInt32;
 impl<'a> DeSerializer<'a> for SInt32 {
     type Item = i32;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
         try_from_int_result(Self::Item::try_from(value))
     }
@@ -127,7 +127,7 @@ impl<'a> DeSerializer<'a> for SInt32 {
 impl Serializer for SInt32 {
     type Item = i32;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         SInt64::serialize(writer, &(*item as i64))
     }
 }

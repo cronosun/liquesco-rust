@@ -1,8 +1,8 @@
 use crate::serialization::tfloat::Float;
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::major_types::TYPE_BINARY;
@@ -132,7 +132,7 @@ impl<'a> Deref for ValueRef<'a> {
 impl<'a> DeSerializer<'a> for Value<'a> {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<Reader: LqReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
         let major_type = reader.peek_header()?.major_type();
         let value = match major_type {
             TYPE_BOOL_FALSE | TYPE_BOOL_TRUE => Value::Bool(Bool::de_serialize(reader)?),
@@ -212,7 +212,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
 impl<'a> Serializer for Value<'a> {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<T: LqWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Value::Bool(value) => Bool::serialize(writer, value),
             Value::Option(value) => match value {

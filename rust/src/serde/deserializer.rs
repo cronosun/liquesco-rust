@@ -17,14 +17,14 @@ use serde::de::Visitor;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 
-pub struct Deserializer<'de, R: BinaryReader<'de>> {
+pub struct Deserializer<'de, R: LqReader<'de>> {
     reader: R,
     _phantom: &'de PhantomData<()>,
 }
 
-pub fn new_deserializer<'de, R: BinaryReader<'de>>(reader: R) -> Deserializer<'de, R> {
+pub fn new_deserializer<'de, R: LqReader<'de>>(reader: R) -> Deserializer<'de, R> {
     Deserializer {
         reader,
         _phantom: &PhantomData,
@@ -35,7 +35,7 @@ type Result<Ok> = std::result::Result<Ok, SLqError>;
 
 impl<'de, 'a, R> serde::Deserializer<'de> for &'a mut Deserializer<'de, R>
 where
-    R: BinaryReader<'de>,
+    R: LqReader<'de>,
 {
     type Error = SLqError;
 
@@ -308,15 +308,15 @@ where
     }
 }
 
-struct EnumAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+struct EnumAccessStruct<'a, 'de, R: LqReader<'de> + 'a> {
     deserializer: &'a mut Deserializer<'de, R>,
     input_data_len: usize,
 }
 
-impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::EnumAccess<'de>
+impl<'de, 'a, 'b: 'a, R: LqReader<'de> + 'b> serde::de::EnumAccess<'de>
     for EnumAccessStruct<'a, 'de, R>
 where
-    R: BinaryReader<'de>,
+    R: LqReader<'de>,
 {
     type Error = SLqError;
     type Variant = Self;
@@ -336,7 +336,7 @@ where
     }
 }
 
-impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
+impl<'de, 'a, 'b: 'a, R: LqReader<'de> + 'b> serde::de::VariantAccess<'de>
     for EnumAccessStruct<'a, 'de, R>
 {
     type Error = SLqError;
@@ -377,7 +377,7 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::VariantAccess<'de>
 
 impl<'de, 'a, R> Deserializer<'de, R>
 where
-    R: BinaryReader<'de>,
+    R: LqReader<'de>,
 {
     #[inline]
     fn deserialize_seq_like<V>(&'a mut self, len: Option<usize>, visitor: V) -> Result<V::Value>
@@ -423,13 +423,13 @@ where
     }
 }
 
-struct SeqAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+struct SeqAccessStruct<'a, 'de, R: LqReader<'de> + 'a> {
     deserializer: &'a mut Deserializer<'de, R>,
     remaining_len: usize,
     to_skip: usize,
 }
 
-impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de>
+impl<'de, 'a, 'b: 'a, R: LqReader<'de> + 'b> serde::de::SeqAccess<'de>
     for SeqAccessStruct<'a, 'de, R>
 {
     type Error = SLqError;
@@ -457,12 +457,12 @@ impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::SeqAccess<'de>
     }
 }
 
-struct MapAccessStruct<'a, 'de, R: BinaryReader<'de> + 'a> {
+struct MapAccessStruct<'a, 'de, R: LqReader<'de> + 'a> {
     deserializer: &'a mut Deserializer<'de, R>,
     items_left: usize,
 }
 
-impl<'de, 'a, 'b: 'a, R: BinaryReader<'de> + 'b> serde::de::MapAccess<'de>
+impl<'de, 'a, 'b: 'a, R: LqReader<'de> + 'b> serde::de::MapAccess<'de>
     for MapAccessStruct<'a, 'de, R>
 {
     type Error = SLqError;

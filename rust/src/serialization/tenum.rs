@@ -5,8 +5,8 @@ use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
 
 use crate::common::error::LqError;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
@@ -39,7 +39,7 @@ impl EnumHeader {
 impl<'a> DeSerializer<'a> for EnumHeader {
     type Item = Self;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
         let content_description = reader.read_content_description_given_type_header(type_header)?;
         let major_type = type_header.major_type();
@@ -83,7 +83,7 @@ impl<'a> DeSerializer<'a> for EnumHeader {
 impl<'a> Serializer for EnumHeader {
     type Item = Self;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         let ordinal : u32 = item.ordinal;
         let major_type = match ordinal {
             0 => TYPE_ENUM_0,

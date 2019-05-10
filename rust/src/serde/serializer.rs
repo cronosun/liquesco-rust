@@ -1,7 +1,7 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::serde::error::SLqError;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer as S;
 use crate::serialization::tbinary::Binary;
 use crate::serialization::tenum::EnumHeader;
@@ -18,7 +18,7 @@ use std::convert::TryFrom;
 use serde::ser;
 
 #[inline]
-pub fn serialize<W: BinaryWriter, S: ser::Serialize>(
+pub fn serialize<W: LqWriter, S: ser::Serialize>(
     writer: &mut W,
     value: S,
 ) -> std::result::Result<(), LqError> {
@@ -26,13 +26,13 @@ pub fn serialize<W: BinaryWriter, S: ser::Serialize>(
     value.serialize(&mut serializer).map_err(|err| err.into())
 }
 
-pub struct Serializer<'a, W: BinaryWriter> {
+pub struct Serializer<'a, W: LqWriter> {
     writer: &'a mut W,
 }
 
 type Result<Ok> = std::result::Result<Ok, SLqError>;
 
-impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::Serializer for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -228,7 +228,7 @@ impl<'a, W: BinaryWriter> ser::Serializer for &'a mut Serializer<'a, W> {
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeSeq for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeSeq for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -245,7 +245,7 @@ impl<'a, W: BinaryWriter> ser::SerializeSeq for &'a mut Serializer<'a, W> {
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeTuple for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeTuple for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -262,7 +262,7 @@ impl<'a, W: BinaryWriter> ser::SerializeTuple for &'a mut Serializer<'a, W> {
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeTupleStruct for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeTupleStruct for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -279,7 +279,7 @@ impl<'a, W: BinaryWriter> ser::SerializeTupleStruct for &'a mut Serializer<'a, W
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeTupleVariant for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeTupleVariant for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -296,7 +296,7 @@ impl<'a, W: BinaryWriter> ser::SerializeTupleVariant for &'a mut Serializer<'a, 
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeMap for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeMap for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -323,7 +323,7 @@ impl<'a, W: BinaryWriter> ser::SerializeMap for &'a mut Serializer<'a, W> {
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeStruct for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeStruct for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -340,7 +340,7 @@ impl<'a, W: BinaryWriter> ser::SerializeStruct for &'a mut Serializer<'a, W> {
     }
 }
 
-impl<'a, W: BinaryWriter> ser::SerializeStructVariant for &'a mut Serializer<'a, W> {
+impl<'a, W: LqWriter> ser::SerializeStructVariant for &'a mut Serializer<'a, W> {
     type Ok = ();
     type Error = SLqError;
 
@@ -357,7 +357,7 @@ impl<'a, W: BinaryWriter> ser::SerializeStructVariant for &'a mut Serializer<'a,
     }
 }
 
-impl<'a, W: BinaryWriter> Serializer<'a, W> {
+impl<'a, W: LqWriter> Serializer<'a, W> {
     #[inline]
     fn serialize_inner<T>(&mut self, value: &T) -> Result<()>
     where

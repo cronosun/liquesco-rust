@@ -2,8 +2,8 @@ use crate::serialization::major_types::TYPE_SEQ;
 
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
@@ -41,7 +41,7 @@ impl SeqHeader {
     pub fn read_struct<
         'a,
         Ret,
-        R: BinaryReader<'a>,
+        R: LqReader<'a>,
         ReadFn: FnOnce(&mut R) -> Result<Ret, LqError>,
     >(
         &self,
@@ -62,7 +62,7 @@ pub struct SeqRead {
 }
 
 impl SeqRead {
-    pub fn finish<'a, R: BinaryReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
+    pub fn finish<'a, R: LqReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
         reader.skip_n_values(try_from_int_result(usize::try_from(fields_to_skip))?)        
     }
@@ -71,7 +71,7 @@ impl SeqRead {
 impl<'a> DeSerializer<'a> for SeqHeader {
     type Item = Self;
 
-    fn de_serialize<Reader: BinaryReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
+    fn de_serialize<Reader: LqReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
         if type_header.major_type() != TYPE_SEQ {
             return LqError::err_static("Not a list type");
@@ -93,7 +93,7 @@ impl<'a> DeSerializer<'a> for SeqHeader {
 impl<'a> Serializer for SeqHeader {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<T: LqWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         writer.write_content_description(
             TYPE_SEQ,
             &ContentDescription::new_number_of_embedded_values(item.length),

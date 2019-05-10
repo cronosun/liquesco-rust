@@ -1,8 +1,8 @@
 use crate::serialization::core::Serializer;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 use crate::serialization::binary::binary_write;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqWriter;
 use crate::serialization::major_types::TYPE_UNICODE;
 use crate::serialization::binary::binary_read;
 use crate::common::error::LqError;
@@ -13,7 +13,7 @@ pub struct Unicode;
 impl<'a> DeSerializer<'a> for Unicode {
     type Item = &'a str;
 
-    fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R : LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id!= TYPE_UNICODE {
             return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
@@ -30,7 +30,7 @@ impl<'a> DeSerializer<'a> for Unicode {
 impl Serializer for Unicode {
     type Item = str;
 
-    fn serialize<W: BinaryWriter>(
+    fn serialize<W: LqWriter>(
         writer: &mut W,
         item: &Self::Item,
     ) -> Result<(), LqError> {
@@ -44,7 +44,7 @@ pub struct UncheckedUnicode;
 impl<'a> DeSerializer<'a> for UncheckedUnicode {
     type Item = &'a [u8];
 
-    fn de_serialize<R : BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R : LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id!= TYPE_UNICODE {
             return LqError::err_new(format!("Type is not utf8 data, id is {:?}",
@@ -57,7 +57,7 @@ impl<'a> DeSerializer<'a> for UncheckedUnicode {
 impl Serializer for UncheckedUnicode {
     type Item = [u8];
 
-    fn serialize<W: BinaryWriter>(
+    fn serialize<W: LqWriter>(
         writer: &mut W,
         item: &Self::Item,
     ) -> Result<(), LqError> {

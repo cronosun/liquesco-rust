@@ -1,6 +1,6 @@
 use crate::common::error::LqError;
-use crate::serialization::core::BinaryReader;
-use crate::serialization::core::BinaryWriter;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
@@ -73,7 +73,7 @@ impl TryFrom<Float> for f64 {
 impl<'a> DeSerializer<'a> for Float {
     type Item = Float;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let float_type = begin_de_serialize(reader)?;
         match float_type {
             Type::F32 => Result::Ok(Float::F32(reader.read_f32()?)),
@@ -85,7 +85,7 @@ impl<'a> DeSerializer<'a> for Float {
 impl Serializer for Float {
     type Item = Float;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         match item {
             Float::F32(value) => {
                 begin_serialize(writer, Type::F32)?;
@@ -119,7 +119,7 @@ pub struct Float32;
 impl<'a> DeSerializer<'a> for Float32 {
     type Item = f32;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let float_type = begin_de_serialize(reader)?;
         if float_type == Type::F32 {
             reader.read_f32()
@@ -132,7 +132,7 @@ impl<'a> DeSerializer<'a> for Float32 {
 impl Serializer for Float32 {
     type Item = f32;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         begin_serialize(writer, Type::F32)?;
         writer.write_f32(*item)
     }
@@ -143,7 +143,7 @@ pub struct Float64;
 impl<'a> DeSerializer<'a> for Float64 {
     type Item = f64;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let float_type = begin_de_serialize(reader)?;
         if float_type == Type::F64 {
             reader.read_f64()
@@ -156,14 +156,14 @@ impl<'a> DeSerializer<'a> for Float64 {
 impl Serializer for Float64 {
     type Item = f64;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
         begin_serialize(writer, Type::F64)?;
         writer.write_f64(*item)
     }
 }
 
 #[inline]
-fn begin_de_serialize<'a, R: BinaryReader<'a>>(reader: &mut R) -> Result<Type, LqError> {
+fn begin_de_serialize<'a, R: LqReader<'a>>(reader: &mut R) -> Result<Type, LqError> {
     let type_header = reader.read_type_header()?;
     let content_description = reader.read_content_description_given_type_header(type_header)?;
 
@@ -186,7 +186,7 @@ fn begin_de_serialize<'a, R: BinaryReader<'a>>(reader: &mut R) -> Result<Type, L
 }
 
 #[inline]
-fn begin_serialize<W: BinaryWriter>(writer: &mut W, float_type: Type) -> Result<(), LqError> {
+fn begin_serialize<W: LqWriter>(writer: &mut W, float_type: Type) -> Result<(), LqError> {
     let length = match float_type {
         Type::F32 => 4,
         Type::F64 => 8,

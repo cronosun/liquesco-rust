@@ -1,24 +1,24 @@
 use crate::common::error::LqError;
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 
 /// Wraps a `BinaryReader` so we can use it for dynamic calls (e.g. in traits).
 pub struct DynReader<'a> {
-    reader: &'a mut BinaryReader<'a>,
+    reader: &'a mut LqReader<'a>,
 }
 
 impl<'a, 'b> DynReader<'a> {
-    pub fn from<T : BinaryReader<'a>>(reader : &'a mut T) -> Self {
+    pub fn from<T : LqReader<'a>>(reader : &'a mut T) -> Self {
         Self { reader  }
     }
 }
 
-impl<'a, 'b> From<&'a mut BinaryReader<'a>> for DynReader<'a> {
-    fn from(reader: &'a mut BinaryReader<'a>) -> Self {
+impl<'a, 'b> From<&'a mut LqReader<'a>> for DynReader<'a> {
+    fn from(reader: &'a mut LqReader<'a>) -> Self {
         Self { reader }
     }
 }
 
-impl<'a> BinaryReader<'a> for DynReader<'a> {
+impl<'a> LqReader<'a> for DynReader<'a> {
     fn peek_u8(&self) -> Result<u8, LqError> {
         self.reader.peek_u8()
     }

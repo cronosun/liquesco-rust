@@ -1,5 +1,5 @@
 use crate::common::internal_utils::try_from_int_result;
-use crate::serialization::core::{BinaryReader, Serializer, BinaryWriter};
+use crate::serialization::core::{LqReader, Serializer, LqWriter};
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tseq::SeqHeader;
 use core::convert::TryFrom;
@@ -108,7 +108,7 @@ impl<'a> Identifier<'a> {
 impl<'a> DeSerializer<'a> for Identifier<'a> {
     type Item = Self;
 
-    fn de_serialize<T: BinaryReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
+    fn de_serialize<T: LqReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
         let list_header = SeqHeader::de_serialize(reader)?;
         let number_of_segments = list_header.length();
         let usize_number_of_segments = try_from_int_result(usize::try_from(number_of_segments))?;
@@ -127,7 +127,7 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
 impl<'a> Serializer for Identifier<'a> {
     type Item = Self;
 
-    fn serialize<T: BinaryWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
+    fn serialize<T: LqWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let number_of_segments = item.len();
         let u32_number_of_segments = try_from_int_result(u32::try_from(number_of_segments))?;
         let list_header = SeqHeader::new(u32_number_of_segments);

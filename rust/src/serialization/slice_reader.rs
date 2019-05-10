@@ -1,4 +1,4 @@
-use crate::serialization::core::BinaryReader;
+use crate::serialization::core::LqReader;
 use crate::common::error::LqError;
 use std::io::Read;
 use std::io::Write;
@@ -34,7 +34,7 @@ impl<'a> SliceReader<'a> {
     }
 }
 
-impl<'a> BinaryReader<'a> for SliceReader<'a> {
+impl<'a> LqReader<'a> for SliceReader<'a> {
     #[inline]
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();

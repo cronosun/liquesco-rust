@@ -58,16 +58,16 @@ pub struct ContentDescription {
 pub trait DeSerializer<'a> {
     type Item;
 
-    fn de_serialize<R: BinaryReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError>;
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError>;
 }
 
 pub trait Serializer {
     type Item: ?Sized;
 
-    fn serialize<W: BinaryWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError>;
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError>;
 }
 
-pub trait BinaryWriter: std::io::Write + Sized {
+pub trait LqWriter: std::io::Write + Sized {
     fn write_u8(&mut self, data: u8) -> Result<(), LqError>;
     fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError>;
 
@@ -116,7 +116,7 @@ pub trait BinaryWriter: std::io::Write + Sized {
     }
 
     fn write_header(&mut self, header: TypeHeader) -> Result<(), LqError> {
-        BinaryWriter::write_u8(self, header.id())
+        LqWriter::write_u8(self, header.id())
     }
 
     fn write_content_description(
@@ -138,7 +138,7 @@ pub trait BinaryWriter: std::io::Write + Sized {
             };
             self.write_header(TypeHeader::new(marker, major_type))?;
             if marker == ContentInfo::VarInt {
-                BinaryWriter::write_varint_u64(self, self_len)?;
+                LqWriter::write_varint_u64(self, self_len)?;
             }
             Result::Ok(())
         } else if self_len == 0 && number_of_embedded_values == 1 {
@@ -164,7 +164,7 @@ pub trait BinaryWriter: std::io::Write + Sized {
     }
 }
 
-pub trait BinaryReader<'a>: std::io::Read {
+pub trait LqReader<'a>: std::io::Read {
     fn peek_u8(&self) -> Result<u8, LqError>;
     fn read_u8(&mut self) -> Result<u8, LqError>;
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
@@ -195,7 +195,7 @@ pub trait BinaryReader<'a>: std::io::Read {
     }
 
     fn read_type_header(&mut self) -> Result<TypeHeader, LqError> {
-        let header_byte = BinaryReader::read_u8(self)?;
+        let header_byte = LqReader::read_u8(self)?;
         Result::Ok(TypeHeader::from_u8(header_byte))
     }
 

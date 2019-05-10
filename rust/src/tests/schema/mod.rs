@@ -9,3 +9,4 @@ pub mod simple_enum;
 pub mod anchors;
 pub mod anchors_complex;
 pub mod seq;
+pub mod float;

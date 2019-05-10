@@ -12,3 +12,4 @@ pub mod venum;
 pub mod vanchors;
 pub mod vreference;
 pub mod vseq;
+pub mod vfloat;
