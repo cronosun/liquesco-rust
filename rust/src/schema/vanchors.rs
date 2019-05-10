@@ -11,10 +11,10 @@ use crate::serialization::tseq::SeqHeader;
 /// referenced sequentially.
 #[derive(new, Clone)]
 pub struct VAnchors {
-    master_validator: ValidatorRef,
-    anchor_validator: ValidatorRef,
+    pub master_validator: ValidatorRef,
+    pub anchor_validator: ValidatorRef,
     #[new(value = "4294967295")]
-    max_anchors: u32,
+    pub max_anchors: u32,
 }
 
 impl<'a> Validator<'static> for VAnchors {

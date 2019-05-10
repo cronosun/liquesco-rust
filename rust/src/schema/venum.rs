@@ -17,12 +17,12 @@ type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
 type Validators = SmallVec<[ValidatorRef; 3]>;
 
 #[derive(new, Clone)]
-pub struct VEnum<'a>(Variants<'a>);
+pub struct VEnum<'a>(pub Variants<'a>);
 
 #[derive(new, Clone)]
 pub struct Variant<'a> {
-    identifier: Identifier<'a>,
-    validators: Validators,
+    pub identifier: Identifier<'a>,
+    pub validators: Validators,
 }
 
 impl<'a> Variant<'a> {

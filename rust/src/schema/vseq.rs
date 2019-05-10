@@ -1,4 +1,5 @@
 use crate::common::error::LqError;
+use crate::common::range::U32IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
@@ -6,11 +7,10 @@ use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tseq::SeqHeader;
 
-#[derive(Clone)]
+#[derive(new, Clone)]
 pub struct VSeq {
-    element_validator: ValidatorRef,
-    min_len: u32,
-    max_len: u32,
+    pub element_validator: ValidatorRef,
+    pub length: U32IneRange,
 }
 
 impl VSeq {
@@ -19,17 +19,9 @@ impl VSeq {
         min_len: u32,
         max_len: u32,
     ) -> Result<Self, LqError> {
-        if min_len > max_len {
-            return LqError::err_new(format!(
-                "Minimum length {:?} for sequence is > \
-                 maximum length {:?}.",
-                min_len, max_len
-            ));
-        }
         Result::Ok(Self {
             element_validator,
-            min_len,
-            max_len,
+            length: U32IneRange::try_new(min_len, max_len)?,
         })
     }
 }
@@ -42,19 +34,11 @@ impl Validator<'static> for VSeq {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();
 
-        if number_of_items > self.max_len {
-            return LqError::err_new(format!(
-                "There are too many elements in this sequence. Have {:?} elements \
-                 - maximum allowed is {:?} elements.",
-                number_of_items, self.max_len
-            ));
-        } else if number_of_items < self.min_len {
-            return LqError::err_new(format!(
-                "There are not enough elements in this sequence. Have {:?} elements \
-                 - minimum required are {:?} elements.",
-                number_of_items, self.min_len
-            ));
-        }
+        self.length.require_within(
+            "Sequence length validation \
+             (schema; min/max elements in sequence)",
+            &number_of_items,
+        )?;
 
         // validate each element
         for _ in 0..number_of_items {

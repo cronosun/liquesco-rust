@@ -1,20 +1,20 @@
 use crate::common::error::LqError;
+use crate::common::internal_utils::try_from_int_result;
+use crate::common::range::U64IneRange;
+use crate::common::range::U8IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tunicode::UncheckedUnicode;
+use std::convert::TryFrom;
 
 #[derive(Clone)]
 pub struct VAscii {
-    /// Minimum number of characters required (inclusive).
-    min_length: u64,
-    /// Maximum number of characters allowed (inclusive).
-    max_length: u64,
-    /// Minimum ascii code (inclusive)
-    min_code: u8,
-    /// Maximum ascii code (inclusive)
-    max_code: u8,
+    /// Minimum / maximum number of bytes (which is at the same time also number of ASCII characters)
+    pub length: U64IneRange,
+    /// Allowed ascii code range (note: this field is private since needs further validation)
+    codes: U8IneRange,
 }
 
 impl VAscii {
@@ -24,30 +24,23 @@ impl VAscii {
         min_code: u8,
         max_code: u8,
     ) -> Result<VAscii, LqError> {
-        if min_code > max_code {
-            LqError::err_new(format!(
-                "Min ascii code ({:?}) is greater than max ascii code ({:?}).",
-                min_code, max_code
-            ))
-        } else if min_length > max_length {
-            LqError::err_new(format!(
-                "Min length of ascii characters ({:?}) is greater than maximum ({:?}).",
-                min_code, max_code
-            ))
-        } else if min_code > 127 || max_code > 127 {
-            LqError::err_new(format!(
+        if min_code > 127 || max_code > 127 {
+            return LqError::err_new(format!(
                 "Min ascii code / max ascii code must be within the ascii range (0-127; \
                  inclusive); have {:?} - {:?}.",
                 min_code, max_code
-            ))
-        } else {
-            Result::Ok(Self {
-                min_length,
-                max_length,
-                min_code,
-                max_code,
-            })
+            ));
         }
+
+        Result::Ok(Self {
+            length: U64IneRange::try_new_msg("Ascii length range", min_length, max_length)?,
+            codes: U8IneRange::try_new_msg("Ascii code range", min_code, max_code)?,
+        })
+    }
+
+    /// Allowed ascii code range
+    pub fn codes(&self) -> &U8IneRange {
+        &self.codes
     }
 }
 
@@ -58,7 +51,6 @@ impl<'a> From<VAscii> for AnyValidator<'a> {
 }
 
 impl<'a> Validator<'a> for VAscii {
-
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -67,31 +59,20 @@ impl<'a> Validator<'a> for VAscii {
 
         // first check length (that's faster)
         let length = bytes.len();
-        if length < self.min_length as usize {
-            return LqError::err_new(format!(
-                "Given ascii is too small - not enough characters (minimum \
-                 allowed is {:?})",
-                self.min_length
-            ));
-        }
-        if length as u64 > self.max_length {
-            return LqError::err_new(format!(
-                "Given ascii is too large - too many characters (maximum \
-                 allowed is {:?})",
-                self.max_length
-            ));
-        }
+        let length_u64 = try_from_int_result(u64::try_from(length))?;
+        self.length.require_within(
+            "Ascii schema validation (length; bytes; \
+             number of characters)",
+            &length_u64,
+        )?;
 
         // now we have to check each character
         for byte in bytes {
-            let owned_byte = *byte;
-            if owned_byte < self.min_code || owned_byte > self.max_code {
-                return LqError::err_new(format!(
-                    "Found a ascii character (code {:?}) that's not allowed. Allowed range is \
-                     {:?} to {:?} (both inclusive)",
-                    byte, self.min_code, self.max_code
-                ));
-            }
+            self.codes.require_within(
+                "Ascii schema validation (allowed \
+                 ascii codes)",
+                byte,
+            )?;
         }
 
         Result::Ok(())

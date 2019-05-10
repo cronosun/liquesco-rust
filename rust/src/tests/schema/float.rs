@@ -1,7 +1,6 @@
 use crate::common::range::F32IneRange;
 use crate::common::range::F64IneRange;
 use crate::common::range::NewFull;
-use crate::schema::vfloat::NumberConstraint;
 use crate::schema::vfloat::VFloat32;
 use crate::schema::vfloat::VFloat64;
 use crate::tests::schema::utils::assert_invalid_strict;
@@ -10,7 +9,7 @@ use crate::tests::schema::utils::single_schema;
 
 #[test]
 fn schema1_32() {
-    let schema = single_schema(VFloat32::new(NumberConstraint::Range(F32IneRange::full())));
+    let schema = single_schema(VFloat32::new(F32IneRange::full()));
 
     // some valid items
     assert_valid_strict(-0.0f32, &schema);
@@ -29,7 +28,7 @@ fn schema1_32() {
 
 #[test]
 fn schema1_64() {
-    let schema = single_schema(VFloat64::new(NumberConstraint::Range(F64IneRange::full())));
+    let schema = single_schema(VFloat64::new(F64IneRange::full()));
 
     // some valid items
     assert_valid_strict(-0.0f64, &schema);
@@ -48,9 +47,7 @@ fn schema1_64() {
 
 #[test]
 fn schema2_32() {
-    let mut float = VFloat32::new(NumberConstraint::Range(
-        F32IneRange::try_new(-14.5f32, 19.7f32).unwrap(),
-    ));
+    let mut float = VFloat32::new(F32IneRange::try_new(-14.5f32, 19.7f32).unwrap());
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
@@ -72,9 +69,7 @@ fn schema2_32() {
 
 #[test]
 fn schema2_64() {
-    let mut float = VFloat64::new(NumberConstraint::Range(
-        F64IneRange::try_new(-14.5f64, 19.7f64).unwrap(),
-    ));
+    let mut float = VFloat64::new(F64IneRange::try_new(-14.5f64, 19.7f64).unwrap());
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;

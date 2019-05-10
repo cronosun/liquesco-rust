@@ -19,8 +19,8 @@ pub struct VStruct<'a>(Fields<'a>);
 
 #[derive(new, Clone)]
 pub struct Field<'a> {
-    identifier: Identifier<'a>,
-    validator: ValidatorRef,
+    pub identifier: Identifier<'a>,
+    pub validator: ValidatorRef,
 }
 
 impl<'a> Field<'a> {

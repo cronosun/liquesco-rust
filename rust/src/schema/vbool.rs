@@ -15,15 +15,9 @@ pub enum BoolValues {
     FalseOnly,
 }
 
-#[derive(Clone)]
+#[derive(new, Clone)]
 pub struct VBool {
-    values: BoolValues,
-}
-
-impl VBool {
-    pub fn new(values: BoolValues) -> Self {
-        Self { values }
-    }
+    pub values: BoolValues,
 }
 
 impl Default for VBool {

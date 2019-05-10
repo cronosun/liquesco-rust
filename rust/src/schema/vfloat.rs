@@ -19,19 +19,13 @@ const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
 
 #[derive(new, Clone)]
 pub struct VFloat<F: PartialOrd + Debug> {
-    pub constraint: NumberConstraint<F>,
+    pub range: IneRange<F>,
     #[new(value = "false")]
     pub allow_nan: bool,
     #[new(value = "false")]
     pub allow_positive_infinity: bool,
     #[new(value = "false")]
     pub allow_negative_infinity: bool,
-}
-
-#[derive(new, Clone)]
-pub enum NumberConstraint<F: PartialOrd + Debug> {
-    NoNumbers,
-    Range(IneRange<F>),
 }
 
 impl From<VFloat32> for AnyValidator<'static> {
@@ -43,30 +37,6 @@ impl From<VFloat32> for AnyValidator<'static> {
 impl From<VFloat64> for AnyValidator<'static> {
     fn from(value: VFloat64) -> Self {
         AnyValidator::Float64(value)
-    }
-}
-
-impl<F: PartialOrd + Debug> NumberConstraint<F> {
-    fn validate_given_number(&self, number: F) -> Result<(), LqError> {
-        match self {
-            NumberConstraint::NoNumbers => LqError::err_new(format!(
-                "According to the schema no numbers \
-                 are allowed (maybe only NaN; positive and/or negative infinity). \
-                 Got number {:?}.",
-                number
-            )),
-            NumberConstraint::Range(range) => {
-                if !range.contains(&number) {
-                    LqError::err_new(format!(
-                        "According to the schema only \
-                         numbers in the range {:?} are allowed. Got number {:?}.",
-                        range, number
-                    ))
-                } else {
-                    Result::Ok(())
-                }
-            }
-        }
     }
 }
 
@@ -96,7 +66,8 @@ impl<F: PartialOrd + Debug> VFloat<F> {
             Result::Ok(())
         } else {
             // it's a number
-            self.constraint.validate_given_number(value)
+            self.range.require_within("Float range validation \
+            (schema)", &value)
         }
     }
 }
