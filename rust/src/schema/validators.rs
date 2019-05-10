@@ -11,6 +11,7 @@ use crate::schema::venum::VEnum;
 use crate::schema::vseq::VSeq;
 use crate::schema::vfloat::VFloat32;
 use crate::schema::vfloat::VFloat64;
+use crate::schema::voption::VOption;
 use crate::schema::vreference::VReference;
 
 #[derive(Clone)]
@@ -26,6 +27,7 @@ pub enum AnyValidator<'a> {
     Seq(VSeq),
     Float32(VFloat32),
     Float64(VFloat64),
+    Option(VOption),
 }
 
 impl<'a> Validator<'a> for AnyValidator<'a> {
@@ -45,6 +47,7 @@ impl<'a> Validator<'a> for AnyValidator<'a> {
             AnyValidator::Seq(value) => value.validate(context),
             AnyValidator::Float32(value) => value.validate(context),
             AnyValidator::Float64(value) => value.validate(context),
+            AnyValidator::Option(value) => value.validate(context),
         }
     }
 }
