@@ -1,3 +1,5 @@
+use crate::tests::schema::ordering::ord_assert_ascending;
+use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
@@ -34,4 +36,16 @@ fn schema2() {
     // some invalid items
     assert_invalid_strict(998usize, &schema);
     assert_invalid_strict(0usize, &schema);
+}
+
+#[test]
+fn ordering() {
+    let schema = VUInt::try_new(0, std::u64::MAX).unwrap();
+
+    ord_assert_equal(schema.clone(), 100usize, 100usize);
+    ord_assert_equal(schema.clone(), 0usize, 0usize);
+    ord_assert_equal(schema.clone(), std::u64::MAX, std::u64::MAX);
+
+    ord_assert_ascending(schema.clone(), 0u64, std::u64::MAX);
+    ord_assert_ascending(schema.clone(), 5usize, 6usize);
 }

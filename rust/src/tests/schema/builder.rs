@@ -36,16 +36,18 @@ impl<'a> ValidatorContainer<'a> for Container<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn add<V: Validator<'a>>(&mut self, validator: V) -> ValidatorRef {
+    pub fn add<V: Validator<'a>>(&mut self, validator: V) -> ValidatorRef
+    where AnyValidator<'a>: std::convert::From<V> {
         let reference = ValidatorRef(self.validators.len());
-        self.validators.push(validator.into_any_validator());
+        self.validators.push(AnyValidator::from(validator));
         reference
     }
 
     pub fn finish<V: Validator<'a>>(
         mut self,
         validator: V,
-    ) -> DefaultSchema<'a, Container<'a>> {
+    ) -> DefaultSchema<'a, Container<'a>>
+    where AnyValidator<'a>: std::convert::From<V> {
         let reference = self.add(validator);
         let container = Container {
             validators: self.validators,

@@ -1,3 +1,5 @@
+use crate::tests::schema::ordering::ord_assert_ascending;
+use crate::tests::schema::ordering::ord_assert_equal;
 use crate::schema::vsint::VSInt;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -19,4 +21,16 @@ fn schema1() {
     assert_invalid_strict(4443445isize, &schema);
     assert_invalid_strict(std::i64::MIN, &schema);
     assert_invalid_strict(std::i64::MAX, &schema);
+}
+
+#[test]
+fn ordering() {
+    let schema = VSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap();
+
+    ord_assert_equal(schema.clone(), -100isize, -100isize);
+    ord_assert_equal(schema.clone(), 0isize, 0isize);
+    ord_assert_equal(schema.clone(), std::i64::MAX, std::i64::MAX);
+
+    ord_assert_ascending(schema.clone(), 0i64, std::i64::MAX);
+    ord_assert_ascending(schema.clone(), -5isize, 6isize);
 }

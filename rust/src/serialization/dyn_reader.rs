@@ -30,6 +30,10 @@ impl<'a> LqReader<'a> for DynReader<'a> {
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
         self.reader.read_slice(len)
     }
+
+    fn clone(&self) -> LqReader<'a> {
+        let cloned = self.reader.clone();
+    }
 }
 
 impl<'a> std::io::Read for DynReader<'a> {

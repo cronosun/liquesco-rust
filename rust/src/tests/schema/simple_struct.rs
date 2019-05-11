@@ -1,7 +1,14 @@
+use crate::schema::core::Schema;
 use crate::schema::vascii::VAscii;
+use crate::schema::vbool::VBool;
+use crate::schema::vseq::Direction;
+use crate::schema::vsint::VSInt;
 use crate::schema::vstruct::VStruct;
 use crate::schema::vuint::VUInt;
 use crate::tests::schema::builder::builder;
+use crate::tests::schema::ordering::ord_schema;
+use crate::tests::schema::utils::assert_invalid_extended;
+use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::id;
 
 use crate::tests::schema::utils::assert_invalid_strict;
@@ -85,4 +92,155 @@ struct Schema1StructLong {
     age: u64,
     name: String,
     alive: bool,
+}
+
+fn ordering_create_schema() -> impl Schema {
+    ord_schema(
+        |builder| {
+            let type_x = builder.add(VUInt::try_new(0, std::u64::MAX).unwrap());
+            let type_y = builder.add(VSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
+            let inner_struct = builder.add(
+                VStruct::builder()
+                    .field(id("x"), type_x)
+                    .field(id("y"), type_y)
+                    .build(),
+            );
+            let type_more = builder.add(VBool::default());
+            builder.add(
+                VStruct::builder()
+                    .field(id("content"), inner_struct)
+                    .field(id("more"), type_more)
+                    .build(),
+            )
+        },
+        Direction::Ascending,
+        true,
+    )
+}
+
+#[test]
+fn ordering_no_extension() {
+    let schema = ordering_create_schema();
+
+    // "normal" check (no extensions) - valid
+    assert_valid_strict(
+        (
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: true,
+            },
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 21 },
+                more: false,
+            },
+        ),
+        &schema,
+    );
+
+    // "normal" check (no extensions) - invalid because of duplicate
+    assert_invalid_strict(
+        (
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+        ),
+        &schema,
+    );
+
+    // "normal" check (no extensions) - invalid because wrong ordering
+    assert_invalid_strict(
+        (
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: true,
+            },
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+        ),
+        &schema,
+    );
+}
+
+/// Here we test that only the parts defined in the schema are used to compare
+/// two items.
+#[test]
+fn ordering_extension() {
+    let schema = ordering_create_schema();
+
+    assert_valid_extended(
+        (
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+            ContainerForOrdering1Ext {
+                content: StructForOrdering1Ext {
+                    x: 10,
+                    y: 20,
+                    more_data: "This field is ignored".to_string(),
+                },
+                more: true,
+                more2: false,
+            },
+        ),
+        &schema,
+    );
+
+    // See: They're not byte-equal but are considered to be equal (since
+    // 'more_data' is not in the schema, so we don't use that for comparison)
+    assert_invalid_extended(
+        (
+            ContainerForOrdering1 {
+                content: StructForOrdering1 { x: 10, y: 20 },
+                more: false,
+            },
+            ContainerForOrdering1Ext {
+                content: StructForOrdering1Ext {
+                    x: 10,
+                    y: 20,
+                    more_data: "This field is ignored".to_string(),
+                },
+                more: false,
+                more2: false,
+            },
+        ),
+        &schema,
+    );
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+struct ContainerForOrdering1 {
+    content: StructForOrdering1,
+    more: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+struct StructForOrdering1 {
+    x: usize,
+    y: isize,
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+struct ContainerForOrdering1Ext {
+    content: StructForOrdering1Ext,
+    more: bool,
+    more2: bool,
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+struct StructForOrdering1Ext {
+    x: usize,
+    y: isize,
+    more_data: String,
 }

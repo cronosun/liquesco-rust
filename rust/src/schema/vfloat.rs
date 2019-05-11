@@ -1,10 +1,10 @@
 use crate::common::error::LqError;
 use crate::common::range::IneRange;
 use crate::schema::core::{Context, Validator};
-use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tfloat::Float32;
 use crate::serialization::tfloat::Float64;
+use std::cmp::Ordering;
 use std::fmt::Debug;
 
 pub type VFloat32 = VFloat<f32>;
@@ -26,18 +26,6 @@ pub struct VFloat<F: PartialOrd + Debug> {
     pub allow_positive_infinity: bool,
     #[new(value = "false")]
     pub allow_negative_infinity: bool,
-}
-
-impl From<VFloat32> for AnyValidator<'static> {
-    fn from(value: VFloat32) -> Self {
-        AnyValidator::Float32(value)
-    }
-}
-
-impl From<VFloat64> for AnyValidator<'static> {
-    fn from(value: VFloat64) -> Self {
-        AnyValidator::Float64(value)
-    }
 }
 
 impl<F: PartialOrd + Debug> VFloat<F> {
@@ -66,8 +54,11 @@ impl<F: PartialOrd + Debug> VFloat<F> {
             Result::Ok(())
         } else {
             // it's a number
-            self.range.require_within("Float range validation \
-            (schema)", &value)
+            self.range.require_within(
+                "Float range validation \
+                 (schema)",
+                &value,
+            )
         }
     }
 }
@@ -88,11 +79,25 @@ impl Validator<'static> for VFloat32 {
                 (false, false, false)
             }
         };
-        
+
         self.validate(float_value, is_nan, is_p_infinite, is_n_infinite)
     }
-}
 
+    fn compare<'c, C>(
+        &self,
+        _: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let float1 = Float32::de_serialize(r1)?;
+        let float2 = Float32::de_serialize(r2)?;
+
+        Result::Ok(cmp_32(float1, float2))
+    }
+}
 
 impl Validator<'static> for VFloat64 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
@@ -110,7 +115,61 @@ impl Validator<'static> for VFloat64 {
                 (false, false, false)
             }
         };
-        
+
         self.validate(float_value, is_nan, is_p_infinite, is_n_infinite)
+    }
+
+    fn compare<'c, C>(
+        &self,
+        _: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let float1 = Float64::de_serialize(r1)?;
+        let float2 = Float64::de_serialize(r2)?;
+
+        Result::Ok(cmp_64(float1, float2))
+    }
+}
+
+/// Unfortunately we MUST have ord for the floats (need something to make sure there is unique ordering in lists)
+///
+/// Rules:
+/// NaN = NaN
+// NaN < Infinite
+// NaN < Number
+// -Infinite < Number < +Infinite
+fn cmp_32(v1: f32, v2: f32) -> Ordering {
+    if let Some(ord) = v1.partial_cmp(&v2) {
+        ord
+    } else {
+        if v1.is_nan() {
+            if v2.is_nan() {
+                Ordering::Equal
+            } else {
+                Ordering::Less
+            }
+        } else {
+            panic!("Incomplete cmp implementation for float")
+        }
+    }
+}
+
+fn cmp_64(v1: f64, v2: f64) -> Ordering {
+    if let Some(ord) = v1.partial_cmp(&v2) {
+        ord
+    } else {
+        if v1.is_nan() {
+            if v2.is_nan() {
+                Ordering::Equal
+            } else {
+                Ordering::Less
+            }
+        } else {
+            panic!("Incomplete cmp implementation for float")
+        }
     }
 }

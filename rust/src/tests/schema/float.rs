@@ -1,3 +1,5 @@
+use crate::tests::schema::ordering::ord_assert_ascending;
+use crate::tests::schema::ordering::ord_assert_equal;
 use crate::common::range::F32IneRange;
 use crate::common::range::F64IneRange;
 use crate::common::range::NewFull;
@@ -87,4 +89,72 @@ fn schema2_64() {
     // some invalid items
     assert_invalid_strict(-14.51f64, &schema);
     assert_invalid_strict(19.71f64, &schema);
+}
+
+#[test]
+fn ordering_64() {
+    let mut schema = VFloat64::new(F64IneRange::try_new(std::f64::MIN, std::f64::MAX).unwrap());
+    schema.allow_nan = true;
+    schema.allow_positive_infinity = true;
+    schema.allow_negative_infinity = true;
+    
+    // nan is equal to itself
+    ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
+    // infinity is equal to itself
+    ord_assert_equal(schema.clone(), std::f64::INFINITY, std::f64::INFINITY);
+    ord_assert_equal(schema.clone(), std::f64::NEG_INFINITY, std::f64::NEG_INFINITY);
+    // and values of course
+    ord_assert_equal(schema.clone(), 1.278f64, 1.278f64);
+
+    // nan is always the smallest thing
+    ord_assert_ascending(schema.clone(), std::f64::NAN, -100f64);
+    ord_assert_ascending(schema.clone(), std::f64::NAN, std::f64::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f64::NAN, std::f64::NEG_INFINITY);
+
+    // except for nan, negative infinity is always the smallest thing
+    ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, -100f64);
+    ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, std::f64::MIN);
+    ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, std::f64::INFINITY);
+    
+    // positive infinity is always the largest thing
+    ord_assert_ascending(schema.clone(), 1000000f64, std::f64::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f64::MAX, std::f64::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, std::f64::INFINITY);
+
+    // and normal values
+    ord_assert_ascending(schema.clone(), 0.01f64, 0.011f64);
+}
+
+#[test]
+fn ordering_32() {
+    let mut schema = VFloat32::new(F32IneRange::try_new(std::f32::MIN, std::f32::MAX).unwrap());
+    schema.allow_nan = true;
+    schema.allow_positive_infinity = true;
+    schema.allow_negative_infinity = true;
+    
+    // nan is equal to itself
+    ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);
+    // infinity is equal to itself
+    ord_assert_equal(schema.clone(), std::f32::INFINITY, std::f32::INFINITY);
+    ord_assert_equal(schema.clone(), std::f32::NEG_INFINITY, std::f32::NEG_INFINITY);
+    // and values of course
+    ord_assert_equal(schema.clone(), 1.278f32, 1.278f32);
+
+    // nan is always the smallest thing
+    ord_assert_ascending(schema.clone(), std::f32::NAN, -100f32);
+    ord_assert_ascending(schema.clone(), std::f32::NAN, std::f32::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f32::NAN, std::f32::NEG_INFINITY);
+
+    // except for nan, negative infinity is always the smallest thing
+    ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, -100f32);
+    ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::MIN);
+    ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::INFINITY);
+    
+    // positive infinity is always the largest thing
+    ord_assert_ascending(schema.clone(), 1000000f32, std::f32::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f32::MAX, std::f32::INFINITY);
+    ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::INFINITY);
+
+    // and normal values
+    ord_assert_ascending(schema.clone(), 0.01f32, 0.011f32);
 }

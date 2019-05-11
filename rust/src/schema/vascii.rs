@@ -4,9 +4,9 @@ use crate::common::range::U64IneRange;
 use crate::common::range::U8IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
-use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tunicode::UncheckedUnicode;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
 
 #[derive(Clone)]
@@ -44,12 +44,6 @@ impl VAscii {
     }
 }
 
-impl<'a> From<VAscii> for AnyValidator<'a> {
-    fn from(value: VAscii) -> Self {
-        AnyValidator::Ascii(value)
-    }
-}
-
 impl<'a> Validator<'a> for VAscii {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
@@ -76,5 +70,20 @@ impl<'a> Validator<'a> for VAscii {
         }
 
         Result::Ok(())
+    }
+
+    fn compare<'c, C>(
+        &self,
+        _: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let bytes1 = UncheckedUnicode::de_serialize(r1)?;
+        let bytes2 = UncheckedUnicode::de_serialize(r2)?;
+        // lex compare
+        Result::Ok(bytes1.cmp(&bytes2))
     }
 }

@@ -1,7 +1,9 @@
 use crate::schema::core::Schema;
+use crate::schema::vseq::Direction;
 use crate::schema::vseq::VSeq;
 use crate::schema::vuint::VUInt;
 use crate::tests::schema::builder::builder;
+use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 
@@ -90,3 +92,61 @@ fn create_schema() -> impl Schema {
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 struct WithSequence(Vec<u32>);
+
+fn ordering_create_schema() -> impl Schema {
+    ord_schema(
+        |builder| {
+            let element = builder.add(VUInt::try_new(0, std::u64::MAX).unwrap());
+            let seq = VSeq::try_new(element, 0, std::u32::MAX).unwrap();
+            builder.add(seq)
+        },
+        Direction::Ascending,
+        true,
+    )
+}
+
+#[test]
+fn ordering() {
+    let schema = ordering_create_schema();
+    // ordering (lex compare)
+    assert_valid_strict(
+        (
+            vec![0usize, 1usize, 2usize, 3usize],
+            vec![0usize, 1usize, 2usize, 4usize],
+        ),
+        &schema,
+    );
+
+    // ordering (lex compare): the second list is greater (even tou there are fewer elements)
+    assert_valid_strict(
+        (
+            vec![0usize, 1usize, 2usize, 3usize],
+            vec![0usize, 1usize, 3usize],
+        ),
+        &schema,
+    );
+
+    // ordering (lex compare): two lists: The longer wins
+    assert_valid_strict(
+        (
+            vec![0usize, 1usize, 2usize],
+            vec![0usize, 1usize, 2usize, 0usize],
+        ),
+        &schema,
+    );
+
+    // invalid: duplicate
+    assert_invalid_strict((vec![0usize, 1usize], vec![0usize, 1usize]), &schema);
+
+    // invalid: wrong ordering
+    assert_invalid_strict(
+        (vec![0usize, 1usize, 0usize], vec![0usize, 1usize]),
+        &schema,
+    );
+
+    // invalid: wrong ordering
+    assert_invalid_strict(
+        (vec![0usize, 2usize], vec![0usize, 1usize, 6666usize]),
+        &schema,
+    );
+}

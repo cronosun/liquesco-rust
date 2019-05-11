@@ -1,9 +1,9 @@
-use crate::schema::core::Context;
 use crate::common::error::LqError;
+use crate::schema::core::Context;
 use crate::schema::core::Validator;
-use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tbool::Bool;
+use std::cmp::Ordering;
 
 #[derive(Clone)]
 pub enum BoolValues {
@@ -28,17 +28,11 @@ impl Default for VBool {
     }
 }
 
-impl<'a> From<VBool> for AnyValidator<'static> {
-    fn from(value: VBool) -> Self {
-        AnyValidator::Bool(value)
-    }
-}
-
 impl Validator<'static> for VBool {
-
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>{
+        C: Context<'c>,
+    {
         let bool_value = Bool::de_serialize(context.reader())?;
         match self.values {
             BoolValues::TrueFalse => (),
@@ -59,5 +53,19 @@ impl Validator<'static> for VBool {
         };
 
         Result::Ok(())
+    }
+
+    fn compare<'c, C>(
+        &self,
+        _: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let bool1 = Bool::de_serialize(r1)?;
+        let bool2 = Bool::de_serialize(r2)?;
+        Result::Ok(bool1.cmp(&bool2))
     }
 }

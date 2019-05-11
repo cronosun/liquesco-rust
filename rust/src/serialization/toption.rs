@@ -7,9 +7,9 @@ use crate::serialization::core::Serializer;
 use crate::serialization::major_types::TYPE_OPTION;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
-pub enum Presence {
-    Present,
+pub enum Presence {    
     Absent,
+    Present,
 }
 
 impl<'a> DeSerializer<'a> for Presence {

@@ -1,17 +1,17 @@
-use crate::schema::identifier::Identifier;
 use crate::schema::core::Config;
 use crate::schema::core::Schema;
 use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
+use crate::schema::identifier::Identifier;
 use crate::schema::schema::DefaultSchema;
 use crate::schema::validators::AnyValidator;
 use crate::serde::serialize;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::vec_writer::VecWriter;
-use std::fmt::Debug;
 use std::convert::TryInto;
+use std::fmt::Debug;
 
-pub fn id(string : &'static str) -> Identifier<'static> {
+pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
 }
 
@@ -57,6 +57,36 @@ where
     TSchema: Schema + Sized,
 {
     assert_valid_invalid(item, schema, Config::strict(), false);
+}
+
+pub fn assert_valid_extended<S, TSchema>(item: S, schema: &TSchema)
+where
+    S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    TSchema: Schema + Sized,
+{
+    assert_valid_invalid(
+        item,
+        schema,
+        Config {
+            no_extension: false,
+        },
+        true,
+    );
+}
+
+pub fn assert_invalid_extended<S, TSchema>(item: S, schema: &TSchema)
+where
+    S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    TSchema: Schema + Sized,
+{
+    assert_valid_invalid(
+        item,
+        schema,
+        Config {
+            no_extension: false,
+        },
+        false,
+    );
 }
 
 pub fn single_schema<'a, V: Into<AnyValidator<'a>>>(

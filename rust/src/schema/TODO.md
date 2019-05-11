@@ -1,6 +1,5 @@
 # Missing types
 
- * Float range?
  * Instant, Duration
  * Decimal128
   

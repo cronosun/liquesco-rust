@@ -2,19 +2,13 @@ use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
-use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::toption::Presence;
+use std::cmp::Ordering;
 
 #[derive(new, Clone)]
 pub struct VOption {
     pub validator: ValidatorRef,
-}
-
-impl<'a> From<VOption> for AnyValidator<'static> {
-    fn from(value: VOption) -> Self {
-        AnyValidator::Option(value)
-    }
 }
 
 impl Validator<'static> for VOption {
@@ -27,6 +21,29 @@ impl Validator<'static> for VOption {
         match presence {
             Presence::Absent => Result::Ok(()),
             Presence::Present => context.validate(self.validator),
+        }
+    }
+
+    fn compare<'c, C>(
+        &self,
+        context: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let presence1 = Presence::de_serialize(r1)?;
+        let presence2 = Presence::de_serialize(r2)?;
+
+        match (presence1, presence2) {
+            (Presence::Absent, Presence::Absent) => Result::Ok(Ordering::Equal),
+            (Presence::Present, Presence::Present) => context.compare(self.validator, r1, r2),
+            (Presence::Absent, Presence::Present) => {
+                // "absent" < "present"
+                Result::Ok(Ordering::Less)
+            }
+            (Presence::Present, Presence::Absent) => Result::Ok(Ordering::Greater),
         }
     }
 }

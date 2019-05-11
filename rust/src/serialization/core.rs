@@ -169,6 +169,12 @@ pub trait LqReader<'a>: std::io::Read {
     fn read_u8(&mut self) -> Result<u8, LqError>;
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError>;
 
+    /// creates a clone that shares the underlying buffer but
+    /// has an independent read offset (cursor).
+    fn clone(&self) -> Self
+    where
+        Self: Sized;
+
     fn peek_header(&self) -> Result<TypeHeader, LqError> {
         let value = self.peek_u8()?;
         Result::Ok(TypeHeader::from_u8(value))
@@ -344,6 +350,14 @@ pub trait LqReader<'a>: std::io::Read {
 
     /// Same as `skip` but can skip multiple values.
     fn skip_n_values(&mut self, number_of_values: usize) -> Result<(), LqError> {
+        for _ in 0..number_of_values {
+            self.skip()?;
+        }
+        Result::Ok(())
+    }
+
+    /// Same as `skip` but can skip multiple values.
+    fn skip_n_values_u32(&mut self, number_of_values: u32) -> Result<(), LqError> {
         for _ in 0..number_of_values {
             self.skip()?;
         }

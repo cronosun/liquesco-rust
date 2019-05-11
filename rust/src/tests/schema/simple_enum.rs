@@ -1,7 +1,11 @@
+use crate::schema::core::Schema;
 use crate::schema::vascii::VAscii;
 use crate::schema::venum::VEnum;
+use crate::schema::vseq::Direction;
 use crate::schema::vuint::VUInt;
 use crate::tests::schema::builder::builder;
+use crate::tests::schema::ordering::ord_schema;
+use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::id;
 
 use crate::tests::schema::utils::assert_invalid_strict;
@@ -56,4 +60,131 @@ enum Schema1EnumTooManyValues {
     Shutdown,
     Add(u64, u64),
     DeleteAccount(String),
+}
+
+fn ordering_create_schema() -> impl Schema {
+    ord_schema(
+        |builder| {
+            let variant1_type = builder.add(VUInt::try_new(0, std::u64::MAX).unwrap());
+            builder.add(
+                VEnum::builder()
+                    .variant(id("variant1"), variant1_type)
+                    .empty_variant(id("variant2"))
+                    .build(),
+            )
+        },
+        Direction::Ascending,
+        true,
+    )
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+enum Enum1ForOrdering {
+    Variant1(usize),
+    Variant2,
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+enum Enum1ForOrderingExt {
+    Variant1(usize, usize, String),
+    Variant2(String),
+}
+
+#[test]
+fn ordering_no_extension() {
+    let schema = ordering_create_schema();
+
+    // variant ordinals are compared first (so variant1 is always < variant2)
+    assert_valid_strict(
+        (Enum1ForOrdering::Variant1(158), Enum1ForOrdering::Variant2),
+        &schema,
+    );
+
+    assert_valid_strict(
+        (
+            Enum1ForOrdering::Variant1(10),
+            Enum1ForOrdering::Variant1(11),
+        ),
+        &schema,
+    );
+
+    // duplicates
+    assert_invalid_strict(
+        (
+            Enum1ForOrdering::Variant1(158),
+            Enum1ForOrdering::Variant1(158),
+        ),
+        &schema,
+    );
+
+    // duplicates
+    assert_invalid_strict(
+        (Enum1ForOrdering::Variant2, Enum1ForOrdering::Variant2),
+        &schema,
+    );
+
+    // wrong ordering
+    assert_invalid_strict(
+        (Enum1ForOrdering::Variant2, Enum1ForOrdering::Variant1(158)),
+        &schema,
+    );
+
+    // wrong ordering
+    assert_invalid_strict(
+        (
+            Enum1ForOrdering::Variant1(159),
+            Enum1ForOrdering::Variant1(158),
+        ),
+        &schema,
+    );
+}
+
+#[test]
+fn ordering_extension() {
+    let schema = ordering_create_schema();
+
+    // we still can compare those two things (even if one has extended data)
+    assert_valid_extended(
+        (
+            Enum1ForOrdering::Variant1(158),
+            Enum1ForOrderingExt::Variant2("this is ignored".to_string()),
+        ),
+        &schema,
+    );
+
+    assert_valid_extended(
+        (
+            Enum1ForOrderingExt::Variant1(158, 44444, "ignored".to_string()),
+            Enum1ForOrdering::Variant1(159),
+        ),
+        &schema,
+    );
+
+    // duplicates: There's not byte-wise duplicates, but the data in "ext" is
+    // ignored since not defined in the schema.
+    assert_invalid_strict(
+        (
+            Enum1ForOrderingExt::Variant1(159, 232, "ignored".to_string()),
+            Enum1ForOrdering::Variant1(159),
+        ),
+        &schema,
+    );
+
+    // duplicates
+    assert_invalid_strict(
+        (
+            Enum1ForOrderingExt::Variant2("ignored".to_string()),
+            Enum1ForOrdering::Variant2,
+        ),
+        &schema,
+    );
+
+    // wrong ordering
+    assert_invalid_strict(
+        (
+            Enum1ForOrdering::Variant1(159),
+            Enum1ForOrderingExt::Variant1(158, 232, "ignored".to_string()),
+        ),
+        &schema,
+    );
 }

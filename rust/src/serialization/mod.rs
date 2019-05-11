@@ -3,7 +3,7 @@ pub mod slice_reader;
 pub mod vec_writer;
 pub mod value;
 pub mod value_into;
-pub mod dyn_reader;
+//pub mod dyn_reader;
 
 pub(self) mod major_types;
 pub(self) mod binary;

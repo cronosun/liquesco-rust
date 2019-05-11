@@ -1,9 +1,9 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
-use crate::schema::validators::AnyValidator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tuint::UInt32;
+use std::cmp::Ordering;
 
 /// A reference can be used in combination with `VAnchors`. You can reference
 /// one anchor.
@@ -47,14 +47,22 @@ impl<'a> Validator<'static> for VReference {
                  schema might be wrong.",
                 reference
             ));
-        };        
+        };
 
         Result::Ok(())
     }
-}
 
-impl From<VReference> for AnyValidator<'static> {
-    fn from(value: VReference) -> Self {
-        AnyValidator::Reference(value)
+    fn compare<'c, C>(
+        &self,
+        _: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        let int1 = UInt32::de_serialize(r1)?;
+        let int2 = UInt32::de_serialize(r2)?;
+        Result::Ok(int1.cmp(&int2))
     }
 }

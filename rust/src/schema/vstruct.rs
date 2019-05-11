@@ -4,11 +4,11 @@ use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
 use crate::schema::identifier::Identifier;
-use crate::schema::validators::AnyValidator;
-use crate::serialization::core::LqReader;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LqReader;
 use crate::serialization::tseq::SeqHeader;
 use smallvec::SmallVec;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
 
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
@@ -75,16 +75,55 @@ impl<'a> Validator<'a> for VStruct<'a> {
         }
         // skip the rest of the fields
         let to_skip = number_of_items - schema_number_of_fields;
-        for _ in 0..to_skip {
-            context.reader().skip()?;
-        }
+        context.reader().skip_n_values_u32(to_skip)?;
         Result::Ok(())
     }
-}
 
-impl<'a> From<VStruct<'a>> for AnyValidator<'a> {
-    fn from(value: VStruct<'a>) -> Self {
-        AnyValidator::Struct(value)
+    fn compare<'c, C>(
+        &self,
+        context: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        // here it's important that we only compare what's defined in the schema. Why?
+        // If we'd compare all fields it would be possible to add some arbitrary fields
+        // and thus make it possible to add for example data that's not unique into a
+        // sequence that requires uniqueness.
+
+        let header1 = SeqHeader::de_serialize(r1)?;
+        let header2 = SeqHeader::de_serialize(r2)?;
+
+        let mut num_read: u32 = 0;
+        for field in &self.0 {
+            let validator = field.validator;
+            let cmp = context.compare(validator, r1, r2)?;
+            num_read = num_read + 1;
+            if cmp != Ordering::Equal {
+                // no need to finish to the end (see contract)
+                return Result::Ok(cmp);
+            }
+        }
+
+        // it's very imporant that we finish reading to the end (see contract)
+        let finish_reading =
+            |header: SeqHeader, reader: &mut LqReader, num_read: u32| -> Result<(), LqError> {
+                let len = header.length();
+                if len > num_read {
+                    let missing = len - num_read;
+                    reader.skip_n_values_u32(missing)
+                } else {
+                    Result::Ok(())
+                }
+            };
+
+        // here we have to finish to the end
+        finish_reading(header1, r1, num_read)?;
+        finish_reading(header2, r2, num_read)?;
+
+        Result::Ok(Ordering::Equal)
     }
 }
 

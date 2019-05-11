@@ -2,7 +2,7 @@ use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
-use crate::schema::validators::AnyValidator;
+use crate::schema::vseq::seq_compare;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tseq::SeqHeader;
 
@@ -97,10 +97,28 @@ impl<'a> Validator<'static> for VAnchors {
 
         Result::Ok(())
     }
-}
 
-impl From<VAnchors> for AnyValidator<'static> {
-    fn from(value: VAnchors) -> Self {
-        AnyValidator::Anchors(value)
+    fn compare<'c, C>(
+        &self,
+        context: &C,
+        r1: &mut C::Reader,
+        r2: &mut C::Reader,
+    ) -> Result<std::cmp::Ordering, LqError>
+    where
+        C: Context<'c>,
+    {
+        // Compare is identical to the one in "seq" (except that the first element can have a different type)
+        seq_compare(
+            |index| {
+                if index == 0 {
+                    self.master_validator
+                } else {
+                    self.anchor_validator
+                }
+            },
+            context,
+            r1,
+            r2,
+        )
     }
 }

@@ -1,5 +1,5 @@
-use crate::serialization::core::LqReader;
 use crate::common::error::LqError;
+use crate::serialization::core::LqReader;
 use std::io::Read;
 use std::io::Write;
 
@@ -15,12 +15,15 @@ impl<'a> From<&'a [u8]> for SliceReader<'a> {
 }
 
 impl<'a> From<&'a Vec<u8>> for SliceReader<'a> {
-    fn from(data : &'a Vec<u8>) -> Self {
-        SliceReader { data : data.as_slice(), offset : 0 }
+    fn from(data: &'a Vec<u8>) -> Self {
+        SliceReader {
+            data: data.as_slice(),
+            offset: 0,
+        }
     }
 }
 
-impl<'a> SliceReader<'a> {    
+impl<'a> SliceReader<'a> {
     /// Makes sure the reader has been read completely and there's no additional data.
     pub fn finish(&self) -> Result<(), LqError> {
         if self.offset != self.data.len() {
@@ -35,6 +38,13 @@ impl<'a> SliceReader<'a> {
 }
 
 impl<'a> LqReader<'a> for SliceReader<'a> {
+    fn clone(&self) -> Self {
+        Self {
+            data: self.data,
+            offset: self.offset,
+        }
+    }
+
     #[inline]
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();

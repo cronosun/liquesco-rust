@@ -5,6 +5,7 @@ use crate::schema::core::ValidatorContainer;
 use crate::schema::core::ValidatorRef;
 use crate::schema::core::{Config, Validator};
 use crate::serialization::core::LqReader;
+use std::cmp::Ordering;
 use std::marker::PhantomData;
 
 pub struct DefaultSchema<'a, C: ValidatorContainer<'a>> {
@@ -14,11 +15,7 @@ pub struct DefaultSchema<'a, C: ValidatorContainer<'a>> {
 }
 
 impl<'a, C: ValidatorContainer<'a>> Schema for DefaultSchema<'a, C> {
-    fn validate<'r, R: LqReader<'r>>(
-        &self,
-        config: Config,
-        reader: &mut R,
-    ) -> Result<(), LqError> {
+    fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
         self.validate_internal(config, reader)
     }
 }
@@ -73,6 +70,23 @@ impl<'s, 'c, 'r, C: ValidatorContainer<'c>, R: LqReader<'r>> Context<'r>
             LqError::err_new(format!(
                 "Validator (reference {:?}) not found. \
                  Unable to validate.",
+                reference
+            ))
+        }
+    }
+
+    fn compare(
+        &self,
+        reference: ValidatorRef,
+        r1: &mut Self::Reader,
+        r2: &mut Self::Reader,
+    ) -> Result<Ordering, LqError> {
+        if let Some(validator) = self.validators.validator(reference) {
+            validator.compare(self, r1, r2)
+        } else {
+            LqError::err_new(format!(
+                "Validator (reference {:?}) not found. \
+                 Unable to validate (compare).",
                 reference
             ))
         }
