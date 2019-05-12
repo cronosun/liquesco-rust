@@ -12,7 +12,7 @@ Should work with Rust 1.34+ (Rust stable as of 2019-05-09).
 
 # Tests
 
-Currently has 90+ tests covering data de-/serialization, Serde support and schema validation.
+Currently has 100+ tests covering data de-/serialization, Serde support and schema validation.
 
 # State
 

@@ -1,13 +1,14 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
-use crate::common::range::U64IneRange;
-use crate::common::range::U8IneRange;
+use crate::common::ine_range::U64IneRange;
+use crate::common::ine_range::U8IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tunicode::UncheckedUnicode;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::common::range::LqRangeBounds;
 
 #[derive(Clone)]
 pub struct VAscii {

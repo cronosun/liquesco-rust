@@ -1,11 +1,12 @@
+use crate::common::range::Range;
 use crate::common::error::LqError;
-use crate::common::range::IneRange;
 use crate::schema::core::{Context, Validator};
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tfloat::Float32;
 use crate::serialization::tfloat::Float64;
 use std::cmp::Ordering;
 use std::fmt::Debug;
+use crate::common::range::LqRangeBounds;
 
 pub type VFloat32 = VFloat<f32>;
 pub type VFloat64 = VFloat<f64>;
@@ -19,7 +20,7 @@ const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
 
 #[derive(new, Clone)]
 pub struct VFloat<F: PartialOrd + Debug> {
-    pub range: IneRange<F>,
+    pub range: Range<F>,
     #[new(value = "false")]
     pub allow_nan: bool,
     #[new(value = "false")]
@@ -139,9 +140,9 @@ impl Validator<'static> for VFloat64 {
 ///
 /// Rules:
 /// NaN = NaN
-// NaN < Infinite
-// NaN < Number
-// -Infinite < Number < +Infinite
+/// NaN < Infinite
+/// NaN < Number
+/// -Infinite < Number < +Infinite
 fn cmp_32(v1: f32, v2: f32) -> Ordering {
     if let Some(ord) = v1.partial_cmp(&v2) {
         ord

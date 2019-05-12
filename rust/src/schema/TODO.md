@@ -1,6 +1,6 @@
 # Missing types
 
- * Instant, Duration
+ * Instant, Duration, TimeOfDay, LocalDate?
  * Decimal128
+ * Text (or unicode)
   
-TODO: Eigentlich brauchts die ranges nicht,wenn wir seq length = 2 machen und ordered können.

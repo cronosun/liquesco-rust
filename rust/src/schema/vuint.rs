@@ -1,10 +1,11 @@
 use std::cmp::Ordering;
 use crate::common::error::LqError;
-use crate::common::range::U64IneRange;
+use crate::common::ine_range::U64IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tuint::UInt64;
+use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
 pub struct VUInt {

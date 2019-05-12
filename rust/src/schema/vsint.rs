@@ -1,10 +1,11 @@
 use crate::common::error::LqError;
-use crate::common::range::I64IneRange;
+use crate::common::ine_range::I64IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::tsint::SInt64;
 use std::cmp::Ordering;
+use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
 pub struct VSInt {

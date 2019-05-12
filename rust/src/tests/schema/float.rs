@@ -1,17 +1,16 @@
-use crate::tests::schema::ordering::ord_assert_ascending;
-use crate::tests::schema::ordering::ord_assert_equal;
-use crate::common::range::F32IneRange;
-use crate::common::range::F64IneRange;
 use crate::common::range::NewFull;
+use crate::common::range::Range;
 use crate::schema::vfloat::VFloat32;
 use crate::schema::vfloat::VFloat64;
+use crate::tests::schema::ordering::ord_assert_ascending;
+use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
 
 #[test]
 fn schema1_32() {
-    let schema = single_schema(VFloat32::new(F32IneRange::full()));
+    let schema = single_schema(VFloat32::new(Range::<f32>::full()));
 
     // some valid items
     assert_valid_strict(-0.0f32, &schema);
@@ -30,7 +29,7 @@ fn schema1_32() {
 
 #[test]
 fn schema1_64() {
-    let schema = single_schema(VFloat64::new(F64IneRange::full()));
+    let schema = single_schema(VFloat64::new(Range::<f64>::full()));
 
     // some valid items
     assert_valid_strict(-0.0f64, &schema);
@@ -49,7 +48,7 @@ fn schema1_64() {
 
 #[test]
 fn schema2_32() {
-    let mut float = VFloat32::new(F32IneRange::try_new(-14.5f32, 19.7f32).unwrap());
+    let mut float = VFloat32::new(Range::<f32>::try_inclusive(-14.5f32, 19.7f32).unwrap());
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
@@ -71,7 +70,7 @@ fn schema2_32() {
 
 #[test]
 fn schema2_64() {
-    let mut float = VFloat64::new(F64IneRange::try_new(-14.5f64, 19.7f64).unwrap());
+    let mut float = VFloat64::new(Range::<f64>::try_inclusive(-14.5f64, 19.7f64).unwrap());
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
@@ -93,16 +92,21 @@ fn schema2_64() {
 
 #[test]
 fn ordering_64() {
-    let mut schema = VFloat64::new(F64IneRange::try_new(std::f64::MIN, std::f64::MAX).unwrap());
+    let mut schema =
+        VFloat64::new(Range::<f64>::try_inclusive(std::f64::MIN, std::f64::MAX).unwrap());
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
-    
+
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
     // infinity is equal to itself
     ord_assert_equal(schema.clone(), std::f64::INFINITY, std::f64::INFINITY);
-    ord_assert_equal(schema.clone(), std::f64::NEG_INFINITY, std::f64::NEG_INFINITY);
+    ord_assert_equal(
+        schema.clone(),
+        std::f64::NEG_INFINITY,
+        std::f64::NEG_INFINITY,
+    );
     // and values of course
     ord_assert_equal(schema.clone(), 1.278f64, 1.278f64);
 
@@ -115,7 +119,7 @@ fn ordering_64() {
     ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, -100f64);
     ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, std::f64::MIN);
     ord_assert_ascending(schema.clone(), std::f64::NEG_INFINITY, std::f64::INFINITY);
-    
+
     // positive infinity is always the largest thing
     ord_assert_ascending(schema.clone(), 1000000f64, std::f64::INFINITY);
     ord_assert_ascending(schema.clone(), std::f64::MAX, std::f64::INFINITY);
@@ -127,16 +131,21 @@ fn ordering_64() {
 
 #[test]
 fn ordering_32() {
-    let mut schema = VFloat32::new(F32IneRange::try_new(std::f32::MIN, std::f32::MAX).unwrap());
+    let mut schema =
+        VFloat32::new(Range::<f32>::try_inclusive(std::f32::MIN, std::f32::MAX).unwrap());
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
-    
+
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);
     // infinity is equal to itself
     ord_assert_equal(schema.clone(), std::f32::INFINITY, std::f32::INFINITY);
-    ord_assert_equal(schema.clone(), std::f32::NEG_INFINITY, std::f32::NEG_INFINITY);
+    ord_assert_equal(
+        schema.clone(),
+        std::f32::NEG_INFINITY,
+        std::f32::NEG_INFINITY,
+    );
     // and values of course
     ord_assert_equal(schema.clone(), 1.278f32, 1.278f32);
 
@@ -149,7 +158,7 @@ fn ordering_32() {
     ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, -100f32);
     ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::MIN);
     ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::INFINITY);
-    
+
     // positive infinity is always the largest thing
     ord_assert_ascending(schema.clone(), 1000000f32, std::f32::INFINITY);
     ord_assert_ascending(schema.clone(), std::f32::MAX, std::f32::INFINITY);

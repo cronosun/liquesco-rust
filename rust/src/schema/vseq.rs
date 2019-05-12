@@ -1,11 +1,12 @@
 use crate::common::error::LqError;
-use crate::common::range::U32IneRange;
+use crate::common::ine_range::U32IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Validator;
 use crate::schema::core::ValidatorRef;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::tseq::SeqHeader;
+use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
 pub struct VSeq {
