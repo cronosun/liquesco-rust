@@ -6,3 +6,4 @@ edition = "2018"
 
 [dependencies]
 liquesco-core = { path = "../core" }
+serde = {version = "1.0.91", features = ["derive"]}

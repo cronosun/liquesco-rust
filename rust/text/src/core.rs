@@ -9,17 +9,15 @@ use crate::value::Value;
 use crate::value::SrcPosition;
 use std::borrow::Cow;
 
-pub trait Context {
+pub trait Context<'a> {
     type TConverter: Converter;
-    type TSchema: Schema;
+    type TSchema: Schema<'a>;
     type TWriter: LqWriter;
-
-    // TODO: A function to create a new writer.
     
     fn schema(&self) -> &Self::TSchema;
     fn value(&self) -> &Value;
     fn text_value(&self) -> &TextValue;
-    fn parse(&self,  writer : &mut Self::TWriter, r#type : TypeRef, value : &TextValue) -> Result<(), ParseError>;
+    fn parse(&self, writer : &mut Self::TWriter, r#type : TypeRef, value : &TextValue) -> Result<(), ParseError>;
 }
 
 pub trait Parser<'a> {
@@ -27,9 +25,9 @@ pub trait Parser<'a> {
 
     /// Parse the given value. Note: There's no need to do validation here (validation will be performed when 
     /// entire data has been written) - when the given value can be parsed it's sufficient.
-    fn parse<C>(context: &mut C, writer : &mut C::TWriter, r#type: Self::T) -> Result<(), ParseError>
+    fn parse<'c, C>(context: &C, writer : &mut C::TWriter, r#type: &Self::T) -> Result<(), ParseError>
     where
-        C: Context;
+        C: Context<'c>;
 }
 
 pub struct ParseError {

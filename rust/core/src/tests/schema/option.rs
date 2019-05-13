@@ -26,7 +26,7 @@ fn schema1() {
     assert_invalid_strict(Option::Some("expecting a bool here".to_string()), &schema);
 }
 
-fn ordering_create_schema() -> impl Schema {
+fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let element = builder.add(TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap());

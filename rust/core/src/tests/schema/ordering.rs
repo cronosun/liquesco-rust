@@ -35,10 +35,10 @@ where
     assert_valid_strict((item1, item2), &schema);
 }
 
-pub fn ord_assert_given_schema<TSchema, S>(schema: &TSchema, item1: S, item2: S)
+pub fn ord_assert_given_schema<'a, TSchema, S>(schema: &TSchema, item1: S, item2: S)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema : Schema,
+    TSchema : Schema<'a>,
 {
     assert_valid_strict((item1, item2), schema);
 }
@@ -47,7 +47,7 @@ pub fn ord_schema<FElement: FnOnce(&mut Builder<'static>) -> TypeRef>(
     element: FElement,
     direction: Direction,
     unique: bool,
-) -> impl Schema {
+) -> impl Schema<'static> {
     let mut builder = builder();
     let element_ref = element(&mut builder);
 
@@ -57,7 +57,7 @@ pub fn ord_schema<FElement: FnOnce(&mut Builder<'static>) -> TypeRef>(
     builder.finish(seq)
 }
 
-fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema
+fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema<'static>
 where
     T: Into<AnyType<'static>>,
 {

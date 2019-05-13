@@ -84,6 +84,6 @@ pub trait TypeContainer<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
 }
 
-pub trait Schema {
+pub trait Schema<'a> : TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
 }

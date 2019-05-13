@@ -15,14 +15,14 @@ pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
 }
 
-pub fn assert_valid_invalid<S, TSchema>(
+pub fn assert_valid_invalid<'a, S, TSchema>(
     item: S,
     schema: &TSchema,
     config: Config,
     expect_valid: bool,
 ) where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema + Sized,
+    TSchema: Schema<'a> + Sized,
 {
     let mut writer = VecWriter::default();
     serialize(&mut writer, &item).expect("Unable to serialize value");
@@ -43,26 +43,26 @@ pub fn assert_valid_invalid<S, TSchema>(
     }
 }
 
-pub fn assert_valid_strict<S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_valid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema + Sized,
+    TSchema: Schema<'a> + Sized,
 {
     assert_valid_invalid(item, schema, Config::strict(), true);
 }
 
-pub fn assert_invalid_strict<S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_invalid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema + Sized,
+    TSchema: Schema<'a> + Sized,
 {
     assert_valid_invalid(item, schema, Config::strict(), false);
 }
 
-pub fn assert_valid_extended<S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_valid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema + Sized,
+    TSchema: Schema<'a> + Sized,
 {
     assert_valid_invalid(
         item,
@@ -74,10 +74,10 @@ where
     );
 }
 
-pub fn assert_invalid_extended<S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_invalid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema + Sized,
+    TSchema: Schema<'a> + Sized,
 {
     assert_valid_invalid(
         item,

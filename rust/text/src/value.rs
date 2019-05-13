@@ -11,7 +11,7 @@ pub type Seq<'a> = Vec<TextValue<'a>>;
 pub struct TextValue<'a> {
     pub name: MaybeName<'a>,
     pub value: Value<'a>,
-    pub position: SrcPosition,
+    pub position: Option<SrcPosition>,
 }
 
 #[derive(Clone, Debug, PartialEq)]
@@ -46,7 +46,7 @@ impl<'a> From<Value<'a>> for TextValue<'a> {
         Self {
             name: Option::None,
             value,
-            position: SrcPosition(0),
+            position: Option::None,
         }
     }
 }

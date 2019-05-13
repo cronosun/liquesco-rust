@@ -7,6 +7,7 @@ use crate::schema::core::{Config, Type};
 use crate::serialization::core::LqReader;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
+use crate::schema::any_type::AnyType;
 
 pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
     types: C,
@@ -14,9 +15,15 @@ pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
     _phantom: &'a PhantomData<()>,
 }
 
-impl<'a, C: TypeContainer<'a>> Schema for DefaultSchema<'a, C> {
+impl<'a, C: TypeContainer<'a>> Schema<'a> for DefaultSchema<'a, C> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
         self.validate_internal(config, reader)
+    }
+}
+
+impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {
+    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
+        self.types.maybe_type(reference)
     }
 }
 

@@ -62,7 +62,7 @@ enum Schema1EnumTooManyValues {
     DeleteAccount(String),
 }
 
-fn ordering_create_schema() -> impl Schema {
+fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let variant1_type = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());

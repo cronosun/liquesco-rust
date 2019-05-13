@@ -156,7 +156,7 @@ fn can_back_reference() {
     );
 }
 
-fn create_schema() -> impl Schema {
+fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
     let reference = builder.add(TReference);
     let text = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());

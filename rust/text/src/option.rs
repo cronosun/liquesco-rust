@@ -11,10 +11,9 @@ pub struct POption;
 impl Parser<'static> for POption {
     type T = TOption;
 
-    fn parse<C>(context: &mut C, writer : &mut C::TWriter, r#type: Self::T) -> Result<(), ParseError>
-    where
-        C: Context
-    {        
+    fn parse<'c, C>(context: &C, writer : &mut C::TWriter, r#type: &Self::T) -> Result<(), ParseError>
+        where
+            C: Context<'c> {
         C::TConverter::require_no_name(context.text_value())?;
         if context.value().is_none() {
             Presence::serialize(writer, &Presence::Absent)?;

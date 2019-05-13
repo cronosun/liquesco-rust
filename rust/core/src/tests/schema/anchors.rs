@@ -144,7 +144,7 @@ fn wrong_ordering() {
     );
 }
 
-fn create_schema1() -> impl Schema {
+fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
     let reference = builder.add(TReference);
     let name = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());

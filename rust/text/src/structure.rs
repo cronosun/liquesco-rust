@@ -12,10 +12,9 @@ pub struct PStruct;
 impl<'a> Parser<'a> for PStruct {
     type T = TStruct<'a>;
 
-    fn parse<C>(context: &mut C, writer: &mut C::TWriter, r#type: Self::T) -> Result<(), ParseError>
-    where
-        C: Context,
-    {
+    fn parse<'c, C>(context: &C, writer : &mut C::TWriter, r#type: &Self::T) -> Result<(), ParseError>
+        where
+            C: Context<'c> {
         C::TConverter::require_no_name(context.text_value())?;
 
         // for structures the input must be a map
