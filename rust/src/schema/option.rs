@@ -6,7 +6,7 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::option::Presence;
 use std::cmp::Ordering;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TOption {
     pub r#type: TypeRef,
 }

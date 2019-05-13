@@ -16,10 +16,10 @@ use std::convert::TryFrom;
 type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
 type Values = SmallVec<[TypeRef; 3]>;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TEnum<'a>(pub Variants<'a>);
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct Variant<'a> {
     /// Textual identifier of the variant.
     pub identifier: Identifier<'a>,

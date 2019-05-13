@@ -5,7 +5,7 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::boolean::Bool;
 use std::cmp::Ordering;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum BoolValues {
     /// "usual" boolean: can be true or false.
     TrueFalse,
@@ -15,7 +15,7 @@ pub enum BoolValues {
     FalseOnly,
 }
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TBool {
     pub values: BoolValues,
 }

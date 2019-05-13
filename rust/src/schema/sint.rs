@@ -7,7 +7,7 @@ use crate::serialization::sint::SInt64;
 use std::cmp::Ordering;
 use crate::common::range::LqRangeBounds;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TSInt {
     pub range: I64IneRange,
 }

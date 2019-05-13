@@ -10,7 +10,7 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use crate::common::range::LqRangeBounds;
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TAscii {
     /// Minimum / maximum number of bytes (which is at the same time also number of ASCII characters)
     pub length: U64IneRange,

@@ -14,10 +14,10 @@ use std::convert::TryFrom;
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TStruct<'a>(Fields<'a>);
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct Field<'a> {
     pub identifier: Identifier<'a>,
     pub r#type: TypeRef,
@@ -130,6 +130,10 @@ impl<'a> TStruct<'a> {
         Builder {
             fields: Fields::new(),
         }
+    }
+
+    pub fn fields(&self) -> &Fields<'a> {
+       &self.0
     }
 }
 

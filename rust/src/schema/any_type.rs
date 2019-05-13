@@ -16,7 +16,7 @@ use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 
 /// This is an enumeration of all `Type`s that are known to the system.
-#[derive(Clone, FromVariants)]
+#[derive(Clone, FromVariants, Debug)]
 pub enum AnyType<'a> {
     Struct(TStruct<'a>),
     UInt(TUInt),

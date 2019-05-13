@@ -8,20 +8,20 @@ use crate::serialization::core::LqReader;
 use crate::serialization::seq::SeqHeader;
 use crate::common::range::LqRangeBounds;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TSeq {
     pub element: TypeRef,
     pub length: U32IneRange,
     pub ordering: Ordering,
 }
 
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub enum Ordering {
     None,
     Sorted { direction: Direction, unique: bool },
 }
 
-#[derive(Clone, PartialEq)]
+#[derive(Clone, PartialEq, Debug)]
 pub enum Direction {
     Ascending,
     Descending,

@@ -7,7 +7,7 @@ use std::cmp::Ordering;
 
 /// A reference can be used in combination with `VAnchors`. You can reference
 /// one anchor.
-#[derive(Clone)]
+#[derive(Clone, Debug)]
 pub struct TReference;
 
 impl<'a> Type<'static> for TReference {

@@ -18,7 +18,7 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TFloat<F: PartialOrd + Debug> {
     pub range: Range<F>,
     #[new(value = "false")]

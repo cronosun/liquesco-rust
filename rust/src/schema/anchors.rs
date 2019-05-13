@@ -9,7 +9,7 @@ use crate::serialization::seq::SeqHeader;
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TAnchors {
     pub master: TypeRef,
     pub anchor: TypeRef,

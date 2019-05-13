@@ -7,7 +7,7 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::uint::UInt64;
 use crate::common::range::LqRangeBounds;
 
-#[derive(new, Clone)]
+#[derive(new, Clone, Debug)]
 pub struct TUInt {
     pub range: U64IneRange,
 }

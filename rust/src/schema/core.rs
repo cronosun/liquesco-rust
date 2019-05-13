@@ -1,9 +1,10 @@
+use std::fmt::Debug;
 use crate::common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
 use std::cmp::Ordering;
 
-pub trait Type<'a> {
+pub trait Type<'a> : Debug {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>;
