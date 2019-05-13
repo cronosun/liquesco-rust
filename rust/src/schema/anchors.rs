@@ -1,23 +1,23 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeRef;
 use crate::schema::vseq::seq_compare;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tseq::SeqHeader;
+use crate::serialization::seq::SeqHeader;
 
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `VReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
 #[derive(new, Clone)]
 pub struct VAnchors {
-    pub master_validator: ValidatorRef,
-    pub anchor_validator: ValidatorRef,
+    pub master_validator: TypeRef,
+    pub anchor_validator: TypeRef,
     #[new(value = "4294967295")]
     pub max_anchors: u32,
 }
 
-impl<'a> Validator<'static> for VAnchors {
+impl<'a> Type<'static> for VAnchors {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

@@ -2,9 +2,9 @@ use std::cmp::Ordering;
 use crate::common::error::LqError;
 use crate::common::ine_range::U64IneRange;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
+use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tuint::UInt64;
+use crate::serialization::uint::UInt64;
 use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
@@ -22,7 +22,7 @@ impl VUInt {
     }
 }
 
-impl Validator<'static> for VUInt {
+impl Type<'static> for VUInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

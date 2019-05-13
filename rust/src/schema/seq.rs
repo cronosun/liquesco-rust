@@ -1,16 +1,16 @@
 use crate::common::error::LqError;
 use crate::common::ine_range::U32IneRange;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeRef;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
-use crate::serialization::tseq::SeqHeader;
+use crate::serialization::seq::SeqHeader;
 use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
 pub struct VSeq {
-    pub element: ValidatorRef,
+    pub element: TypeRef,
     pub length: U32IneRange,
     pub ordering: Ordering,
 }
@@ -28,7 +28,7 @@ pub enum Direction {
 }
 
 impl VSeq {
-    pub fn try_new(element: ValidatorRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
+    pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
             element,
             length: U32IneRange::try_new(min_len, max_len)?,
@@ -37,7 +37,7 @@ impl VSeq {
     }
 }
 
-impl Validator<'static> for VSeq {
+impl Type<'static> for VSeq {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -80,7 +80,7 @@ impl Validator<'static> for VSeq {
 }
 
 #[inline]
-pub(crate) fn seq_compare<'c, C, FnValidator: Fn(u32) -> ValidatorRef>(
+pub(crate) fn seq_compare<'c, C, FnValidator: Fn(u32) -> TypeRef>(
     validator_for_index: FnValidator,
     context: &C,
     r1: &mut C::Reader,

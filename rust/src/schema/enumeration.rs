@@ -1,12 +1,12 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
-use crate::serialization::tenum::EnumHeader;
+use crate::serialization::enumeration::EnumHeader;
 use std::cmp::Ordering;
 
 use smallvec::SmallVec;
@@ -14,7 +14,7 @@ use std::convert::TryFrom;
 
 /// Use a small vec with 5 items (should be enough for many cases)
 type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
-type Validators = SmallVec<[ValidatorRef; 3]>;
+type Validators = SmallVec<[TypeRef; 3]>;
 
 #[derive(new, Clone)]
 pub struct VEnum<'a>(pub Variants<'a>);
@@ -22,7 +22,7 @@ pub struct VEnum<'a>(pub Variants<'a>);
 #[derive(new, Clone)]
 pub struct Variant<'a> {
     pub identifier: Identifier<'a>,
-    pub validators: Validators,
+    pub values: Validators,
 }
 
 impl<'a> Variant<'a> {
@@ -43,7 +43,7 @@ impl<'a> VEnum<'a> {
     }
 }
 
-impl<'a> Validator<'a> for VEnum<'a> {
+impl<'a> Type<'a> for VEnum<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -66,7 +66,7 @@ impl<'a> Validator<'a> for VEnum<'a> {
         let variant = &self.0[usize_ordinal];
 
         let usize_number_of_values = try_from_int_result(usize::try_from(number_of_values))?;
-        let schema_number_of_values = variant.validators.len();
+        let schema_number_of_values = variant.values.len();
         if context.config().no_extension() && (schema_number_of_values != usize_number_of_values) {
             return LqError::err_new(format!(
                 "Error processing enum variant {:?} (ordinal \
@@ -86,7 +86,7 @@ impl<'a> Validator<'a> for VEnum<'a> {
         let to_skip = usize_number_of_values - schema_number_of_values;
 
         // validate each element
-        for validator in &variant.validators {
+        for validator in &variant.values {
             context.validate(*validator)?;
         }
 
@@ -133,7 +133,7 @@ impl<'a> Validator<'a> for VEnum<'a> {
 
             let variant = &self.0[usize_ordinal];
             let mut num_read: u32 = 0;
-            for validator in &variant.validators {
+            for validator in &variant.values {
                 let cmp = context.compare(*validator, r1, r2)?;
                 num_read = num_read + 1;
                 if cmp != Ordering::Equal {
@@ -179,23 +179,23 @@ impl<'a> Builder<'a> {
     pub fn variant<I: Into<Identifier<'a>>>(
         mut self,
         identifier: I,
-        validator: ValidatorRef,
+        validator: TypeRef,
     ) -> Self {
-        let mut validators = Validators::with_capacity(1);
-        validators.push(validator);
+        let mut values = Validators::with_capacity(1);
+        values.push(validator);
 
         self.variants.push(Variant {
             identifier: identifier.into(),
-            validators,
+            values,
         });
         self
     }
 
     pub fn empty_variant<I: Into<Identifier<'a>>>(mut self, identifier: I) -> Self {
-        let validators = Validators::with_capacity(0);
+        let values = Validators::with_capacity(0);
         self.variants.push(Variant {
             identifier: identifier.into(),
-            validators,
+            values,
         });
         self
     }

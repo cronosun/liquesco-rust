@@ -1,17 +1,17 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeRef;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::toption::Presence;
+use crate::serialization::option::Presence;
 use std::cmp::Ordering;
 
 #[derive(new, Clone)]
 pub struct VOption {
-    pub validator: ValidatorRef,
+    pub validator: TypeRef,
 }
 
-impl Validator<'static> for VOption {
+impl Type<'static> for VOption {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

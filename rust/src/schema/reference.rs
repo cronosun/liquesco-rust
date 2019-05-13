@@ -1,8 +1,8 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
+use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tuint::UInt32;
+use crate::serialization::uint::UInt32;
 use std::cmp::Ordering;
 
 /// A reference can be used in combination with `VAnchors`. You can reference
@@ -10,7 +10,7 @@ use std::cmp::Ordering;
 #[derive(Clone)]
 pub struct VReference;
 
-impl<'a> Validator<'static> for VReference {
+impl<'a> Type<'static> for VReference {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

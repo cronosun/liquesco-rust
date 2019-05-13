@@ -1,9 +1,9 @@
 use crate::common::error::LqError;
 use crate::common::ine_range::I64IneRange;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
+use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tsint::SInt64;
+use crate::serialization::sint::SInt64;
 use std::cmp::Ordering;
 use crate::common::range::LqRangeBounds;
 
@@ -22,7 +22,7 @@ impl VSInt {
     }
 }
 
-impl Validator<'static> for VSInt {
+impl Type<'static> for VSInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

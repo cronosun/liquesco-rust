@@ -1,9 +1,9 @@
 use crate::common::range::Range;
 use crate::common::error::LqError;
-use crate::schema::core::{Context, Validator};
+use crate::schema::core::{Context, Type};
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tfloat::Float32;
-use crate::serialization::tfloat::Float64;
+use crate::serialization::float::Float32;
+use crate::serialization::float::Float64;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 use crate::common::range::LqRangeBounds;
@@ -64,7 +64,7 @@ impl<F: PartialOrd + Debug> VFloat<F> {
     }
 }
 
-impl Validator<'static> for VFloat32 {
+impl Type<'static> for VFloat32 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -100,7 +100,7 @@ impl Validator<'static> for VFloat32 {
     }
 }
 
-impl Validator<'static> for VFloat64 {
+impl Type<'static> for VFloat64 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

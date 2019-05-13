@@ -1,12 +1,12 @@
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
-use crate::serialization::tseq::SeqHeader;
+use crate::serialization::seq::SeqHeader;
 use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -20,7 +20,7 @@ pub struct VStruct<'a>(Fields<'a>);
 #[derive(new, Clone)]
 pub struct Field<'a> {
     pub identifier: Identifier<'a>,
-    pub validator: ValidatorRef,
+    pub validator: TypeRef,
 }
 
 impl<'a> Field<'a> {
@@ -41,7 +41,7 @@ impl<'a> VStruct<'a> {
     }
 }
 
-impl<'a> Validator<'a> for VStruct<'a> {
+impl<'a> Type<'a> for VStruct<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -143,7 +143,7 @@ impl<'a> Builder<'a> {
     pub fn field<I: Into<Identifier<'a>>>(
         mut self,
         identifier: I,
-        validator: ValidatorRef,
+        validator: TypeRef,
     ) -> Self {
         self.fields.push(Field {
             identifier: identifier.into(),

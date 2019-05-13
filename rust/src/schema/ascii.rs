@@ -3,9 +3,9 @@ use crate::common::internal_utils::try_from_int_result;
 use crate::common::ine_range::U64IneRange;
 use crate::common::ine_range::U8IneRange;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
+use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tunicode::UncheckedUnicode;
+use crate::serialization::unicode::UncheckedUnicode;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use crate::common::range::LqRangeBounds;
@@ -45,7 +45,7 @@ impl VAscii {
     }
 }
 
-impl<'a> Validator<'a> for VAscii {
+impl<'a> Type<'a> for VAscii {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

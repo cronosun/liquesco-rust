@@ -1,8 +1,8 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::core::Validator;
+use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tbool::Bool;
+use crate::serialization::boolean::Bool;
 use std::cmp::Ordering;
 
 #[derive(Clone)]
@@ -28,7 +28,7 @@ impl Default for VBool {
     }
 }
 
-impl Validator<'static> for VBool {
+impl Type<'static> for VBool {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

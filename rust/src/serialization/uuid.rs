@@ -1,7 +1,7 @@
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tbinary::Binary;
+use crate::serialization::binary::Binary;
 use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 
