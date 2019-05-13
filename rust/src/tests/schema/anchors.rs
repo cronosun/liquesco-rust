@@ -1,9 +1,9 @@
 use crate::schema::core::Schema;
-use crate::schema::vanchors::VAnchors;
-use crate::schema::vascii::VAscii;
-use crate::schema::vbool::VBool;
-use crate::schema::vreference::VReference;
-use crate::schema::vstruct::VStruct;
+use crate::schema::anchors::TAnchors;
+use crate::schema::ascii::TAscii;
+use crate::schema::boolean::TBool;
+use crate::schema::reference::TReference;
+use crate::schema::structure::TStruct;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -146,24 +146,24 @@ fn wrong_ordering() {
 
 fn create_schema1() -> impl Schema {
     let mut builder = builder();
-    let reference = builder.add(VReference);
-    let name = builder.add(VAscii::try_new(0, 100, 0, 127).unwrap());
-    let bool_field = builder.add(VBool::default());
+    let reference = builder.add(TReference);
+    let name = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
+    let bool_field = builder.add(TBool::default());
     let structure = builder.add(
-        VStruct::builder()
+        TStruct::builder()
             .field(id("name"), name)
             .field(id("reference"), reference)
             .build(),
     );
     let structure_master = builder.add(
-        VStruct::builder()
+        TStruct::builder()
             .field(id("name"), name)
             .field(id("reference"), reference)
             .field(id("i_am_great"), bool_field)
             .build(),
     );
 
-    builder.finish(VAnchors::new(structure_master, structure))
+    builder.finish(TAnchors::new(structure_master, structure))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

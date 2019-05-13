@@ -1,4 +1,4 @@
-use crate::serialization::tfloat::Float;
+use crate::serialization::float::Float;
 use crate::serialization::value::Value;
 use crate::tests::value::utils::check_value;
 use crate::tests::value::utils::serialize_de_serialize;

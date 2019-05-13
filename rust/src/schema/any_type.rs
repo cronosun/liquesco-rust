@@ -2,34 +2,34 @@ use std::cmp::Ordering;
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
-use crate::schema::vanchors::VAnchors;
-use crate::schema::vascii::VAscii;
-use crate::schema::vbool::VBool;
-use crate::schema::venum::VEnum;
-use crate::schema::vfloat::VFloat32;
-use crate::schema::vfloat::VFloat64;
-use crate::schema::voption::VOption;
-use crate::schema::vreference::VReference;
-use crate::schema::vseq::VSeq;
-use crate::schema::vsint::VSInt;
-use crate::schema::vstruct::VStruct;
-use crate::schema::vuint::VUInt;
+use crate::schema::anchors::TAnchors;
+use crate::schema::ascii::TAscii;
+use crate::schema::boolean::TBool;
+use crate::schema::enumeration::TEnum;
+use crate::schema::float::TFloat32;
+use crate::schema::float::TFloat64;
+use crate::schema::option::TOption;
+use crate::schema::reference::TReference;
+use crate::schema::seq::TSeq;
+use crate::schema::sint::TSInt;
+use crate::schema::structure::TStruct;
+use crate::schema::uint::TUInt;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 #[derive(Clone, FromVariants)]
 pub enum AnyType<'a> {
-    Struct(VStruct<'a>),
-    UInt(VUInt),
-    SInt(VSInt),
-    Ascii(VAscii),
-    Bool(VBool),
-    Enum(VEnum<'a>),
-    Anchors(VAnchors),
-    Reference(VReference),
-    Seq(VSeq),
-    Float32(VFloat32),
-    Float64(VFloat64),
-    Option(VOption),
+    Struct(TStruct<'a>),
+    UInt(TUInt),
+    SInt(TSInt),
+    Ascii(TAscii),
+    Bool(TBool),
+    Enum(TEnum<'a>),
+    Anchors(TAnchors),
+    Reference(TReference),
+    Seq(TSeq),
+    Float32(TFloat32),
+    Float64(TFloat64),
+    Option(TOption),
 }
 
 impl<'a> Type<'a> for AnyType<'a> {

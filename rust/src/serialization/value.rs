@@ -1,4 +1,4 @@
-use crate::serialization::tfloat::Float;
+use crate::serialization::float::Float;
 use crate::common::error::LqError;
 use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::LqReader;
@@ -19,14 +19,14 @@ use crate::serialization::major_types::TYPE_SINT;
 use crate::serialization::major_types::TYPE_UINT;
 use crate::serialization::major_types::TYPE_UNICODE;
 use crate::serialization::major_types::TYPE_FLOAT;
-use crate::serialization::tbinary::Binary;
-use crate::serialization::tenum::EnumHeader;
-use crate::serialization::tseq::SeqHeader;
-use crate::serialization::toption::Presence;
-use crate::serialization::tsint::SInt64;
-use crate::serialization::tuint::UInt64;
-use crate::serialization::tunicode::Unicode;
-use crate::serialization::tbool::Bool;
+use crate::serialization::binary::Binary;
+use crate::serialization::enumeration::EnumHeader;
+use crate::serialization::seq::SeqHeader;
+use crate::serialization::option::Presence;
+use crate::serialization::sint::SInt64;
+use crate::serialization::uint::UInt64;
+use crate::serialization::unicode::Unicode;
+use crate::serialization::boolean::Bool;
 use std::convert::TryFrom;
 use std::ops::Deref;
 

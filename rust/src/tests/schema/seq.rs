@@ -1,7 +1,7 @@
 use crate::schema::core::Schema;
-use crate::schema::vseq::Direction;
-use crate::schema::vseq::VSeq;
-use crate::schema::vuint::VUInt;
+use crate::schema::seq::Direction;
+use crate::schema::seq::TSeq;
+use crate::schema::uint::TUInt;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_strict;
@@ -86,8 +86,8 @@ fn too_many_elements() {
 
 fn create_schema() -> impl Schema {
     let mut builder = builder();
-    let int = builder.add(VUInt::try_new(50, 100).unwrap());
-    builder.finish(VSeq::try_new(int, 1, 10).unwrap())
+    let int = builder.add(TUInt::try_new(50, 100).unwrap());
+    builder.finish(TSeq::try_new(int, 1, 10).unwrap())
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
@@ -96,8 +96,8 @@ struct WithSequence(Vec<u32>);
 fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
-            let element = builder.add(VUInt::try_new(0, std::u64::MAX).unwrap());
-            let seq = VSeq::try_new(element, 0, std::u32::MAX).unwrap();
+            let element = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let seq = TSeq::try_new(element, 0, std::u32::MAX).unwrap();
             builder.add(seq)
         },
         Direction::Ascending,

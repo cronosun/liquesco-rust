@@ -3,11 +3,11 @@ use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::vascii::VAscii;
+use crate::schema::ascii::TAscii;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(VAscii::try_new(5, 15, 97, 122).unwrap());
+    let schema = single_schema(TAscii::try_new(5, 15, 97, 122).unwrap());
     
     // some valid items
     assert_valid_strict("hello".to_string(), &schema);    
@@ -26,7 +26,7 @@ fn schema1() {
 
 #[test]
 fn ordering() {
-    let schema = VAscii::try_new(0, 500, 0, 127).unwrap();
+    let schema = TAscii::try_new(0, 500, 0, 127).unwrap();
 
     ord_assert_equal(schema.clone(), "".to_string(), "".to_string());
     ord_assert_equal(schema.clone(), "hello".to_string(), "hello".to_string());

@@ -8,8 +8,8 @@ use std::cmp::Ordering;
 use std::fmt::Debug;
 use crate::common::range::LqRangeBounds;
 
-pub type VFloat32 = VFloat<f32>;
-pub type VFloat64 = VFloat<f64>;
+pub type TFloat32 = TFloat<f32>;
+pub type TFloat64 = TFloat<f64>;
 
 const NOT_A_NUMBER_ERR_STR: &str = "Expected a float value that is a number. \
                                     This value is not a number (float NaN).";
@@ -19,7 +19,7 @@ const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
 #[derive(new, Clone)]
-pub struct VFloat<F: PartialOrd + Debug> {
+pub struct TFloat<F: PartialOrd + Debug> {
     pub range: Range<F>,
     #[new(value = "false")]
     pub allow_nan: bool,
@@ -29,7 +29,7 @@ pub struct VFloat<F: PartialOrd + Debug> {
     pub allow_negative_infinity: bool,
 }
 
-impl<F: PartialOrd + Debug> VFloat<F> {
+impl<F: PartialOrd + Debug> TFloat<F> {
     fn validate(
         &self,
         value: F,
@@ -64,7 +64,7 @@ impl<F: PartialOrd + Debug> VFloat<F> {
     }
 }
 
-impl Type<'static> for VFloat32 {
+impl Type<'static> for TFloat32 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -100,7 +100,7 @@ impl Type<'static> for VFloat32 {
     }
 }
 
-impl Type<'static> for VFloat64 {
+impl Type<'static> for TFloat64 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

@@ -2,9 +2,9 @@ use crate::serialization::major_types::TYPE_BINARY;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
 use crate::serialization::core::LqReader;
-use crate::serialization::binary::binary_write;
+use crate::serialization::common_binary::binary_write;
 use crate::serialization::core::LqWriter;
-use crate::serialization::binary::binary_read;
+use crate::serialization::common_binary::binary_read;
 use crate::common::error::LqError;
 
 pub struct Binary;

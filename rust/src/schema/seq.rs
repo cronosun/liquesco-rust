@@ -9,7 +9,7 @@ use crate::serialization::seq::SeqHeader;
 use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
-pub struct VSeq {
+pub struct TSeq {
     pub element: TypeRef,
     pub length: U32IneRange,
     pub ordering: Ordering,
@@ -27,7 +27,7 @@ pub enum Direction {
     Descending,
 }
 
-impl VSeq {
+impl TSeq {
     pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
             element,
@@ -37,7 +37,7 @@ impl VSeq {
     }
 }
 
-impl Type<'static> for VSeq {
+impl Type<'static> for TSeq {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -80,8 +80,8 @@ impl Type<'static> for VSeq {
 }
 
 #[inline]
-pub(crate) fn seq_compare<'c, C, FnValidator: Fn(u32) -> TypeRef>(
-    validator_for_index: FnValidator,
+pub(crate) fn seq_compare<'c, C, FGetType: Fn(u32) -> TypeRef>(
+    type_for_index: FGetType,
     context: &C,
     r1: &mut C::Reader,
     r2: &mut C::Reader,
@@ -107,8 +107,8 @@ where
     // lex compare: first compare each element (even if their length is not equal)
     let min_to_read = header1.length().min(header2.length());
     for index in 0..min_to_read {
-        let validator = validator_for_index(index);
-        let cmp = context.compare(validator, r1, r2)?;
+        let r#type = type_for_index(index);
+        let cmp = context.compare(r#type, r1, r2)?;
         if cmp != std::cmp::Ordering::Equal {
             // no need to finish to the end (see contract)
             return Result::Ok(cmp);
@@ -128,7 +128,7 @@ where
 }
 
 fn validate_with_ordering<'c, C>(
-    this: &VSeq,
+    this: &TSeq,
     context: &mut C,
     direction: Direction,
     unique: bool,

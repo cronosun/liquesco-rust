@@ -16,11 +16,11 @@ pub enum BoolValues {
 }
 
 #[derive(new, Clone)]
-pub struct VBool {
+pub struct TBool {
     pub values: BoolValues,
 }
 
-impl Default for VBool {
+impl Default for TBool {
     fn default() -> Self {
         Self {
             values: BoolValues::TrueFalse,
@@ -28,7 +28,7 @@ impl Default for VBool {
     }
 }
 
-impl Type<'static> for VBool {
+impl Type<'static> for TBool {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

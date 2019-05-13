@@ -1,10 +1,10 @@
 use crate::schema::core::Config;
 use crate::schema::core::Schema;
-use crate::schema::core::ValidatorContainer;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::TypeContainer;
+use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
 use crate::schema::schema::DefaultSchema;
-use crate::schema::validators::AnyValidator;
+use crate::schema::any_type::AnyType;
 use crate::serde::serialize;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::vec_writer::VecWriter;
@@ -89,26 +89,26 @@ where
     );
 }
 
-pub fn single_schema<'a, V: Into<AnyValidator<'a>>>(
-    validator: V,
+pub fn single_schema<'a, T: Into<AnyType<'a>>>(
+    into_any_type: T,
 ) -> DefaultSchema<'a, SingleContainer<'a>> {
-    let conv_validator = validator.into();
+    let any_type = into_any_type.into();
     DefaultSchema::new(
         SingleContainer {
-            validator: conv_validator,
+            any_type,
         },
-        ValidatorRef(0),
+        TypeRef(0),
     )
 }
 
 pub struct SingleContainer<'a> {
-    validator: AnyValidator<'a>,
+    any_type: AnyType<'a>,
 }
 
-impl<'a> ValidatorContainer<'a> for SingleContainer<'a> {
-    fn validator(&self, reference: ValidatorRef) -> Option<&AnyValidator<'a>> {
+impl<'a> TypeContainer<'a> for SingleContainer<'a> {
+    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
         if reference.0 == 0 {
-            Option::Some(&self.validator)
+            Option::Some(&self.any_type)
         } else {
             Option::None
         }

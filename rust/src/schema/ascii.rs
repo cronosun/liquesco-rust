@@ -11,20 +11,20 @@ use std::convert::TryFrom;
 use crate::common::range::LqRangeBounds;
 
 #[derive(Clone)]
-pub struct VAscii {
+pub struct TAscii {
     /// Minimum / maximum number of bytes (which is at the same time also number of ASCII characters)
     pub length: U64IneRange,
     /// Allowed ascii code range (note: this field is private since needs further validation)
     codes: U8IneRange,
 }
 
-impl VAscii {
+impl TAscii {
     pub fn try_new(
         min_length: u64,
         max_length: u64,
         min_code: u8,
         max_code: u8,
-    ) -> Result<VAscii, LqError> {
+    ) -> Result<TAscii, LqError> {
         if min_code > 127 || max_code > 127 {
             return LqError::err_new(format!(
                 "Min ascii code / max ascii code must be within the ascii range (0-127; \
@@ -45,7 +45,7 @@ impl VAscii {
     }
 }
 
-impl<'a> Type<'a> for VAscii {
+impl<'a> Type<'a> for TAscii {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

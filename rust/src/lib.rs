@@ -8,6 +8,7 @@ pub mod common;
 pub mod serialization;
 pub mod schema;
 pub mod serde;
+pub mod text;
 
 #[cfg(test)]
 pub mod tests;

@@ -8,13 +8,13 @@ use std::cmp::Ordering;
 use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
-pub struct VSInt {
+pub struct TSInt {
     pub range: I64IneRange,
 }
 
-impl VSInt {
+impl TSInt {
     pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
-        Result::Ok(VSInt::new(I64IneRange::try_new_msg(
+        Result::Ok(TSInt::new(I64IneRange::try_new_msg(
             "Signed integer range",
             min,
             max,
@@ -22,7 +22,7 @@ impl VSInt {
     }
 }
 
-impl Type<'static> for VSInt {
+impl Type<'static> for TSInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

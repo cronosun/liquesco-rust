@@ -2,22 +2,25 @@ use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
-use crate::schema::vseq::seq_compare;
+use crate::schema::seq::seq_compare;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::seq::SeqHeader;
 
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
-/// referenced (see `VReference`). To make sure data is canonical, anchors have to be
+/// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
 #[derive(new, Clone)]
-pub struct VAnchors {
-    pub master_validator: TypeRef,
-    pub anchor_validator: TypeRef,
+pub struct TAnchors {
+    pub master: TypeRef,
+    pub anchor: TypeRef,
+
+    /// The maximum number of anchors allowed (inclusive). This does not include the master. So
+    /// a value of 0 means that only a master is allowed but no anchor.
     #[new(value = "4294967295")]
     pub max_anchors: u32,
 }
 
-impl<'a> Type<'static> for VAnchors {
+impl<'a> Type<'static> for TAnchors {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -54,7 +57,7 @@ impl<'a> Type<'static> for VAnchors {
         context.set_max_used_anchor_index(Option::Some(0));
         // first is to validate the master
         context.set_anchor_index(Option::Some(0));
-        context.validate(self.master_validator)?;
+        context.validate(self.master)?;
 
         // now validate all other anchors
         for index in 1..number_of_items {
@@ -76,7 +79,7 @@ impl<'a> Type<'static> for VAnchors {
             }
 
             context.set_anchor_index(Option::Some(index));
-            context.validate(self.anchor_validator)?;
+            context.validate(self.anchor)?;
         }
 
         // Make sure there's no overflow
@@ -111,9 +114,9 @@ impl<'a> Type<'static> for VAnchors {
         seq_compare(
             |index| {
                 if index == 0 {
-                    self.master_validator
+                    self.master
                 } else {
-                    self.anchor_validator
+                    self.anchor
                 }
             },
             context,

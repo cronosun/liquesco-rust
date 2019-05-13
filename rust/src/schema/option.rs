@@ -7,11 +7,11 @@ use crate::serialization::option::Presence;
 use std::cmp::Ordering;
 
 #[derive(new, Clone)]
-pub struct VOption {
-    pub validator: TypeRef,
+pub struct TOption {
+    pub r#type: TypeRef,
 }
 
-impl Type<'static> for VOption {
+impl Type<'static> for TOption {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -20,7 +20,7 @@ impl Type<'static> for VOption {
 
         match presence {
             Presence::Absent => Result::Ok(()),
-            Presence::Present => context.validate(self.validator),
+            Presence::Present => context.validate(self.r#type),
         }
     }
 
@@ -38,7 +38,7 @@ impl Type<'static> for VOption {
 
         match (presence1, presence2) {
             (Presence::Absent, Presence::Absent) => Result::Ok(Ordering::Equal),
-            (Presence::Present, Presence::Present) => context.compare(self.validator, r1, r2),
+            (Presence::Present, Presence::Present) => context.compare(self.r#type, r1, r2),
             (Presence::Absent, Presence::Present) => {
                 // "absent" < "present"
                 Result::Ok(Ordering::Less)

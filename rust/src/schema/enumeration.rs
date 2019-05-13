@@ -14,15 +14,20 @@ use std::convert::TryFrom;
 
 /// Use a small vec with 5 items (should be enough for many cases)
 type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
-type Validators = SmallVec<[TypeRef; 3]>;
+type Values = SmallVec<[TypeRef; 3]>;
 
 #[derive(new, Clone)]
-pub struct VEnum<'a>(pub Variants<'a>);
+pub struct TEnum<'a>(pub Variants<'a>);
 
 #[derive(new, Clone)]
 pub struct Variant<'a> {
+    /// Textual identifier of the variant.
     pub identifier: Identifier<'a>,
-    pub values: Validators,
+
+    /// The values this variant carries: This should usually contain 0 or 1 item. It should only
+    /// contain more then one item when you want to extend an existing schema and the value
+    /// at index 0 is something you can't extend (a.g. not a struct).
+    pub values: Values,
 }
 
 impl<'a> Variant<'a> {
@@ -31,19 +36,19 @@ impl<'a> Variant<'a> {
     }
 }
 
-impl<'a> Default for VEnum<'a> {
+impl<'a> Default for TEnum<'a> {
     fn default() -> Self {
         Self(Variants::new())
     }
 }
 
-impl<'a> VEnum<'a> {
+impl<'a> TEnum<'a> {
     pub fn add(&mut self, variant: Variant<'a>) {
         self.0.push(variant)
     }
 }
 
-impl<'a> Type<'a> for VEnum<'a> {
+impl<'a> Type<'a> for TEnum<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -86,8 +91,8 @@ impl<'a> Type<'a> for VEnum<'a> {
         let to_skip = usize_number_of_values - schema_number_of_values;
 
         // validate each element
-        for validator in &variant.values {
-            context.validate(*validator)?;
+        for r#type in &variant.values {
+            context.validate(*r#type)?;
         }
 
         if to_skip > 0 {
@@ -133,8 +138,8 @@ impl<'a> Type<'a> for VEnum<'a> {
 
             let variant = &self.0[usize_ordinal];
             let mut num_read: u32 = 0;
-            for validator in &variant.values {
-                let cmp = context.compare(*validator, r1, r2)?;
+            for r#type in &variant.values {
+                let cmp = context.compare(*r#type, r1, r2)?;
                 num_read = num_read + 1;
                 if cmp != Ordering::Equal {
                     // no need to finish to the end (see contract)
@@ -163,7 +168,7 @@ impl<'a> Type<'a> for VEnum<'a> {
     }
 }
 
-impl<'a> VEnum<'a> {
+impl<'a> TEnum<'a> {
     pub fn builder() -> Builder<'a> {
         Builder {
             variants: Variants::new(),
@@ -179,10 +184,10 @@ impl<'a> Builder<'a> {
     pub fn variant<I: Into<Identifier<'a>>>(
         mut self,
         identifier: I,
-        validator: TypeRef,
+        r#type: TypeRef,
     ) -> Self {
-        let mut values = Validators::with_capacity(1);
-        values.push(validator);
+        let mut values = Values::with_capacity(1);
+        values.push(r#type);
 
         self.variants.push(Variant {
             identifier: identifier.into(),
@@ -192,7 +197,7 @@ impl<'a> Builder<'a> {
     }
 
     pub fn empty_variant<I: Into<Identifier<'a>>>(mut self, identifier: I) -> Self {
-        let values = Validators::with_capacity(0);
+        let values = Values::with_capacity(0);
         self.variants.push(Variant {
             identifier: identifier.into(),
             values,
@@ -200,7 +205,7 @@ impl<'a> Builder<'a> {
         self
     }
 
-    pub fn build(self) -> VEnum<'a> {
-        VEnum(self.variants)
+    pub fn build(self) -> TEnum<'a> {
+        TEnum(self.variants)
     }
 }

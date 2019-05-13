@@ -15,12 +15,12 @@ use std::convert::TryFrom;
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
 #[derive(new, Clone)]
-pub struct VStruct<'a>(Fields<'a>);
+pub struct TStruct<'a>(Fields<'a>);
 
 #[derive(new, Clone)]
 pub struct Field<'a> {
     pub identifier: Identifier<'a>,
-    pub validator: TypeRef,
+    pub r#type: TypeRef,
 }
 
 impl<'a> Field<'a> {
@@ -29,19 +29,19 @@ impl<'a> Field<'a> {
     }
 }
 
-impl<'a> Default for VStruct<'a> {
+impl<'a> Default for TStruct<'a> {
     fn default() -> Self {
         Self(Fields::new())
     }
 }
 
-impl<'a> VStruct<'a> {
+impl<'a> TStruct<'a> {
     pub fn add(&mut self, field: Field<'a>) {
         self.0.push(field)
     }
 }
 
-impl<'a> Type<'a> for VStruct<'a> {
+impl<'a> Type<'a> for TStruct<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -70,8 +70,7 @@ impl<'a> Type<'a> for VStruct<'a> {
             try_from_int_result(usize::try_from(schema_number_of_fields))?;
         for index in 0..schema_number_of_fields_usize {
             let field = &self.0[index];
-            let validator = field.validator;
-            context.validate(validator)?;
+            context.validate(field.r#type)?;
         }
         // skip the rest of the fields
         let to_skip = number_of_items - schema_number_of_fields;
@@ -98,8 +97,7 @@ impl<'a> Type<'a> for VStruct<'a> {
 
         let mut num_read: u32 = 0;
         for field in &self.0 {
-            let validator = field.validator;
-            let cmp = context.compare(validator, r1, r2)?;
+            let cmp = context.compare(field.r#type, r1, r2)?;
             num_read = num_read + 1;
             if cmp != Ordering::Equal {
                 // no need to finish to the end (see contract)
@@ -107,7 +105,7 @@ impl<'a> Type<'a> for VStruct<'a> {
             }
         }
 
-        // it's very imporant that we finish reading to the end (see contract)
+        // it's very important that we finish reading to the end (see contract)
         let finish_reading =
             |header: SeqHeader, reader: &mut LqReader, num_read: u32| -> Result<(), LqError> {
                 let len = header.length();
@@ -127,7 +125,7 @@ impl<'a> Type<'a> for VStruct<'a> {
     }
 }
 
-impl<'a> VStruct<'a> {
+impl<'a> TStruct<'a> {
     pub fn builder() -> Builder<'a> {
         Builder {
             fields: Fields::new(),
@@ -143,16 +141,16 @@ impl<'a> Builder<'a> {
     pub fn field<I: Into<Identifier<'a>>>(
         mut self,
         identifier: I,
-        validator: TypeRef,
+        r#ype: TypeRef,
     ) -> Self {
         self.fields.push(Field {
             identifier: identifier.into(),
-            validator,
+            r#type: r#ype,
         });
         self
     }
 
-    pub fn build(self) -> VStruct<'a> {
-        VStruct(self.fields)
+    pub fn build(self) -> TStruct<'a> {
+        TStruct(self.fields)
     }
 }

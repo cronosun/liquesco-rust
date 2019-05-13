@@ -1,6 +1,6 @@
-use crate::serialization::tfloat::Float;
+use crate::serialization::float::Float;
 use crate::common::error::LqError;
-use crate::serialization::tuuid::Uuid;
+use crate::serialization::uuid::Uuid;
 use crate::serialization::value::EnumValue;
 use crate::serialization::value::Value;
 use crate::serialization::value::ValueList;

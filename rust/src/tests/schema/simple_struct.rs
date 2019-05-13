@@ -1,10 +1,10 @@
 use crate::schema::core::Schema;
-use crate::schema::vascii::VAscii;
-use crate::schema::vbool::VBool;
-use crate::schema::vseq::Direction;
-use crate::schema::vsint::VSInt;
-use crate::schema::vstruct::VStruct;
-use crate::schema::vuint::VUInt;
+use crate::schema::ascii::TAscii;
+use crate::schema::boolean::TBool;
+use crate::schema::seq::Direction;
+use crate::schema::sint::TSInt;
+use crate::schema::structure::TStruct;
+use crate::schema::uint::TUInt;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_extended;
@@ -18,10 +18,10 @@ use serde::{Deserialize, Serialize};
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(VUInt::try_new(2, 144).unwrap());
-    let upper_case = builder.add(VAscii::try_new(2, 10, 65, 90).unwrap());
+    let int = builder.add(TUInt::try_new(2, 144).unwrap());
+    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
     let schema = builder.finish(
-        VStruct::builder()
+        TStruct::builder()
             .field(id("age"), int)
             .field(id("name"), upper_case)
             .build(),
@@ -97,17 +97,17 @@ struct Schema1StructLong {
 fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
-            let type_x = builder.add(VUInt::try_new(0, std::u64::MAX).unwrap());
-            let type_y = builder.add(VSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
+            let type_x = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let type_y = builder.add(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
             let inner_struct = builder.add(
-                VStruct::builder()
+                TStruct::builder()
                     .field(id("x"), type_x)
                     .field(id("y"), type_y)
                     .build(),
             );
-            let type_more = builder.add(VBool::default());
+            let type_more = builder.add(TBool::default());
             builder.add(
-                VStruct::builder()
+                TStruct::builder()
                     .field(id("content"), inner_struct)
                     .field(id("more"), type_more)
                     .build(),

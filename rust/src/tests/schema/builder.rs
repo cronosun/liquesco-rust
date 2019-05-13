@@ -1,11 +1,11 @@
-use crate::schema::core::Validator;
-use crate::schema::core::ValidatorContainer;
-use crate::schema::core::ValidatorRef;
+use crate::schema::core::Type;
+use crate::schema::core::TypeContainer;
+use crate::schema::core::TypeRef;
 use crate::schema::schema::DefaultSchema;
-use crate::schema::validators::AnyValidator;
+use crate::schema::any_type::AnyType;
 
 pub struct Builder<'a> {
-    validators: Vec<AnyValidator<'a>>,
+    types: Vec<AnyType<'a>>,
 }
 
 pub fn builder<'a>() -> Builder<'a> {
@@ -15,42 +15,42 @@ pub fn builder<'a>() -> Builder<'a> {
 impl<'a> Default for Builder<'a> {
     fn default() -> Self {
         Self {
-            validators: Vec::new(),
+            types: Vec::new(),
         }
     }
 }
 
 pub struct Container<'a> {
-    validators: Vec<AnyValidator<'a>>,
+    types: Vec<AnyType<'a>>,
 }
 
-impl<'a> ValidatorContainer<'a> for Container<'a> {
-    fn validator(&self, reference: ValidatorRef) -> Option<&AnyValidator<'a>> {
-        let len = self.validators.len();
+impl<'a> TypeContainer<'a> for Container<'a> {
+    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
+        let len = self.types.len();
         if reference.0 >= len {
             Option::None
         } else {
-            Option::Some(&self.validators[reference.0])
+            Option::Some(&self.types[reference.0])
         }
     }
 }
 
 impl<'a> Builder<'a> {
-    pub fn add<V: Validator<'a>>(&mut self, validator: V) -> ValidatorRef
-    where AnyValidator<'a>: std::convert::From<V> {
-        let reference = ValidatorRef(self.validators.len());
-        self.validators.push(AnyValidator::from(validator));
+    pub fn add<T: Type<'a>>(&mut self, r#type: T) -> TypeRef
+    where AnyType<'a>: std::convert::From<T> {
+        let reference = TypeRef(self.types.len());
+        self.types.push(AnyType::from(r#type));
         reference
     }
 
-    pub fn finish<V: Validator<'a>>(
+    pub fn finish<T: Type<'a>>(
         mut self,
-        validator: V,
+        r#type: T,
     ) -> DefaultSchema<'a, Container<'a>>
-    where AnyValidator<'a>: std::convert::From<V> {
-        let reference = self.add(validator);
+    where AnyType<'a>: std::convert::From<T> {
+        let reference = self.add(r#type);
         let container = Container {
-            validators: self.validators,
+            types: self.types,
         };
         DefaultSchema::new(container, reference)
     }

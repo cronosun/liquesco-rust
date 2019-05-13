@@ -1,12 +1,12 @@
 use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::{LqReader, Serializer, LqWriter};
 use crate::serialization::core::DeSerializer;
-use crate::serialization::tseq::SeqHeader;
+use crate::serialization::seq::SeqHeader;
 use core::convert::TryFrom;
 use crate::common::error::LqError;
 use std::borrow::Cow;
 use smallvec::SmallVec;
-use crate::serialization::tunicode::Unicode;
+use crate::serialization::unicode::Unicode;
 use std::ops::Deref;
 
 const SEGMENT_MIN_LEN: usize = 1;

@@ -3,11 +3,11 @@ use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::vuint::VUInt;
+use crate::schema::uint::TUInt;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(VUInt::try_new(5, 158).unwrap());
+    let schema = single_schema(TUInt::try_new(5, 158).unwrap());
     
     // some valid items
     assert_valid_strict(5usize, &schema);    
@@ -26,7 +26,7 @@ fn schema1() {
 
 #[test]
 fn schema2() {
-    let schema = single_schema(VUInt::try_new(999, std::u64::MAX).unwrap());
+    let schema = single_schema(TUInt::try_new(999, std::u64::MAX).unwrap());
     
     // some valid items
     assert_valid_strict(999usize, &schema);    
@@ -40,7 +40,7 @@ fn schema2() {
 
 #[test]
 fn ordering() {
-    let schema = VUInt::try_new(0, std::u64::MAX).unwrap();
+    let schema = TUInt::try_new(0, std::u64::MAX).unwrap();
 
     ord_assert_equal(schema.clone(), 100usize, 100usize);
     ord_assert_equal(schema.clone(), 0usize, 0usize);

@@ -8,9 +8,9 @@ use std::cmp::Ordering;
 /// A reference can be used in combination with `VAnchors`. You can reference
 /// one anchor.
 #[derive(Clone)]
-pub struct VReference;
+pub struct TReference;
 
-impl<'a> Type<'static> for VReference {
+impl<'a> Type<'static> for TReference {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

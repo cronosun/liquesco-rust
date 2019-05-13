@@ -1,9 +1,9 @@
 use crate::common::error::LqError;
-use crate::schema::validators::AnyValidator;
+use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
 use std::cmp::Ordering;
 
-pub trait Validator<'a> {
+pub trait Type<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>;
@@ -33,12 +33,12 @@ pub trait Validator<'a> {
 pub trait Context<'a> {
     type Reader: LqReader<'a>;
 
-    fn validate(&mut self, reference: ValidatorRef) -> Result<(), LqError>;
+    fn validate(&mut self, reference: TypeRef) -> Result<(), LqError>;
 
-    /// See `Validator::compare`.
+    /// See `Type::compare`.
     fn compare(
         &self,
-        reference: ValidatorRef,
+        reference: TypeRef,
         r1: &mut Self::Reader,
         r2: &mut Self::Reader,
     ) -> Result<Ordering, LqError>;
@@ -72,11 +72,15 @@ impl Config {
     }
 }
 
+/// References a single type within a schema.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
-pub struct ValidatorRef(pub(crate) usize);
+pub struct TypeRef(pub(crate) usize);
 
-pub trait ValidatorContainer<'a> {
-    fn validator(&self, reference: ValidatorRef) -> Option<&AnyValidator<'a>>;
+/// Contains multiple `Type` that can be got using a `TypeRef`.
+pub trait TypeContainer<'a> {
+
+    /// Returns a `Type` if contained within this container.
+    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
 }
 
 pub trait Schema {

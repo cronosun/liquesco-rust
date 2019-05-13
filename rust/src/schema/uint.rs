@@ -8,13 +8,13 @@ use crate::serialization::uint::UInt64;
 use crate::common::range::LqRangeBounds;
 
 #[derive(new, Clone)]
-pub struct VUInt {
+pub struct TUInt {
     pub range: U64IneRange,
 }
 
-impl VUInt {
+impl TUInt {
     pub fn try_new(min: u64, max: u64) -> Result<Self, LqError> {
-        Result::Ok(VUInt::new(U64IneRange::try_new_msg(
+        Result::Ok(TUInt::new(U64IneRange::try_new_msg(
             "Unsigned integer range",
             min,
             max,
@@ -22,7 +22,7 @@ impl VUInt {
     }
 }
 
-impl Type<'static> for VUInt {
+impl Type<'static> for TUInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

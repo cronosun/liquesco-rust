@@ -1,9 +1,9 @@
 use crate::schema::core::Schema;
-use crate::schema::vanchors::VAnchors;
-use crate::schema::vascii::VAscii;
-use crate::schema::vreference::VReference;
-use crate::schema::vseq::VSeq;
-use crate::schema::vstruct::VStruct;
+use crate::schema::anchors::TAnchors;
+use crate::schema::ascii::TAscii;
+use crate::schema::reference::TReference;
+use crate::schema::seq::TSeq;
+use crate::schema::structure::TStruct;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -158,16 +158,16 @@ fn can_back_reference() {
 
 fn create_schema() -> impl Schema {
     let mut builder = builder();
-    let reference = builder.add(VReference);
-    let text = builder.add(VAscii::try_new(0, 100, 0, 127).unwrap());
-    let children = builder.add(VSeq::try_new(reference, 0, 1000).unwrap());
+    let reference = builder.add(TReference);
+    let text = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
+    let children = builder.add(TSeq::try_new(reference, 0, 1000).unwrap());
     let structure = builder.add(
-        VStruct::builder()
+        TStruct::builder()
             .field(id("text"), text)
             .field(id("children"), children)
             .build(),
     );
-    builder.finish(VAnchors::new(structure, structure))
+    builder.finish(TAnchors::new(structure, structure))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

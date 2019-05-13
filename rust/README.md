@@ -5,6 +5,7 @@ This contains the Rust reference implementation of Liquesco.
  * **serialization**: Data de-/serialization.
  * **serde**: Serde (https://serde.rs/) support for data de-/serialization.
  * **schema**: The Liquesco schema.
+ * **text**: Parse data from a textual representation (like json or xml) given a schema.
 
 # Rust version
 
