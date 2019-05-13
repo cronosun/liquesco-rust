@@ -1,12 +1,12 @@
-use crate::text::value::TextValue;
-use crate::schema::core::TypeRef;
-use crate::common::error::LqError;
-use crate::schema::core::Schema;
-use crate::schema::core::Type;
-use crate::serialization::core::LqWriter;
-use crate::text::value::Converter;
-use crate::text::value::Value;
-use crate::text::value::SrcPosition;
+use crate::value::TextValue;
+use liquesco_core::schema::core::TypeRef;
+use liquesco_core::common::error::LqError;
+use liquesco_core::schema::core::Schema;
+use liquesco_core::schema::core::Type;
+use liquesco_core::serialization::core::LqWriter;
+use crate::value::Converter;
+use crate::value::Value;
+use crate::value::SrcPosition;
 use std::borrow::Cow;
 
 pub trait Context {

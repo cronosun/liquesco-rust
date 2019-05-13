@@ -1,6 +1,6 @@
-use crate::schema::identifier::Format;
-use crate::schema::identifier::Identifier;
-use crate::text::core::ParseError;
+use liquesco_core::schema::identifier::Format;
+use liquesco_core::schema::identifier::Identifier;
+use crate::core::ParseError;
 use std::collections::HashMap;
 
 pub type Text<'a> = &'a str;

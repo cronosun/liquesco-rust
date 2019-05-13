@@ -1,10 +1,10 @@
-use crate::schema::uint::TUInt;
-use crate::serialization::core::Serializer;
-use crate::serialization::uint::UInt64;
-use crate::text::core::Context;
-use crate::text::core::ParseError;
-use crate::text::core::Parser;
-use crate::text::value::Converter;
+use liquesco_core::schema::uint::TUInt;
+use liquesco_core::serialization::core::Serializer;
+use liquesco_core::serialization::uint::UInt64;
+use crate::core::Context;
+use crate::core::ParseError;
+use crate::core::Parser;
+use crate::value::Converter;
 
 pub struct PUInt;
 

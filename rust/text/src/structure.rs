@@ -1,11 +1,11 @@
-use crate::schema::structure::TStruct;
-use crate::text::core::Context;
-use crate::text::core::ParseError;
-use crate::text::core::Parser;
-use crate::text::value::Converter;
-use crate::text::value::IdentifierType;
-use crate::text::value::TextValue;
-use crate::text::value::Value;
+use liquesco_core::schema::structure::TStruct;
+use crate::core::Context;
+use crate::core::ParseError;
+use crate::core::Parser;
+use crate::value::Converter;
+use crate::value::IdentifierType;
+use crate::value::TextValue;
+use crate::value::Value;
 
 pub struct PStruct;
 

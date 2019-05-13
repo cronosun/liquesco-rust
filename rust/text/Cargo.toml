@@ -1,0 +1,8 @@
+[package]
+name = "liquesco-text"
+version = "0.0.1"
+authors = ["cronosun <simon.ruoss@gmail.com>"]
+edition = "2018"
+
+[dependencies]
+liquesco-core = { path = "../core" }
