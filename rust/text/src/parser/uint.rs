@@ -4,7 +4,7 @@ use liquesco_core::serialization::uint::UInt64;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use crate::parser::value::Converter;
+use crate::parser::converter::Converter;
 
 pub struct PUInt;
 

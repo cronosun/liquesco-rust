@@ -1,10 +1,10 @@
 use crate::serialization::major_types::TYPE_SEQ;
 
 use crate::common::error::LqError;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer;
 use std::convert::TryFrom;
 
@@ -37,12 +37,7 @@ impl SeqHeader {
     }
 
     /// Calls `begin`, reads the list (struct) (see `function`) and then calls `finish`.
-    pub fn read_struct<
-        'a,
-        Ret,
-        R: LqReader<'a>,
-        ReadFn: FnOnce(&mut R) -> Result<Ret, LqError>,
-    >(
+    pub fn read_struct<'a, Ret, R: LqReader<'a>, ReadFn: FnOnce(&mut R) -> Result<Ret, LqError>>(
         &self,
         reader: &mut R,
         number_of_fields: u32,
@@ -63,7 +58,7 @@ pub struct SeqRead {
 impl SeqRead {
     pub fn finish<'a, R: LqReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
-        reader.skip_n_values(usize::try_from(fields_to_skip)?)        
+        reader.skip_n_values(usize::try_from(fields_to_skip)?)
     }
 }
 
@@ -73,7 +68,12 @@ impl<'a> DeSerializer<'a> for SeqHeader {
     fn de_serialize<Reader: LqReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
         let type_header = reader.read_type_header()?;
         if type_header.major_type() != TYPE_SEQ {
-            return LqError::err_static("Not a list type");
+            return LqError::err_new(format!(
+                "Got something that's not a sequence (major type \
+                 {:?}). Got major type {:?}.",
+                TYPE_SEQ,
+                type_header.major_type()
+            ));
         }
         let content_description = reader.read_content_description_given_type_header(type_header)?;
         if content_description.self_length() != 0 {

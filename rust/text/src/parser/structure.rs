@@ -1,24 +1,36 @@
-use liquesco_core::schema::structure::TStruct;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use crate::parser::value::Converter;
-use crate::parser::value::IdentifierType;
+use crate::parser::converter::Converter;
+use crate::parser::converter::IdentifierType;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
+use liquesco_core::schema::structure::TStruct;
+use liquesco_core::serialization::core::Serializer;
+use liquesco_core::serialization::seq::SeqHeader;
+use std::convert::TryFrom;
 
 pub struct PStruct;
 
 impl<'a> Parser<'a> for PStruct {
     type T = TStruct<'a>;
 
-    fn parse<'c, C>(context: &C, writer : &mut C::TWriter, r#type: &Self::T) -> Result<(), ParseError>
-        where
-            C: Context<'c> {
+    fn parse<'c, C>(
+        context: &C,
+        writer: &mut C::TWriter,
+        r#type: &Self::T,
+    ) -> Result<(), ParseError>
+    where
+        C: Context<'c>,
+    {
         C::TConverter::require_no_name(context.text_value())?;
 
         // for structures the input must be a map
         let mut value = C::TConverter::require_string_map(context.value())?;
+
+        let number_of_fields = r#type.fields().len();
+        let u32_number_of_fields = u32::try_from(number_of_fields)?;
+        SeqHeader::serialize(writer, &SeqHeader::new(u32_number_of_fields))?;
 
         for field in r#type.fields() {
             let identifier = &field.identifier;
@@ -33,7 +45,7 @@ impl<'a> Parser<'a> for PStruct {
                 }
                 // we also accept no value (in this case it's no value)
                 Option::None => {
-                    let text_value: TextValue<'static> = Value::Maybe(Option::None).into();
+                    let text_value: TextValue<'static> = Value::Nothing.into();
                     context.parse(writer, r#type, &text_value)?;
                 }
             };

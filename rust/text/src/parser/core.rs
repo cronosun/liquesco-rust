@@ -4,7 +4,7 @@ use liquesco_core::common::error::LqError;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::core::Type;
 use liquesco_core::serialization::core::LqWriter;
-use crate::parser::value::Converter;
+use crate::parser::converter::Converter;
 use crate::parser::value::Value;
 use crate::parser::value::SrcPosition;
 use std::borrow::Cow;

@@ -1,6 +1,7 @@
 use crate::parser::any_parser::parse_any;
 use crate::parser::core::{Context, ParseError};
-use crate::parser::value::{Converter, TextValue, Value};
+use crate::parser::value::{TextValue, Value};
+use crate::parser::converter::Converter;
 use liquesco_core::schema::core::{Schema, TypeRef};
 use liquesco_core::serialization::vec_writer::VecWriter;
 use std::marker::PhantomData;

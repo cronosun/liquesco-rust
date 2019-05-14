@@ -3,7 +3,7 @@ use liquesco_core::serialization::core::Serializer;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use crate::parser::value::Converter;
+use crate::parser::converter::Converter;
 use liquesco_core::schema::ascii::TAscii;
 
 pub struct PAscii;

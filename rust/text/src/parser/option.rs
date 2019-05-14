@@ -4,7 +4,7 @@ use liquesco_core::serialization::core::Serializer;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use crate::parser::value::Converter;
+use crate::parser::converter::Converter;
 
 pub struct POption;
 
@@ -15,13 +15,12 @@ impl Parser<'static> for POption {
         where
             C: Context<'c> {
         C::TConverter::require_no_name(context.text_value())?;
-        if context.value().is_none() {
+        if context.value().is_nothing() {
             Presence::serialize(writer, &Presence::Absent)?;
             Result::Ok(())
         } else {
             Presence::serialize(writer, &Presence::Present)?;
-            let value = C::TConverter::require_maybe_present(context.value())?;    
-            context.parse(writer, r#type.r#type, value)
+            context.parse(writer, r#type.r#type, context.text_value())
         }
     }
 }
