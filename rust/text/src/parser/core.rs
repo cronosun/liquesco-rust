@@ -1,13 +1,16 @@
-use crate::value::TextValue;
+use crate::parser::value::TextValue;
 use liquesco_core::schema::core::TypeRef;
 use liquesco_core::common::error::LqError;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::core::Type;
 use liquesco_core::serialization::core::LqWriter;
-use crate::value::Converter;
-use crate::value::Value;
-use crate::value::SrcPosition;
+use crate::parser::value::Converter;
+use crate::parser::value::Value;
+use crate::parser::value::SrcPosition;
 use std::borrow::Cow;
+use std::error::Error;
+use std::fmt::Display;
+use std::num::TryFromIntError;
 
 pub trait Context<'a> {
     type TConverter: Converter;
@@ -30,6 +33,7 @@ pub trait Parser<'a> {
         C: Context<'c>;
 }
 
+#[derive(Debug)]
 pub struct ParseError {
     msg: Option<Cow<'static, str>>,
     lq_error: Option<LqError>,
@@ -43,6 +47,21 @@ impl From<LqError> for ParseError {
             lq_error: Option::Some(value),
             src_position : Option::None
         }
+    }
+}
+
+impl Error for ParseError {}
+
+impl Display for ParseError {
+    fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
+        write!(f, "ParseError({:?})", self)
+    }
+}
+
+impl From<TryFromIntError> for ParseError {
+    fn from(value: TryFromIntError) -> Self {
+        let lq_error : LqError = value.into();
+        lq_error.into()
     }
 }
 

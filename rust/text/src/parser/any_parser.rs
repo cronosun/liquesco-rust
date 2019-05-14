@@ -1,10 +1,12 @@
-use crate::core::ParseError;
-use crate::core::Context;
+use crate::parser::core::ParseError;
+use crate::parser::core::Context;
 use liquesco_core::schema::any_type::AnyType;
-use crate::uint::PUInt;
-use crate::structure::PStruct;
-use crate::option::POption;
-use crate::core::Parser;
+use crate::parser::uint::PUInt;
+use crate::parser::seq::PSeq;
+use crate::parser::structure::PStruct;
+use crate::parser::option::POption;
+use crate::parser::core::Parser;
+use crate::parser::ascii::PAscii;
 
 pub(crate) fn parse_any<'c, C>(context : &C, any_type : &AnyType, writer : &mut C::TWriter) -> Result<(), ParseError> where C : Context<'c> {
     match any_type {
@@ -17,8 +19,14 @@ pub(crate) fn parse_any<'c, C>(context : &C, any_type : &AnyType, writer : &mut 
         AnyType::Struct(value) => {
             PStruct::parse(context, writer, value)
         },
+        AnyType::Seq(value) => {
+            PSeq::parse(context, writer, value)
+        },
+        AnyType::Ascii(value) => {
+            PAscii::parse(context, writer, value)
+        }
         _ => {
-            Result::Err(ParseError::new("No parser for type implemented"))
+            Result::Err(ParseError::new(format!("No parser for type {:?} implemented", any_type)))
         }
     }
 }

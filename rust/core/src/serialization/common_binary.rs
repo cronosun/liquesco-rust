@@ -1,6 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::io_result;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
@@ -14,11 +12,11 @@ pub fn binary_write<W: LqWriter>(
     major_type: MajorType,
 ) -> Result<(), LqError> {
     let bin_len = data.len();
-    let bin_len_as_u64 = try_from_int_result(u64::try_from(bin_len))?;
+    let bin_len_as_u64 = u64::try_from(bin_len)?;
     let mut content_description = ContentDescription::default();
     content_description.set_self_length(bin_len_as_u64);
     writer.write_content_description(major_type, &content_description)?;
-    io_result(writer.write(data))?;
+    writer.write(data)?;
     Result::Ok(())
 }
 
@@ -39,7 +37,7 @@ pub fn binary_read<'a, R: LqReader<'a>>(
         ));
     }
 
-    let usize_len = try_from_int_result(usize::try_from(len))?;
+    let usize_len = usize::try_from(len)?;
     let read_result = reader.read_slice(usize_len)?;
     Result::Ok((header.major_type(), read_result))
 }

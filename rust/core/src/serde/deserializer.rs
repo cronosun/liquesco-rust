@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serde::error::SLqError;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::binary::Binary;
@@ -257,7 +256,7 @@ where
         V: Visitor<'de>,
     {
         let list_header = SeqHeader::de_serialize(&mut self.reader)?;
-        let usize_list_header = try_from_int_result(usize::try_from(list_header.length()))?;
+        let usize_list_header = usize::try_from(list_header.length())?;
 
         visitor.visit_map(MapAccessStruct {
             deserializer: self,
@@ -328,7 +327,7 @@ where
         let enum_header = EnumHeader::de_serialize(&mut self.deserializer.reader)?;
         let ordinal = enum_header.ordinal();
         let number_of_values = enum_header.number_of_values();
-        self.input_data_len = try_from_int_result(usize::try_from(number_of_values))?;
+        self.input_data_len = usize::try_from(number_of_values)?;
 
         let val: std::result::Result<_, Self::Error> =
             seed.deserialize(ordinal.into_deserializer());
@@ -387,7 +386,7 @@ where
         // read length
         let list_header = SeqHeader::de_serialize(&mut self.reader)?;
         let len_in_input_data = list_header.length();
-        let usize_len_in_input_data = try_from_int_result(usize::try_from(len_in_input_data))?;
+        let usize_len_in_input_data = usize::try_from(len_in_input_data)?;
 
         self.deserialize_seq_no_header(len, usize_len_in_input_data, visitor)
     }

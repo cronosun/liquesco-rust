@@ -1,10 +1,5 @@
-pub mod value;
-pub mod core;
-
-pub mod any_parser;
 pub mod parser;
-pub mod serde;
+pub mod yaml;
 
-pub mod uint;
-pub mod option;
-pub mod structure;
+#[cfg(test)]
+pub mod tests;

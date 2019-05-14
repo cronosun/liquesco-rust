@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::{LqReader, LqWriter, Serializer};
 use crate::serialization::seq::SeqHeader;
@@ -141,7 +140,7 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
     fn de_serialize<T: LqReader<'a>>(reader: &mut T) -> Result<Self::Item, LqError> {
         let list_header = SeqHeader::de_serialize(reader)?;
         let number_of_segments = list_header.length();
-        let usize_number_of_segments = try_from_int_result(usize::try_from(number_of_segments))?;
+        let usize_number_of_segments = usize::try_from(number_of_segments)?;
         Identifier::validate_number_of_segments(usize_number_of_segments)?;
 
         let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(usize_number_of_segments);
@@ -158,7 +157,7 @@ impl<'a> Serializer for Identifier<'a> {
 
     fn serialize<T: LqWriter>(writer: &mut T, item: &Self::Item) -> Result<(), LqError> {
         let number_of_segments = item.len();
-        let u32_number_of_segments = try_from_int_result(u32::try_from(number_of_segments))?;
+        let u32_number_of_segments = u32::try_from(number_of_segments)?;
         let list_header = SeqHeader::new(u32_number_of_segments);
         SeqHeader::serialize(writer, &list_header)?;
 

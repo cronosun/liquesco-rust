@@ -1,9 +1,10 @@
 use liquesco_core::schema::identifier::Format;
 use liquesco_core::schema::identifier::Identifier;
-use crate::core::ParseError;
+use crate::parser::core::ParseError;
 use std::collections::HashMap;
+use std::borrow::Cow;
 
-pub type Text<'a> = &'a str;
+pub type Text<'a> = Cow<'a, str>;
 pub type MaybeName<'a> = Option<Text<'a>>;
 pub type Seq<'a> = Vec<TextValue<'a>>;
 
@@ -62,11 +63,17 @@ pub trait Converter {
         }        
     }
 
-    fn to_text<'a>(value: &Value<'a>) -> Option<Text<'a>> {
+    fn to_text<'a>(value: &'a Value<'a>) -> Option<&'a Text<'a>> {
         match value {
             Value::Text(value) => Option::Some(value),
             _ => Option::None,
         }
+    }
+
+    fn require_text<'a>(value: &'a Value<'a>) -> Result<&'a Text<'a>, ParseError> {
+        require(Self::to_text(value), || {
+            format!("Expecting to have a string; got {:?}", value)
+        })
     }
 
     fn to_u64(value: &Value) -> Option<u64> {
@@ -150,7 +157,7 @@ pub trait Converter {
     }
 
     fn require_no_name(value: &TextValue) -> Result<(), ParseError> {
-        if let Some(name) = value.name {
+        if let Some(name) = &value.name {
             Result::Err(ParseError::new(format!(
                 "The given value has a name (name \
                  is {:?}). This name is unused and must be removed. Value is {:?}.",
@@ -159,6 +166,20 @@ pub trait Converter {
         } else {
             Result::Ok(())
         }
+    }
+
+    fn to_seq<'a>(value : &'a Value<'a>) -> Option<&'a Seq<'a>> {
+        if let Value::Seq(value) = value {
+            Some(value)
+        } else {
+            None
+        }
+    }
+
+    fn require_seq<'a>(value : &'a Value<'a>) -> Result<&'a Seq<'a>, ParseError> {
+        require(Self::to_seq(value), || {
+            format!("Expecting to have a sequence (aka. list or vector). got {:?}", value)
+        })
     }
 }
 

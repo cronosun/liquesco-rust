@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
@@ -82,7 +81,7 @@ impl<'a> DeSerializer<'a> for SInt8 {
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
-        try_from_int_result(Self::Item::try_from(value))
+        Ok(Self::Item::try_from(value)?)
     }
 }
 
@@ -101,7 +100,7 @@ impl<'a> DeSerializer<'a> for SInt16 {
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
-        try_from_int_result(Self::Item::try_from(value))
+        Ok(Self::Item::try_from(value)?)
     }
 }
 
@@ -120,7 +119,7 @@ impl<'a> DeSerializer<'a> for SInt32 {
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let value = SInt64::de_serialize(reader)?;
-        try_from_int_result(Self::Item::try_from(value))
+        Ok(Self::Item::try_from(value)?)
     }
 }
 

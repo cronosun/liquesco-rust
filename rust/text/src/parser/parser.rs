@@ -1,24 +1,26 @@
-use crate::any_parser::parse_any;
-use crate::core::{Context, ParseError};
-use crate::value::{Converter, TextValue, Value};
+use crate::parser::any_parser::parse_any;
+use crate::parser::core::{Context, ParseError};
+use crate::parser::value::{Converter, TextValue, Value};
 use liquesco_core::schema::core::{Schema, TypeRef};
 use liquesco_core::serialization::vec_writer::VecWriter;
+use std::marker::PhantomData;
 
-pub struct ParserContext<'a, 'b, TSchema>
+pub(crate) struct ParserContext<'se, 's, 'v, TSchema>
 where
-    TSchema: Schema<'a>,
+    TSchema: Schema<'s>,
 {
-    value: &'b TextValue<'b>,
-    schema: &'a TSchema,
+    pub(crate) value: &'se TextValue<'v>,
+    pub(crate) schema: &'se TSchema,
+    pub(crate) _phantom : &'s PhantomData<()>
 }
 
 pub struct DefaultConverter;
 
 impl Converter for DefaultConverter {}
 
-impl<'a, 'b, STSchema> Context<'a> for ParserContext<'a, 'b, STSchema>
+impl<'se, 's, 'v, STSchema> Context<'s> for ParserContext<'se, 's, 'v, STSchema>
 where
-    STSchema: Schema<'a>,
+    STSchema: Schema<'s>,
 {
     type TConverter = DefaultConverter;
     type TSchema = STSchema;
@@ -48,6 +50,7 @@ where
         let context = ParserContext {
             value,
             schema: self.schema,
+            _phantom : &PhantomData
         };
 
         // TODO: Add position if position is missing

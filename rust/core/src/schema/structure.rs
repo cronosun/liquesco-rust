@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
@@ -47,7 +46,7 @@ impl<'a> Type<'a> for TStruct<'a> {
         C: Context<'c>,
     {
         let list = SeqHeader::de_serialize(context.reader())?;
-        let schema_number_of_fields = try_from_int_result(u32::try_from(self.0.len()))?;
+        let schema_number_of_fields = u32::try_from(self.0.len())?;
         let number_of_items = list.length();
         // length check
         if context.config().no_extension() {
@@ -67,7 +66,7 @@ impl<'a> Type<'a> for TStruct<'a> {
         }
         // validate each item
         let schema_number_of_fields_usize =
-            try_from_int_result(usize::try_from(schema_number_of_fields))?;
+            usize::try_from(schema_number_of_fields)?;
         for index in 0..schema_number_of_fields_usize {
             let field = &self.0[index];
             context.validate(field.r#type)?;

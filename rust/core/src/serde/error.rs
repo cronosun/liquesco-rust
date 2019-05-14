@@ -1,3 +1,4 @@
+use std::num::TryFromIntError;
 use std::fmt::Display;
 use serde::ser;
 use serde::de;
@@ -26,7 +27,13 @@ impl de::Error for SLqError {
 }
 
 impl std::error::Error for SLqError {
+}
 
+impl From<TryFromIntError> for SLqError {
+    fn from(value: TryFromIntError) -> Self {
+        let lq_error : LqError = value.into();
+        lq_error.into()
+    }
 }
 
 impl From<SLqError> for LqError {

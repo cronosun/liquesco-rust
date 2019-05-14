@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
@@ -59,7 +58,7 @@ impl<'a> Type<'a> for TEnum<'a> {
 
         let number_of_variants = self.0.len();
 
-        let usize_ordinal = try_from_int_result(usize::try_from(ordinal))?;
+        let usize_ordinal = usize::try_from(ordinal)?;
         if usize_ordinal >= number_of_variants {
             return LqError::err_new(format!(
                 "Got ordinal value {:?} for enum. \
@@ -70,7 +69,7 @@ impl<'a> Type<'a> for TEnum<'a> {
         }
         let variant = &self.0[usize_ordinal];
 
-        let usize_number_of_values = try_from_int_result(usize::try_from(number_of_values))?;
+        let usize_number_of_values = usize::try_from(number_of_values)?;
         let schema_number_of_values = variant.values.len();
         if context.config().no_extension() && (schema_number_of_values != usize_number_of_values) {
             return LqError::err_new(format!(
@@ -125,7 +124,7 @@ impl<'a> Type<'a> for TEnum<'a> {
             // values in the schema) into a a sequence with a unique constraint.
 
             let ordinal = header1.ordinal();
-            let usize_ordinal = try_from_int_result(usize::try_from(ordinal))?;
+            let usize_ordinal = usize::try_from(ordinal)?;
             let number_of_variants = self.0.len();
             if usize_ordinal >= number_of_variants {
                 return LqError::err_new(format!(

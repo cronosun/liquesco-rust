@@ -1,5 +1,4 @@
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::common::ine_range::U64IneRange;
 use crate::common::ine_range::U8IneRange;
 use crate::schema::core::Context;
@@ -54,7 +53,7 @@ impl<'a> Type<'a> for TAscii {
 
         // first check length (that's faster)
         let length = bytes.len();
-        let length_u64 = try_from_int_result(u64::try_from(length))?;
+        let length_u64 = u64::try_from(length)?;
         self.length.require_within(
             "Ascii schema validation (length; bytes; \
              number of characters)",

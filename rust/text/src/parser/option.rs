@@ -1,10 +1,10 @@
 use liquesco_core::schema::option::TOption;
 use liquesco_core::serialization::option::Presence;
 use liquesco_core::serialization::core::Serializer;
-use crate::core::Context;
-use crate::core::ParseError;
-use crate::core::Parser;
-use crate::value::Converter;
+use crate::parser::core::Context;
+use crate::parser::core::ParseError;
+use crate::parser::core::Parser;
+use crate::parser::value::Converter;
 
 pub struct POption;
 

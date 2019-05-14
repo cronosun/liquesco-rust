@@ -1,6 +1,5 @@
 use crate::serialization::float::Float;
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::DeSerializer;
@@ -151,7 +150,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 if length == 0 {
                     Value::List(ValueList::Empty)
                 } else {
-                    let usize_length = try_from_int_result(usize::try_from(length))?;
+                    let usize_length = usize::try_from(length)?;
                     let mut vec = Vec::with_capacity(usize_length);
                     for _ in 0..length {
                         vec.push(Value::de_serialize(reader)?);
@@ -173,7 +172,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 if number_of_values > 0 {
                     // de-serialize data
                     let usize_number_of_values =
-                        try_from_int_result(usize::try_from(number_of_values))?;
+                        usize::try_from(number_of_values)?;
                     let mut values = Vec::with_capacity(usize_number_of_values);
                     for _ in 0..number_of_values {
                         values.push(Value::de_serialize(reader)?);
@@ -224,7 +223,7 @@ impl<'a> Serializer for Value<'a> {
             },
             Value::List(value) => {
                 let len = value.len();
-                let u32_len = try_from_int_result(u32::try_from(len))?;
+                let u32_len = u32::try_from(len)?;
                 let list_data = SeqHeader::new(u32_len);
                 SeqHeader::serialize(writer, &list_data)?;
                 for item in value.deref() {
@@ -236,7 +235,7 @@ impl<'a> Serializer for Value<'a> {
             Value::Unicode(value) => Unicode::serialize(writer, value),
             Value::Enum(value) => {
                 let number_of_items = (&(value.values)).len();
-                let u32_number_of_items = try_from_int_result(u32::try_from(number_of_items))?;
+                let u32_number_of_items = u32::try_from(number_of_items)?;
                 let enum_header = EnumHeader::new(value.ordinal(), u32_number_of_items);
                 EnumHeader::serialize(writer, &enum_header)?;
 

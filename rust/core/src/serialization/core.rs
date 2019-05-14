@@ -3,7 +3,6 @@ use enum_repr::EnumRepr;
 use varuint::*;
 
 use crate::common::error::LqError;
-use crate::common::internal_utils::io_result;
 
 /// The major type can be within 0-24 (inclusive).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
@@ -72,47 +71,47 @@ pub trait LqWriter: std::io::Write + Sized {
     fn write_slice(&mut self, buf: &[u8]) -> Result<(), LqError>;
 
     fn write_varint_u64(&mut self, value: u64) -> Result<(), LqError> {
-        io_result(WriteVarint::<u64>::write_varint(self, value).map(|_| {}))
+        Ok(WriteVarint::<u64>::write_varint(self, value).map(|_| {})?)
     }
 
     fn write_varint_u32(&mut self, value: u32) -> Result<(), LqError> {
-        io_result(WriteVarint::<u32>::write_varint(self, value).map(|_| {}))
+        Ok(WriteVarint::<u32>::write_varint(self, value).map(|_| {})?)
     }
 
     fn write_u16(&mut self, data: u16) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_u16::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_u16::<LittleEndian>(self, data)?)
     }
 
     fn write_u32(&mut self, data: u32) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_u32::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_u32::<LittleEndian>(self, data)?)
     }
 
     fn write_u64(&mut self, data: u64) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_u64::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_u64::<LittleEndian>(self, data)?)
     }
 
     fn write_i8(&mut self, data: i8) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_i8(self, data))
+        Ok(WriteBytesExt::write_i8(self, data)?)
     }
 
     fn write_i16(&mut self, data: i16) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_i16::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_i16::<LittleEndian>(self, data)?)
     }
 
     fn write_i32(&mut self, data: i32) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_i32::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_i32::<LittleEndian>(self, data)?)
     }
 
     fn write_i64(&mut self, data: i64) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_i64::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_i64::<LittleEndian>(self, data)?)
     }
 
     fn write_f32(&mut self, data: f32) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_f32::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_f32::<LittleEndian>(self, data)?)
     }
 
     fn write_f64(&mut self, data: f64) -> Result<(), LqError> {
-        io_result(WriteBytesExt::write_f64::<LittleEndian>(self, data))
+        Ok(WriteBytesExt::write_f64::<LittleEndian>(self, data)?)
     }
 
     fn write_header(&mut self, header: TypeHeader) -> Result<(), LqError> {
@@ -181,23 +180,23 @@ pub trait LqReader<'a>: std::io::Read {
     }
 
     fn read_varint_u32(&mut self) -> Result<u32, LqError> {
-        io_result(ReadVarint::<u32>::read_varint(self))
+        Ok(ReadVarint::<u32>::read_varint(self)?)
     }
 
     fn read_varint_u64(&mut self) -> Result<u64, LqError> {
-        io_result(ReadVarint::<u64>::read_varint(self))
+        Ok(ReadVarint::<u64>::read_varint(self)?)
     }
 
     fn read_u16(&mut self) -> Result<u16, LqError> {
-        io_result(ReadBytesExt::read_u16::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_u16::<LittleEndian>(self)?)
     }
 
     fn read_u32(&mut self) -> Result<u32, LqError> {
-        io_result(ReadBytesExt::read_u32::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_u32::<LittleEndian>(self)?)
     }
 
     fn read_u64(&mut self) -> Result<u64, LqError> {
-        io_result(ReadBytesExt::read_u64::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_u64::<LittleEndian>(self)?)
     }
 
     fn read_type_header(&mut self) -> Result<TypeHeader, LqError> {
@@ -206,27 +205,27 @@ pub trait LqReader<'a>: std::io::Read {
     }
 
     fn read_i8(&mut self) -> Result<i8, LqError> {
-        io_result(ReadBytesExt::read_i8(self))
+        Ok(ReadBytesExt::read_i8(self)?)
     }
 
     fn read_i16(&mut self) -> Result<i16, LqError> {
-        io_result(ReadBytesExt::read_i16::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_i16::<LittleEndian>(self)?)
     }
 
     fn read_i32(&mut self) -> Result<i32, LqError> {
-        io_result(ReadBytesExt::read_i32::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_i32::<LittleEndian>(self)?)
     }
 
     fn read_i64(&mut self) -> Result<i64, LqError> {
-        io_result(ReadBytesExt::read_i64::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_i64::<LittleEndian>(self)?)
     }
 
     fn read_f32(&mut self) -> Result<f32, LqError> {
-        io_result(ReadBytesExt::read_f32::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_f32::<LittleEndian>(self)?)
     }
 
     fn read_f64(&mut self) -> Result<f64, LqError> {
-        io_result(ReadBytesExt::read_f64::<LittleEndian>(self))
+        Ok(ReadBytesExt::read_f64::<LittleEndian>(self)?)
     }
 
     fn read_expect_content_description(

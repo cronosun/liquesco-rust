@@ -1,7 +1,6 @@
 use crate::serialization::major_types::TYPE_SEQ;
 
 use crate::common::error::LqError;
-use crate::common::internal_utils::try_from_int_result;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
@@ -64,7 +63,7 @@ pub struct SeqRead {
 impl SeqRead {
     pub fn finish<'a, R: LqReader<'a>>(self, reader: &mut R) -> Result<(), LqError> {
         let fields_to_skip = self.actual_number_of_items - self.wanted_number_of_items;
-        reader.skip_n_values(try_from_int_result(usize::try_from(fields_to_skip))?)        
+        reader.skip_n_values(usize::try_from(fields_to_skip)?)        
     }
 }
 

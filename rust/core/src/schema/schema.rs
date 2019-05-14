@@ -19,6 +19,10 @@ impl<'a, C: TypeContainer<'a>> Schema<'a> for DefaultSchema<'a, C> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
         self.validate_internal(config, reader)
     }
+
+    fn main_type(&self) -> TypeRef {
+        self.main_reference
+    }
 }
 
 impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {

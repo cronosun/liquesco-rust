@@ -1,13 +1,14 @@
+use std::cmp::Ordering;
 use std::fmt::Debug;
+
 use crate::common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
-use std::cmp::Ordering;
 
-pub trait Type<'a> : Debug {
+pub trait Type<'a>: Debug {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-    where
-        C: Context<'c>;
+        where
+            C: Context<'c>;
 
     /// Compares r1 to r2. It's expected that you call this function only
     /// on data that has been validated successfully (if you call this on
@@ -27,8 +28,8 @@ pub trait Type<'a> : Debug {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-    where
-        C: Context<'c>;
+        where
+            C: Context<'c>;
 }
 
 pub trait Context<'a> {
@@ -75,15 +76,15 @@ impl Config {
 
 /// References a single type within a schema.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
-pub struct TypeRef(pub(crate) usize);
+pub struct TypeRef(pub usize);
 
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
-
     /// Returns a `Type` if contained within this container.
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
 }
 
-pub trait Schema<'a> : TypeContainer<'a> {
+pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
+    fn main_type(&self) -> TypeRef;
 }
