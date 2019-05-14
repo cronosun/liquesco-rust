@@ -1,0 +1,10 @@
+- the_empty_variant
+- the_empty_variant
+- - normal_variant
+  - This is some text
+- - two_value_variant
+  - First value
+  - 345
+- the_empty_variant
+- - normal_variant
+  - First and only value

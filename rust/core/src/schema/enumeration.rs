@@ -45,6 +45,18 @@ impl<'a> TEnum<'a> {
     pub fn add(&mut self, variant: Variant<'a>) {
         self.0.push(variant)
     }
+
+    pub fn variant_by_id<'b>(&self, id: &Identifier<'b>) -> Option<(u32, &Variant<'a>)> {
+        // maybe better use a map for the variants?
+        let mut ordinal: u32 = 0;
+        for variant in &self.0 {
+            if variant.identifier.is_equal(id) {
+                return Option::Some((ordinal, variant));
+            }
+            ordinal = ordinal + 1;
+        }
+        Option::None
+    }
 }
 
 impl<'a> Type<'a> for TEnum<'a> {
@@ -180,11 +192,7 @@ pub struct Builder<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn variant<I: Into<Identifier<'a>>>(
-        mut self,
-        identifier: I,
-        r#type: TypeRef,
-    ) -> Self {
+    pub fn variant<I: Into<Identifier<'a>>>(mut self, identifier: I, r#type: TypeRef) -> Self {
         let mut values = Values::with_capacity(1);
         values.push(r#type);
 
@@ -197,6 +205,14 @@ impl<'a> Builder<'a> {
 
     pub fn empty_variant<I: Into<Identifier<'a>>>(mut self, identifier: I) -> Self {
         let values = Values::with_capacity(0);
+        self.variants.push(Variant {
+            identifier: identifier.into(),
+            values,
+        });
+        self
+    }
+
+    pub fn multi_variant<I: Into<Identifier<'a>>>(mut self, identifier: I, values: Values) -> Self {
         self.variants.push(Variant {
             identifier: identifier.into(),
             values,

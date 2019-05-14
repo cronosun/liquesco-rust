@@ -20,7 +20,7 @@ pub trait Converter {
         }
     }
 
-    fn string_to_identifier(value : &str, _ : IdentifierType) -> Result<Identifier, ParseError> {
+    fn string_to_identifier<'a>(value : &'a str, _ : IdentifierType) -> Result<Identifier<'a>, ParseError> {
        Ok(Identifier::try_from(value)?)
     }
 

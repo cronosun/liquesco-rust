@@ -27,7 +27,6 @@ impl<'a> Deref for Identifier<'a> {
         self.0.as_slice()
     }
 }
-
 impl<'a> Deref for Segment<'a> {
     type Target = str;
 
@@ -52,6 +51,20 @@ impl<'a> Identifier<'a> {
                 })
                 .collect::<Vec<&str>>()
                 .join("_"),
+        }
+    }
+
+    pub fn is_equal<'b>(&self, other : &Identifier<'b>) -> bool {
+        let len = self.0.len();
+        if len == other.0.len() {
+            for index in 0..len {
+                if !self.0[index].is_equal(&other.0[index]) {
+                    return false;
+                }
+            }
+            true
+        } else {
+            false
         }
     }
 }
@@ -111,6 +124,10 @@ impl<'a> Segment<'a> {
             }
         }
         Result::Ok(())
+    }
+
+    pub fn is_equal<'b>(&self, other : &Segment<'b>) -> bool {
+        self.0 == other.0
     }
 }
 
