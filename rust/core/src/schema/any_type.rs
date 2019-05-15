@@ -1,10 +1,9 @@
-use std::cmp::Ordering;
 use crate::common::error::LqError;
-use crate::schema::core::Context;
-use crate::schema::core::Type;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
+use crate::schema::core::Context;
+use crate::schema::core::Type;
 use crate::schema::enumeration::TEnum;
 use crate::schema::float::TFloat32;
 use crate::schema::float::TFloat64;
@@ -14,6 +13,8 @@ use crate::schema::seq::TSeq;
 use crate::schema::sint::TSInt;
 use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
+use crate::schema::unicode::TUnicode;
+use std::cmp::Ordering;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 #[derive(Clone, FromVariants, Debug)]
@@ -30,6 +31,7 @@ pub enum AnyType<'a> {
     Float32(TFloat32),
     Float64(TFloat64),
     Option(TOption),
+    Unicode(TUnicode),
 }
 
 impl<'a> Type<'a> for AnyType<'a> {
@@ -51,6 +53,7 @@ impl<'a> Type<'a> for AnyType<'a> {
             AnyType::Float32(value) => value.validate(context),
             AnyType::Float64(value) => value.validate(context),
             AnyType::Option(value) => value.validate(context),
+            AnyType::Unicode(value) => value.validate(context),
         }
     }
 
@@ -77,6 +80,7 @@ impl<'a> Type<'a> for AnyType<'a> {
             AnyType::Float32(value) => value.compare(context, r1, r2),
             AnyType::Float64(value) => value.compare(context, r1, r2),
             AnyType::Option(value) => value.compare(context, r1, r2),
+            AnyType::Unicode(value) => value.compare(context, r1, r2),
         }
     }
 }

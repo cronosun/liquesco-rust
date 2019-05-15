@@ -14,3 +14,4 @@ pub mod reference;
 pub mod seq;
 pub mod float;
 pub mod option;
+pub mod unicode;

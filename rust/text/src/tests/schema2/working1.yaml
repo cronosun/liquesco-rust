@@ -11,3 +11,8 @@
   last_name: "Can also be null"
   year_born: 1976
   email: null
+
+- first_name: Jøhn
+  last_name: Æegson
+  year_born: 1964
+  email: j.a@gmail.com

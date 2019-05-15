@@ -4,7 +4,7 @@
   - This is some text
 - - two_value_variant
   - First value
-  - 345
+  - -10
 - the_empty_variant
 - - normal_variant
   - First and only value

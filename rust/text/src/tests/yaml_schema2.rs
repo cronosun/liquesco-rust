@@ -2,6 +2,8 @@ use crate::tests::id;
 use crate::tests::builder::builder;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::ascii::TAscii;
+use liquesco_core::schema::unicode::TUnicode;
+use liquesco_core::schema::unicode::LengthType;
 use liquesco_core::schema::uint::TUInt;
 use liquesco_core::schema::seq::TSeq;
 use liquesco_core::schema::structure::TStruct;
@@ -14,8 +16,8 @@ fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
     
     // a structure: a person
-    let field_first_name = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap())); // TODO: Change to unicode type
-    let field_last_name = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap())); // TODO: Change to unicode type
+    let field_first_name = builder.add(AnyType::Unicode(TUnicode::try_new(1, 100, LengthType::Byte).unwrap()));
+    let field_last_name = builder.add(AnyType::Unicode(TUnicode::try_new(1, 100, LengthType::Byte).unwrap()));
     let field_year_born = builder.add(AnyType::UInt(TUInt::try_new(1000, 3000).unwrap()));
     let email = builder.add(AnyType::Ascii(TAscii::try_new(1, 100, 0, 127).unwrap())); 
     let field_email = builder.add(AnyType::Option(TOption::new(email)));

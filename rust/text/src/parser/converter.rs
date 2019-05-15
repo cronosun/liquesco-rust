@@ -1,8 +1,8 @@
-use crate::parser::value::Seq;
-use crate::parser::value::TextValue;
-use crate::parser::value::Text;
-use crate::parser::value::Value;
 use crate::parser::core::ParseError;
+use crate::parser::value::Seq;
+use crate::parser::value::Text;
+use crate::parser::value::TextValue;
+use crate::parser::value::Value;
 use liquesco_core::schema::identifier::Format;
 use liquesco_core::schema::identifier::Identifier;
 use std::collections::HashMap;
@@ -16,12 +16,15 @@ pub trait Converter {
     fn identifier_to_string(identifier: &Identifier, what_for: IdentifierType) -> String {
         match what_for {
             IdentifierType::StructField => identifier.to_string(Format::SnakeCase),
-            IdentifierType::EnumIdentifier =>  identifier.to_string(Format::SnakeCase),
+            IdentifierType::EnumIdentifier => identifier.to_string(Format::SnakeCase),
         }
     }
 
-    fn string_to_identifier<'a>(value : &'a str, _ : IdentifierType) -> Result<Identifier<'a>, ParseError> {
-       Ok(Identifier::try_from(value)?)
+    fn string_to_identifier<'a>(
+        value: &'a str,
+        _: IdentifierType,
+    ) -> Result<Identifier<'a>, ParseError> {
+        Ok(Identifier::try_from(value)?)
     }
 
     fn to_text<'a>(value: &'a Value<'a>) -> Option<&'a Text<'a>> {
@@ -48,16 +51,58 @@ pub trait Converter {
                     Option::None
                 }
             }
-            Value::F64(value) => {
-                let s_value = *value;
-                if s_value.is_sign_positive() && s_value.trunc() == s_value {
-                    Option::Some(s_value as u64)
-                } else {
-                    Option::None
+            // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
+            Value::Text(text) => text.parse::<u64>().ok(),
+            _ => Option::None,
+        }
+    }
+
+    fn require_u64(value: &Value) -> Result<u64, ParseError> {
+        require(Self::to_u64(value), || {
+            format!("Expecting an unsiged integer, got {:?}", value)
+        })
+    }
+
+    fn to_bool(value: &Value) -> Option<bool> {
+        match value {
+            Value::Bool(value) => Option::Some(*value),
+            Value::Text(value) => {
+                let value_str: &str = &value;
+                match value_str {
+                    "true" => Some(true),
+                    "false" => Some(false),
+                    _ => None,
                 }
             }
             _ => Option::None,
         }
+    }
+
+    fn require_bool(value: &Value) -> Result<bool, ParseError> {
+        require(Self::to_bool(value), || {
+            format!("Expecting a boolean, got {:?}", value)
+        })
+    }
+
+    fn to_i64(value: &Value) -> Option<i64> {
+        match value {
+            Value::I64(value) => Option::Some(*value),
+            Value::U64(value) => {
+                if value < &(std::i64::MAX as u64) {
+                    Some(*value as i64)
+                } else {
+                    Option::None
+                }
+            }
+            Value::Text(text) => text.parse::<i64>().ok(),
+            _ => Option::None,
+        }
+    }
+
+    fn require_i64(value: &Value) -> Result<i64, ParseError> {
+        require(Self::to_i64(value), || {
+            format!("Expecting a signed integer, got {:?}", value)
+        })
     }
 
     fn to_string_map<'a>(value: &'a Value<'a>) -> Option<HashMap<&'a str, &'a TextValue<'a>>> {
@@ -90,12 +135,6 @@ pub trait Converter {
         require(Self::to_string_map(value), || {
             format!("Expecting to have a map with text keys (or a sequence with 0-n entries where each entry in \
             turn is a sequence with 2 elements where the first of those 2 elements is a text), got {:?}", value)
-        })
-    }
-
-    fn require_u64(value: &Value) -> Result<u64, ParseError> {
-        require(Self::to_u64(value), || {
-            format!("Expecting an unsiged integer, got {:?}", value)
         })
     }
 

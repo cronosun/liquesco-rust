@@ -12,3 +12,4 @@ pub mod anchors_complex;
 pub mod seq;
 pub mod float;
 pub mod option;
+pub mod unicode;

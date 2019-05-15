@@ -7,7 +7,7 @@ use liquesco_core::schema::ascii::TAscii;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::enumeration::TEnum;
 use liquesco_core::schema::seq::TSeq;
-use liquesco_core::schema::uint::TUInt;
+use liquesco_core::schema::sint::TSInt;
 
 /// Creates an enum
 fn create_schema() -> impl Schema<'static> {
@@ -15,7 +15,7 @@ fn create_schema() -> impl Schema<'static> {
 
     let variant1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
     let variant2_1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
-    let variant2_2 = builder.add(AnyType::UInt(TUInt::try_new(0, 3000).unwrap()));
+    let variant2_2 = builder.add(AnyType::SInt(TSInt::try_new(-10, 3000).unwrap()));
 
     let enum_value = TEnum::builder()
         .empty_variant(id("the_empty_variant"))
