@@ -1,12 +1,12 @@
-use crate::common::range::Range;
 use crate::common::error::LqError;
+use crate::common::range::LqRangeBounds;
+use crate::common::range::Range;
 use crate::schema::core::{Context, Type};
 use crate::serialization::core::DeSerializer;
 use crate::serialization::float::Float32;
 use crate::serialization::float::Float64;
 use std::cmp::Ordering;
 use std::fmt::Debug;
-use crate::common::range::LqRangeBounds;
 
 pub type TFloat32 = TFloat<f32>;
 pub type TFloat64 = TFloat<f64>;
@@ -30,6 +30,13 @@ pub struct TFloat<F: PartialOrd + Debug> {
 }
 
 impl<F: PartialOrd + Debug> TFloat<F> {
+
+    /// creates a new float; range inclusive; nan and infinity not allowed.
+    pub fn try_new(min : F, max : F) -> Result<Self, LqError> {
+        let range = Range::<F>::try_inclusive(min, max)?;
+        Ok(Self::new(range))
+    }
+
     fn validate(
         &self,
         value: F,
@@ -136,7 +143,8 @@ impl Type<'static> for TFloat64 {
     }
 }
 
-/// Unfortunately we MUST have ord for the floats (need something to make sure there is unique ordering in lists)
+/// Unfortunately we MUST have ord for the floats (need something to make sure there is
+/// unique ordering in lists)
 ///
 /// Rules:
 /// NaN = NaN

@@ -32,6 +32,9 @@ fn deserialize_single(yaml: Yaml) -> Result<TextValue<'static>, ParseError> {
             Yaml::Integer(integer) => {
                 Value::I64(integer).into()
             },
+            Yaml::Real(real) => {
+                Value::Text(Cow::Owned(real))
+            }
             _ => {
                 return Result::Err(ParseError::new(format!(
                     "Unable to parse yaml, \

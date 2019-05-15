@@ -1,6 +1,6 @@
 use std::borrow::Cow;
-use std::fmt::Display;
 use std::error::Error;
+use std::fmt::Display;
 use std::num::TryFromIntError;
 
 #[derive(Debug, Clone, PartialEq, Eq)]
@@ -39,15 +39,16 @@ impl From<TryFromIntError> for LqError {
     fn from(value: TryFromIntError) -> Self {
         LqError::new(format!(
             "The given integers could not be converted (casted); this \
-    can either happen on platforms with small usize (in general this library only works with things as \
-    big as this platform supports) - or there's a serialization problem; error: {:?}",
+             can either happen on platforms with small usize (in general this library only works \
+             with things as big as this platform supports) - or there's a serialization \
+             problem; error: {:?}",
             value
         ))
     }
 }
 
 impl From<std::io::Error> for LqError {
-    fn from(value : std::io::Error) -> Self {
+    fn from(value: std::io::Error) -> Self {
         LqError::new(format!("Got an I/O error: {:?}", value))
     }
 }

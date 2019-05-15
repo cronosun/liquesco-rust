@@ -14,3 +14,4 @@ pub mod ascii;
 pub mod enumeration;
 pub mod boolean;
 pub mod unicode;
+pub mod float;

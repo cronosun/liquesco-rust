@@ -105,6 +105,52 @@ pub trait Converter {
         })
     }
 
+    fn to_f64(value: &Value) -> Option<f64> {
+        match value {
+            Value::F64(value) => Option::Some(*value),
+            Value::Text(value) => value.parse::<f64>().ok(),
+            _ => None,
+        }
+    }
+
+    fn require_f64(value: &Value) -> Result<f64, ParseError> {
+        require(Self::to_f64(value), || {
+            format!(
+                "Expecting a float 64 (if this is an integer, try adding .0; e.g. 12 \
+                 -> 12.0), got {:?}",
+                value
+            )
+        })
+    }
+
+    fn to_f32(value: &Value) -> Option<f32> {
+        match value {
+            Value::F64(value) => {
+                // accept when no precision is lost
+                let f32_value = *value as f32;
+                let f64_value = f32_value as f64;
+                if value == &f64_value {
+                    Some(f32_value)
+                } else {
+                    None
+                }
+            }
+            Value::Text(value) => value.parse::<f32>().ok(),
+            _ => None,
+        }
+    }
+
+    fn require_f32(value: &Value) -> Result<f32, ParseError> {
+        require(Self::to_f32(value), || {
+            format!(
+                "Expecting a float 32 (if this is an integer, try adding .0; e.g. 12 \
+                 -> 12.0; of it looks like a float, make sure it can be represented as 32 bit \
+                 float value without loosing precision), got {:?}",
+                value
+            )
+        })
+    }
+
     fn to_string_map<'a>(value: &'a Value<'a>) -> Option<HashMap<&'a str, &'a TextValue<'a>>> {
         if let Value::Seq(seq) = value {
             let mut result: HashMap<&'a str, &'a TextValue<'a>> = HashMap::with_capacity(seq.len());

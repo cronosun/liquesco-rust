@@ -10,6 +10,8 @@ use crate::parser::sint::PSInt;
 use crate::parser::structure::PStruct;
 use crate::parser::uint::PUInt;
 use crate::parser::unicode::PUnicode;
+use crate::parser::float::PFloat32;
+use crate::parser::float::PFloat64;
 use liquesco_core::schema::any_type::AnyType;
 
 pub(crate) fn parse_any<'c, C>(
@@ -30,6 +32,8 @@ where
         AnyType::Enum(value) => PEnum::parse(context, writer, value),
         AnyType::Bool(value) => PBool::parse(context, writer, value),
         AnyType::Unicode(value) => PUnicode::parse(context, writer, value),
+        AnyType::Float32(value) => PFloat32::parse(context, writer, value),
+        AnyType::Float64(value) => PFloat64::parse(context, writer, value),
         _ => Result::Err(ParseError::new(format!(
             "No parser for type {:?} implemented",
             any_type

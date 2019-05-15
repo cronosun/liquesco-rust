@@ -1,0 +1,6 @@
+- my_float_32: 1.0
+  my_float_64: 1.10
+
+# Cannot store this value (will be positive infinity)
+- my_float_32: 223232229987892346753234593445653422234567456594534852893.0
+  my_float_64: "1.10"

@@ -110,7 +110,8 @@ impl<'a> Type<'static> for TAnchors {
     where
         C: Context<'c>,
     {
-        // Compare is identical to the one in "seq" (except that the first element can have a different type)
+        // Compare is identical to the one in "seq" (except that the first element can
+        // have a different type)
         seq_compare(
             |index| {
                 if index == 0 {
