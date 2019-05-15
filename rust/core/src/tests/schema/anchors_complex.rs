@@ -1,6 +1,6 @@
-use crate::schema::core::Schema;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
+use crate::schema::core::Schema;
 use crate::schema::reference::TReference;
 use crate::schema::seq::TSeq;
 use crate::schema::structure::TStruct;
@@ -20,18 +20,20 @@ fn can_reference_multiple() {
                 text: "hello master!".to_string(),
                 children: vec![1, 2, 3],
             },
-            Complex {
-                text: "index 1".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 2".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 3".to_string(),
-                children: vec![],
-            },
+            vec![
+                Complex {
+                    text: "index 1".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 2".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 3".to_string(),
+                    children: vec![],
+                },
+            ],
         ),
         &schema,
     );
@@ -47,18 +49,20 @@ fn can_reference_multiple_overflow() {
                 // note: index 4 does not exist
                 children: vec![1, 2, 3, 4],
             },
-            Complex {
-                text: "index 1".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 2".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 3".to_string(),
-                children: vec![],
-            },
+            vec![
+                Complex {
+                    text: "index 1".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 2".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 3".to_string(),
+                    children: vec![],
+                },
+            ],
         ),
         &schema,
     );
@@ -73,23 +77,25 @@ fn unused_item() {
                 text: "hello master!".to_string(),
                 children: vec![1, 2, 3],
             },
-            Complex {
-                text: "index 1".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 2".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 3".to_string(),
-                children: vec![],
-            },
-            // this is not referenced
-            Complex {
-                text: "index 4".to_string(),
-                children: vec![],
-            },
+            vec![
+                Complex {
+                    text: "index 1".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 2".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 3".to_string(),
+                    children: vec![],
+                },
+                // this is not referenced
+                Complex {
+                    text: "index 4".to_string(),
+                    children: vec![],
+                },
+            ],
         ),
         &schema,
     );
@@ -104,23 +110,25 @@ fn five_anchors() {
                 text: "hello master!".to_string(),
                 children: vec![1, 2, 3],
             },
-            Complex {
-                text: "index 1".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 2".to_string(),
-                children: vec![],
-            },
-            Complex {
-                text: "index 3".to_string(),
-                children: vec![4],
-            },
-            // referenced by 3, references 0 again.
-            Complex {
-                text: "index 4".to_string(),
-                children: vec![0],
-            },
+            vec![
+                Complex {
+                    text: "index 1".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 2".to_string(),
+                    children: vec![],
+                },
+                Complex {
+                    text: "index 3".to_string(),
+                    children: vec![4],
+                },
+                // referenced by 3, references 0 again.
+                Complex {
+                    text: "index 4".to_string(),
+                    children: vec![0],
+                },
+            ],
         ),
         &schema,
     );
@@ -135,22 +143,24 @@ fn can_back_reference() {
                 text: "hello master!".to_string(),
                 children: vec![1, 2, 3],
             },
-            Complex {
-                text: "index 1".to_string(),
-                children: vec![3, 2, 1],
-            },
-            Complex {
-                text: "index 2".to_string(),
-                children: vec![2, 3, 1],
-            },
-            Complex {
-                text: "index 3".to_string(),
-                children: vec![4, 1, 3, 2],
-            },
-            Complex {
-                text: "index 4".to_string(),
-                children: vec![0, 1, 2, 3, 4],
-            },
+            vec![
+                Complex {
+                    text: "index 1".to_string(),
+                    children: vec![3, 2, 1],
+                },
+                Complex {
+                    text: "index 2".to_string(),
+                    children: vec![2, 3, 1],
+                },
+                Complex {
+                    text: "index 3".to_string(),
+                    children: vec![4, 1, 3, 2],
+                },
+                Complex {
+                    text: "index 4".to_string(),
+                    children: vec![0, 1, 2, 3, 4],
+                },
+            ],
         ),
         &schema,
     );

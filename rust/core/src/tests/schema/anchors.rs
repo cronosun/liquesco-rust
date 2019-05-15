@@ -1,7 +1,7 @@
-use crate::schema::core::Schema;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
+use crate::schema::core::Schema;
 use crate::schema::reference::TReference;
 use crate::schema::structure::TStruct;
 use crate::tests::schema::builder::builder;
@@ -12,37 +12,43 @@ use crate::tests::schema::utils::id;
 use serde::{Deserialize, Serialize};
 
 #[test]
-fn need_at_least_the_master() {
+fn container_has_to_have_two_elements() {
     let schema = create_schema1();
     assert_invalid_strict((), &schema);
 }
 
+/// No need to have anchors at all
 #[test]
 fn master_alone_is_sufficient() {
     let schema = create_schema1();
     assert_valid_strict(
-        vec![Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 0, // references myself
-            i_am_great: true,
-        }],
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 0, // references myself
+                i_am_great: true,
+            },
+            Vec::<Schema1>::new(),
+        ),
         &schema,
     );
 }
 
 #[test]
-fn with_two_anchors_v2() {
+fn with_one_anchor() {
     let schema = create_schema1();
     assert_valid_strict(
-        (Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 1, // references first slave
-            i_am_great: true,
-        },
-        Schema1 {
-            name : "frist slave".to_string(),
-            next_ref : 0 // references master
-        }),
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 1, // references first slave
+                i_am_great: true,
+            },
+            vec![Schema1 {
+                name: "frist slave".to_string(),
+                next_ref: 0, // references master
+            }],
+        ),
         &schema,
     );
 }
@@ -54,15 +60,17 @@ fn with_two_anchors_v2() {
 fn unused_anchor() {
     let schema = create_schema1();
     assert_invalid_strict(
-        (Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 0, // references myself
-            i_am_great: true,
-        },
-        Schema1 {
-            name : "frist slave".to_string(),
-            next_ref : 1 // references myself
-        }),
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 0, // references myself
+                i_am_great: true,
+            },
+            vec![Schema1 {
+                name: "frist slave".to_string(),
+                next_ref: 1, // references myself
+            }],
+        ),
         &schema,
     );
 }
@@ -71,24 +79,28 @@ fn unused_anchor() {
 fn unused_anchor_v2() {
     let schema = create_schema1();
     assert_invalid_strict(
-        (Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 1, 
-            i_am_great: true,
-        },
-        Schema1 {
-            name : "index 1".to_string(),
-            next_ref : 2 
-        },
-        Schema1 {
-            name : "index 2".to_string(),
-            next_ref : 2 
-        },
-        // unused: not allowed
-        Schema1 {
-            name : "index 3".to_string(),
-            next_ref : 1 
-        }),
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 1,
+                i_am_great: true,
+            },
+            vec![
+                Schema1 {
+                    name: "index 1".to_string(),
+                    next_ref: 2,
+                },
+                Schema1 {
+                    name: "index 2".to_string(),
+                    next_ref: 2,
+                },
+                // unused: not allowed
+                Schema1 {
+                    name: "index 3".to_string(),
+                    next_ref: 1,
+                },
+            ],
+        ),
         &schema,
     );
 }
@@ -97,23 +109,27 @@ fn unused_anchor_v2() {
 fn with_4_anchors() {
     let schema = create_schema1();
     assert_valid_strict(
-        (Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 1,
-            i_am_great: true,
-        },
-        Schema1 {
-            name : "index 1".to_string(),
-            next_ref : 2 
-        },
-        Schema1 {
-            name : "index 2".to_string(),
-            next_ref : 3 
-        },
-        Schema1 {
-            name : "index 3".to_string(),
-            next_ref : 1 // and back to 1 
-        }),
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 1,
+                i_am_great: true,
+            },
+            vec![
+                Schema1 {
+                    name: "index 1".to_string(),
+                    next_ref: 2,
+                },
+                Schema1 {
+                    name: "index 2".to_string(),
+                    next_ref: 3,
+                },
+                Schema1 {
+                    name: "index 3".to_string(),
+                    next_ref: 1, // and back to 1
+                },
+            ],
+        ),
         &schema,
     );
 }
@@ -122,24 +138,28 @@ fn with_4_anchors() {
 fn wrong_ordering() {
     let schema = create_schema1();
     assert_invalid_strict(
-        (Schema1Master {
-            name: "hello master!".to_string(),
-            next_ref: 1, 
-            i_am_great: true,
-        },
-        // references index 3 (skips index 2)
-        Schema1 {
-            name : "index 1".to_string(),
-            next_ref : 3 
-        },
-        Schema1 {
-            name : "index 2".to_string(),
-            next_ref : 2 
-        },        
-        Schema1 {
-            name : "index 3".to_string(),
-            next_ref : 2 
-        }),
+        (
+            Schema1Master {
+                name: "hello master!".to_string(),
+                next_ref: 1,
+                i_am_great: true,
+            },
+            vec![
+                // references index 3 (skips index 2)
+                Schema1 {
+                    name: "index 1".to_string(),
+                    next_ref: 3,
+                },
+                Schema1 {
+                    name: "index 2".to_string(),
+                    next_ref: 2,
+                },
+                Schema1 {
+                    name: "index 3".to_string(),
+                    next_ref: 2,
+                },
+            ],
+        ),
         &schema,
     );
 }

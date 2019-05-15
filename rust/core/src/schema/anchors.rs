@@ -25,28 +25,14 @@ impl<'a> Type<'static> for TAnchors {
     where
         C: Context<'c>,
     {
-        // internally anchors are a sequence
-        let seq_header = SeqHeader::de_serialize(context.reader())?;
-        let number_of_items = seq_header.length();
-
-        // we need at least one item (the master)
-        if number_of_items < 1 {
-            return LqError::err_static(
-                "Anchors are a sequence of values with a one master anchor \
-                 (at index 0; required) and optionally 0-n more anchors. \
-                 The input list has no values (the required master anchor is missing)",
+        // this sequence contains the master + a sequence of anchors
+        let container_seq = SeqHeader::de_serialize(context.reader())?;
+        if container_seq.length()!=2 {
+             return LqError::err_new(format!(
+                "Anchors have to look like this 'Seq(master, Seq(anchors))' - the container \
+                (outer) sequence has to have a length of exactly 2; this container has a \
+                length of {:?}", container_seq.length()),
             );
-        }
-
-        let number_of_items_excluding_master = number_of_items - 1;
-        // important: master anchor does not count
-        if number_of_items_excluding_master > self.max_anchors {
-            return LqError::err_new(format!(
-                "According to the schema {:?} anchors are \
-                 allowed at max (not couting the master anchor). You have {:?} anchors \
-                 (not counting the master anchor).",
-                self.max_anchors, number_of_items_excluding_master
-            ));
         }
 
         // preserve the anchor index (this is required if we have nested anchors)
@@ -59,8 +45,18 @@ impl<'a> Type<'static> for TAnchors {
         context.set_anchor_index(Option::Some(0));
         context.validate(self.master)?;
 
-        // now validate all other anchors
-        for index in 1..number_of_items {
+        // no validate all anchorts
+        let anchors_seq = SeqHeader::de_serialize(context.reader())?;
+        let number_of_anchors = anchors_seq.length();
+        if number_of_anchors > self.max_anchors {
+            return LqError::err_new(format!(
+                "According to the schema {:?} anchors are \
+                 allowed at max (not couting the master anchor). You have {:?} anchors \
+                 (not counting the master anchor).",
+                self.max_anchors, number_of_anchors
+            ));
+        }
+        for index in 1..number_of_anchors+1 {
             // first make sure there's a reference to this or is it unused?
             let max_used_index_opt = context.max_used_anchor_index();
             if let Some(max_used_index) = max_used_index_opt {
@@ -85,11 +81,11 @@ impl<'a> Type<'static> for TAnchors {
         // Make sure there's no overflow
         let max_used_index_opt = context.max_used_anchor_index();
         if let Some(max_used_index) = max_used_index_opt {
-            if max_used_index >= number_of_items {
+            if max_used_index >= number_of_anchors + 1 {
                 return LqError::err_new(format!(
                     "There's {:?} anchors (including master); last reference \
                      is {:?} - there's no such anchor at index {:?}.",
-                    number_of_items, max_used_index, max_used_index
+                    number_of_anchors + 1, max_used_index, max_used_index
                 ));
             }
         }
@@ -110,19 +106,27 @@ impl<'a> Type<'static> for TAnchors {
     where
         C: Context<'c>,
     {
-        // Compare is identical to the one in "seq" (except that the first element can
-        // have a different type)
+        let container_seq1 = SeqHeader::de_serialize(r1)?;
+                let container_seq2 = SeqHeader::de_serialize(r2)?;
+        if container_seq1.length()!=2 || container_seq2.length()!=2 {
+            return LqError::err_static("Invalid anchors (cannot compare)");
+        }
+
+        // compare master
+        let master_cmp = context.compare(self.master, r1, r2)?;
+        if master_cmp!=std::cmp::Ordering::Equal {
+            Ok(master_cmp)
+        } else {
+
+        // ok, master is identical, now compare anchors
         seq_compare(
-            |index| {
-                if index == 0 {
-                    self.master
-                } else {
+            |_| {
                     self.anchor
-                }
             },
             context,
             r1,
             r2,
         )
+    }
     }
 }
