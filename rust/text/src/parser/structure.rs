@@ -1,8 +1,8 @@
+use crate::parser::converter::Converter;
+use crate::parser::converter::IdentifierType;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use crate::parser::converter::Converter;
-use crate::parser::converter::IdentifierType;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
 use liquesco_core::schema::structure::TStruct;
@@ -16,17 +16,18 @@ impl<'a> Parser<'a> for PStruct {
     type T = TStruct<'a>;
 
     fn parse<'c, C>(
-        context: &C,
+        context: &mut C,
         writer: &mut C::TWriter,
+        value: &TextValue,
         r#type: &Self::T,
     ) -> Result<(), ParseError>
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(context.text_value())?;
+        C::TConverter::require_no_name(value)?;
 
         // for structures the input must be a map
-        let mut value = C::TConverter::require_string_map(context.value())?;
+        let mut value = C::TConverter::require_string_map(value.as_ref())?;
 
         let number_of_fields = r#type.fields().len();
         let u32_number_of_fields = u32::try_from(number_of_fields)?;
@@ -57,7 +58,7 @@ impl<'a> Parser<'a> for PStruct {
                 "Not all fields have been processed (consumed). \
                  There are unprocessed field(s): {:?}. Value: {:?}; Type: {:?}",
                 value.keys(),
-                context.text_value(),
+                value,
                 r#type
             )))
         } else {

@@ -24,9 +24,9 @@ where
 {
     let value = deserialize(yaml)?;
 
-    let context = ParserContext {
-        value: &value,
+    let mut context = ParserContext {
         schema,
+        anchor_info : Option::None,
         _phantom: &PhantomData,
     };
 

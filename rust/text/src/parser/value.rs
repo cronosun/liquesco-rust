@@ -11,6 +11,12 @@ pub struct TextValue<'a> {
     pub position: Option<SrcPosition>,
 }
 
+impl<'a> AsRef<Value<'a>> for TextValue<'a> {
+    fn as_ref(&self) -> &Value<'a> {
+       &self.value
+    }
+}
+
 #[derive(Clone, Debug, PartialEq)]
 pub struct SrcPosition(pub usize);
 

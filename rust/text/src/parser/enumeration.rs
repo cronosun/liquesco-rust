@@ -1,3 +1,4 @@
+use crate::parser::value::TextValue;
 use crate::parser::converter::Converter;
 use crate::parser::converter::IdentifierType;
 use crate::parser::core::Context;
@@ -17,16 +18,17 @@ impl<'a> Parser<'a> for PEnum {
     type T = TEnum<'a>;
 
     fn parse<'c, C>(
-        context: &C,
+        context: &mut C,
         writer: &mut C::TWriter,
+        value: &TextValue,
         r#type: &Self::T,
     ) -> Result<(), ParseError>
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(context.text_value())?;
+        C::TConverter::require_no_name(value)?;
 
-        let maybe_variant_id = extract_variant_identifier::<C::TConverter>(context.value())?;
+        let maybe_variant_id = extract_variant_identifier::<C::TConverter>(value.as_ref())?;
         if let Some(variant_id) = maybe_variant_id {
             let maybe_variant = r#type.variant_by_id(&variant_id);
             if let Some(variant_tuple) = maybe_variant {
@@ -41,7 +43,7 @@ impl<'a> Parser<'a> for PEnum {
                 )?;
 
                 // now the values
-                let number_of_values = match context.value() {
+                let number_of_values = match value.as_ref() {
                     Value::Seq(seq) => seq.len() - 1,
                     _ => 0,
                 };
@@ -54,7 +56,7 @@ impl<'a> Parser<'a> for PEnum {
                     )));
                 }
 
-                if let Value::Seq(seq) = context.value() {
+                if let Value::Seq(seq) = value.as_ref() {
                     for idx in 0..number_of_expected_values {
                         context.parse(writer, variant.values[idx], &seq[idx + 1])?;
                     }
@@ -73,7 +75,7 @@ impl<'a> Parser<'a> for PEnum {
                  given value. An enum variant is either just a string (variant tag; variants \
                  without values) or a sequence where the first element is a string (variant tag) \
                  and 1-n values. Got: {:?}",
-                context.text_value()
+                value
             )))
         }
     }
