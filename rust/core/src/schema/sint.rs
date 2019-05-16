@@ -22,7 +22,7 @@ impl TSInt {
     }
 }
 
-impl Type<'static> for TSInt {
+impl Type for TSInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

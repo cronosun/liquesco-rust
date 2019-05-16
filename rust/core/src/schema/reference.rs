@@ -10,7 +10,7 @@ use std::cmp::Ordering;
 #[derive(Clone, Debug)]
 pub struct TReference;
 
-impl<'a> Type<'static> for TReference {
+impl<'a> Type for TReference {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

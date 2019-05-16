@@ -1,3 +1,6 @@
+use smallvec::SmallVec;
+use std::borrow::Cow;
+use crate::serialization::uuid::Uuid;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -5,7 +8,10 @@ use crate::common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
 
-pub trait Type<'a>: Debug {
+pub type Doc<'a> = Option<Cow<'a, str>>;
+pub type Implements = Option<SmallVec<[Uuid; 2]>>;
+
+pub trait Type: Debug /*+ TypeDoc*/ {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
         where
             C: Context<'c>;
@@ -30,6 +36,21 @@ pub trait Type<'a>: Debug {
     ) -> Result<Ordering, LqError>
         where
             C: Context<'c>;
+}
+
+const EMPTY : &[Uuid] = &[];
+
+pub trait TypeDoc {
+    /// Type documentation. Optional.
+    fn doc(&self) -> Option<&str> {
+        None
+    }
+
+    /// A set of items this type implements. What is this used for? It can 
+    /// be used to identify compatible types company- or world-wide.
+    fn implements(&self) -> &[Uuid] {
+        EMPTY
+    }
 }
 
 pub trait Context<'a> {

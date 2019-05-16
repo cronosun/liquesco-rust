@@ -29,7 +29,7 @@ pub trait Context<'a> {
 }
 
 pub trait Parser<'a> {
-    type T: Type<'a>;
+    type T: Type;
 
     /// Parse the given value. Note: There's no need to do validation here (validation will be performed when
     /// entire data has been written) - when the given value can be parsed it's sufficient.

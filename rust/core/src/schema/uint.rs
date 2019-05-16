@@ -22,7 +22,7 @@ impl TUInt {
     }
 }
 
-impl Type<'static> for TUInt {
+impl Type for TUInt {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

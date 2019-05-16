@@ -44,7 +44,7 @@ impl TAscii {
     }
 }
 
-impl<'a> Type<'a> for TAscii {
+impl<'a> Type for TAscii {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

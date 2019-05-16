@@ -59,7 +59,7 @@ impl TUnicode {
     }
 }
 
-impl<'a> Type<'a> for TUnicode {
+impl<'a> Type for TUnicode {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

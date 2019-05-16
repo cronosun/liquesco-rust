@@ -37,7 +37,7 @@ impl TSeq {
     }
 }
 
-impl Type<'static> for TSeq {
+impl Type for TSeq {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

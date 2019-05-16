@@ -59,7 +59,7 @@ impl<'a> TEnum<'a> {
     }
 }
 
-impl<'a> Type<'a> for TEnum<'a> {
+impl<'a> Type for TEnum<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
