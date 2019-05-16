@@ -25,7 +25,7 @@ pub enum AnyType<'a> {
     Ascii(TAscii),
     Bool(TBool),
     Enum(TEnum<'a>),
-    Anchors(TAnchors),
+    Anchors(TAnchors<'a>),
     Reference(TReference),
     Seq(TSeq),
     Float32(TFloat32),
@@ -34,7 +34,7 @@ pub enum AnyType<'a> {
     Unicode(TUnicode),
 }
 
-impl<'a> Type<'a> for AnyType<'a> {
+impl<'a> Type for AnyType<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

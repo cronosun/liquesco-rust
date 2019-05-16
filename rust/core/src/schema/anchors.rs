@@ -1,3 +1,5 @@
+use crate::schema::core::Implements;
+use crate::schema::core::Doc;
 use crate::common::error::LqError;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
@@ -10,7 +12,7 @@ use crate::serialization::seq::SeqHeader;
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
 #[derive(new, Clone, Debug)]
-pub struct TAnchors {
+pub struct TAnchors<'a> {
     pub master: TypeRef,
     pub anchor: TypeRef,
 
@@ -18,9 +20,14 @@ pub struct TAnchors {
     /// a value of 0 means that only a master is allowed but no anchor.
     #[new(value = "4294967295")]
     pub max_anchors: u32,
+
+    #[new(value = "Option::None")]
+    pub doc : Doc<'a>,
+    #[new(value = "Option::None")]
+    pub implements : Implements,
 }
 
-impl<'a> Type<'static> for TAnchors {
+impl<'a> Type for TAnchors<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

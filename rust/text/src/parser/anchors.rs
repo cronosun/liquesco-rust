@@ -11,8 +11,8 @@ use std::convert::TryFrom;
 
 pub struct PAnchors;
 
-impl Parser<'static> for PAnchors {
-    type T = TAnchors;
+impl<'a> Parser<'a> for PAnchors {
+    type T = TAnchors<'a>;
 
     fn parse<'c, C>(
         context: &mut C,

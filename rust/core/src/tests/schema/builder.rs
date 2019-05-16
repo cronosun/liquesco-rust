@@ -36,14 +36,14 @@ impl<'a> TypeContainer<'a> for Container<'a> {
 }
 
 impl<'a> Builder<'a> {
-    pub fn add<T: Type<'a>>(&mut self, r#type: T) -> TypeRef
+    pub fn add<T: Type>(&mut self, r#type: T) -> TypeRef
     where AnyType<'a>: std::convert::From<T> {
         let reference = TypeRef(self.types.len());
         self.types.push(AnyType::from(r#type));
         reference
     }
 
-    pub fn finish<T: Type<'a>>(
+    pub fn finish<T: Type>(
         mut self,
         r#type: T,
     ) -> DefaultSchema<'a, Container<'a>>

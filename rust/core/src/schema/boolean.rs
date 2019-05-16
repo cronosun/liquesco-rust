@@ -28,7 +28,7 @@ impl Default for TBool {
     }
 }
 
-impl Type<'static> for TBool {
+impl Type for TBool {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

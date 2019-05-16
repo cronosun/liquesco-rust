@@ -71,7 +71,7 @@ impl<F: PartialOrd + Debug> TFloat<F> {
     }
 }
 
-impl Type<'static> for TFloat32 {
+impl Type for TFloat32 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -107,7 +107,7 @@ impl Type<'static> for TFloat32 {
     }
 }
 
-impl Type<'static> for TFloat64 {
+impl Type for TFloat64 {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

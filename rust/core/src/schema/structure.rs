@@ -40,7 +40,7 @@ impl<'a> TStruct<'a> {
     }
 }
 
-impl<'a> Type<'a> for TStruct<'a> {
+impl<'a> Type for TStruct<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

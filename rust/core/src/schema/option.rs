@@ -11,7 +11,7 @@ pub struct TOption {
     pub r#type: TypeRef,
 }
 
-impl Type<'static> for TOption {
+impl Type for TOption {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
