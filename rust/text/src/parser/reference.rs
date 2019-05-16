@@ -23,7 +23,7 @@ impl Parser<'static> for PReference {
     {
         C::TConverter::require_no_name(value)?;
         let reference_as_text = C::TConverter::require_text(value.as_ref())?;
-        // TODO: Validate reference as text
+        C::TConverter::validate_reference(reference_as_text)?;
         let reference_as_u32 = context.present_anchor_info().reference(reference_as_text);
         UInt32::serialize(writer, &reference_as_u32)?;
         Result::Ok(())

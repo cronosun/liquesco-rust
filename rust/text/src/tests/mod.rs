@@ -8,6 +8,7 @@ pub mod yaml_schema1;
 pub mod yaml_schema2;
 pub mod yaml_schema3;
 pub mod yaml_schema4;
+pub mod yaml_schema5;
 
 pub fn assert_ok<T, R : Debug + Send + 'static>(result : Result<T, R>) {
     if result.is_err() {

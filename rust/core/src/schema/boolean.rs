@@ -17,7 +17,7 @@ pub enum BoolValues {
 
 #[derive(new, Clone, Debug)]
 pub struct TBool {
-    pub values: BoolValues,
+    pub values: BoolValues, // TODO: Better use Option<Restriction> here (because in 99% of the cases this will be empty) - or better remove altogether
 }
 
 impl Default for TBool {

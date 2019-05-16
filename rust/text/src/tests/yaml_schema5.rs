@@ -4,31 +4,38 @@ use crate::tests::{assert_err, assert_ok};
 use crate::yaml::parse_from_yaml_str;
 use liquesco_core::schema::any_type::AnyType;
 use liquesco_core::schema::core::Schema;
-use liquesco_core::schema::float::TFloat32;
-use liquesco_core::schema::float::TFloat64;
-use liquesco_core::schema::seq::TSeq;
 use liquesco_core::schema::structure::TStruct;
+use liquesco_core::schema::unicode::{TUnicode, LengthType};
+use liquesco_core::schema::reference::TReference;
+use liquesco_core::schema::option::TOption;
+use liquesco_core::schema::anchors::TAnchors;
 
-/// Creates an enum
+/// anchors and references
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
 
-    let field1 = builder.add(AnyType::Float32(
-        TFloat32::try_new(std::f32::MIN, std::f32::MAX).unwrap(),
+    let field_text = builder.add(AnyType::Unicode(
+        TUnicode::try_new(0, 500, LengthType::Byte).unwrap(),
     ));
-    let field2 = builder.add(AnyType::Float64(
-        TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
-    ));
+    // this is required
+    let field_next1 = builder.add(AnyType::Reference(
+        TReference));
+    // optionally a second reference
+    let field_next2_present =  builder.add(AnyType::Reference(
+        TReference));
+    let field_next2 = builder.add(AnyType::Option(
+        TOption::new(field_next2_present)));
 
     let struct_value = TStruct::builder()
-        .field(id("my_float_32"), field1)
-        .field(id("my_float_64"), field2)
+        .field(id("text"), field_text)
+        .field(id("next1"), field_next1)
+        .field(id("next2"), field_next2)
         .build();
 
     let structure = builder.add(AnyType::Struct(struct_value));
 
-    // people (structure) within a sequence
-    builder.finish(AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()))
+    // now wrap that inside anchors
+    builder.finish(AnyType::Anchors(TAnchors::new(structure, structure)))
 }
 
 #[test]
@@ -36,24 +43,33 @@ fn ok_1() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema4/working1.yaml"),
+        include_str!("schema5/working1.yaml"),
     ))
 }
 
 #[test]
-fn invalid_float() {
+fn ok_order_does_not_matter() {
     let schema = create_schema();
-    assert_err(parse_from_yaml_str(
+    assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema4/invalid_float.yaml"),
+        include_str!("schema5/order_does_not_matter.yaml"),
     ))
 }
 
 #[test]
-fn precision_lost() {
+fn err_unused() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema4/precision_lost.yaml"),
+        include_str!("schema5/unused_item.yaml"),
+    ))
+}
+
+#[test]
+fn err_unknown_ref() {
+    let schema = create_schema();
+    assert_err(parse_from_yaml_str(
+        &schema,
+        include_str!("schema5/unknown_ref.yaml"),
     ))
 }

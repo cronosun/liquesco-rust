@@ -1,4 +1,4 @@
-# Demonstrates references / anchors
+# Should fail, one item references the unknown anchor "unknown*".
 MAIN*:
   text: This is some text
   next1: MAIN*
@@ -9,3 +9,4 @@ second_item*:
 third_item*:
   text: Again something (references back)
   next1: MAIN*
+  next2: unknown*

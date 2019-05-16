@@ -6,7 +6,8 @@ use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use liquesco_core::serialization::core::Serializer;
-use liquesco_core::serialization::option::Presence;
+use liquesco_core::serialization::seq::SeqHeader;
+use std::convert::TryFrom;
 
 pub struct PAnchors;
 
@@ -24,6 +25,54 @@ impl Parser<'static> for PAnchors {
     {
         C::TConverter::require_no_name(value)?;
 
-        unimplemented!()
+        // save anchor info (this is required with nested anchors)
+        let preserved_anchor_info = context.take_anchor_info();
+
+        SeqHeader::serialize(writer, &SeqHeader::new(2))?;
+
+        // need a map
+        let string_map = C::TConverter::require_string_map(value.as_ref())?;
+        let result = if let Some(master_anchor) = string_map.get(C::TConverter::master_anchor()) {
+            context.parse(writer, r#type.master, master_anchor)?;
+            // add master to the reference map
+            context
+                .present_anchor_info()
+                .reference(C::TConverter::master_anchor());
+
+            // now write the rest
+            let number_of_anchors = u32::try_from(string_map.len() - 1)?;
+            SeqHeader::serialize(writer, &SeqHeader::new(2))?;
+
+            // note: index starts at 1 (since index 0 is the master)
+            for index in 1..number_of_anchors + 1 {
+                if let Some(anchor_name) = context.present_anchor_info().by_index(index) {
+                    if let Some(anchor) = string_map.get(anchor_name) {
+                        context.parse(writer, r#type.anchor, anchor)?;
+                    } else {
+                        return Err(ParseError::new(format!("Got a reference to anchor named \
+                        `{:?}` - but no such anchor found!", anchor_name)));
+                    }
+                } else {
+                    return Err(ParseError::new(format!("Not all anchors are referenced \
+                    (there are {:?} anchors; exluding the master) but only {:?} anchors \
+                    are referenced. Remove unused anchors! Currently referenced anchors: {:?}",
+                    number_of_anchors,index-1, context.present_anchor_info())));
+                }
+            }
+
+            Ok(())
+        } else {
+            Err(ParseError::new(format!(
+                "Master anchor not found. Master anchor must be 
+            called `{:?}`. Found {:?}",
+                C::TConverter::master_anchor(),
+                string_map.keys()
+            )))
+        };
+
+        // restore anchor info
+        context.set_anchor_info(preserved_anchor_info);
+
+        result
     }
 }

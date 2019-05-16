@@ -1,4 +1,4 @@
-# Demonstrates references / anchors
+# The anchor "unused*" is not in use. This is an error.
 MAIN*:
   text: This is some text
   next1: MAIN*
@@ -6,6 +6,9 @@ MAIN*:
 second_item*:
   text: Another item
   next1: third_item*
+unused*:
+  text: This item is not in use
+  next1: MAIN*  
 third_item*:
   text: Again something (references back)
   next1: MAIN*

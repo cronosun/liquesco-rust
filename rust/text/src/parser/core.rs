@@ -26,6 +26,12 @@ pub trait Context<'a> {
     ) -> Result<(), ParseError>;
 
     fn anchor_info(&mut self) -> &mut Option<AnchorInfo>;
+
+    fn take_anchor_info(&mut self) -> Option<AnchorInfo>;
+
+    fn set_anchor_info(&mut self, anchor_info: Option<AnchorInfo>);
+
+    fn present_anchor_info(&mut self) -> &mut AnchorInfo;
 }
 
 pub trait Parser<'a> {
@@ -90,14 +96,17 @@ impl ParseError {
     }
 }
 
+#[derive(Debug)]
 pub struct AnchorInfo {
     anchors: HashMap<String, u32>,
+    anchors_by_index: Vec<String>,
 }
 
 impl Default for AnchorInfo {
     fn default() -> Self {
         Self {
             anchors: HashMap::default(),
+            anchors_by_index: Vec::default(),
         }
     }
 }
@@ -110,7 +119,14 @@ impl AnchorInfo {
             let len = self.anchors.len();
             let len_u32 = len as u32;
             self.anchors.insert(name.to_string(), len_u32);
+            self.anchors_by_index.push(name.to_string());
             len_u32
         }
+    }
+
+    pub fn by_index(&self, index: u32) -> Option<&str> {
+        self.anchors_by_index
+            .get(index as usize)
+            .map(|string| string.as_str())
     }
 }

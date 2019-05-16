@@ -11,7 +11,8 @@ use crate::common::range::LqRangeBounds;
 
 #[derive(Clone, Debug)]
 pub struct TAscii {
-    /// Minimum / maximum number of bytes (which is at the same time also number of ASCII characters)
+    /// Minimum / maximum number of bytes (which is at the same time also number 
+    /// of ASCII characters)
     pub length: U64IneRange,
     /// Allowed ascii code range (note: this field is private since needs further validation)
     codes: U8IneRange,
