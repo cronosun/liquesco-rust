@@ -1,0 +1,6 @@
+- my_float_32: 1.0
+  my_float_64: 1.10
+
+# We can also use strings for floats
+- my_float_32: "1.0"
+  my_float_64: "1.10"
