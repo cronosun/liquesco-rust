@@ -4,6 +4,7 @@ use crate::tests::{assert_err, assert_ok};
 use crate::yaml::parse_from_yaml_str;
 use liquesco_core::schema::any_type::AnyType;
 use liquesco_core::schema::core::Schema;
+use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::float::TFloat32;
 use liquesco_core::schema::float::TFloat64;
 use liquesco_core::schema::seq::TSeq;
@@ -13,22 +14,24 @@ use liquesco_core::schema::structure::TStruct;
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
 
-    let field1 = builder.add(AnyType::Float32(
+    let field1 = builder.add(AnyType::Float32(DocType::from(
         TFloat32::try_new(std::f32::MIN, std::f32::MAX).unwrap(),
-    ));
-    let field2 = builder.add(AnyType::Float64(
+    )));
+    let field2 = builder.add(AnyType::Float64(DocType::from(
         TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
-    ));
+    )));
 
     let struct_value = TStruct::builder()
         .field(id("my_float_32"), field1)
         .field(id("my_float_64"), field2)
         .build();
 
-    let structure = builder.add(AnyType::Struct(struct_value));
+    let structure = builder.add(AnyType::Struct(struct_value.into()));
 
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()))
+    builder.finish(AnyType::Seq(DocType::from(
+        TSeq::try_new(structure, 1, 20).unwrap(),
+    )))
 }
 
 #[test]

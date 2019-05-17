@@ -7,6 +7,7 @@ use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::id;
+use crate::schema::doc_type::DocType;
 
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -15,14 +16,14 @@ use serde::{Deserialize, Serialize};
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(TUInt::try_new(1, 200).unwrap());
-    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
+    let int = builder.add(DocType::from(TUInt::try_new(1, 200).unwrap()));
+    let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
     let schema = builder.finish(
-        TEnum::builder()
+        DocType::from(TEnum::builder()
             .empty_variant(id("shutdown"))
             .variant(id("add"), int)
             .variant(id("delete_account"), upper_case)
-            .build(),
+            .build()),
     );
 
     // valid
@@ -65,12 +66,12 @@ enum Schema1EnumTooManyValues {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let variant1_type = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let variant1_type = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
             builder.add(
-                TEnum::builder()
+                DocType::from(TEnum::builder()
                     .variant(id("variant1"), variant1_type)
                     .empty_variant(id("variant2"))
-                    .build(),
+                    .build()),
             )
         },
         Direction::Ascending,

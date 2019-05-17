@@ -1,6 +1,7 @@
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::core::Schema;
+use crate::schema::doc_type::DocType;
 use crate::schema::reference::TReference;
 use crate::schema::seq::TSeq;
 use crate::schema::structure::TStruct;
@@ -168,16 +169,16 @@ fn can_back_reference() {
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(TReference);
-    let text = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
-    let children = builder.add(TSeq::try_new(reference, 0, 1000).unwrap());
+    let reference = builder.add(DocType::from(TReference));
+    let text = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
+    let children = builder.add(DocType::from(TSeq::try_new(reference, 0, 1000).unwrap()));
     let structure = builder.add(
-        TStruct::builder()
+        DocType::from(TStruct::builder()
             .field(id("text"), text)
             .field(id("children"), children)
-            .build(),
+            .build())
     );
-    builder.finish(TAnchors::new(structure, structure))
+    builder.finish(DocType::from(TAnchors::new(structure, structure)))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

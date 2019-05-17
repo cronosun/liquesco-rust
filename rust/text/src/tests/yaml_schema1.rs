@@ -5,11 +5,12 @@ use liquesco_core::schema::seq::TSeq;
 use crate::yaml::parse_from_yaml_str;
 use liquesco_core::schema::any_type::AnyType;
 use crate::tests::{assert_ok, assert_err};
+use liquesco_core::schema::doc_type::DocType;
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let text = builder.add(AnyType::Ascii(TAscii::try_new(2, 20, 65, 90).unwrap()));
-    builder.finish(AnyType::Seq(TSeq::try_new(text, 3, 6).unwrap()))
+    let text = builder.add(AnyType::Ascii(DocType::from(TAscii::try_new(2, 20, 65, 90).unwrap())));
+    builder.finish(AnyType::Seq(DocType::from(TSeq::try_new(text, 3, 6).unwrap())))
 }
 
 #[test]

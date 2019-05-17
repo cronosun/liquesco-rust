@@ -1,3 +1,4 @@
+use crate::schema::doc_type::DocType;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
@@ -166,24 +167,24 @@ fn wrong_ordering() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(TReference);
-    let name = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
-    let bool_field = builder.add(TBool::default());
+    let reference = builder.add(DocType::from(TReference));
+    let name = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
+    let bool_field = builder.add(DocType::from(TBool::default()));
     let structure = builder.add(
-        TStruct::builder()
+        Into::<DocType<TStruct>>::into(TStruct::builder()
             .field(id("name"), name)
             .field(id("reference"), reference)
-            .build(),
+            .build()),
     );
     let structure_master = builder.add(
-        TStruct::builder()
+        Into::<DocType<TStruct>>::into(TStruct::builder()
             .field(id("name"), name)
             .field(id("reference"), reference)
             .field(id("i_am_great"), bool_field)
-            .build(),
+            .build()),
     );
 
-    builder.finish(TAnchors::new(structure_master, structure))
+    builder.finish(DocType::from(TAnchors::new(structure_master, structure)))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

@@ -4,7 +4,8 @@ use crate::serialization::core::{LqReader, LqWriter, Serializer};
 use crate::serialization::seq::SeqHeader;
 use crate::serialization::unicode::Unicode;
 use core::convert::TryFrom;
-use smallvec::SmallVec;
+use serde::{Deserialize, Serialize};
+// TODO: use smallvec::SmallVec;
 use std::borrow::Cow;
 use std::ops::Deref;
 
@@ -13,12 +14,13 @@ const SEGMENT_MAX_LEN: usize = 30;
 const MIN_NUMBER_OF_SEGMENTS: usize = 1;
 const MAX_NUMBER_OF_SEGMENTS: usize = 12;
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Segment<'a>(Cow<'a, str>);
 
 /// We embed identifiers with 1-3 segments (since that covers 95% of all cases).
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-pub struct Identifier<'a>(SmallVec<[Segment<'a>; 3]>);
+// TODO: Go back so smallvec 3 - but there's some lifetime problem with that...
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+pub struct Identifier<'a>(Vec<Segment<'a>>);
 
 impl<'a> Deref for Identifier<'a> {
     type Target = [Segment<'a>];
@@ -54,7 +56,7 @@ impl<'a> Identifier<'a> {
         }
     }
 
-    pub fn is_equal<'b>(&self, other : &Identifier<'b>) -> bool {
+    pub fn is_equal<'b>(&self, other: &Identifier<'b>) -> bool {
         let len = self.0.len();
         if len == other.0.len() {
             for index in 0..len {
@@ -78,7 +80,8 @@ impl<'a> TryFrom<&'a str> for Identifier<'a> {
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         let splits = value.split("_");
-        let mut segments = SmallVec::<[Segment<'a>; 3]>::new();
+        // TODO let mut segments = SmallVec::<[Segment<'a>; 3]>::new();
+        let mut segments = Vec::new();
         for split in splits {
             segments.push(Segment::try_from(split)?);
         }
@@ -126,7 +129,7 @@ impl<'a> Segment<'a> {
         Result::Ok(())
     }
 
-    pub fn is_equal<'b>(&self, other : &Segment<'b>) -> bool {
+    pub fn is_equal<'b>(&self, other: &Segment<'b>) -> bool {
         self.0 == other.0
     }
 }
@@ -160,7 +163,8 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
         let usize_number_of_segments = usize::try_from(number_of_segments)?;
         Identifier::validate_number_of_segments(usize_number_of_segments)?;
 
-        let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(usize_number_of_segments);
+        // TODO: let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(usize_number_of_segments);
+        let mut segments = Vec::with_capacity(usize_number_of_segments);
         for _ in 0..number_of_segments {
             let segment_str = Unicode::de_serialize(reader)?;
             segments.push(Segment::try_from(segment_str)?);

@@ -8,6 +8,7 @@ use crate::tests::schema::builder::builder;
 use crate::tests::schema::builder::Builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
+use crate::schema::doc_type::DocType;
 use std::fmt::Debug;
 
 pub fn ord_assert_equal<T, S>(any_type: T, item1: S, item2: S)
@@ -54,7 +55,7 @@ pub fn ord_schema<FElement: FnOnce(&mut Builder<'static>) -> TypeRef>(
     let mut seq = TSeq::try_new(element_ref, 0, std::u32::MAX).unwrap();
     seq.ordering = Ordering::Sorted { direction, unique };
 
-    builder.finish(seq)
+    builder.finish(DocType::from(seq))
 }
 
 fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema<'static>

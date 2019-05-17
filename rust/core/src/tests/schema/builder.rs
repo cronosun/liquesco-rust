@@ -27,18 +27,19 @@ pub struct Container<'a> {
 impl<'a> TypeContainer<'a> for Container<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
         let len = self.types.len();
-        if reference.0 >= len {
+        let ref_usize = reference.0 as usize;
+        if ref_usize >= len {
             Option::None
         } else {
-            Option::Some(&self.types[reference.0])
+            Option::Some(&self.types[ref_usize])
         }
     }
 }
 
 impl<'a> Builder<'a> {
-    pub fn add<T: Type>(&mut self, r#type: T) -> TypeRef
+    pub fn add<T: Into<AnyType<'a>>>(&mut self, r#type: T) -> TypeRef
     where AnyType<'a>: std::convert::From<T> {
-        let reference = TypeRef(self.types.len());
+        let reference = TypeRef(self.types.len() as u32);
         self.types.push(AnyType::from(r#type));
         reference
     }

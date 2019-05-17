@@ -4,10 +4,11 @@ use crate::schema::sint::TSInt;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
+use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(TSInt::try_new(-45, 4443444).unwrap());
+    let schema = single_schema(DocType::from(TSInt::try_new(-45, 4443444).unwrap()));
 
     // some valid items
     assert_valid_strict(-45isize, &schema);
@@ -25,7 +26,7 @@ fn schema1() {
 
 #[test]
 fn ordering() {
-    let schema = TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap();
+    let schema = DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
 
     ord_assert_equal(schema.clone(), -100isize, -100isize);
     ord_assert_equal(schema.clone(), 0isize, 0isize);

@@ -1,3 +1,4 @@
+use crate::schema::doc_type::DocType;
 use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
@@ -18,13 +19,13 @@ use serde::{Deserialize, Serialize};
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(TUInt::try_new(2, 144).unwrap());
-    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
+    let int = builder.add(DocType::from(TUInt::try_new(2, 144).unwrap()));
+    let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
     let schema = builder.finish(
-        TStruct::builder()
+        DocType::from(TStruct::builder()
             .field(id("age"), int)
             .field(id("name"), upper_case)
-            .build(),
+            .build()),
     );
 
     // valid
@@ -97,20 +98,20 @@ struct Schema1StructLong {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let type_x = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
-            let type_y = builder.add(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
+            let type_x = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
+            let type_y = builder.add(DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()));
             let inner_struct = builder.add(
-                TStruct::builder()
+                Into::<DocType<TStruct>>::into(TStruct::builder()
                     .field(id("x"), type_x)
                     .field(id("y"), type_y)
-                    .build(),
+                    .build())
             );
-            let type_more = builder.add(TBool::default());
+            let type_more = builder.add(DocType::from(TBool::default()));
             builder.add(
-                TStruct::builder()
+                Into::<DocType<TStruct>>::into(TStruct::builder()
                     .field(id("content"), inner_struct)
                     .field(id("more"), type_more)
-                    .build(),
+                    .build()),
             )
         },
         Direction::Ascending,

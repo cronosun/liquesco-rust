@@ -2,6 +2,7 @@ pub mod core;
 pub mod identifier;
 pub mod any_type;
 pub mod schema;
+pub mod doc_type;
 
 pub mod structure;
 pub mod uint;

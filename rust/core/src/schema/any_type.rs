@@ -4,6 +4,7 @@ use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
+use crate::schema::doc_type::DocType;
 use crate::schema::enumeration::TEnum;
 use crate::schema::float::TFloat32;
 use crate::schema::float::TFloat64;
@@ -19,19 +20,19 @@ use std::cmp::Ordering;
 /// This is an enumeration of all `Type`s that are known to the system.
 #[derive(Clone, FromVariants, Debug)]
 pub enum AnyType<'a> {
-    Struct(TStruct<'a>),
-    UInt(TUInt),
-    SInt(TSInt),
-    Ascii(TAscii),
-    Bool(TBool),
-    Enum(TEnum<'a>),
-    Anchors(TAnchors<'a>),
-    Reference(TReference),
-    Seq(TSeq),
-    Float32(TFloat32),
-    Float64(TFloat64),
-    Option(TOption),
-    Unicode(TUnicode),
+    Struct(DocType<'a, TStruct<'a>>),
+    UInt(DocType<'a, TUInt>),
+    SInt(DocType<'a, TSInt>),
+    Ascii(DocType<'a, TAscii>),
+    Bool(DocType<'a, TBool>),
+    Enum(DocType<'a, TEnum<'a>>),
+    Anchors(DocType<'a, TAnchors>),
+    Reference(DocType<'a, TReference>),
+    Seq(DocType<'a, TSeq>),
+    Float32(DocType<'a, TFloat32>),
+    Float64(DocType<'a, TFloat64>),
+    Option(DocType<'a, TOption>),
+    Unicode(DocType<'a, TUnicode>),
 }
 
 impl<'a> Type for AnyType<'a> {

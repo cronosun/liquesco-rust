@@ -12,7 +12,7 @@ use std::convert::TryFrom;
 pub struct PAnchors;
 
 impl<'a> Parser<'a> for PAnchors {
-    type T = TAnchors<'a>;
+    type T = TAnchors;
 
     fn parse<'c, C>(
         context: &mut C,

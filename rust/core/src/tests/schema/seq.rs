@@ -6,6 +6,7 @@ use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
+use crate::schema::doc_type::DocType;
 
 use serde::{Deserialize, Serialize};
 
@@ -86,8 +87,8 @@ fn too_many_elements() {
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let int = builder.add(TUInt::try_new(50, 100).unwrap());
-    builder.finish(TSeq::try_new(int, 1, 10).unwrap())
+    let int = builder.add(DocType::from(TUInt::try_new(50, 100).unwrap()));
+    builder.finish(DocType::from(TSeq::try_new(int, 1, 10).unwrap()))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
@@ -96,9 +97,9 @@ struct WithSequence(Vec<u32>);
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let element = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let element = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
             let seq = TSeq::try_new(element, 0, std::u32::MAX).unwrap();
-            builder.add(seq)
+            builder.add(DocType::from(seq))
         },
         Direction::Ascending,
         true,

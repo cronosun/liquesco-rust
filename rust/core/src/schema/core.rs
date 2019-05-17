@@ -1,6 +1,8 @@
+use crate::schema::structure::TStruct;
+use crate::schema::identifier::Identifier;
+use crate::serialization::uuid::Uuid;
 use smallvec::SmallVec;
 use std::borrow::Cow;
-use crate::serialization::uuid::Uuid;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -8,13 +10,18 @@ use crate::common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
 
-pub type Doc<'a> = Option<Cow<'a, str>>;
-pub type Implements = Option<SmallVec<[Uuid; 2]>>;
+use serde::{Deserialize, Serialize};
 
-pub trait Type: Debug /*+ TypeDoc*/ {
+pub trait Type: Debug {
+    fn doc(&self) -> &Doc {
+        // types usually have no documentation. We use a special wrapper that adds
+        // documentation to a type. See `DocType`.
+        EMPTY_DOC
+    }
+
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>;
+    where
+        C: Context<'c>;
 
     /// Compares r1 to r2. It's expected that you call this function only
     /// on data that has been validated successfully (if you call this on
@@ -34,23 +41,20 @@ pub trait Type: Debug /*+ TypeDoc*/ {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: Context<'c>;
+    where
+        C: Context<'c>;
+
+    /// Create the schema for the type. Note: This is always a struct, since even if the
+    /// type has no fields (nothing to configure) still return a struct, since the
+    /// system will add more fields (for example the doc fields).
+    fn build_schema<B>(_ : &mut B) -> TStruct where B : SchemaBuilder { // TODO: TStruct -> DocType<TStruct>
+        // TODO: Remove this when all have been implemented
+        unimplemented!()
+    }
 }
 
-const EMPTY : &[Uuid] = &[];
-
-pub trait TypeDoc {
-    /// Type documentation. Optional.
-    fn doc(&self) -> Option<&str> {
-        None
-    }
-
-    /// A set of items this type implements. What is this used for? It can 
-    /// be used to identify compatible types company- or world-wide.
-    fn implements(&self) -> &[Uuid] {
-        EMPTY
-    }
+pub trait SchemaBuilder {
+    fn add<T : Into<AnyType<'static>>>(&mut self, item : T) -> TypeRef;
 }
 
 pub trait Context<'a> {
@@ -96,8 +100,8 @@ impl Config {
 }
 
 /// References a single type within a schema.
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug)]
-pub struct TypeRef(pub usize);
+#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
+pub struct TypeRef(pub u32);
 
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
@@ -108,4 +112,52 @@ pub trait TypeContainer<'a> {
 pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
     fn main_type(&self) -> TypeRef;
+}
+
+//TODO: const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Doc<'a> {
+    name: Option<Identifier<'a>>,
+    description: Option<Cow<'a, str>>,
+    implements: Option<Implements>,
+}
+
+const EMPTY_DOC : &Doc = &Doc::empty();
+
+impl<'a> Doc<'a> {
+    pub const fn empty() -> Self {
+        Self {
+            name: None,
+            description: None,
+            implements: None,
+        }
+    }
+}
+
+impl<'a> Default for Doc<'a> {
+    fn default() -> Self {
+        Doc::empty()
+    }
+}
+
+const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
+
+#[derive(Clone, Debug, Serialize, Deserialize)]
+pub struct Implements(SmallVec<[Uuid; 2]>);
+
+impl Implements {
+    pub fn try_new(implements: &[Uuid]) -> Result<Self, LqError> {
+        let number = implements.len();
+        if number < 1 {
+            LqError::err_new("You need at least one element in 'implements'.")
+        } else if number > MAX_IMPLEMENTS_ELEMENTS {
+            LqError::err_new(format!(
+                "There are too many implements elements. Maximum is {:?}; got {:?} elements.",
+                MAX_IMPLEMENTS_ELEMENTS, number
+            ))
+        } else {
+            Ok(Implements(SmallVec::from(implements)))
+        }
+    }
 }

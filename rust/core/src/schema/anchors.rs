@@ -1,33 +1,37 @@
-use crate::schema::core::Implements;
-use crate::schema::core::Doc;
 use crate::common::error::LqError;
 use crate::schema::core::Context;
+use crate::schema::core::SchemaBuilder;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
+use crate::schema::doc_type::DocType;
+use crate::schema::identifier::Identifier;
+use crate::schema::option::TOption;
+use crate::schema::reference::TReference;
 use crate::schema::seq::seq_compare;
+use crate::schema::structure::TStruct;
+use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::seq::SeqHeader;
+use serde::{Deserialize, Serialize};
+use std::convert::TryFrom;
 
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
-#[derive(new, Clone, Debug)]
-pub struct TAnchors<'a> {
+#[derive(new, Clone, Debug, Serialize, Deserialize)]
+pub struct TAnchors {
     pub master: TypeRef,
     pub anchor: TypeRef,
 
     /// The maximum number of anchors allowed (inclusive). This does not include the master. So
     /// a value of 0 means that only a master is allowed but no anchor.
-    #[new(value = "4294967295")]
-    pub max_anchors: u32,
-
+    ///
+    /// If missing, there's no limit: u32::MAX is the maximum.
     #[new(value = "Option::None")]
-    pub doc : Doc<'a>,
-    #[new(value = "Option::None")]
-    pub implements : Implements,
+    pub max_anchors: Option<u32>,
 }
 
-impl<'a> Type for TAnchors<'a> {
+impl Type for TAnchors {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -56,13 +60,15 @@ impl<'a> Type for TAnchors<'a> {
         // no validate all anchorts
         let anchors_seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_anchors = anchors_seq.length();
-        if number_of_anchors > self.max_anchors {
-            return LqError::err_new(format!(
-                "According to the schema {:?} anchors are \
-                 allowed at max (not couting the master anchor). You have {:?} anchors \
-                 (not counting the master anchor).",
-                self.max_anchors, number_of_anchors
-            ));
+        if let Some(max_anchors) = self.max_anchors {
+            if number_of_anchors > max_anchors {
+                return LqError::err_new(format!(
+                    "According to the schema {:?} anchors are \
+                     allowed at max (not couting the master anchor). You have {:?} anchors \
+                     (not counting the master anchor).",
+                    max_anchors, number_of_anchors
+                ));
+            }
         }
         for index in 1..number_of_anchors + 1 {
             // first make sure there's a reference to this or is it unused?
@@ -130,5 +136,24 @@ impl<'a> Type for TAnchors<'a> {
             // ok, master is identical, now compare anchors
             seq_compare(|_| self.anchor, context, r1, r2)
         }
+    }
+
+    fn build_schema<B>(builder: &mut B) -> TStruct
+    where
+        B: SchemaBuilder,
+    {
+        let field_master = builder.add(DocType::from(TReference));
+        let field_anchor = builder.add(DocType::from(TReference));
+        let max_anchors = builder.add(DocType::from(TUInt::try_new(0, std::u32::MAX as u64).unwrap()));
+        let field_max_anchors = builder.add(DocType::from(TOption::new(max_anchors)));
+
+        TStruct::builder()
+            .field(Identifier::try_from("master").unwrap(), field_master)
+            .field(Identifier::try_from("anchor").unwrap(), field_anchor)
+            .field(
+                Identifier::try_from("max_anchors").unwrap(),
+                field_max_anchors,
+            )
+            .build()
     }
 }

@@ -1,3 +1,4 @@
+use crate::schema::doc_type::DocType;
 use crate::schema::unicode::LengthType;
 use crate::schema::unicode::TUnicode;
 use crate::tests::schema::ordering::ord_assert_ascending;
@@ -8,7 +9,9 @@ use crate::tests::schema::utils::single_schema;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(TUnicode::try_new(5, 10, LengthType::Byte).unwrap());
+    let schema = single_schema(DocType::from(
+        TUnicode::try_new(5, 10, LengthType::Byte).unwrap(),
+    ));
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -27,7 +30,9 @@ fn schema1() {
 
 #[test]
 fn schema2() {
-    let schema = single_schema(TUnicode::try_new(5, 10, LengthType::Utf8Byte).unwrap());
+    let schema = single_schema(DocType::from(
+        TUnicode::try_new(5, 10, LengthType::Utf8Byte).unwrap(),
+    ));
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -44,7 +49,9 @@ fn schema2() {
 
 #[test]
 fn schema3() {
-    let schema = single_schema(TUnicode::try_new(5, 10, LengthType::ScalarValue).unwrap());
+    let schema = single_schema(DocType::from(
+        TUnicode::try_new(5, 10, LengthType::ScalarValue).unwrap(),
+    ));
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -63,7 +70,7 @@ fn schema3() {
 
 #[test]
 fn ordering() {
-    let schema = TUnicode::try_new(0, 100, LengthType::ScalarValue).unwrap();
+    let schema = DocType::from(TUnicode::try_new(0, 100, LengthType::ScalarValue).unwrap());
 
     ord_assert_equal(schema.clone(), "".to_string(), "".to_string());
     ord_assert_equal(schema.clone(), "hello".to_string(), "hello".to_string());

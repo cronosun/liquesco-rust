@@ -4,8 +4,10 @@ use crate::serialization::core::DeSerializer;
 use crate::serialization::binary::Binary;
 use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
+use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Serialize, Deserialize)]
 pub struct Uuid([u8; 16]);
 
 impl<'a> DeSerializer<'a> for Uuid {

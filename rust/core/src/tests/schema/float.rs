@@ -7,10 +7,11 @@ use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
+use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1_32() {
-    let schema = single_schema(TFloat32::new(Range::<f32>::full()));
+    let schema = single_schema(DocType::from(TFloat32::new(Range::<f32>::full())));
 
     // some valid items
     assert_valid_strict(-0.0f32, &schema);
@@ -29,7 +30,7 @@ fn schema1_32() {
 
 #[test]
 fn schema1_64() {
-    let schema = single_schema(TFloat64::new(Range::<f64>::full()));
+    let schema = single_schema(DocType::from(TFloat64::new(Range::<f64>::full())));
 
     // some valid items
     assert_valid_strict(-0.0f64, &schema);
@@ -52,7 +53,7 @@ fn schema2_32() {
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
-    let schema = single_schema(float);
+    let schema = single_schema(DocType::from(float));
 
     // some valid items
     assert_valid_strict(-14.5f32, &schema);
@@ -74,7 +75,7 @@ fn schema2_64() {
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
-    let schema = single_schema(float);
+    let schema = single_schema(DocType::from(float));
 
     // some valid items
     assert_valid_strict(-14.5f64, &schema);
@@ -97,6 +98,7 @@ fn ordering_64() {
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
+    let schema = DocType::from(schema);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
@@ -136,6 +138,7 @@ fn ordering_32() {
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
+    let schema = DocType::from(schema);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);
