@@ -2,9 +2,10 @@ use crate::common::error::LqError;
 use std::fmt::Debug;
 use std::ops::Bound;
 use std::ops::RangeBounds;
+use serde::{Deserialize, Serialize};
 
 /// A range with defined bounds.
-#[derive(new, Clone, Hash, Debug, PartialEq, PartialOrd)]
+#[derive(new, Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Range<T> {
     pub bounds: Bounds<T>,
     #[new(value = "true")]
@@ -13,7 +14,7 @@ pub struct Range<T> {
     pub end_included: bool,
 }
 
-#[derive(Clone, Hash, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Bounds<T> {
     start: T,
     end: T,
@@ -177,3 +178,5 @@ impl NewFull for Range<f64> {
         }
     }
 }
+
+

@@ -1,3 +1,4 @@
+use crate::schema::doc_type::DocType;
 use crate::schema::structure::TStruct;
 use crate::schema::identifier::Identifier;
 use crate::serialization::uuid::Uuid;
@@ -46,10 +47,10 @@ pub trait Type: Debug {
 
     /// Create the schema for the type. Note: This is always a struct, since even if the
     /// type has no fields (nothing to configure) still return a struct, since the
-    /// system will add more fields (for example the doc fields).
-    fn build_schema<B>(_ : &mut B) -> TStruct where B : SchemaBuilder { // TODO: TStruct -> DocType<TStruct>
+    /// system will add more fields (for example the doc fields); see `DocType`.
+    fn build_schema<B>(_ : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder { 
         // TODO: Remove this when all have been implemented
-        unimplemented!()
+        unimplemented!("TODO: build_schema not yet implemented for type")
     }
 }
 
@@ -114,7 +115,8 @@ pub trait Schema<'a>: TypeContainer<'a> {
     fn main_type(&self) -> TypeRef;
 }
 
-//TODO: const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
+pub const DOC_MIN_LEN_UTF8_BYTES: usize = 1;
+pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Doc<'a> {
@@ -141,7 +143,8 @@ impl<'a> Default for Doc<'a> {
     }
 }
 
-const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
+pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
+pub const MIN_IMPLEMENTS_ELEMENTS: usize = 255;
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct Implements(SmallVec<[Uuid; 2]>);

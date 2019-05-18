@@ -47,3 +47,15 @@ impl Uuid {
         Self(new_v4.as_bytes().clone())
     }
 }
+
+impl From<[u8; 16]> for Uuid {
+    fn from(value: [u8; 16]) -> Self {
+        Self(value)
+    }
+}
+
+impl From<&[u8; 16]> for Uuid {
+    fn from(value: &[u8; 16]) -> Self {
+        Self(value.clone())
+    }
+}

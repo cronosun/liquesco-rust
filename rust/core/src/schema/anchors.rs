@@ -57,7 +57,7 @@ impl Type for TAnchors {
         context.set_anchor_index(Option::Some(0));
         context.validate(self.master)?;
 
-        // no validate all anchorts
+        // no validate all anchors
         let anchors_seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_anchors = anchors_seq.length();
         if let Some(max_anchors) = self.max_anchors {
@@ -138,22 +138,24 @@ impl Type for TAnchors {
         }
     }
 
-    fn build_schema<B>(builder: &mut B) -> TStruct
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct>
     where
         B: SchemaBuilder,
     {
         let field_master = builder.add(DocType::from(TReference));
         let field_anchor = builder.add(DocType::from(TReference));
-        let max_anchors = builder.add(DocType::from(TUInt::try_new(0, std::u32::MAX as u64).unwrap()));
+        let max_anchors = builder.add(DocType::from(
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
+        ));
         let field_max_anchors = builder.add(DocType::from(TOption::new(max_anchors)));
 
-        TStruct::builder()
+        DocType::from(TStruct::builder()
             .field(Identifier::try_from("master").unwrap(), field_master)
             .field(Identifier::try_from("anchor").unwrap(), field_anchor)
             .field(
                 Identifier::try_from("max_anchors").unwrap(),
                 field_max_anchors,
             )
-            .build()
+            .build())
     }
 }

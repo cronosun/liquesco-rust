@@ -1,12 +1,23 @@
 use crate::common::error::LqError;
 use crate::common::range::LqRangeBounds;
 use crate::common::range::Range;
-use crate::schema::core::{Context, Type};
+use crate::schema::core::{Context, Type, SchemaBuilder};
 use crate::serialization::core::DeSerializer;
 use crate::serialization::float::Float32;
 use crate::serialization::float::Float64;
 use std::cmp::Ordering;
 use std::fmt::Debug;
+use serde::{Deserialize, Serialize};
+use crate::schema::doc_type::DocType;
+use crate::schema::structure::TStruct;
+use crate::schema::boolean::TBool;
+use crate::schema::option::TOption;
+use crate::schema::seq::TSeq;
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::schema::seq::Direction::Ascending;
+use crate::common::ine_range::IneRange;
+use crate::schema::identifier::Identifier;
+use std::convert::TryFrom;
 
 pub type TFloat32 = TFloat<f32>;
 pub type TFloat64 = TFloat<f64>;
@@ -18,14 +29,18 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, Deserialize, Serialize)]
 pub struct TFloat<F: PartialOrd + Debug> {
+    #[serde(flatten)]
     pub range: Range<F>,
     #[new(value = "false")]
+    #[serde(default)]
     pub allow_nan: bool,
     #[new(value = "false")]
+    #[serde(default)]
     pub allow_positive_infinity: bool,
     #[new(value = "false")]
+    #[serde(default)]
     pub allow_negative_infinity: bool,
 }
 
@@ -181,4 +196,54 @@ fn cmp_64(v1: f64, v2: f64) -> Ordering {
             panic!("Incomplete cmp implementation for float")
         }
     }
+}
+
+fn build_schema<B>(builder: &mut B, float_32 : bool) -> DocType<'static, TStruct>
+    where
+        B: SchemaBuilder,
+{
+    // TODO: Nee, das mit dem Optional und bool macht keinen sinn, denn so könnten wir haben: None, Some(true) und Some(false)... 3 states
+
+    // range
+    let range_item = if float_32 {
+        builder.add(DocType::from(TFloat32::try_new(std::f32::MIN, std::f32::MAX).unwrap()))
+    } else {
+        builder.add(DocType::from(TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap()))
+    };
+    let bounds_field = builder.add(DocType::from(TSeq {
+        element: range_item,
+        length: IneRange::try_new(2, 2).unwrap(),
+        ordering: SeqOrdering::Sorted {
+            direction : Ascending,
+            unique : true,
+        },
+        multiple_of: None
+    }));
+
+    let start_included = builder.add(DocType::from(TBool));
+    let start_included_field = builder.add(DocType::from(TOption::new(start_included)));
+
+    let end_included = builder.add(DocType::from(TBool));
+    let end_included_field = builder.add(DocType::from(TOption::new(end_included)));
+
+    // other config
+
+    let allow_nan = builder.add(DocType::from(TBool));
+    let allow_nan_field = builder.add(DocType::from(TOption::new(allow_nan)));
+
+    let allow_positive_infinity = builder.add(DocType::from(TBool));
+    let allow_positive_infinity_field = builder.add(DocType::from(TOption::new(allow_positive_infinity)));
+
+    let allow_negative_infinity = builder.add(DocType::from(TBool));
+    let allow_negative_infinity_field = builder.add(DocType::from(TOption::new(allow_negative_infinity)));
+
+    // just an empty struct (but more fields will be added by the system)
+    DocType::from(TStruct::builder()
+        .field(Identifier::try_from("bounds").unwrap(), bounds_field)
+        .field(Identifier::try_from("start_included").unwrap(), start_included_field)
+        .field(Identifier::try_from("end_included").unwrap(), end_included_field)
+        .field(Identifier::try_from("allow_nan").unwrap(), allow_nan_field)
+        .field(Identifier::try_from("allow_positive_infinity").unwrap(), allow_positive_infinity_field)
+        .field(Identifier::try_from("allow_negative_infinity").unwrap(), allow_negative_infinity_field)
+        .build())
 }

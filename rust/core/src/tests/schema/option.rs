@@ -1,6 +1,5 @@
 use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
-use crate::schema::boolean::BoolValues;
 use crate::schema::boolean::TBool;
 use crate::schema::option::TOption;
 use crate::schema::seq::Direction;
@@ -13,15 +12,12 @@ use crate::schema::doc_type::DocType;
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let boolean = builder.add(DocType::from(TBool::new(BoolValues::TrueOnly)));
+    let boolean = builder.add(DocType::from(TBool));
     let schema = builder.finish(DocType::from(TOption::new(boolean)));
 
     // some valid items
     assert_valid_strict(Option::<bool>::None, &schema);
     assert_valid_strict(Option::Some(true), &schema);
-
-    // The only invalid value (false is not allowed)
-    assert_invalid_strict(Option::Some(false), &schema);
 
     // completely wrong type
     assert_invalid_strict(Option::Some("expecting a bool here".to_string()), &schema);

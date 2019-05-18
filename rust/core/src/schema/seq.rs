@@ -13,6 +13,10 @@ pub struct TSeq {
     pub element: TypeRef,
     pub length: U32IneRange,
     pub ordering: Ordering,
+
+    /// Length must be a multiple of this value. Value must be >= 2.
+    #[new(value = "Option::None")]
+    pub multiple_of: Option<u32>,
 }
 
 #[derive(Clone, Debug)]
@@ -33,14 +37,15 @@ impl TSeq {
             element,
             length: U32IneRange::try_new(min_len, max_len)?,
             ordering: Ordering::None,
+            multiple_of: Option::None,
         })
     }
 }
 
 impl Type for TSeq {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-    where
-        C: Context<'c>,
+        where
+            C: Context<'c>,
     {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();
@@ -50,6 +55,15 @@ impl Type for TSeq {
              (schema; min/max elements in sequence)",
             &number_of_items,
         )?;
+
+        // multiple of correct?
+        if let Some(multiple_of) = self.multiple_of {
+            if number_of_items % multiple_of != 0 {
+                return LqError::err_new(format!("There's {:?} elements in this list. \
+                According to the schema the number of elements must be a multiple of {:?}.",
+                                                number_of_items, multiple_of));
+            }
+        }
 
         match &self.ordering {
             Ordering::None => {
@@ -72,8 +86,8 @@ impl Type for TSeq {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<std::cmp::Ordering, LqError>
-    where
-        C: Context<'c>,
+        where
+            C: Context<'c>,
     {
         seq_compare(|_| self.element, context, r1, r2)
     }
@@ -86,13 +100,13 @@ pub(crate) fn seq_compare<'c, C, FGetType: Fn(u32) -> TypeRef>(
     r1: &mut C::Reader,
     r2: &mut C::Reader,
 ) -> Result<std::cmp::Ordering, LqError>
-where
-    C: Context<'c>,
+    where
+        C: Context<'c>,
 {
     let header1 = SeqHeader::de_serialize(r1)?;
     let header2 = SeqHeader::de_serialize(r2)?;
 
-    // it's very imporant that we finish reading to the end (see contract)
+    // it's very important that we finish reading to the end (see contract)
     let finish_reading =
         |header: SeqHeader, reader: &mut LqReader, num_read: u32| -> Result<(), LqError> {
             let len = header.length();
@@ -134,8 +148,8 @@ fn validate_with_ordering<'c, C>(
     unique: bool,
     number_of_items: u32,
 ) -> Result<(), LqError>
-where
-    C: Context<'c>,
+    where
+        C: Context<'c>,
 {
     // here validation is a bit more complex
     let mut previous: Option<C::Reader> = Option::None;

@@ -38,6 +38,10 @@ impl<'a> TStruct<'a> {
     pub fn add(&mut self, field: Field<'a>) {
         self.0.push(field)
     }
+
+    pub fn prepend(&mut self, field : Field<'a>) {
+        self.0.insert(0, field)
+    }
 }
 
 impl<'a> Type for TStruct<'a> {

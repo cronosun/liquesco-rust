@@ -1,35 +1,20 @@
 use crate::common::error::LqError;
-use crate::common::ine_range::I64IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
-use crate::serialization::sint::SInt64;
-use std::cmp::Ordering;
-use crate::common::range::LqRangeBounds;
+use crate::serialization::binary::Binary;
+use crate::serialization::uuid::Uuid;
 
 #[derive(new, Clone, Debug)]
-pub struct TSInt {
-    pub range: I64IneRange,
-}
+pub struct TUuid;
 
-impl TSInt {
-    pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
-        Result::Ok(TSInt::new(I64IneRange::try_new_msg(
-            "Signed integer range",
-            min,
-            max,
-        )?))
-    }
-}
-
-impl Type for TSInt {
+impl Type for TUuid {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
-        let int_value = SInt64::de_serialize(context.reader())?;
-        self.range
-            .require_within("Signed integer schema validation", &int_value)?;
+        // it's just a normal binary
+        Uuid::de_serialize(context.reader())?;
         Result::Ok(())
     }
 
@@ -42,8 +27,9 @@ impl Type for TSInt {
     where
         C: Context<'c>,
     {
-        let int1 = SInt64::de_serialize(r1)?;
-        let int2 = SInt64::de_serialize(r2)?;
-        Result::Ok(int1.cmp(&int2))
+        // compare like "normal" binaries
+        let bin1 = Binary::de_serialize(r1)?;
+        let bin2 = Binary::de_serialize(r2)?;
+        Result::Ok(bin1.cmp(&bin2))
     }
 }

@@ -16,6 +16,7 @@ use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::schema::unicode::TUnicode;
 use std::cmp::Ordering;
+use crate::schema::uuid::TUuid;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 #[derive(Clone, FromVariants, Debug)]
@@ -33,6 +34,7 @@ pub enum AnyType<'a> {
     Float64(DocType<'a, TFloat64>),
     Option(DocType<'a, TOption>),
     Unicode(DocType<'a, TUnicode>),
+    Uuid(DocType<'a, TUuid>),
 }
 
 impl<'a> Type for AnyType<'a> {
@@ -55,6 +57,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Float64(value) => value.validate(context),
             AnyType::Option(value) => value.validate(context),
             AnyType::Unicode(value) => value.validate(context),
+            AnyType::Uuid(value) => value.validate(context),
         }
     }
 
@@ -82,6 +85,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Float64(value) => value.compare(context, r1, r2),
             AnyType::Option(value) => value.compare(context, r1, r2),
             AnyType::Unicode(value) => value.compare(context, r1, r2),
+            AnyType::Uuid(value) => value.compare(context, r1, r2),
         }
     }
 }

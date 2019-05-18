@@ -106,7 +106,7 @@ fn ordering_create_schema() -> impl Schema<'static> {
                     .field(id("y"), type_y)
                     .build())
             );
-            let type_more = builder.add(DocType::from(TBool::default()));
+            let type_more = builder.add(DocType::from(TBool));
             builder.add(
                 Into::<DocType<TStruct>>::into(TStruct::builder()
                     .field(id("content"), inner_struct)

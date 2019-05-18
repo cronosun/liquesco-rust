@@ -1,3 +1,5 @@
+use crate::schema::core::TypeRef;
+use crate::schema::core::SchemaBuilder;
 use crate::common::error::LqError;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::{LqReader, LqWriter, Serializer};
@@ -8,6 +10,10 @@ use serde::{Deserialize, Serialize};
 // TODO: use smallvec::SmallVec;
 use std::borrow::Cow;
 use std::ops::Deref;
+use crate::schema::doc_type::DocType;
+use crate::schema::ascii::{TAscii, CodeRange};
+use crate::schema::seq::TSeq;
+use crate::common::ine_range::U64IneRange;
 
 const SEGMENT_MIN_LEN: usize = 1;
 const SEGMENT_MAX_LEN: usize = 30;
@@ -68,6 +74,16 @@ impl<'a> Identifier<'a> {
         } else {
             false
         }
+    }
+
+    pub fn build_schema<B>(builder : &mut B) -> TypeRef where B : SchemaBuilder {
+        let mut code_range = CodeRange::try_new(48, 57 + 1).unwrap();
+        code_range.add(97, 122 + 1).unwrap();
+        let segment_ref = builder.add(DocType::from(TAscii {
+            length: U64IneRange::try_new(SEGMENT_MIN_LEN as u64, SEGMENT_MAX_LEN as u64).unwrap(),
+            codes: code_range
+        }));
+        builder.add(DocType::from(TSeq::try_new(segment_ref,MIN_NUMBER_OF_SEGMENTS as u32,MAX_NUMBER_OF_SEGMENTS as u32).unwrap()))
     }
 }
 

@@ -169,7 +169,7 @@ fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
     let reference = builder.add(DocType::from(TReference));
     let name = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
-    let bool_field = builder.add(DocType::from(TBool::default()));
+    let bool_field = builder.add(DocType::from(TBool));
     let structure = builder.add(
         Into::<DocType<TStruct>>::into(TStruct::builder()
             .field(id("name"), name)

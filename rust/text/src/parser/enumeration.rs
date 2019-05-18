@@ -35,7 +35,7 @@ impl<'a> Parser<'a> for PEnum {
                 let ordinal = variant_tuple.0;
                 let variant = variant_tuple.1;
 
-                let number_of_expected_values = variant.values.len();
+                let number_of_expected_values = variant.values().len();
                 let u32_number_of_expected_values = u32::try_from(number_of_expected_values)?;
                 EnumHeader::serialize(
                     writer,
@@ -58,7 +58,7 @@ impl<'a> Parser<'a> for PEnum {
 
                 if let Value::Seq(seq) = value.as_ref() {
                     for idx in 0..number_of_expected_values {
-                        context.parse(writer, variant.values[idx], &seq[idx + 1])?;
+                        context.parse(writer, variant.values()[idx], &seq[idx + 1])?;
                     }
                 }
 
