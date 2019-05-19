@@ -1,0 +1,18 @@
+- first_name: Albert
+  last_name: Einstein
+  year_born: 1879
+
+- first_name: Max
+  last_name: Powers
+  year_born: 1976
+  email: max_pwers@gmail.com
+
+- first_name: Email
+  last_name: "Can also be null"
+  year_born: 1976
+  email: null
+
+- first_name: Jøhn
+  last_name: Æegson
+  year_born: 1964
+  email: j.a@gmail.com

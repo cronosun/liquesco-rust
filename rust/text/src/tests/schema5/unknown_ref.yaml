@@ -1,0 +1,12 @@
+# Should fail, one item references the unknown anchor "unknown*".
+MAIN*:
+  text: This is some text
+  next1: MAIN*
+  next2: second_item*
+second_item*:
+  text: Another item
+  next1: third_item*
+third_item*:
+  text: Again something (references back)
+  next1: MAIN*
+  next2: unknown*
