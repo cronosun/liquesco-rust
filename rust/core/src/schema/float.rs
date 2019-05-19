@@ -220,22 +220,14 @@ fn build_schema<B>(builder: &mut B, float_32 : bool) -> DocType<'static, TStruct
         multiple_of: None
     }));
 
-    let start_included = builder.add(DocType::from(TBool));
-    let start_included_field = builder.add(DocType::from(TOption::new(start_included)));
-
-    let end_included = builder.add(DocType::from(TBool));
-    let end_included_field = builder.add(DocType::from(TOption::new(end_included)));
+    let start_included_field = builder.add(DocType::from(TBool));
+    let end_included_field = builder.add(DocType::from(TBool));
 
     // other config
 
-    let allow_nan = builder.add(DocType::from(TBool));
-    let allow_nan_field = builder.add(DocType::from(TOption::new(allow_nan)));
-
-    let allow_positive_infinity = builder.add(DocType::from(TBool));
-    let allow_positive_infinity_field = builder.add(DocType::from(TOption::new(allow_positive_infinity)));
-
-    let allow_negative_infinity = builder.add(DocType::from(TBool));
-    let allow_negative_infinity_field = builder.add(DocType::from(TOption::new(allow_negative_infinity)));
+    let allow_nan_field = builder.add(DocType::from(TBool));
+    let allow_positive_infinity_field = builder.add(DocType::from(TBool));
+    let allow_negative_infinity_field = builder.add(DocType::from(TBool));
 
     // just an empty struct (but more fields will be added by the system)
     DocType::from(TStruct::builder()
