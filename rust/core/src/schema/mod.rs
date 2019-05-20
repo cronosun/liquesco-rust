@@ -3,6 +3,7 @@ pub mod identifier;
 pub mod any_type;
 pub mod schema;
 pub mod doc_type;
+pub mod schema_builder;
 
 pub mod structure;
 pub mod uint;

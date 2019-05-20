@@ -1,11 +1,14 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
+use crate::schema::doc_type::DocType;
+use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::uint::UInt32;
 use std::cmp::Ordering;
 
-/// A reference can be used in combination with `VAnchors`. You can reference
+/// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
 #[derive(Clone, Debug)]
 pub struct TReference;
@@ -64,5 +67,15 @@ impl Type for TReference {
         let int1 = UInt32::de_serialize(r1)?;
         let int2 = UInt32::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
+    }
+}
+
+impl BaseTypeSchemaBuilder for TReference {
+    fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
+    {
+        // just an empty struct (but more fields will be added by the system)
+        DocType::from(TStruct::default())
     }
 }

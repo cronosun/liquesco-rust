@@ -2,7 +2,7 @@ use crate::schema::structure::Field;
 use crate::common::error::LqError;
 use crate::schema::core::{Context, DOC_MAX_LEN_UTF8_BYTES, DOC_MIN_LEN_UTF8_BYTES, MIN_IMPLEMENTS_ELEMENTS, MAX_IMPLEMENTS_ELEMENTS};
 use crate::schema::core::Doc;
-use crate::schema::core::SchemaBuilder;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
 use crate::schema::structure::TStruct;
 use serde::{Deserialize, Serialize};
@@ -14,6 +14,7 @@ use crate::schema::unicode::{TUnicode, LengthType};
 use crate::schema::uuid::TUuid;
 use crate::schema::seq::TSeq;
 use std::convert::TryFrom;
+use crate::schema::schema_builder::BuildsOwnSchema;
 
 /// Wraps a type and adds an optional documentation to that type.
 #[derive(Clone, Debug, Serialize, Deserialize)]
@@ -70,8 +71,10 @@ impl<'doc, T: Type> Type for DocType<'doc, T> {
     {
         self.r#type.compare(context, r1, r2)
     }
+}
 
-    fn build_schema<B>(builder : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder { 
+impl<T> BaseTypeSchemaBuilder for DocType<'_, T> where T : BaseTypeSchemaBuilder + Type {
+    fn build_schema<B>(builder : &mut B) -> DocType<'static, TStruct<'static>> where B : SchemaBuilder {
         // Adding fields for the doc
         let identifier_ref = Identifier::build_schema(builder);
         let field_name = builder.add(DocType::from(TOption::new(identifier_ref)));

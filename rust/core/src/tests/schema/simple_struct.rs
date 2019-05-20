@@ -11,7 +11,7 @@ use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_extended;
 use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::id;
-
+use crate::schema::structure::Field;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use serde::{Deserialize, Serialize};
@@ -22,10 +22,9 @@ fn schema1() {
     let int = builder.add(DocType::from(TUInt::try_new(2, 144).unwrap()));
     let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
     let schema = builder.finish(
-        DocType::from(TStruct::builder()
-            .field(id("age"), int)
-            .field(id("name"), upper_case)
-            .build()),
+        DocType::from(TStruct::default()
+            .add(Field::new(id("age"), int))
+            .add(Field::new(id("name"), upper_case)))
     );
 
     // valid
@@ -101,17 +100,15 @@ fn ordering_create_schema() -> impl Schema<'static> {
             let type_x = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
             let type_y = builder.add(DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()));
             let inner_struct = builder.add(
-                Into::<DocType<TStruct>>::into(TStruct::builder()
-                    .field(id("x"), type_x)
-                    .field(id("y"), type_y)
-                    .build())
+                Into::<DocType<TStruct>>::into(TStruct::default()
+                    .add(Field::new(id("x"), type_x))
+                    .add(Field::new(id("y"), type_y)))
             );
             let type_more = builder.add(DocType::from(TBool));
             builder.add(
-                Into::<DocType<TStruct>>::into(TStruct::builder()
-                    .field(id("content"), inner_struct)
-                    .field(id("more"), type_more)
-                    .build()),
+                Into::<DocType<TStruct>>::into(TStruct::default()
+                    .add(Field::new(id("content"), inner_struct))
+                    .add(Field::new(id("more"), type_more)))
             )
         },
         Direction::Ascending,

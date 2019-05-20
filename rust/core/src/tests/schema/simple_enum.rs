@@ -1,6 +1,6 @@
 use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
-use crate::schema::enumeration::TEnum;
+use crate::schema::enumeration::{TEnum, Variant};
 use crate::schema::seq::Direction;
 use crate::schema::uint::TUInt;
 use crate::tests::schema::builder::builder;
@@ -19,11 +19,10 @@ fn schema1() {
     let int = builder.add(DocType::from(TUInt::try_new(1, 200).unwrap()));
     let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
     let schema = builder.finish(
-        DocType::from(TEnum::builder()
-            .empty_variant(id("shutdown"))
-            .variant(id("add"), int)
-            .variant(id("delete_account"), upper_case)
-            .build()),
+        DocType::from(TEnum::default()
+            .add(Variant::new(id("shutdown")))
+            .add(Variant::new(id("add")).add_value(int))
+            .add(Variant::new(id("delete_account")).add_value(upper_case))),
     );
 
     // valid
@@ -68,10 +67,9 @@ fn ordering_create_schema() -> impl Schema<'static> {
         |builder| {
             let variant1_type = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
             builder.add(
-                DocType::from(TEnum::builder()
-                    .variant(id("variant1"), variant1_type)
-                    .empty_variant(id("variant2"))
-                    .build()),
+                DocType::from(TEnum::default()
+                    .add(Variant::new(id("variant1")).add_value(variant1_type))
+                    .add(Variant::new(id("variant2")))),
             )
         },
         Direction::Ascending,

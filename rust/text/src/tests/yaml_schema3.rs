@@ -7,6 +7,7 @@ use liquesco_core::schema::ascii::TAscii;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::enumeration::TEnum;
+use liquesco_core::schema::enumeration::Variant;
 use liquesco_core::schema::seq::TSeq;
 use liquesco_core::schema::sint::TSInt;
 
@@ -24,11 +25,10 @@ fn create_schema() -> impl Schema<'static> {
         TSInt::try_new(-10, 3000).unwrap(),
     )));
 
-    let enum_value = TEnum::builder()
-        .empty_variant(id("the_empty_variant"))
-        .variant(id("normal_variant"), variant1)
-        .multi_variant(id("two_value_variant"), vec![variant2_1, variant2_2].into())
-        .build();
+    let enum_value = TEnum::default()
+        .add(Variant::new(id("the_empty_variant")))
+        .add(Variant::new(id("normal_variant")).add_value(variant1))
+        .add(Variant::new(id("two_value_variant")).add_value(variant2_1).add_value(variant2_2));
 
     let enumeration = builder.add(AnyType::Enum(DocType::from(enum_value)));
 

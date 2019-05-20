@@ -1,6 +1,6 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::core::SchemaBuilder;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
 use crate::schema::doc_type::DocType;
@@ -9,6 +9,7 @@ use crate::schema::option::TOption;
 use crate::schema::reference::TReference;
 use crate::schema::seq::seq_compare;
 use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
 use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::seq::SeqHeader;
@@ -137,10 +138,12 @@ impl Type for TAnchors {
             seq_compare(|_| self.anchor, context, r1, r2)
         }
     }
+}
 
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct>
-    where
-        B: SchemaBuilder,
+impl BaseTypeSchemaBuilder for TAnchors {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
     {
         let field_master = builder.add(DocType::from(TReference));
         let field_anchor = builder.add(DocType::from(TReference));
@@ -149,13 +152,12 @@ impl Type for TAnchors {
         ));
         let field_max_anchors = builder.add(DocType::from(TOption::new(max_anchors)));
 
-        DocType::from(TStruct::builder()
-            .field(Identifier::try_from("master").unwrap(), field_master)
-            .field(Identifier::try_from("anchor").unwrap(), field_anchor)
-            .field(
+        DocType::from(TStruct::default()
+            .add(Field::new(Identifier::try_from("master").unwrap(), field_master))
+            .add(Field::new(Identifier::try_from("anchor").unwrap(), field_anchor))
+            .add(Field::new(
                 Identifier::try_from("max_anchors").unwrap(),
                 field_max_anchors,
-            )
-            .build())
+            )))
     }
 }

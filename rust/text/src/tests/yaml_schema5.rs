@@ -9,6 +9,7 @@ use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::option::TOption;
 use liquesco_core::schema::reference::TReference;
 use liquesco_core::schema::structure::TStruct;
+use liquesco_core::schema::structure::Field;
 use liquesco_core::schema::unicode::{LengthType, TUnicode};
 
 /// anchors and references
@@ -26,11 +27,10 @@ fn create_schema() -> impl Schema<'static> {
         field_next2_present,
     ))));
 
-    let struct_value = TStruct::builder()
-        .field(id("text"), field_text)
-        .field(id("next1"), field_next1)
-        .field(id("next2"), field_next2)
-        .build();
+    let struct_value = TStruct::default()
+        .add(Field::new(id("text"), field_text))
+        .add(Field::new(id("next1"), field_next1))
+        .add(Field::new(id("next2"), field_next2));
 
     let structure = builder.add(AnyType::Struct(struct_value.into()));
 

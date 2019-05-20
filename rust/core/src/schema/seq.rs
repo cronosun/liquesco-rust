@@ -1,12 +1,24 @@
 use crate::common::error::LqError;
 use crate::common::ine_range::U32IneRange;
+use crate::common::range::LqRangeBounds;
+use crate::schema::boolean::TBool;
 use crate::schema::core::Context;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
+use crate::schema::doc_type::DocType;
+use crate::schema::enumeration::TEnum;
+use crate::schema::enumeration::Variant;
+use crate::schema::identifier::Identifier;
+use crate::schema::option::TOption;
+use crate::schema::reference::TReference;
+use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
+use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::seq::SeqHeader;
-use crate::common::range::LqRangeBounds;
+use std::convert::TryFrom;
 
 #[derive(new, Clone, Debug)]
 pub struct TSeq {
@@ -44,8 +56,8 @@ impl TSeq {
 
 impl Type for TSeq {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();
@@ -59,9 +71,11 @@ impl Type for TSeq {
         // multiple of correct?
         if let Some(multiple_of) = self.multiple_of {
             if number_of_items % multiple_of != 0 {
-                return LqError::err_new(format!("There's {:?} elements in this list. \
-                According to the schema the number of elements must be a multiple of {:?}.",
-                                                number_of_items, multiple_of));
+                return LqError::err_new(format!(
+                    "There's {:?} elements in this list. \
+                     According to the schema the number of elements must be a multiple of {:?}.",
+                    number_of_items, multiple_of
+                ));
             }
         }
 
@@ -86,8 +100,8 @@ impl Type for TSeq {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<std::cmp::Ordering, LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         seq_compare(|_| self.element, context, r1, r2)
     }
@@ -100,8 +114,8 @@ pub(crate) fn seq_compare<'c, C, FGetType: Fn(u32) -> TypeRef>(
     r1: &mut C::Reader,
     r2: &mut C::Reader,
 ) -> Result<std::cmp::Ordering, LqError>
-    where
-        C: Context<'c>,
+where
+    C: Context<'c>,
 {
     let header1 = SeqHeader::de_serialize(r1)?;
     let header2 = SeqHeader::de_serialize(r2)?;
@@ -148,8 +162,8 @@ fn validate_with_ordering<'c, C>(
     unique: bool,
     number_of_items: u32,
 ) -> Result<(), LqError>
-    where
-        C: Context<'c>,
+where
+    C: Context<'c>,
 {
     // here validation is a bit more complex
     let mut previous: Option<C::Reader> = Option::None;
@@ -204,4 +218,61 @@ fn validate_with_ordering<'c, C>(
     }
 
     Result::Ok(())
+}
+
+impl BaseTypeSchemaBuilder for TSeq {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
+    {
+        let element_field = builder.add(DocType::from(TReference));
+        let length_element = builder.add(DocType::from(
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
+        ));
+        let length_field = builder.add(DocType::from(TSeq {
+            element: length_element,
+            length: U32IneRange::try_new(2, 2).unwrap(),
+            ordering: Ordering::Sorted {
+                direction: Direction::Ascending,
+                unique: true,
+            },
+            multiple_of: None,
+        }));
+
+        let directed_enum = builder.add(DocType::from(
+            TEnum::default()
+                .add(Variant::new(Identifier::try_from("ascending").unwrap()))
+                .add(Variant::new(Identifier::try_from("descending").unwrap()))
+        ));
+        let unique = builder.add(DocType::from(TBool));
+        let sorted_struct = builder.add(DocType::from(
+            TStruct::default()
+                .add(Field::new(Identifier::try_from("direction").unwrap(), directed_enum))
+                .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
+        ));
+        let ordering_field = builder.add(DocType::from(
+            TEnum::default()
+                .add(Variant::new(Identifier::try_from("none").unwrap()))
+                .add(
+                    Variant::new(Identifier::try_from("sorted").unwrap()).add_value(sorted_struct),
+                ),
+        ));
+
+        let multiple_of = builder.add(DocType::from(
+            TUInt::try_new(2, std::u32::MAX as u64).unwrap(),
+        ));
+        let multiple_of_field = builder.add(DocType::from(TOption::new(multiple_of)));
+
+        // just an empty struct (but more fields will be added by the system)
+        DocType::from(
+            TStruct::default()
+                .add(Field::new(Identifier::try_from("element").unwrap(), element_field))
+                .add(Field::new(Identifier::try_from("length").unwrap(), length_field))
+                .add(Field::new(Identifier::try_from("ordering").unwrap(), ordering_field))
+                .add(Field::new(
+                    Identifier::try_from("multiple_of").unwrap(),
+                    multiple_of_field)
+                )
+        )
+    }
 }

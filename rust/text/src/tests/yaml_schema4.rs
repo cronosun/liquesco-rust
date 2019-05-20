@@ -9,6 +9,7 @@ use liquesco_core::schema::float::TFloat32;
 use liquesco_core::schema::float::TFloat64;
 use liquesco_core::schema::seq::TSeq;
 use liquesco_core::schema::structure::TStruct;
+use liquesco_core::schema::structure::Field;
 
 /// Creates an enum
 fn create_schema() -> impl Schema<'static> {
@@ -21,10 +22,9 @@ fn create_schema() -> impl Schema<'static> {
         TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
     )));
 
-    let struct_value = TStruct::builder()
-        .field(id("my_float_32"), field1)
-        .field(id("my_float_64"), field2)
-        .build();
+    let struct_value = TStruct::default()
+        .add(Field::new(id("my_float_32"), field1))
+        .add(Field::new(id("my_float_64"), field2));
 
     let structure = builder.add(AnyType::Struct(struct_value.into()));
 

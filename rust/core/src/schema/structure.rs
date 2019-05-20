@@ -1,5 +1,5 @@
 use crate::common::error::LqError;
-use crate::schema::core::Context;
+use crate::schema::core::{Context};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
@@ -9,16 +9,25 @@ use crate::serialization::seq::SeqHeader;
 use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::schema::doc_type::DocType;
+use crate::schema::reference::TReference;
+use crate::schema::seq::TSeq;
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::common::ine_range::U32IneRange;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
+use crate::schema::schema_builder::BuildsOwnSchema;
 
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
 #[derive(new, Clone, Debug)]
-pub struct TStruct<'a>(Fields<'a>);
+pub struct TStruct<'a> {
+    fields : Fields<'a>
+}
 
 #[derive(new, Clone, Debug)]
 pub struct Field<'a> {
-    pub identifier: Identifier<'a>,
+    pub identifier: Identifier<'a>, // TODO: Rename to "name"
     pub r#type: TypeRef,
 }
 
@@ -30,17 +39,20 @@ impl<'a> Field<'a> {
 
 impl<'a> Default for TStruct<'a> {
     fn default() -> Self {
-        Self(Fields::new())
+        Self {
+            fields : Fields::new()
+        }
     }
 }
 
 impl<'a> TStruct<'a> {
-    pub fn add(&mut self, field: Field<'a>) {
-        self.0.push(field)
+    pub fn add(mut self, field: Field<'a>) -> Self {
+        self.fields.push(field);
+        self
     }
 
     pub fn prepend(&mut self, field : Field<'a>) {
-        self.0.insert(0, field)
+        self.fields.insert(0, field);
     }
 }
 
@@ -50,7 +62,7 @@ impl<'a> Type for TStruct<'a> {
         C: Context<'c>,
     {
         let list = SeqHeader::de_serialize(context.reader())?;
-        let schema_number_of_fields = u32::try_from(self.0.len())?;
+        let schema_number_of_fields = u32::try_from(self.fields().len())?;
         let number_of_items = list.length();
         // length check
         if context.config().no_extension() {
@@ -72,7 +84,7 @@ impl<'a> Type for TStruct<'a> {
         let schema_number_of_fields_usize =
             usize::try_from(schema_number_of_fields)?;
         for index in 0..schema_number_of_fields_usize {
-            let field = &self.0[index];
+            let field = &self.fields()[index];
             context.validate(field.r#type)?;
         }
         // skip the rest of the fields
@@ -99,7 +111,7 @@ impl<'a> Type for TStruct<'a> {
         let header2 = SeqHeader::de_serialize(r2)?;
 
         let mut num_read: u32 = 0;
-        for field in &self.0 {
+        for field in self.fields() {
             let cmp = context.compare(field.r#type, r1, r2)?;
             num_read = num_read + 1;
             if cmp != Ordering::Equal {
@@ -129,35 +141,32 @@ impl<'a> Type for TStruct<'a> {
 }
 
 impl<'a> TStruct<'a> {
-    pub fn builder() -> Builder<'a> {
-        Builder {
-            fields: Fields::new(),
-        }
-    }
-
-    pub fn fields(&self) -> &Fields<'a> {
-       &self.0
+    pub fn fields(&self) -> &[Field<'a>] {
+       &self.fields
     }
 }
 
-pub struct Builder<'a> {
-    fields: Fields<'a>,
-}
+impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
+    {
+        let identifier = Identifier::build_schema(builder);
+        let r#type = builder.add(DocType::from(TReference));
+        let field_struct = builder.add(DocType::from(TStruct::default()
+            .add(Field::new(Identifier::try_from("name").unwrap(), identifier))
+            .add(Field::new(Identifier::try_from("type").unwrap(), r#type))));
 
-impl<'a> Builder<'a> {
-    pub fn field<I: Into<Identifier<'a>>>(
-        mut self,
-        identifier: I,
-        r#ype: TypeRef,
-    ) -> Self {
-        self.fields.push(Field {
-            identifier: identifier.into(),
-            r#type: r#ype,
-        });
-        self
-    }
+        let fields_field = builder.add(DocType::from(TSeq {
+            element: field_struct,
+            length: U32IneRange::try_new(std::u32::MIN, std::u32::MAX).unwrap(),
+            ordering: SeqOrdering::None,
+            multiple_of: None
+        }));
 
-    pub fn build(self) -> TStruct<'a> {
-        TStruct(self.fields)
+        DocType::from(
+            TStruct::default()
+                .add(Field::new(Identifier::try_from("fields").unwrap(), fields_field))
+        )
     }
 }

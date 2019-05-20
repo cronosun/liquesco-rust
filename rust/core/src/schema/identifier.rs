@@ -1,5 +1,5 @@
 use crate::schema::core::TypeRef;
-use crate::schema::core::SchemaBuilder;
+use crate::schema::schema_builder::{SchemaBuilder, BuildsOwnSchema};
 use crate::common::error::LqError;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::{LqReader, LqWriter, Serializer};
@@ -75,8 +75,10 @@ impl<'a> Identifier<'a> {
             false
         }
     }
+}
 
-    pub fn build_schema<B>(builder : &mut B) -> TypeRef where B : SchemaBuilder {
+impl BuildsOwnSchema for Identifier<'_> {
+    fn build_schema<B>(builder : &mut B) -> TypeRef where B : SchemaBuilder {
         let mut code_range = CodeRange::try_new(48, 57 + 1).unwrap();
         code_range.add(97, 122 + 1).unwrap();
         let segment_ref = builder.add(DocType::from(TAscii {

@@ -1,13 +1,23 @@
 use crate::common::error::LqError;
-use crate::common::ine_range::U64IneRange;
+use crate::common::ine_range::{U64IneRange, U32IneRange};
 use crate::common::range::LqRangeBounds;
-use crate::schema::core::Context;
+use crate::schema::core::{Context};
 use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::unicode::UncheckedUnicode;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::str::from_utf8;
+use crate::schema::doc_type::DocType;
+use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
+use crate::schema::uint::TUInt;
+use crate::schema::seq::TSeq;
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::schema::enumeration::TEnum;
+use crate::schema::enumeration::Variant;
+use crate::schema::identifier::Identifier;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 
 /// A unicode text.
 ///
@@ -98,5 +108,32 @@ impl<'a> Type for TUnicode {
         let bytes2 = UncheckedUnicode::de_serialize(r2)?;
         // lex compare
         Result::Ok(bytes1.cmp(&bytes2))
+    }
+}
+
+impl BaseTypeSchemaBuilder for TUnicode {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
+    {
+        let range_element = builder.add(DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap()));
+        let field_length = builder.add(DocType::from(TSeq {
+            element: range_element,
+            length: U32IneRange::try_new(2,2).unwrap(),
+            ordering: SeqOrdering::None,
+            multiple_of: None
+        }));
+
+        let field_length_type = builder.add(DocType::from(TEnum::default()
+            .add(Variant::new(Identifier::try_from("byte").unwrap()))
+            .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
+            .add(Variant::new(Identifier::try_from("scalar").unwrap()))
+        ));
+
+        DocType::from(
+            TStruct::default()
+                .add(Field::new(Identifier::try_from("length").unwrap(), field_length))
+                .add(Field::new(Identifier::try_from("length_type").unwrap(), field_length_type))
+        )
     }
 }

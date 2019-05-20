@@ -9,6 +9,7 @@ use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::option::TOption;
 use liquesco_core::schema::seq::TSeq;
 use liquesco_core::schema::structure::TStruct;
+use liquesco_core::schema::structure::Field;
 use liquesco_core::schema::uint::TUInt;
 use liquesco_core::schema::unicode::LengthType;
 use liquesco_core::schema::unicode::TUnicode;
@@ -31,12 +32,11 @@ fn create_schema() -> impl Schema<'static> {
     )));
     let field_email = builder.add(AnyType::Option(DocType::from(TOption::new(email))));
 
-    let struct_type = TStruct::builder()
-        .field(id("first_name"), field_first_name)
-        .field(id("last_name"), field_last_name)
-        .field(id("year_born"), field_year_born)
-        .field(id("email"), field_email)
-        .build();
+    let struct_type = TStruct::default()
+        .add(Field::new(id("first_name"), field_first_name))
+        .add(Field::new(id("last_name"), field_last_name))
+        .add(Field::new(id("year_born"), field_year_born))
+        .add(Field::new(id("email"), field_email));
     let doc_struct_type: DocType<'static, TStruct> = struct_type.into();
 
     let structure = builder.add(doc_struct_type);

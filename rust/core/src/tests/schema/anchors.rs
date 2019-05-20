@@ -5,6 +5,7 @@ use crate::schema::boolean::TBool;
 use crate::schema::core::Schema;
 use crate::schema::reference::TReference;
 use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -171,17 +172,15 @@ fn create_schema1() -> impl Schema<'static> {
     let name = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
     let bool_field = builder.add(DocType::from(TBool));
     let structure = builder.add(
-        Into::<DocType<TStruct>>::into(TStruct::builder()
-            .field(id("name"), name)
-            .field(id("reference"), reference)
-            .build()),
+        Into::<DocType<TStruct>>::into(TStruct::default()
+            .add(Field::new(id("name"), name))
+            .add(Field::new(id("reference"), reference)))
     );
     let structure_master = builder.add(
-        Into::<DocType<TStruct>>::into(TStruct::builder()
-            .field(id("name"), name)
-            .field(id("reference"), reference)
-            .field(id("i_am_great"), bool_field)
-            .build()),
+        Into::<DocType<TStruct>>::into(TStruct::default()
+            .add(Field::new(id("name"), name))
+            .add(Field::new(id("reference"), reference))
+            .add(Field::new(id("i_am_great"), bool_field)))
     );
 
     builder.finish(DocType::from(TAnchors::new(structure_master, structure)))

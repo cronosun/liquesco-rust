@@ -1,6 +1,6 @@
 use crate::common::error::LqError;
 use crate::common::ine_range::{U64IneRange, U32IneRange};
-use crate::schema::core::{Context, SchemaBuilder};
+use crate::schema::core::{Context};
 use crate::schema::core::Type;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::unicode::UncheckedUnicode;
@@ -10,11 +10,13 @@ use crate::common::range::LqRangeBounds;
 use smallvec::SmallVec;
 use crate::schema::doc_type::DocType;
 use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
 use crate::schema::seq::Ordering as SeqOrdering;
 use crate::schema::seq::TSeq;
 use crate::schema::uint::TUInt;
 use crate::schema::seq::Direction::Ascending;
 use crate::schema::identifier::Identifier;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 
 #[derive(Clone, Debug)]
 pub struct TAscii {
@@ -146,7 +148,11 @@ impl<'a> Type for TAscii {
         Result::Ok(bytes1.cmp(&bytes2))
     }
 
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct>
+
+}
+
+impl BaseTypeSchemaBuilder for TAscii {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
         where
             B: SchemaBuilder,
     {
@@ -172,9 +178,8 @@ impl<'a> Type for TAscii {
             multiple_of: Some(2),
         }));
 
-        DocType::from(TStruct::builder()
-            .field(Identifier::try_from("length").unwrap(), field_length)
-            .field(Identifier::try_from("codes").unwrap(), field_codes)
-            .build())
+        DocType::from(TStruct::default()
+            .add(Field::new(Identifier::try_from("length").unwrap(), field_length))
+            .add(Field::new(Identifier::try_from("codes").unwrap(), field_codes)))
     }
 }

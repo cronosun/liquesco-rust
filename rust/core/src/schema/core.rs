@@ -1,5 +1,3 @@
-use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
 use crate::schema::identifier::Identifier;
 use crate::serialization::uuid::Uuid;
 use smallvec::SmallVec;
@@ -45,17 +43,11 @@ pub trait Type: Debug {
     where
         C: Context<'c>;
 
-    /// Create the schema for the type. Note: This is always a struct, since even if the
-    /// type has no fields (nothing to configure) still return a struct, since the
-    /// system will add more fields (for example the doc fields); see `DocType`.
-    fn build_schema<B>(_ : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder { 
-        // TODO: Remove this when all have been implemented
-        unimplemented!("TODO: build_schema not yet implemented for type")
-    }
-}
-
-pub trait SchemaBuilder {
-    fn add<T : Into<AnyType<'static>>>(&mut self, item : T) -> TypeRef;
+    // TODO: Remove this, since any type cannot implement this.
+    // Create the schema for the type. Note: This is always a struct, since even if the
+    // type has no fields (nothing to configure) still return a struct, since the
+    // system will add more fields (for example the doc fields); see `DocType`.
+   // fn build_schema<B>(_ : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder;
 }
 
 pub trait Context<'a> {

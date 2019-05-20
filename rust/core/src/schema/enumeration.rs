@@ -1,5 +1,5 @@
 use crate::common::error::LqError;
-use crate::schema::core::{Context, SchemaBuilder};
+use crate::schema::core::{Context};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
@@ -8,16 +8,18 @@ use crate::serialization::core::LqReader;
 use crate::serialization::enumeration::EnumHeader;
 use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
-
+use crate::schema::schema_builder::BuildsOwnSchema;
 use smallvec::SmallVec;
 use std::convert::TryFrom;
 use crate::schema::doc_type::DocType;
 use crate::schema::structure::TStruct;
+use crate::schema::structure::Field;
 use crate::schema::reference::TReference;
 use crate::schema::seq::TSeq;
 use crate::schema::option::TOption;
 use crate::schema::seq::Ordering as SeqOrdering;
 use crate::common::ine_range::U32IneRange;
+use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 
 const MIN_VALUES : usize = 1;
 const MAX_VALUES : usize = 32;
@@ -29,7 +31,7 @@ type Values = SmallVec<[TypeRef; 3]>;
 
 #[derive(new, Clone, Debug, Serialize, Deserialize)]
 pub struct TEnum<'a>{
-    pub variants : Variants<'a>
+    variants : Variants<'a>
 }
 
 #[derive(new, Clone, Debug, Serialize, Deserialize)]
@@ -43,7 +45,8 @@ pub struct Variant<'a> {
     ///
     /// For variants without value, this is empty.
     #[serde(default)]
-    pub values: Option<Values>,
+    #[new(value = "None")]
+    values: Option<Values>,
 }
 
 impl<'a> Variant<'a> {
@@ -57,6 +60,17 @@ impl<'a> Variant<'a> {
             Option::Some(values) => values
         }
     }
+
+    pub fn add_value(mut self, value : TypeRef) -> Self {
+        if let None = self.values {
+            self.values = Some(Values::default());
+        }
+        let borrowed_self : &mut Self = &mut self;
+        if let Some(values) = &mut borrowed_self.values {
+            values.push(value);
+        }
+        self
+    }
 }
 
 impl<'a> Default for TEnum<'a> {
@@ -68,8 +82,13 @@ impl<'a> Default for TEnum<'a> {
 }
 
 impl<'a> TEnum<'a> {
-    pub fn add(&mut self, variant: Variant<'a>) {
-        self.variants.push(variant)
+    pub fn variants(&self) -> &[Variant<'a>] {
+        &self.variants
+    }
+
+    pub fn add(mut self, variant: Variant<'a>) -> Self {
+        self.variants.push(variant);
+        self
     }
 
     pub fn variant_by_id<'b>(&self, id: &Identifier<'b>) -> Option<(u32, &Variant<'a>)> {
@@ -203,23 +222,6 @@ impl<'a> Type for TEnum<'a> {
             Result::Ok(Ordering::Equal)
         }
     }
-
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct>
-        where
-            B: SchemaBuilder,
-    {
-        let variant = build_variant_schema(builder);
-        let field_variants = builder.add(DocType::from(TSeq {
-            element: variant,
-            length: U32IneRange::try_new(MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
-            ordering: SeqOrdering::None,
-            multiple_of: None
-        }));
-
-        DocType::from(TStruct::builder()
-            .field(Identifier::try_from("variants").unwrap(), field_variants)
-            .build())
-    }
 }
 
 fn build_variant_schema<B>(builder: &mut B) -> TypeRef
@@ -237,54 +239,25 @@ fn build_variant_schema<B>(builder: &mut B) -> TypeRef
     }));
     let field_values = builder.add(DocType::from(TOption::new(values)));
 
-    builder.add(DocType::from(TStruct::builder()
-        .field(Identifier::try_from("name").unwrap(), field_name)
-        .field(Identifier::try_from("values").unwrap(), field_values).build()))
+    builder.add(DocType::from(TStruct::default()
+        .add(Field::new(Identifier::try_from("name").unwrap(), field_name))
+        .add(Field::new(Identifier::try_from("values").unwrap(), field_values))))
 }
 
-impl<'a> TEnum<'a> {
-    pub fn builder() -> Builder<'a> {
-        Builder {
-            variants: Variants::new(),
-        }
-    }
-}
+impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
+    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+        where
+            B: SchemaBuilder,
+    {
+        let variant = build_variant_schema(builder);
+        let field_variants = builder.add(DocType::from(TSeq {
+            element: variant,
+            length: U32IneRange::try_new(MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
+            ordering: SeqOrdering::None,
+            multiple_of: None
+        }));
 
-pub struct Builder<'a> {
-    variants: Variants<'a>,
-}
-
-impl<'a> Builder<'a> {
-    pub fn variant<I: Into<Identifier<'a>>>(mut self, identifier: I, r#type: TypeRef) -> Self {
-        let mut values = Values::with_capacity(1);
-        values.push(r#type);
-
-        self.variants.push(Variant {
-            name: identifier.into(),
-            values : Some(values),
-        });
-        self
-    }
-
-    pub fn empty_variant<I: Into<Identifier<'a>>>(mut self, identifier: I) -> Self {
-        self.variants.push(Variant {
-            name: identifier.into(),
-            values : None,
-        });
-        self
-    }
-
-    pub fn multi_variant<I: Into<Identifier<'a>>>(mut self, identifier: I, values: Values) -> Self {
-        self.variants.push(Variant {
-            name: identifier.into(),
-            values : Some(values),
-        });
-        self
-    }
-
-    pub fn build(self) -> TEnum<'a> {
-        TEnum {
-            variants : self.variants
-        }
+        DocType::from(TStruct::default()
+            .add(Field::new(Identifier::try_from("variants").unwrap(), field_variants)))
     }
 }
