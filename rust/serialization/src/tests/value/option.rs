@@ -1,4 +1,4 @@
-use crate::serialization::value::Value;
+use crate::value::Value;
 use crate::tests::value::utils::check_value;
 
 #[test]

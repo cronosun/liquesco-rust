@@ -1,10 +1,10 @@
 use liquesco_common::error::LqError;
 use crate::serialization::float::Float;
 use crate::serialization::uuid::Uuid;
-use crate::serialization::value::EnumValue;
-use crate::serialization::value::Value;
-use crate::serialization::value::ValueList;
-use crate::serialization::value::ValueRef;
+use crate::value::EnumValue;
+use crate::value::Value;
+use crate::value::ValueList;
+use crate::value::ValueRef;
 use std::convert::TryFrom;
 
 use std::borrow::Cow;

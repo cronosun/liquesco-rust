@@ -1,5 +1,5 @@
-use crate::serialization::value::EnumValue;
-use crate::serialization::value::Value;
+use crate::value::EnumValue;
+use crate::value::Value;
 use crate::tests::value::utils::check_value;
 
 #[test]
