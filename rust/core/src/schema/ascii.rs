@@ -14,11 +14,12 @@ use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::unicode::UncheckedUnicode;
+use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TAscii {
     /// Minimum / maximum number of bytes (which is at the same time also number
     /// of ASCII characters)
@@ -33,7 +34,7 @@ const CODE_RANGE_ELEMENTS_MAX: usize = 64;
 /// It's always a tuple of 2 values (min inclusive and max exclusive). Each value is unique
 /// and it's ordered ascending. E.g. [10, 30, 50, 60] means that codes 10-29 (inclusive) and
 /// codes 50-59 (inclusive) are allowed.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct CodeRange(SmallVec<[u8; 4]>);
 
 impl CodeRange {

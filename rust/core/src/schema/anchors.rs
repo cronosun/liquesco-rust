@@ -19,7 +19,7 @@ use std::convert::TryFrom;
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
-#[derive(new, Clone, Debug, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TAnchors {
     pub master: TypeRef,
     pub anchor: TypeRef,

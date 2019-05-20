@@ -110,7 +110,7 @@ pub trait Schema<'a>: TypeContainer<'a> {
 pub const DOC_MIN_LEN_UTF8_BYTES: usize = 1;
 pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq)]
 pub struct Doc<'a> {
     name: Option<Identifier<'a>>,
     description: Option<Cow<'a, str>>,
@@ -138,7 +138,7 @@ impl<'a> Default for Doc<'a> {
 pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
 pub const MIN_IMPLEMENTS_ELEMENTS: usize = 255;
 
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq)]
 pub struct Implements(SmallVec<[Uuid; 2]>);
 
 impl Implements {

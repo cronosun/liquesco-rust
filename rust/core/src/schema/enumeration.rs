@@ -29,12 +29,12 @@ const MIN_VARIANTS: usize = 1;
 type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
 type Values = SmallVec<[TypeRef; 3]>;
 
-#[derive(new, Clone, Debug, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
 pub struct TEnum<'a> {
     variants: Variants<'a>,
 }
 
-#[derive(new, Clone, Debug, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Variant<'a> {
     /// Textual identifier of the variant.
     pub name: Identifier<'a>,

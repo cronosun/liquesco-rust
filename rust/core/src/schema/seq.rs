@@ -18,9 +18,10 @@ use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::seq::SeqHeader;
+use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TSeq {
     pub element: TypeRef,
     pub length: U32IneRange,
@@ -31,13 +32,13 @@ pub struct TSeq {
     pub multiple_of: Option<u32>,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Ordering {
     None,
     Sorted { direction: Direction, unique: bool },
 }
 
-#[derive(Clone, PartialEq, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Ascending,
     Descending,

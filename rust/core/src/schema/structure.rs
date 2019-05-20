@@ -13,6 +13,7 @@ use crate::schema::seq::TSeq;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::seq::SeqHeader;
+use serde::{Deserialize, Serialize};
 use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -20,12 +21,12 @@ use std::convert::TryFrom;
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TStruct<'a> {
     fields: Fields<'a>,
 }
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Field<'a> {
     pub identifier: Identifier<'a>, // TODO: Rename to "name"
     pub r#type: TypeRef,

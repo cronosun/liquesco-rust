@@ -10,10 +10,11 @@ use crate::schema::structure::Field;
 use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::option::Presence;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TOption {
     pub r#type: TypeRef,
 }

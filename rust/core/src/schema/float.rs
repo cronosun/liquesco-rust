@@ -1,4 +1,6 @@
 use crate::common::error::LqError;
+use crate::common::float::F32Ext;
+use crate::common::float::F64Ext;
 use crate::common::ine_range::IneRange;
 use crate::common::range::LqRangeBounds;
 use crate::common::range::Range;
@@ -20,8 +22,8 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 
-pub type TFloat32 = TFloat<f32>;
-pub type TFloat64 = TFloat<f64>;
+pub type TFloat32 = TFloat<F32Ext>;
+pub type TFloat64 = TFloat<F64Ext>;
 
 const NOT_A_NUMBER_ERR_STR: &str = "Expected a float value that is a number. \
                                     This value is not a number (float NaN).";
@@ -30,7 +32,7 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
-#[derive(new, Clone, Debug, Deserialize, Serialize)]
+#[derive(new, Clone, Debug, Deserialize, Serialize, PartialEq, Hash)]
 pub struct TFloat<F: PartialOrd + Debug> {
     #[serde(flatten)]
     pub range: Range<F>,
@@ -103,7 +105,7 @@ impl Type for TFloat32 {
             }
         };
 
-        self.validate(float_value, is_nan, is_p_infinite, is_n_infinite)
+        self.validate(float_value.into(), is_nan, is_p_infinite, is_n_infinite)
     }
 
     fn compare<'c, C>(
@@ -118,7 +120,7 @@ impl Type for TFloat32 {
         let float1 = Float32::de_serialize(r1)?;
         let float2 = Float32::de_serialize(r2)?;
 
-        Result::Ok(cmp_32(float1, float2))
+        Result::Ok(F32Ext::from(float1).cmp(&F32Ext::from(float2)))
     }
 }
 
@@ -139,7 +141,7 @@ impl Type for TFloat64 {
             }
         };
 
-        self.validate(float_value, is_nan, is_p_infinite, is_n_infinite)
+        self.validate(float_value.into(), is_nan, is_p_infinite, is_n_infinite)
     }
 
     fn compare<'c, C>(
@@ -153,48 +155,7 @@ impl Type for TFloat64 {
     {
         let float1 = Float64::de_serialize(r1)?;
         let float2 = Float64::de_serialize(r2)?;
-
-        Result::Ok(cmp_64(float1, float2))
-    }
-}
-
-/// Unfortunately we MUST have ord for the floats (need something to make sure there is
-/// unique ordering in lists)
-///
-/// Rules:
-/// NaN = NaN
-/// NaN < Infinite
-/// NaN < Number
-/// -Infinite < Number < +Infinite
-fn cmp_32(v1: f32, v2: f32) -> Ordering {
-    if let Some(ord) = v1.partial_cmp(&v2) {
-        ord
-    } else {
-        if v1.is_nan() {
-            if v2.is_nan() {
-                Ordering::Equal
-            } else {
-                Ordering::Less
-            }
-        } else {
-            panic!("Incomplete cmp implementation for float")
-        }
-    }
-}
-
-fn cmp_64(v1: f64, v2: f64) -> Ordering {
-    if let Some(ord) = v1.partial_cmp(&v2) {
-        ord
-    } else {
-        if v1.is_nan() {
-            if v2.is_nan() {
-                Ordering::Equal
-            } else {
-                Ordering::Less
-            }
-        } else {
-            panic!("Incomplete cmp implementation for float")
-        }
+        Result::Ok(F64Ext::from(float1).cmp(&F64Ext::from(float2)))
     }
 }
 
@@ -205,11 +166,11 @@ where
     // range
     let range_item = if float_32 {
         builder.add(DocType::from(
-            TFloat32::try_new(std::f32::MIN, std::f32::MAX).unwrap(),
+            TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
         ))
     } else {
         builder.add(DocType::from(
-            TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
+            TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
         ))
     };
     let bounds_field = builder.add(DocType::from(TSeq {
@@ -270,7 +231,7 @@ impl BaseTypeSchemaBuilder for Float32 {
     }
 }
 
-impl BaseTypeSchemaBuilder for TFloat<f32> {
+impl BaseTypeSchemaBuilder for TFloat<F32Ext> {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
     where
         B: SchemaBuilder,
@@ -288,7 +249,7 @@ impl BaseTypeSchemaBuilder for Float64 {
     }
 }
 
-impl BaseTypeSchemaBuilder for TFloat<f64> {
+impl BaseTypeSchemaBuilder for TFloat<F64Ext> {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
     where
         B: SchemaBuilder,

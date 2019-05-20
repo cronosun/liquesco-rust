@@ -1,4 +1,6 @@
 use crate::common::error::LqError;
+use crate::common::float::F32Ext;
+use crate::common::float::F64Ext;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;
@@ -14,7 +16,7 @@ pub struct Range<T> {
     pub end_included: bool,
 }
 
-#[derive(Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct Bounds<T> {
     start: T,
     end: T,
@@ -173,6 +175,26 @@ impl NewFull for Range<f64> {
     fn full() -> Self {
         Self {
             bounds: Bounds::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
+            start_included: true,
+            end_included: true,
+        }
+    }
+}
+
+impl NewFull for Range<F32Ext> {
+    fn full() -> Self {
+        Self {
+            bounds: Bounds::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
+            start_included: true,
+            end_included: true,
+        }
+    }
+}
+
+impl NewFull for Range<F64Ext> {
+    fn full() -> Self {
+        Self {
+            bounds: Bounds::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
             start_included: true,
             end_included: true,
         }

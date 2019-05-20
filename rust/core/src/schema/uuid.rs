@@ -8,8 +8,9 @@ use crate::serialization::binary::Binary;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::uuid::Uuid;
 use core::cmp::Ordering;
+use serde::{Deserialize, Serialize};
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TUuid;
 
 impl Type for TUuid {

@@ -20,13 +20,14 @@ use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::schema::unicode::TUnicode;
 use crate::schema::uuid::TUuid;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 ///
 /// Note: Sorted according to serialization major type.
-#[derive(Clone, FromVariants, Debug)]
+#[derive(Clone, FromVariants, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub enum AnyType<'a> {
     Bool(DocType<'a, TBool>),
     Option(DocType<'a, TOption>),

@@ -20,7 +20,7 @@ use std::convert::TryFrom;
 use std::ops::{Deref, DerefMut};
 
 /// Wraps a type and adds an optional documentation to that type.
-#[derive(Clone, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq)]
 pub struct DocType<'doc, T: Type> {
     #[serde(flatten)]
     doc: Doc<'doc>,

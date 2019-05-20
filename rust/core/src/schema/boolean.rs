@@ -6,9 +6,10 @@ use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::schema::structure::TStruct;
 use crate::serialization::boolean::Bool;
 use crate::serialization::core::DeSerializer;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-#[derive(new, Clone, Debug)]
+#[derive(new, Clone, Debug, Hash, PartialEq, Serialize, Deserialize)]
 pub struct TBool;
 
 impl Type for TBool {

@@ -2,6 +2,7 @@ use crate::common::error::LqError;
 use crate::common::range::Bounds;
 use crate::common::range::LqRangeBounds;
 use crate::common::range::NewFull;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;
 use std::ops::Deref;
@@ -17,7 +18,7 @@ pub type U8IneRange = IneRange<u8>;
 /// Inclusive non-empty range.
 ///
 /// Similar to `std::ops::RangeInclusive` but is never empty; and `min` is always <= `max`.
-#[derive(Clone, Hash, Debug, PartialEq, PartialOrd)]
+#[derive(Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
 pub struct IneRange<T>(Bounds<T>);
 
 impl<T> RangeBounds<T> for IneRange<T> {

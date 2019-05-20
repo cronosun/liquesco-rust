@@ -15,6 +15,7 @@ use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::unicode::UncheckedUnicode;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::str::from_utf8;
@@ -28,7 +29,7 @@ use std::str::from_utf8;
 ///
 /// Note: There's also the ascii type. If you want to transfer non-text strings,
 /// this is usually what you want.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TUnicode {
     /// The length. Note: What "length" really means is defined by the `LengthType`.
     pub length: U64IneRange,
@@ -36,7 +37,7 @@ pub struct TUnicode {
     pub length_type: LengthType,
 }
 
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub enum LengthType {
     /// This is the fastest possible way for validation: It just counts the number of bytes
     /// transferred. This is the same as `Utf8Byte` but only if the data has been

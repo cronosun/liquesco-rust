@@ -1,3 +1,5 @@
+use crate::common::float::F32Ext;
+use crate::common::float::F64Ext;
 use crate::common::range::NewFull;
 use crate::common::range::Range;
 use crate::schema::doc_type::DocType;
@@ -11,7 +13,7 @@ use crate::tests::schema::utils::single_schema;
 
 #[test]
 fn schema1_32() {
-    let schema = single_schema(DocType::from(TFloat32::new(Range::<f32>::full())));
+    let schema = single_schema(DocType::from(TFloat32::new(Range::<F32Ext>::full())));
 
     // some valid items
     assert_valid_strict(-0.0f32, &schema);
@@ -30,7 +32,7 @@ fn schema1_32() {
 
 #[test]
 fn schema1_64() {
-    let schema = single_schema(DocType::from(TFloat64::new(Range::<f64>::full())));
+    let schema = single_schema(DocType::from(TFloat64::new(Range::<F64Ext>::full())));
 
     // some valid items
     assert_valid_strict(-0.0f64, &schema);
@@ -49,7 +51,9 @@ fn schema1_64() {
 
 #[test]
 fn schema2_32() {
-    let mut float = TFloat32::new(Range::<f32>::try_inclusive(-14.5f32, 19.7f32).unwrap());
+    let mut float = TFloat32::new(
+        Range::<F32Ext>::try_inclusive(F32Ext::from(-14.5f32), F32Ext::from(19.7f32)).unwrap(),
+    );
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
@@ -71,7 +75,9 @@ fn schema2_32() {
 
 #[test]
 fn schema2_64() {
-    let mut float = TFloat64::new(Range::<f64>::try_inclusive(-14.5f64, 19.7f64).unwrap());
+    let mut float = TFloat64::new(
+        Range::<F64Ext>::try_inclusive(F64Ext::from(-14.5f64), F64Ext::from(19.7f64)).unwrap(),
+    );
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
@@ -93,8 +99,9 @@ fn schema2_64() {
 
 #[test]
 fn ordering_64() {
-    let mut schema =
-        TFloat64::new(Range::<f64>::try_inclusive(std::f64::MIN, std::f64::MAX).unwrap());
+    let mut schema = TFloat64::new(
+        Range::<F64Ext>::try_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
+    );
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
@@ -133,8 +140,9 @@ fn ordering_64() {
 
 #[test]
 fn ordering_32() {
-    let mut schema =
-        TFloat32::new(Range::<f32>::try_inclusive(std::f32::MIN, std::f32::MAX).unwrap());
+    let mut schema = TFloat32::new(
+        Range::<F32Ext>::try_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
+    );
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;

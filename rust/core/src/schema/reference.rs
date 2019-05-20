@@ -6,11 +6,12 @@ use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::uint::UInt32;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
-#[derive(Clone, Debug)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
 pub struct TReference;
 
 impl Type for TReference {

@@ -16,10 +16,10 @@ fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
 
     let field1 = builder.add(AnyType::Float32(DocType::from(
-        TFloat32::try_new(std::f32::MIN, std::f32::MAX).unwrap(),
+        TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
     )));
     let field2 = builder.add(AnyType::Float64(DocType::from(
-        TFloat64::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
+        TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
     )));
 
     let struct_value = TStruct::default()

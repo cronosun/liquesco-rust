@@ -14,5 +14,7 @@ derive-new = "0.5"
 serde = {version = "1.0.91", features = ["derive"]}
 maplit = "1.0.1"
 from_variants = "0.4.0"
+derive_more = "0.13.0"
+
 
 
