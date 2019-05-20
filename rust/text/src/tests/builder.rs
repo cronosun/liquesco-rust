@@ -1,8 +1,8 @@
-use liquesco_core::schema::any_type::AnyType;
-use liquesco_core::schema::core::Type;
-use liquesco_core::schema::core::TypeContainer;
-use liquesco_core::schema::core::TypeRef;
-use liquesco_core::schema::schema::DefaultSchema;
+use liquesco_schema::any_type::AnyType;
+use liquesco_schema::core::Type;
+use liquesco_schema::core::TypeContainer;
+use liquesco_schema::core::TypeRef;
+use liquesco_schema::schema::DefaultSchema;
 
 pub struct Builder<'a> {
     types: Vec<AnyType<'a>>,

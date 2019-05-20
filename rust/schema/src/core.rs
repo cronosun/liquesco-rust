@@ -1,13 +1,13 @@
-use crate::schema::identifier::Identifier;
-use crate::serialization::uuid::Uuid;
+use crate::identifier::Identifier;
+use liquesco_core::serialization::uuid::Uuid;
 use smallvec::SmallVec;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use liquesco_common::error::LqError;
-use crate::schema::any_type::AnyType;
-use crate::serialization::core::LqReader;
+use crate::any_type::AnyType;
+use liquesco_core::serialization::core::LqReader;
 
 use serde::{Deserialize, Serialize};
 

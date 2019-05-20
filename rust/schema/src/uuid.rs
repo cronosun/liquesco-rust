@@ -1,12 +1,12 @@
 use liquesco_common::error::LqError;
-use crate::schema::core::Context;
-use crate::schema::core::Type;
-use crate::schema::doc_type::DocType;
-use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::schema::structure::TStruct;
-use crate::serialization::binary::Binary;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::uuid::Uuid;
+use crate::core::Context;
+use crate::core::Type;
+use crate::doc_type::DocType;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::structure::TStruct;
+use liquesco_core::serialization::binary::Binary;
+use liquesco_core::serialization::core::DeSerializer;
+use liquesco_core::serialization::uuid::Uuid;
 use core::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 

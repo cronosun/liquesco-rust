@@ -3,7 +3,7 @@ use crate::parser::converter::Converter;
 use crate::parser::core::AnchorInfo;
 use crate::parser::core::{Context, ParseError};
 use crate::parser::value::TextValue;
-use liquesco_core::schema::core::{Schema, TypeRef};
+use liquesco_schema::core::{Schema, TypeRef};
 use liquesco_core::serialization::vec_writer::VecWriter;
 use std::marker::PhantomData;
 

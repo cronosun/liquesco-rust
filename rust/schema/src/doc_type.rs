@@ -1,19 +1,19 @@
 use liquesco_common::error::LqError;
-use crate::schema::core::Doc;
-use crate::schema::core::Type;
-use crate::schema::core::{
+use crate::core::Doc;
+use crate::core::Type;
+use crate::core::{
     Context, DOC_MAX_LEN_UTF8_BYTES, DOC_MIN_LEN_UTF8_BYTES, MAX_IMPLEMENTS_ELEMENTS,
     MIN_IMPLEMENTS_ELEMENTS,
 };
-use crate::schema::identifier::Identifier;
-use crate::schema::option::TOption;
-use crate::schema::schema_builder::BuildsOwnSchema;
-use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::schema::seq::TSeq;
-use crate::schema::structure::Field;
-use crate::schema::structure::TStruct;
-use crate::schema::unicode::{LengthType, TUnicode};
-use crate::schema::uuid::TUuid;
+use crate::identifier::Identifier;
+use crate::option::TOption;
+use crate::schema_builder::BuildsOwnSchema;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::seq::TSeq;
+use crate::structure::Field;
+use crate::structure::TStruct;
+use crate::unicode::{LengthType, TUnicode};
+use crate::uuid::TUuid;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

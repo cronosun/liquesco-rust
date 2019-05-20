@@ -1,15 +1,15 @@
-use crate::schema::anchors::TAnchors;
-use crate::schema::ascii::TAscii;
-use crate::schema::boolean::TBool;
-use crate::schema::core::Schema;
-use crate::schema::doc_type::DocType;
-use crate::schema::reference::TReference;
-use crate::schema::structure::Field;
-use crate::schema::structure::TStruct;
-use crate::tests::schema::builder::builder;
-use crate::tests::schema::utils::assert_invalid_strict;
-use crate::tests::schema::utils::assert_valid_strict;
-use crate::tests::schema::utils::id;
+use crate::anchors::TAnchors;
+use crate::ascii::TAscii;
+use crate::boolean::TBool;
+use crate::core::Schema;
+use crate::doc_type::DocType;
+use crate::reference::TReference;
+use crate::structure::Field;
+use crate::structure::TStruct;
+use crate::tests::builder::builder;
+use crate::tests::utils::assert_invalid_strict;
+use crate::tests::utils::assert_valid_strict;
+use crate::tests::utils::id;
 
 use serde::{Deserialize, Serialize};
 

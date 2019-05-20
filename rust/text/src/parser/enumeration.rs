@@ -5,8 +5,8 @@ use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
-use liquesco_core::schema::enumeration::TEnum;
-use liquesco_core::schema::identifier::Identifier;
+use liquesco_schema::enumeration::TEnum;
+use liquesco_schema::identifier::Identifier;
 use liquesco_core::serialization::core::Serializer;
 use liquesco_core::serialization::enumeration::EnumHeader;
 

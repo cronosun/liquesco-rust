@@ -1,15 +1,15 @@
-use crate::schema::any_type::AnyType;
-use crate::schema::core::Config;
-use crate::schema::core::Schema;
-use crate::schema::core::TypeContainer;
-use crate::schema::core::TypeRef;
-use crate::schema::identifier::Identifier;
-use crate::schema::schema::DefaultSchema;
-use crate::serde::serialize;
-use crate::serialization::slice_reader::SliceReader;
-use crate::serialization::vec_writer::VecWriter;
+use crate::any_type::AnyType;
+use crate::core::Config;
+use crate::core::Schema;
+use crate::core::TypeContainer;
+use crate::core::TypeRef;
+use crate::identifier::Identifier;
+use crate::schema::DefaultSchema;
+use liquesco_core::serialization::slice_reader::SliceReader;
+use liquesco_core::serialization::vec_writer::VecWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
+use liquesco_core::serde::serialize;
 
 pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()

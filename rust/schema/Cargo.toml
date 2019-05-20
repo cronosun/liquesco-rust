@@ -1,13 +1,18 @@
 [package]
-name = "liquesco-common"
+name = "liquesco-schema"
 version = "0.0.1"
 authors = ["cronosun <simon.ruoss@gmail.com>"]
 edition = "2018"
 
 [dependencies]
+liquesco-core = { path = "../core" }
+liquesco-common = { path = "../common" }
 serde = {version = "1.0.91", features = ["derive"]}
 derive_more = "0.13.0"
 derive-new = "0.5"
+smallvec = {version = "0.6.9", features = ["serde"] }
+from_variants = "0.4.0"
+
 
 
 

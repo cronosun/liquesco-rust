@@ -2,14 +2,14 @@ use crate::tests::builder::builder;
 use crate::tests::id;
 use crate::tests::{assert_err, assert_ok};
 use crate::yaml::parse_from_yaml_str;
-use liquesco_core::schema::any_type::AnyType;
-use liquesco_core::schema::ascii::TAscii;
-use liquesco_core::schema::core::Schema;
-use liquesco_core::schema::doc_type::DocType;
-use liquesco_core::schema::enumeration::TEnum;
-use liquesco_core::schema::enumeration::Variant;
-use liquesco_core::schema::seq::TSeq;
-use liquesco_core::schema::sint::TSInt;
+use liquesco_schema::any_type::AnyType;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::enumeration::TEnum;
+use liquesco_schema::enumeration::Variant;
+use liquesco_schema::seq::TSeq;
+use liquesco_schema::sint::TSInt;
 
 /// Creates an enum
 fn create_schema() -> impl Schema<'static> {

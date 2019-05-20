@@ -1,7 +1,7 @@
-use crate::schema::any_type::AnyType;
-use crate::schema::core::TypeRef;
-use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
+use crate::any_type::AnyType;
+use crate::core::TypeRef;
+use crate::doc_type::DocType;
+use crate::structure::TStruct;
 
 pub trait SchemaBuilder {
     fn add<T: Into<AnyType<'static>>>(&mut self, item: T) -> TypeRef;

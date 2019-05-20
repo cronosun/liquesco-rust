@@ -1,11 +1,11 @@
 use crate::tests::builder::builder;
 use crate::tests::{assert_err, assert_ok};
 use crate::yaml::parse_from_yaml_str;
-use liquesco_core::schema::any_type::AnyType;
-use liquesco_core::schema::ascii::TAscii;
-use liquesco_core::schema::core::Schema;
-use liquesco_core::schema::doc_type::DocType;
-use liquesco_core::schema::seq::TSeq;
+use liquesco_schema::any_type::AnyType;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::seq::TSeq;
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();

@@ -1,11 +1,11 @@
 use liquesco_common::error::LqError;
-use crate::schema::core::Context;
-use crate::schema::core::Type;
-use crate::schema::doc_type::DocType;
-use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::schema::structure::TStruct;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::uint::UInt32;
+use crate::core::Context;
+use crate::core::Type;
+use crate::doc_type::DocType;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::structure::TStruct;
+use liquesco_core::serialization::core::DeSerializer;
+use liquesco_core::serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

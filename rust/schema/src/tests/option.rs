@@ -1,13 +1,13 @@
-use crate::schema::ascii::TAscii;
-use crate::schema::boolean::TBool;
-use crate::schema::core::Schema;
-use crate::schema::doc_type::DocType;
-use crate::schema::option::TOption;
-use crate::schema::seq::Direction;
-use crate::tests::schema::builder::builder;
-use crate::tests::schema::ordering::ord_schema;
-use crate::tests::schema::utils::assert_invalid_strict;
-use crate::tests::schema::utils::assert_valid_strict;
+use crate::ascii::TAscii;
+use crate::boolean::TBool;
+use crate::core::Schema;
+use crate::doc_type::DocType;
+use crate::option::TOption;
+use crate::seq::Direction;
+use crate::tests::builder::builder;
+use crate::tests::ordering::ord_schema;
+use crate::tests::utils::assert_invalid_strict;
+use crate::tests::utils::assert_valid_strict;
 
 #[test]
 fn schema1() {

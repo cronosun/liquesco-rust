@@ -3,7 +3,7 @@ use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
-use liquesco_core::schema::uuid::TUuid;
+use liquesco_schema::uuid::TUuid;
 use liquesco_core::serialization::core::Serializer;
 
 pub struct PUuid;

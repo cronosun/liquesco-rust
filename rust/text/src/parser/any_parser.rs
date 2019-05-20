@@ -16,7 +16,7 @@ use crate::parser::uint::PUInt;
 use crate::parser::unicode::PUnicode;
 use crate::parser::uuid::PUuid;
 use crate::parser::value::TextValue;
-use liquesco_core::schema::any_type::AnyType;
+use liquesco_schema::any_type::AnyType;
 
 pub(crate) fn parse_any<'c, C>(
     context: &mut C,

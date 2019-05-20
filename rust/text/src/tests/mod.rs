@@ -1,4 +1,4 @@
-use liquesco_core::schema::identifier::Identifier;
+use liquesco_schema::identifier::Identifier;
 use std::convert::TryInto;
 use std::fmt::Debug;
 

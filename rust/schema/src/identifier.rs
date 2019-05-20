@@ -1,17 +1,17 @@
 use liquesco_common::error::LqError;
-use crate::schema::core::TypeRef;
-use crate::schema::schema_builder::{BuildsOwnSchema, SchemaBuilder};
-use crate::serialization::core::DeSerializer;
-use crate::serialization::core::{LqReader, LqWriter, Serializer};
-use crate::serialization::seq::SeqHeader;
-use crate::serialization::unicode::Unicode;
+use crate::core::TypeRef;
+use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use liquesco_core::serialization::core::DeSerializer;
+use liquesco_core::serialization::core::{LqReader, LqWriter, Serializer};
+use liquesco_core::serialization::seq::SeqHeader;
+use liquesco_core::serialization::unicode::Unicode;
 use core::convert::TryFrom;
 use serde::{Deserialize, Serialize};
 // TODO: use smallvec::SmallVec;
 use liquesco_common::ine_range::U64IneRange;
-use crate::schema::ascii::{CodeRange, TAscii};
-use crate::schema::doc_type::DocType;
-use crate::schema::seq::TSeq;
+use crate::ascii::{CodeRange, TAscii};
+use crate::doc_type::DocType;
+use crate::seq::TSeq;
 use std::borrow::Cow;
 use std::ops::Deref;
 

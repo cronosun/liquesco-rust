@@ -1,8 +1,8 @@
-use crate::schema::any_type::AnyType;
-use crate::schema::core::Type;
-use crate::schema::core::TypeContainer;
-use crate::schema::core::TypeRef;
-use crate::schema::schema::DefaultSchema;
+use crate::any_type::AnyType;
+use crate::core::Type;
+use crate::core::TypeContainer;
+use crate::core::TypeRef;
+use crate::schema::DefaultSchema;
 
 pub struct Builder<'a> {
     types: Vec<AnyType<'a>>,

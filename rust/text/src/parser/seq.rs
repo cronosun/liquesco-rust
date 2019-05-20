@@ -3,7 +3,7 @@ use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
-use liquesco_core::schema::seq::TSeq;
+use liquesco_schema::seq::TSeq;
 use liquesco_core::serialization::core::Serializer;
 use liquesco_core::serialization::seq::SeqHeader;
 use std::convert::TryFrom;

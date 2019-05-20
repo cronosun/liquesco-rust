@@ -2,15 +2,15 @@ use crate::tests::builder::builder;
 use crate::tests::id;
 use crate::tests::{assert_err, assert_ok};
 use crate::yaml::parse_from_yaml_str;
-use liquesco_core::schema::anchors::TAnchors;
-use liquesco_core::schema::any_type::AnyType;
-use liquesco_core::schema::core::Schema;
-use liquesco_core::schema::doc_type::DocType;
-use liquesco_core::schema::option::TOption;
-use liquesco_core::schema::reference::TReference;
-use liquesco_core::schema::structure::Field;
-use liquesco_core::schema::structure::TStruct;
-use liquesco_core::schema::unicode::{LengthType, TUnicode};
+use liquesco_schema::anchors::TAnchors;
+use liquesco_schema::any_type::AnyType;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::option::TOption;
+use liquesco_schema::reference::TReference;
+use liquesco_schema::structure::Field;
+use liquesco_schema::structure::TStruct;
+use liquesco_schema::unicode::{LengthType, TUnicode};
 
 /// anchors and references
 fn create_schema() -> impl Schema<'static> {

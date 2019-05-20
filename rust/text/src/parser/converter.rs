@@ -3,8 +3,8 @@ use crate::parser::value::Seq;
 use crate::parser::value::Text;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
-use liquesco_core::schema::identifier::Format;
-use liquesco_core::schema::identifier::Identifier;
+use liquesco_schema::identifier::Format;
+use liquesco_schema::identifier::Identifier;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 

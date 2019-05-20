@@ -1,5 +1,5 @@
 use crate::parser::value::TextValue;
-use liquesco_core::schema::anchors::TAnchors;
+use liquesco_schema::anchors::TAnchors;
 
 use crate::parser::converter::Converter;
 use crate::parser::core::Context;
