@@ -28,7 +28,11 @@ fn create_schema() -> impl Schema<'static> {
     let enum_value = TEnum::default()
         .add(Variant::new(id("the_empty_variant")))
         .add(Variant::new(id("normal_variant")).add_value(variant1))
-        .add(Variant::new(id("two_value_variant")).add_value(variant2_1).add_value(variant2_2));
+        .add(
+            Variant::new(id("two_value_variant"))
+                .add_value(variant2_1)
+                .add_value(variant2_2),
+        );
 
     let enumeration = builder.add(AnyType::Enum(DocType::from(enum_value)));
 

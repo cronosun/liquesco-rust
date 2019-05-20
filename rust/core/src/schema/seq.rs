@@ -3,7 +3,6 @@ use crate::common::ine_range::U32IneRange;
 use crate::common::range::LqRangeBounds;
 use crate::schema::boolean::TBool;
 use crate::schema::core::Context;
-use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
 use crate::schema::doc_type::DocType;
@@ -12,8 +11,9 @@ use crate::schema::enumeration::Variant;
 use crate::schema::identifier::Identifier;
 use crate::schema::option::TOption;
 use crate::schema::reference::TReference;
-use crate::schema::structure::TStruct;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
@@ -222,8 +222,8 @@ where
 
 impl BaseTypeSchemaBuilder for TSeq {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         let element_field = builder.add(DocType::from(TReference));
         let length_element = builder.add(DocType::from(
@@ -242,13 +242,16 @@ impl BaseTypeSchemaBuilder for TSeq {
         let directed_enum = builder.add(DocType::from(
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
-                .add(Variant::new(Identifier::try_from("descending").unwrap()))
+                .add(Variant::new(Identifier::try_from("descending").unwrap())),
         ));
         let unique = builder.add(DocType::from(TBool));
         let sorted_struct = builder.add(DocType::from(
             TStruct::default()
-                .add(Field::new(Identifier::try_from("direction").unwrap(), directed_enum))
-                .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
+                .add(Field::new(
+                    Identifier::try_from("direction").unwrap(),
+                    directed_enum,
+                ))
+                .add(Field::new(Identifier::try_from("unique").unwrap(), unique)),
         ));
         let ordering_field = builder.add(DocType::from(
             TEnum::default()
@@ -266,13 +269,22 @@ impl BaseTypeSchemaBuilder for TSeq {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(
             TStruct::default()
-                .add(Field::new(Identifier::try_from("element").unwrap(), element_field))
-                .add(Field::new(Identifier::try_from("length").unwrap(), length_field))
-                .add(Field::new(Identifier::try_from("ordering").unwrap(), ordering_field))
+                .add(Field::new(
+                    Identifier::try_from("element").unwrap(),
+                    element_field,
+                ))
+                .add(Field::new(
+                    Identifier::try_from("length").unwrap(),
+                    length_field,
+                ))
+                .add(Field::new(
+                    Identifier::try_from("ordering").unwrap(),
+                    ordering_field,
+                ))
                 .add(Field::new(
                     Identifier::try_from("multiple_of").unwrap(),
-                    multiple_of_field)
-                )
+                    multiple_of_field,
+                )),
         )
     }
 }

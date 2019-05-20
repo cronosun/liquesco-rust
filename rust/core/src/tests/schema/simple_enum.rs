@@ -1,5 +1,6 @@
-use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
+use crate::schema::core::Schema;
+use crate::schema::doc_type::DocType;
 use crate::schema::enumeration::{TEnum, Variant};
 use crate::schema::seq::Direction;
 use crate::schema::uint::TUInt;
@@ -7,7 +8,6 @@ use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::id;
-use crate::schema::doc_type::DocType;
 
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -18,12 +18,12 @@ fn schema1() {
     let mut builder = builder();
     let int = builder.add(DocType::from(TUInt::try_new(1, 200).unwrap()));
     let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
-    let schema = builder.finish(
-        DocType::from(TEnum::default()
+    let schema = builder.finish(DocType::from(
+        TEnum::default()
             .add(Variant::new(id("shutdown")))
             .add(Variant::new(id("add")).add_value(int))
-            .add(Variant::new(id("delete_account")).add_value(upper_case))),
-    );
+            .add(Variant::new(id("delete_account")).add_value(upper_case)),
+    ));
 
     // valid
     assert_valid_strict(Schema1Enum::Shutdown, &schema);
@@ -65,12 +65,13 @@ enum Schema1EnumTooManyValues {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let variant1_type = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
-            builder.add(
-                DocType::from(TEnum::default()
+            let variant1_type =
+                builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
+            builder.add(DocType::from(
+                TEnum::default()
                     .add(Variant::new(id("variant1")).add_value(variant1_type))
-                    .add(Variant::new(id("variant2")))),
-            )
+                    .add(Variant::new(id("variant2"))),
+            ))
         },
         Direction::Ascending,
         true,

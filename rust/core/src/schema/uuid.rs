@@ -1,13 +1,13 @@
-use core::cmp::Ordering;
 use crate::common::error::LqError;
-use crate::schema::core::{Context};
+use crate::schema::core::Context;
 use crate::schema::core::Type;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::binary::Binary;
-use crate::serialization::uuid::Uuid;
 use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
 use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::schema::structure::TStruct;
+use crate::serialization::binary::Binary;
+use crate::serialization::core::DeSerializer;
+use crate::serialization::uuid::Uuid;
+use core::cmp::Ordering;
 
 #[derive(new, Clone, Debug)]
 pub struct TUuid;
@@ -40,11 +40,10 @@ impl Type for TUuid {
 
 impl BaseTypeSchemaBuilder for TUuid {
     fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
     }
-
 }

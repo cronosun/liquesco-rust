@@ -28,7 +28,7 @@ fn sints() {
 #[test]
 fn floats() {
     assert_serde(1.8f32);
-    assert_serde(1.8f64);    
+    assert_serde(1.8f64);
 }
 
 #[test]

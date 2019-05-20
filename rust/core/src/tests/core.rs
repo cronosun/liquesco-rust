@@ -1,8 +1,8 @@
 use crate::serialization::core::ContentInfo;
-use crate::serialization::core::TypeHeader;
 use crate::serialization::core::MajorType;
+use crate::serialization::core::TypeHeader;
 
-const FACTOR : u8 = 13;
+const FACTOR: u8 = 13;
 
 #[test]
 fn new_type_header() {
@@ -20,11 +20,20 @@ fn new_type_header() {
 
 #[test]
 fn decompose_type_header() {
-    assert_eq!(ContentInfo::Len1, TypeHeader::from_u8(10 * FACTOR + 1).content_info());
-    assert_eq!(MajorType::new(10), TypeHeader::from_u8(10 * FACTOR + 1).major_type());
+    assert_eq!(
+        ContentInfo::Len1,
+        TypeHeader::from_u8(10 * FACTOR + 1).content_info()
+    );
+    assert_eq!(
+        MajorType::new(10),
+        TypeHeader::from_u8(10 * FACTOR + 1).major_type()
+    );
     assert_eq!(
         ContentInfo::ContainerVarIntVarInt,
         TypeHeader::from_u8(5 * FACTOR + 11).content_info()
     );
-    assert_eq!(MajorType::new(5), TypeHeader::from_u8(5 * FACTOR + 6).major_type());
+    assert_eq!(
+        MajorType::new(5),
+        TypeHeader::from_u8(5 * FACTOR + 6).major_type()
+    );
 }

@@ -20,10 +20,7 @@ pub trait Converter {
         }
     }
 
-    fn string_to_identifier(
-        value: &str,
-        _: IdentifierType,
-    ) -> Result<Identifier, ParseError> {
+    fn string_to_identifier(value: &str, _: IdentifierType) -> Result<Identifier, ParseError> {
         Ok(Identifier::try_from(value)?)
     }
 
@@ -179,9 +176,12 @@ pub trait Converter {
         value: &'a Value<'a>,
     ) -> Result<HashMap<&'a str, &'a TextValue<'a>>, ParseError> {
         require(Self::to_string_map(value), || {
-            format!("Expecting to have a map with text keys (or a sequence with 0-n \
-            entries where each entry in turn is a sequence with 2 elements where the first \
-            of those 2 elements is a text), got {:?}", value)
+            format!(
+                "Expecting to have a map with text keys (or a sequence with 0-n \
+                 entries where each entry in turn is a sequence with 2 elements where the first \
+                 of those 2 elements is a text), got {:?}",
+                value
+            )
         })
     }
 
@@ -218,22 +218,27 @@ pub trait Converter {
         "MAIN*"
     }
 
-    fn validate_reference(value : &str) -> Result<(), ParseError> {
-        if value==Self::master_anchor() {
+    fn validate_reference(value: &str) -> Result<(), ParseError> {
+        if value == Self::master_anchor() {
             // of course the master anchor is OK
             Result::Ok(())
         } else {
             if !value.ends_with("*") {
-                return Err(ParseError::new(format!("References must end with `*`; \
-                the reference you supplied does not: `{:?}`",
-                value)));
+                return Err(ParseError::new(format!(
+                    "References must end with `*`; \
+                     the reference you supplied does not: `{:?}`",
+                    value
+                )));
             }
             let len = value.len();
-            let (identifier, _) = value.split_at(len-1);
+            let (identifier, _) = value.split_at(len - 1);
             if Identifier::try_from(identifier).is_err() {
-                return Err(ParseError::new(format!("References must be valid \
-                identifiers (see doc; essentially only latin lower cases and underscores). \
-                You supplied: `{:?}`", identifier)));
+                return Err(ParseError::new(format!(
+                    "References must be valid \
+                     identifiers (see doc; essentially only latin lower cases and underscores). \
+                     You supplied: `{:?}`",
+                    identifier
+                )));
             }
             Result::Ok(())
         }

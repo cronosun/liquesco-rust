@@ -1,20 +1,20 @@
+use crate::schema::doc_type::DocType;
+use crate::schema::uint::TUInt;
 use crate::tests::schema::ordering::ord_assert_ascending;
 use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::uint::TUInt;
-use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1() {
     let schema = single_schema(DocType::from(TUInt::try_new(5, 158).unwrap()));
-    
+
     // some valid items
-    assert_valid_strict(5usize, &schema);    
-    assert_valid_strict(6usize, &schema);    
-    assert_valid_strict(157usize, &schema);    
-    assert_valid_strict(158usize, &schema);    
+    assert_valid_strict(5usize, &schema);
+    assert_valid_strict(6usize, &schema);
+    assert_valid_strict(157usize, &schema);
+    assert_valid_strict(158usize, &schema);
 
     // some invalid items
     assert_invalid_strict(4usize, &schema);
@@ -28,11 +28,11 @@ fn schema1() {
 #[test]
 fn schema2() {
     let schema = single_schema(DocType::from(TUInt::try_new(999, std::u64::MAX).unwrap()));
-    
+
     // some valid items
-    assert_valid_strict(999usize, &schema);    
-    assert_valid_strict(1000usize, &schema);    
-    assert_valid_strict(std::u64::MAX, &schema);    
+    assert_valid_strict(999usize, &schema);
+    assert_valid_strict(1000usize, &schema);
+    assert_valid_strict(std::u64::MAX, &schema);
 
     // some invalid items
     assert_invalid_strict(998usize, &schema);

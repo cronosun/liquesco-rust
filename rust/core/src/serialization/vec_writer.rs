@@ -1,5 +1,5 @@
-use crate::serialization::core::LqWriter;
 use crate::common::error::LqError;
+use crate::serialization::core::LqWriter;
 
 pub struct VecWriter {
     data: Vec<u8>,

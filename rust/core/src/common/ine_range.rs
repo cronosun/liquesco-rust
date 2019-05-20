@@ -1,11 +1,11 @@
-use crate::common::range::NewFull;
-use crate::common::range::LqRangeBounds;
-use std::ops::Deref;
-use crate::common::range::Bounds;
-use std::ops::Bound;
-use std::ops::RangeBounds;
 use crate::common::error::LqError;
+use crate::common::range::Bounds;
+use crate::common::range::LqRangeBounds;
+use crate::common::range::NewFull;
 use std::fmt::Debug;
+use std::ops::Bound;
+use std::ops::Deref;
+use std::ops::RangeBounds;
 
 pub type F32IneRange = IneRange<f32>;
 pub type F64IneRange = IneRange<f64>;
@@ -28,7 +28,7 @@ impl<T> RangeBounds<T> for IneRange<T> {
     fn end_bound(&self) -> Bound<&T> {
         Bound::Included(&self.0.end())
     }
-} 
+}
 
 impl<T> LqRangeBounds<T> for IneRange<T> {}
 
@@ -40,7 +40,7 @@ impl<T: PartialOrd + Debug> IneRange<T> {
 
     #[inline]
     pub fn try_new_msg<M: Debug>(msg: M, start: T, end: T) -> Result<Self, LqError> {
-                Result::Ok(Self(Bounds::try_new_msg(msg, start, end)?))
+        Result::Ok(Self(Bounds::try_new_msg(msg, start, end)?))
     }
 }
 

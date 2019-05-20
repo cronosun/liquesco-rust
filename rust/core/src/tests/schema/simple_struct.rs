@@ -1,19 +1,19 @@
-use crate::schema::doc_type::DocType;
-use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
+use crate::schema::core::Schema;
+use crate::schema::doc_type::DocType;
 use crate::schema::seq::Direction;
 use crate::schema::sint::TSInt;
+use crate::schema::structure::Field;
 use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_extended;
-use crate::tests::schema::utils::assert_valid_extended;
-use crate::tests::schema::utils::id;
-use crate::schema::structure::Field;
 use crate::tests::schema::utils::assert_invalid_strict;
+use crate::tests::schema::utils::assert_valid_extended;
 use crate::tests::schema::utils::assert_valid_strict;
+use crate::tests::schema::utils::id;
 use serde::{Deserialize, Serialize};
 
 #[test]
@@ -21,11 +21,11 @@ fn schema1() {
     let mut builder = builder();
     let int = builder.add(DocType::from(TUInt::try_new(2, 144).unwrap()));
     let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
-    let schema = builder.finish(
-        DocType::from(TStruct::default()
+    let schema = builder.finish(DocType::from(
+        TStruct::default()
             .add(Field::new(id("age"), int))
-            .add(Field::new(id("name"), upper_case)))
-    );
+            .add(Field::new(id("name"), upper_case)),
+    ));
 
     // valid
     assert_valid_strict(
@@ -98,18 +98,20 @@ fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let type_x = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
-            let type_y = builder.add(DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()));
-            let inner_struct = builder.add(
-                Into::<DocType<TStruct>>::into(TStruct::default()
+            let type_y = builder.add(DocType::from(
+                TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
+            ));
+            let inner_struct = builder.add(Into::<DocType<TStruct>>::into(
+                TStruct::default()
                     .add(Field::new(id("x"), type_x))
-                    .add(Field::new(id("y"), type_y)))
-            );
+                    .add(Field::new(id("y"), type_y)),
+            ));
             let type_more = builder.add(DocType::from(TBool));
-            builder.add(
-                Into::<DocType<TStruct>>::into(TStruct::default()
+            builder.add(Into::<DocType<TStruct>>::into(
+                TStruct::default()
                     .add(Field::new(id("content"), inner_struct))
-                    .add(Field::new(id("more"), type_more)))
-            )
+                    .add(Field::new(id("more"), type_more)),
+            ))
         },
         Direction::Ascending,
         true,

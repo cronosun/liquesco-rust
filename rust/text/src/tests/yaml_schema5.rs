@@ -8,8 +8,8 @@ use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::option::TOption;
 use liquesco_core::schema::reference::TReference;
-use liquesco_core::schema::structure::TStruct;
 use liquesco_core::schema::structure::Field;
+use liquesco_core::schema::structure::TStruct;
 use liquesco_core::schema::unicode::{LengthType, TUnicode};
 
 /// anchors and references

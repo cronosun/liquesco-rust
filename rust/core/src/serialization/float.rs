@@ -1,8 +1,8 @@
 use crate::common::error::LqError;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer;
 use crate::serialization::major_types::TYPE_FLOAT;
 use std::convert::TryFrom;
@@ -30,7 +30,7 @@ impl From<f64> for Float {
 
 impl Float {
     pub fn try_into_f32(self) -> Result<f32, LqError> {
-         if let Float::F32(f32_value) = self {
+        if let Float::F32(f32_value) = self {
             Result::Ok(f32_value)
         } else {
             LqError::err_new(format!(
@@ -42,7 +42,7 @@ impl Float {
     }
 
     pub fn try_into_f64(self) -> Result<f64, LqError> {
-         if let Float::F64(f64_value) = self {
+        if let Float::F64(f64_value) = self {
             Result::Ok(f64_value)
         } else {
             LqError::err_new(format!(

@@ -2,25 +2,25 @@ use crate::common::error::LqError;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
-use crate::schema::core::{Context, TypeRef};
 use crate::schema::core::Type;
+use crate::schema::core::{Context, TypeRef};
 use crate::schema::doc_type::DocType;
 use crate::schema::enumeration::TEnum;
 use crate::schema::enumeration::Variant;
 use crate::schema::float::TFloat32;
 use crate::schema::float::TFloat64;
+use crate::schema::identifier::Identifier;
 use crate::schema::option::TOption;
 use crate::schema::reference::TReference;
+use crate::schema::schema_builder::BaseTypeSchemaBuilder;
+use crate::schema::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::schema::seq::TSeq;
 use crate::schema::sint::TSInt;
 use crate::schema::structure::TStruct;
 use crate::schema::uint::TUInt;
 use crate::schema::unicode::TUnicode;
-use std::cmp::Ordering;
 use crate::schema::uuid::TUuid;
-use crate::schema::schema_builder::{BuildsOwnSchema, SchemaBuilder};
-use crate::schema::identifier::Identifier;
-use crate::schema::schema_builder::BaseTypeSchemaBuilder;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
 
 /// This is an enumeration of all `Type`s that are known to the system.
@@ -100,7 +100,10 @@ impl<'a> Type for AnyType<'a> {
 }
 
 impl BuildsOwnSchema for AnyType<'_> {
-    fn build_schema<B>(builder: &mut B) -> TypeRef where B: SchemaBuilder  {
+    fn build_schema<B>(builder: &mut B) -> TypeRef
+    where
+        B: SchemaBuilder,
+    {
         let ref_bool = doc_type_ref::<TBool, B>(builder);
         let ref_option = doc_type_ref::<TOption, B>(builder);
         let ref_seq = doc_type_ref::<TSeq, B>(builder);
@@ -116,31 +119,35 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_reference = doc_type_ref::<TReference, B>(builder);
         let ref_uuid = doc_type_ref::<TUuid, B>(builder);
 
-        builder.add(DocType::from(TEnum::default()
-            .add(variant(ref_bool, "bool"))
-            .add(variant(ref_option, "option"))
-            .add(variant(ref_seq, "seq"))
-            .add(variant(ref_unicode, "unicode"))
-            .add(variant(ref_uint, "uint"))
-            .add(variant(ref_sint, "sint"))
-            .add(variant(ref_float_32, "f32"))
-            .add(variant(ref_float_64, "f64"))
-            .add(variant(ref_enum, "enum"))
-            .add(variant(ref_struct, "struct"))
-            .add(variant(ref_ascii, "ascii"))
-            .add(variant(ref_anchors, "anchors"))
-            .add(variant(ref_reference, "reference"))
-            .add(variant(ref_uuid, "uuid"))
+        builder.add(DocType::from(
+            TEnum::default()
+                .add(variant(ref_bool, "bool"))
+                .add(variant(ref_option, "option"))
+                .add(variant(ref_seq, "seq"))
+                .add(variant(ref_unicode, "unicode"))
+                .add(variant(ref_uint, "uint"))
+                .add(variant(ref_sint, "sint"))
+                .add(variant(ref_float_32, "f32"))
+                .add(variant(ref_float_64, "f64"))
+                .add(variant(ref_enum, "enum"))
+                .add(variant(ref_struct, "struct"))
+                .add(variant(ref_ascii, "ascii"))
+                .add(variant(ref_anchors, "anchors"))
+                .add(variant(ref_reference, "reference"))
+                .add(variant(ref_uuid, "uuid")),
         ))
     }
 }
 
-fn variant(reference : TypeRef, id : &'static str) -> Variant<'static> {
+fn variant(reference: TypeRef, id: &'static str) -> Variant<'static> {
     Variant::new(Identifier::try_from(id).unwrap()).add_value(reference)
 }
 
-fn doc_type_ref<T, B>(builder : &mut B) -> TypeRef
-    where T : BaseTypeSchemaBuilder + Type, B : SchemaBuilder {
+fn doc_type_ref<T, B>(builder: &mut B) -> TypeRef
+where
+    T: BaseTypeSchemaBuilder + Type,
+    B: SchemaBuilder,
+{
     let doc_type = DocType::<T>::build_schema(builder);
     builder.add(doc_type)
 }

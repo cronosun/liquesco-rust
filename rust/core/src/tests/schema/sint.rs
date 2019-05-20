@@ -1,10 +1,10 @@
+use crate::schema::doc_type::DocType;
+use crate::schema::sint::TSInt;
 use crate::tests::schema::ordering::ord_assert_ascending;
 use crate::tests::schema::ordering::ord_assert_equal;
-use crate::schema::sint::TSInt;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1() {

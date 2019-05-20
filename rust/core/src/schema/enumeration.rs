@@ -1,37 +1,37 @@
 use crate::common::error::LqError;
-use crate::schema::core::{Context};
+use crate::common::ine_range::U32IneRange;
+use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
+use crate::schema::doc_type::DocType;
 use crate::schema::identifier::Identifier;
+use crate::schema::option::TOption;
+use crate::schema::reference::TReference;
+use crate::schema::schema_builder::BuildsOwnSchema;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::schema::seq::TSeq;
+use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::enumeration::EnumHeader;
-use std::cmp::Ordering;
 use serde::{Deserialize, Serialize};
-use crate::schema::schema_builder::BuildsOwnSchema;
 use smallvec::SmallVec;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
-use crate::schema::structure::Field;
-use crate::schema::reference::TReference;
-use crate::schema::seq::TSeq;
-use crate::schema::option::TOption;
-use crate::schema::seq::Ordering as SeqOrdering;
-use crate::common::ine_range::U32IneRange;
-use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 
-const MIN_VALUES : usize = 1;
-const MAX_VALUES : usize = 32;
-const MIN_VARIANTS : usize = 1;
+const MIN_VALUES: usize = 1;
+const MAX_VALUES: usize = 32;
+const MIN_VARIANTS: usize = 1;
 
 /// Use a small vec with 5 items (should be enough for many cases)
 type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
 type Values = SmallVec<[TypeRef; 3]>;
 
 #[derive(new, Clone, Debug, Serialize, Deserialize)]
-pub struct TEnum<'a>{
-    variants : Variants<'a>
+pub struct TEnum<'a> {
+    variants: Variants<'a>,
 }
 
 #[derive(new, Clone, Debug, Serialize, Deserialize)]
@@ -57,15 +57,15 @@ impl<'a> Variant<'a> {
     pub fn values(&self) -> &[TypeRef] {
         match &self.values {
             Option::None => &[],
-            Option::Some(values) => values
+            Option::Some(values) => values,
         }
     }
 
-    pub fn add_value(mut self, value : TypeRef) -> Self {
+    pub fn add_value(mut self, value: TypeRef) -> Self {
         if let None = self.values {
             self.values = Some(Values::default());
         }
-        let borrowed_self : &mut Self = &mut self;
+        let borrowed_self: &mut Self = &mut self;
         if let Some(values) = &mut borrowed_self.values {
             values.push(value);
         }
@@ -76,7 +76,7 @@ impl<'a> Variant<'a> {
 impl<'a> Default for TEnum<'a> {
     fn default() -> Self {
         Self {
-            variants : Variants::new()
+            variants: Variants::new(),
         }
     }
 }
@@ -133,14 +133,20 @@ impl<'a> Type for TEnum<'a> {
                 "Error processing enum variant {:?} (ordinal \
                  {:?}); strict mode: Schema expects {:?} values - have {:?} values in \
                  data.",
-                variant.name(), ordinal, schema_number_of_values, usize_number_of_values
+                variant.name(),
+                ordinal,
+                schema_number_of_values,
+                usize_number_of_values
             ));
         } else if usize_number_of_values < schema_number_of_values {
             return LqError::err_new(format!(
                 "Error processing enum variant {:?} (ordinal \
                  {:?}): Schema expects at least {:?} values - have {:?} values in \
                  data.",
-                variant.name(), ordinal, schema_number_of_values, usize_number_of_values
+                variant.name(),
+                ordinal,
+                schema_number_of_values,
+                usize_number_of_values
             ));
         }
 
@@ -225,8 +231,8 @@ impl<'a> Type for TEnum<'a> {
 }
 
 fn build_variant_schema<B>(builder: &mut B) -> TypeRef
-    where
-        B: SchemaBuilder,
+where
+    B: SchemaBuilder,
 {
     let field_name = Identifier::build_schema(builder);
 
@@ -235,29 +241,39 @@ fn build_variant_schema<B>(builder: &mut B) -> TypeRef
         element: single_value,
         length: U32IneRange::try_new(MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
         ordering: SeqOrdering::None,
-        multiple_of: None
+        multiple_of: None,
     }));
     let field_values = builder.add(DocType::from(TOption::new(values)));
 
-    builder.add(DocType::from(TStruct::default()
-        .add(Field::new(Identifier::try_from("name").unwrap(), field_name))
-        .add(Field::new(Identifier::try_from("values").unwrap(), field_values))))
+    builder.add(DocType::from(
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("name").unwrap(),
+                field_name,
+            ))
+            .add(Field::new(
+                Identifier::try_from("values").unwrap(),
+                field_values,
+            )),
+    ))
 }
 
 impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         let variant = build_variant_schema(builder);
         let field_variants = builder.add(DocType::from(TSeq {
             element: variant,
             length: U32IneRange::try_new(MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
             ordering: SeqOrdering::None,
-            multiple_of: None
+            multiple_of: None,
         }));
 
-        DocType::from(TStruct::default()
-            .add(Field::new(Identifier::try_from("variants").unwrap(), field_variants)))
+        DocType::from(TStruct::default().add(Field::new(
+            Identifier::try_from("variants").unwrap(),
+            field_variants,
+        )))
     }
 }

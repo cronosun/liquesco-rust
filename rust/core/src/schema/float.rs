@@ -6,11 +6,12 @@ use crate::schema::boolean::TBool;
 use crate::schema::core::{Context, Type};
 use crate::schema::doc_type::DocType;
 use crate::schema::identifier::Identifier;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::schema::seq::Direction::Ascending;
 use crate::schema::seq::Ordering as SeqOrdering;
 use crate::schema::seq::TSeq;
-use crate::schema::structure::TStruct;
 use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::float::Float32;
 use crate::serialization::float::Float64;
@@ -18,7 +19,6 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt::Debug;
-use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 
 pub type TFloat32 = TFloat<f32>;
 pub type TFloat64 = TFloat<f64>;
@@ -120,7 +120,6 @@ impl Type for TFloat32 {
 
         Result::Ok(cmp_32(float1, float2))
     }
-
 }
 
 impl Type for TFloat64 {
@@ -235,38 +234,46 @@ where
     // just an empty struct (but more fields will be added by the system)
     DocType::from(
         TStruct::default()
-            .add(Field::new(Identifier::try_from("bounds").unwrap(), bounds_field))
+            .add(Field::new(
+                Identifier::try_from("bounds").unwrap(),
+                bounds_field,
+            ))
             .add(Field::new(
                 Identifier::try_from("start_included").unwrap(),
-                start_included_field))
+                start_included_field,
+            ))
             .add(Field::new(
                 Identifier::try_from("end_included").unwrap(),
-                end_included_field))
-            .add(Field::new(Identifier::try_from("allow_nan").unwrap(), allow_nan_field))
+                end_included_field,
+            ))
+            .add(Field::new(
+                Identifier::try_from("allow_nan").unwrap(),
+                allow_nan_field,
+            ))
             .add(Field::new(
                 Identifier::try_from("allow_positive_infinity").unwrap(),
-                allow_positive_infinity_field))
+                allow_positive_infinity_field,
+            ))
             .add(Field::new(
                 Identifier::try_from("allow_negative_infinity").unwrap(),
-                allow_negative_infinity_field))
+                allow_negative_infinity_field,
+            )),
     )
 }
 
 impl BaseTypeSchemaBuilder for Float32 {
-
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         build_schema(builder, true)
     }
 }
 
 impl BaseTypeSchemaBuilder for TFloat<f32> {
-
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         build_schema(builder, true)
     }
@@ -274,8 +281,8 @@ impl BaseTypeSchemaBuilder for TFloat<f32> {
 
 impl BaseTypeSchemaBuilder for Float64 {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         build_schema(builder, false)
     }
@@ -283,8 +290,8 @@ impl BaseTypeSchemaBuilder for Float64 {
 
 impl BaseTypeSchemaBuilder for TFloat<f64> {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         build_schema(builder, false)
     }

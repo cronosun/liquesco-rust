@@ -1,5 +1,6 @@
 use crate::common::range::NewFull;
 use crate::common::range::Range;
+use crate::schema::doc_type::DocType;
 use crate::schema::float::TFloat32;
 use crate::schema::float::TFloat64;
 use crate::tests::schema::ordering::ord_assert_ascending;
@@ -7,7 +8,6 @@ use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1_32() {

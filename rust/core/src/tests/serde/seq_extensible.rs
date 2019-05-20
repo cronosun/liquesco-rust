@@ -70,7 +70,7 @@ fn tuples_are_extensible() {
             false,
             ("bonjour".to_string(), true, 48),
             34,
-            "inner tuple end".to_string()
+            "inner tuple end".to_string(),
         ),
         -478,
         false,

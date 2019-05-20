@@ -1,7 +1,7 @@
 use crate::common::error::LqError;
+use crate::serialization::core::ContentDescription;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
-use crate::serialization::core::ContentDescription;
 use crate::serialization::core::MajorType;
 use std::convert::TryFrom;
 
@@ -21,9 +21,7 @@ pub fn binary_write<W: LqWriter>(
 }
 
 #[inline]
-pub fn binary_read<'a, R: LqReader<'a>>(
-    reader: &mut R,
-) -> Result<(MajorType, &'a [u8]), LqError> {
+pub fn binary_read<'a, R: LqReader<'a>>(reader: &mut R) -> Result<(MajorType, &'a [u8]), LqError> {
     let header = reader.read_type_header()?;
     let content_description = reader.read_content_description_given_type_header(header)?;
     let len = content_description.self_length();

@@ -1,19 +1,19 @@
-use std::cmp::Ordering;
 use crate::common::error::LqError;
-use crate::common::ine_range::{U64IneRange, U32IneRange};
-use crate::schema::core::{Context};
+use crate::common::ine_range::{U32IneRange, U64IneRange};
+use crate::common::range::LqRangeBounds;
+use crate::schema::core::Context;
 use crate::schema::core::Type;
+use crate::schema::doc_type::DocType;
+use crate::schema::identifier::Identifier;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::schema::seq::{Direction, TSeq};
+use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::uint::UInt64;
-use crate::common::range::LqRangeBounds;
-use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
-use crate::schema::structure::Field;
-use crate::schema::seq::{TSeq, Direction};
-use crate::schema::seq::Ordering as SeqOrdering;
-use crate::schema::identifier::Identifier;
+use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 
 #[derive(new, Clone, Debug)]
 pub struct TUInt {
@@ -58,10 +58,12 @@ impl Type for TUInt {
 
 impl BaseTypeSchemaBuilder for TUInt {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
-        let element = builder.add(DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap()));
+        let element = builder.add(DocType::from(
+            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
+        ));
         let field_range = builder.add(DocType::from(TSeq {
             element,
             length: U32IneRange::try_new(2, 2).unwrap(),
@@ -72,10 +74,9 @@ impl BaseTypeSchemaBuilder for TUInt {
             multiple_of: None,
         }));
 
-        DocType::from(
-            TStruct::default()
-                .add(Field::new(Identifier::try_from("range").unwrap(), field_range))
-        )
+        DocType::from(TStruct::default().add(Field::new(
+            Identifier::try_from("range").unwrap(),
+            field_range,
+        )))
     }
-
 }

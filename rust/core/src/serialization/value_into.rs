@@ -1,5 +1,5 @@
-use crate::serialization::float::Float;
 use crate::common::error::LqError;
+use crate::serialization::float::Float;
 use crate::serialization::uuid::Uuid;
 use crate::serialization::value::EnumValue;
 use crate::serialization::value::Value;
@@ -58,19 +58,19 @@ impl<'a> From<&'a [Value<'a>]> for Value<'a> {
 }
 
 impl From<Float> for Value<'static> {
-    fn from(value : Float) -> Self {
+    fn from(value: Float) -> Self {
         Value::Float(value)
     }
 }
 
 impl From<f32> for Value<'static> {
-    fn from(value : f32) -> Self {
+    fn from(value: f32) -> Self {
         Value::Float(value.into())
     }
 }
 
 impl From<f64> for Value<'static> {
-    fn from(value : f64) -> Self {
+    fn from(value: f64) -> Self {
         Value::Float(value.into())
     }
 }

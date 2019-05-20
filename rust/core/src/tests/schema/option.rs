@@ -1,13 +1,13 @@
-use crate::schema::core::Schema;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;
+use crate::schema::core::Schema;
+use crate::schema::doc_type::DocType;
 use crate::schema::option::TOption;
 use crate::schema::seq::Direction;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::ordering::ord_schema;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
-use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1() {
@@ -26,7 +26,9 @@ fn schema1() {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let element = builder.add(DocType::from(TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap()));
+            let element = builder.add(DocType::from(
+                TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap(),
+            ));
             let option = DocType::from(TOption::new(element));
             builder.add(option)
         },

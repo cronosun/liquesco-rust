@@ -13,7 +13,7 @@ pub struct TextValue<'a> {
 
 impl<'a> AsRef<Value<'a>> for TextValue<'a> {
     fn as_ref(&self) -> &Value<'a> {
-       &self.value
+        &self.value
     }
 }
 

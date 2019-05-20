@@ -1,12 +1,12 @@
 pub mod utils;
 
-pub mod boolean;
-pub mod utf8;
 pub mod binary;
-pub mod option;
-pub mod list;
+pub mod boolean;
 pub mod enumeration;
-pub mod unsigned_int;
-pub mod signed_int;
-pub mod uuid;
 pub mod float;
+pub mod list;
+pub mod option;
+pub mod signed_int;
+pub mod unsigned_int;
+pub mod utf8;
+pub mod uuid;

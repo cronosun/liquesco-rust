@@ -1,9 +1,12 @@
-use crate::serialization::float::Float;
 use crate::common::error::LqError;
+use crate::serialization::binary::Binary;
+use crate::serialization::boolean::Bool;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
-use crate::serialization::core::DeSerializer;
 use crate::serialization::core::Serializer;
+use crate::serialization::enumeration::EnumHeader;
+use crate::serialization::float::Float;
 use crate::serialization::major_types::TYPE_BINARY;
 use crate::serialization::major_types::TYPE_BOOL_FALSE;
 use crate::serialization::major_types::TYPE_BOOL_TRUE;
@@ -12,20 +15,17 @@ use crate::serialization::major_types::TYPE_ENUM_1;
 use crate::serialization::major_types::TYPE_ENUM_2;
 use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
-use crate::serialization::major_types::TYPE_SEQ;
+use crate::serialization::major_types::TYPE_FLOAT;
 use crate::serialization::major_types::TYPE_OPTION;
+use crate::serialization::major_types::TYPE_SEQ;
 use crate::serialization::major_types::TYPE_SINT;
 use crate::serialization::major_types::TYPE_UINT;
 use crate::serialization::major_types::TYPE_UNICODE;
-use crate::serialization::major_types::TYPE_FLOAT;
-use crate::serialization::binary::Binary;
-use crate::serialization::enumeration::EnumHeader;
-use crate::serialization::seq::SeqHeader;
 use crate::serialization::option::Presence;
+use crate::serialization::seq::SeqHeader;
 use crate::serialization::sint::SInt64;
 use crate::serialization::uint::UInt64;
 use crate::serialization::unicode::Unicode;
-use crate::serialization::boolean::Bool;
 use std::convert::TryFrom;
 use std::ops::Deref;
 
@@ -171,8 +171,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let number_of_values = enum_header.number_of_values();
                 if number_of_values > 0 {
                     // de-serialize data
-                    let usize_number_of_values =
-                        usize::try_from(number_of_values)?;
+                    let usize_number_of_values = usize::try_from(number_of_values)?;
                     let mut values = Vec::with_capacity(usize_number_of_values);
                     for _ in 0..number_of_values {
                         values.push(Value::de_serialize(reader)?);
@@ -195,7 +194,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
             TYPE_SINT => {
                 let value = SInt64::de_serialize(reader)?;
                 Value::SInt(value)
-            },
+            }
             TYPE_FLOAT => {
                 let value = Float::de_serialize(reader)?;
                 Value::Float(value)
@@ -249,7 +248,7 @@ impl<'a> Serializer for Value<'a> {
             }
             Value::UInt(value) => UInt64::serialize(writer, value),
             Value::SInt(value) => SInt64::serialize(writer, value),
-            Value::Float(value) => Float::serialize(writer, value)
+            Value::Float(value) => Float::serialize(writer, value),
         }
     }
 }

@@ -1,13 +1,13 @@
 use crate::common::error::LqError;
 use crate::schema::core::Context;
-use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
 use crate::schema::doc_type::DocType;
 use crate::schema::identifier::Identifier;
 use crate::schema::reference::TReference;
-use crate::schema::structure::TStruct;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::option::Presence;
 use std::cmp::Ordering;
@@ -53,19 +53,18 @@ impl Type for TOption {
             (Presence::Present, Presence::Absent) => Result::Ok(Ordering::Greater),
         }
     }
-
 }
 
 impl BaseTypeSchemaBuilder for TOption {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         let field_type = builder.add(DocType::from(TReference));
 
-        DocType::from(
-            TStruct::default()
-                .add(Field::new(Identifier::try_from("type").unwrap(), field_type))
-        )
+        DocType::from(TStruct::default().add(Field::new(
+            Identifier::try_from("type").unwrap(),
+            field_type,
+        )))
     }
 }

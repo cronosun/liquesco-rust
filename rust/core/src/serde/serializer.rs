@@ -1,17 +1,17 @@
 use crate::common::error::LqError;
 use crate::serde::error::SLqError;
+use crate::serialization::binary::Binary;
+use crate::serialization::boolean::Bool;
 use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer as S;
-use crate::serialization::binary::Binary;
 use crate::serialization::enumeration::EnumHeader;
 use crate::serialization::float::Float32;
 use crate::serialization::float::Float64;
-use crate::serialization::seq::SeqHeader;
 use crate::serialization::option::Presence;
-use crate::serialization::sint::{SInt64, SInt16, SInt32, SInt8};
-use crate::serialization::uint::{UInt64, UInt16, UInt32, UInt8};
+use crate::serialization::seq::SeqHeader;
+use crate::serialization::sint::{SInt16, SInt32, SInt64, SInt8};
+use crate::serialization::uint::{UInt16, UInt32, UInt64, UInt8};
 use crate::serialization::unicode::Unicode;
-use crate::serialization::boolean::Bool;
 use std::convert::TryFrom;
 
 use serde::ser;

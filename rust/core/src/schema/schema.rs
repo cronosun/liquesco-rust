@@ -1,4 +1,5 @@
 use crate::common::error::LqError;
+use crate::schema::any_type::AnyType;
 use crate::schema::core::Context;
 use crate::schema::core::Schema;
 use crate::schema::core::TypeContainer;
@@ -7,7 +8,6 @@ use crate::schema::core::{Config, Type};
 use crate::serialization::core::LqReader;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
-use crate::schema::any_type::AnyType;
 
 pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
     types: C,

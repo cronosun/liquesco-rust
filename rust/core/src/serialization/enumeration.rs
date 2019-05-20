@@ -5,10 +5,10 @@ use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
 
 use crate::common::error::LqError;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
@@ -84,7 +84,7 @@ impl<'a> Serializer for EnumHeader {
     type Item = Self;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        let ordinal : u32 = item.ordinal;
+        let ordinal: u32 = item.ordinal;
         let major_type = match ordinal {
             0 => TYPE_ENUM_0,
             1 => TYPE_ENUM_1,
@@ -97,7 +97,7 @@ impl<'a> Serializer for EnumHeader {
             match ordinal {
                 n if n <= u32::from(std::u8::MAX) => 1,
                 n if n <= u32::from(std::u16::MAX) => 2,
-                _ => 4,                
+                _ => 4,
             }
         } else {
             0
@@ -114,7 +114,7 @@ impl<'a> Serializer for EnumHeader {
             match ordinal {
                 n if n <= u32::from(std::u8::MAX) => writer.write_u8(ordinal as u8),
                 n if n <= u32::from(std::u16::MAX) => writer.write_u16(ordinal as u16),
-                _ => writer.write_u32(ordinal),                
+                _ => writer.write_u32(ordinal),
             }?;
         }
 

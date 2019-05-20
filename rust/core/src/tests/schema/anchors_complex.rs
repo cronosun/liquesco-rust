@@ -4,8 +4,8 @@ use crate::schema::core::Schema;
 use crate::schema::doc_type::DocType;
 use crate::schema::reference::TReference;
 use crate::schema::seq::TSeq;
-use crate::schema::structure::TStruct;
 use crate::schema::structure::Field;
+use crate::schema::structure::TStruct;
 use crate::tests::schema::builder::builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
@@ -173,11 +173,11 @@ fn create_schema() -> impl Schema<'static> {
     let reference = builder.add(DocType::from(TReference));
     let text = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
     let children = builder.add(DocType::from(TSeq::try_new(reference, 0, 1000).unwrap()));
-    let structure = builder.add(
-        DocType::from(TStruct::default()
+    let structure = builder.add(DocType::from(
+        TStruct::default()
             .add(Field::new(id("text"), text))
-            .add(Field::new(id("children"), children)))
-    );
+            .add(Field::new(id("children"), children)),
+    ));
     builder.finish(DocType::from(TAnchors::new(structure, structure)))
 }
 

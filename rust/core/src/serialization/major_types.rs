@@ -1,6 +1,6 @@
 use crate::serialization::core::MajorType;
 
-// Minimum type ID is 0, maximum is 20 (inclusive) - so there's 
+// Minimum type ID is 0, maximum is 20 (inclusive) - so there's
 // enough for 20 major types.
 
 pub const TYPE_BOOL_FALSE: MajorType = MajorType::new(0);

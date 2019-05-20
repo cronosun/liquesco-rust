@@ -1,12 +1,12 @@
 use crate::common::error::LqError;
-use crate::schema::core::{Context};
+use crate::schema::core::Context;
 use crate::schema::core::Type;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::boolean::Bool;
-use std::cmp::Ordering;
 use crate::schema::doc_type::DocType;
-use crate::schema::structure::TStruct;
 use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::schema::structure::TStruct;
+use crate::serialization::boolean::Bool;
+use crate::serialization::core::DeSerializer;
+use std::cmp::Ordering;
 
 #[derive(new, Clone, Debug)]
 pub struct TBool;
@@ -37,8 +37,8 @@ impl Type for TBool {
 
 impl BaseTypeSchemaBuilder for TBool {
     fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())

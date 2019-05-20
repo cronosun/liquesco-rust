@@ -1,8 +1,8 @@
 use crate::common::error::LqError;
+use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;
 use std::ops::RangeBounds;
-use serde::{Deserialize, Serialize};
 
 /// A range with defined bounds.
 #[derive(new, Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
@@ -178,5 +178,3 @@ impl NewFull for Range<f64> {
         }
     }
 }
-
-

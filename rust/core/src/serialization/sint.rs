@@ -1,8 +1,8 @@
 use crate::common::error::LqError;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
+use crate::serialization::core::LqReader;
+use crate::serialization::core::LqWriter;
 use crate::serialization::core::Serializer;
 use crate::serialization::major_types::TYPE_SINT;
 use std::convert::TryFrom;
@@ -17,8 +17,11 @@ impl<'a> DeSerializer<'a> for SInt64 {
         let content_description = reader.read_content_description_given_type_header(type_header)?;
 
         if type_header.major_type() != TYPE_SINT {
-            return LqError::err_new(format!("Given type is not a signed integer type; \
-            major type is {:?}.", type_header.major_type()));
+            return LqError::err_new(format!(
+                "Given type is not a signed integer type; \
+                 major type is {:?}.",
+                type_header.major_type()
+            ));
         }
         if content_description.number_of_embedded_values() != 0 {
             return LqError::err_static("Integer types must not contain embedded values.");
@@ -130,6 +133,3 @@ impl Serializer for SInt32 {
         SInt64::serialize(writer, &(*item as i64))
     }
 }
-
-
-

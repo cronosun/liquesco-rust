@@ -1,28 +1,28 @@
 use crate::common::error::LqError;
-use crate::schema::core::{Context};
+use crate::common::ine_range::U32IneRange;
+use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;
+use crate::schema::doc_type::DocType;
 use crate::schema::identifier::Identifier;
+use crate::schema::reference::TReference;
+use crate::schema::schema_builder::BuildsOwnSchema;
+use crate::schema::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::schema::seq::Ordering as SeqOrdering;
+use crate::schema::seq::TSeq;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::seq::SeqHeader;
 use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::schema::doc_type::DocType;
-use crate::schema::reference::TReference;
-use crate::schema::seq::TSeq;
-use crate::schema::seq::Ordering as SeqOrdering;
-use crate::common::ine_range::U32IneRange;
-use crate::schema::schema_builder::{SchemaBuilder, BaseTypeSchemaBuilder};
-use crate::schema::schema_builder::BuildsOwnSchema;
 
 /// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
 type Fields<'a> = SmallVec<[Field<'a>; 5]>;
 
 #[derive(new, Clone, Debug)]
 pub struct TStruct<'a> {
-    fields : Fields<'a>
+    fields: Fields<'a>,
 }
 
 #[derive(new, Clone, Debug)]
@@ -40,7 +40,7 @@ impl<'a> Field<'a> {
 impl<'a> Default for TStruct<'a> {
     fn default() -> Self {
         Self {
-            fields : Fields::new()
+            fields: Fields::new(),
         }
     }
 }
@@ -51,7 +51,7 @@ impl<'a> TStruct<'a> {
         self
     }
 
-    pub fn prepend(&mut self, field : Field<'a>) {
+    pub fn prepend(&mut self, field: Field<'a>) {
         self.fields.insert(0, field);
     }
 }
@@ -81,8 +81,7 @@ impl<'a> Type for TStruct<'a> {
             ));
         }
         // validate each item
-        let schema_number_of_fields_usize =
-            usize::try_from(schema_number_of_fields)?;
+        let schema_number_of_fields_usize = usize::try_from(schema_number_of_fields)?;
         for index in 0..schema_number_of_fields_usize {
             let field = &self.fields()[index];
             context.validate(field.r#type)?;
@@ -142,31 +141,36 @@ impl<'a> Type for TStruct<'a> {
 
 impl<'a> TStruct<'a> {
     pub fn fields(&self) -> &[Field<'a>] {
-       &self.fields
+        &self.fields
     }
 }
 
 impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
         let r#type = builder.add(DocType::from(TReference));
-        let field_struct = builder.add(DocType::from(TStruct::default()
-            .add(Field::new(Identifier::try_from("name").unwrap(), identifier))
-            .add(Field::new(Identifier::try_from("type").unwrap(), r#type))));
+        let field_struct = builder.add(DocType::from(
+            TStruct::default()
+                .add(Field::new(
+                    Identifier::try_from("name").unwrap(),
+                    identifier,
+                ))
+                .add(Field::new(Identifier::try_from("type").unwrap(), r#type)),
+        ));
 
         let fields_field = builder.add(DocType::from(TSeq {
             element: field_struct,
             length: U32IneRange::try_new(std::u32::MIN, std::u32::MAX).unwrap(),
             ordering: SeqOrdering::None,
-            multiple_of: None
+            multiple_of: None,
         }));
 
-        DocType::from(
-            TStruct::default()
-                .add(Field::new(Identifier::try_from("fields").unwrap(), fields_field))
-        )
+        DocType::from(TStruct::default().add(Field::new(
+            Identifier::try_from("fields").unwrap(),
+            fields_field,
+        )))
     }
 }

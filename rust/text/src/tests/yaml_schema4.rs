@@ -8,8 +8,8 @@ use liquesco_core::schema::doc_type::DocType;
 use liquesco_core::schema::float::TFloat32;
 use liquesco_core::schema::float::TFloat64;
 use liquesco_core::schema::seq::TSeq;
-use liquesco_core::schema::structure::TStruct;
 use liquesco_core::schema::structure::Field;
+use liquesco_core::schema::structure::TStruct;
 
 /// Creates an enum
 fn create_schema() -> impl Schema<'static> {

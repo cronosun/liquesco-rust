@@ -1,13 +1,12 @@
+use crate::common::error::LqError;
+use crate::serialization::binary::Binary;
+use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;
 use crate::serialization::core::LqWriter;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::binary::Binary;
-use crate::common::error::LqError;
 use crate::serialization::core::Serializer;
 use serde::{Deserialize, Serialize};
 
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
-#[derive(Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Uuid([u8; 16]);
 
 impl<'a> DeSerializer<'a> for Uuid {

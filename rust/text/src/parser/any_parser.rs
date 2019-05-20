@@ -8,13 +8,13 @@ use crate::parser::enumeration::PEnum;
 use crate::parser::float::PFloat32;
 use crate::parser::float::PFloat64;
 use crate::parser::option::POption;
+use crate::parser::reference::PReference;
 use crate::parser::seq::PSeq;
 use crate::parser::sint::PSInt;
 use crate::parser::structure::PStruct;
 use crate::parser::uint::PUInt;
 use crate::parser::unicode::PUnicode;
 use crate::parser::uuid::PUuid;
-use crate::parser::reference::PReference;
 use crate::parser::value::TextValue;
 use liquesco_core::schema::any_type::AnyType;
 

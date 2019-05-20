@@ -1,9 +1,9 @@
-use crate::parser::value::TextValue;
 use crate::parser::converter::Converter;
 use crate::parser::converter::IdentifierType;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
+use crate::parser::value::TextValue;
 use crate::parser::value::Value;
 use liquesco_core::schema::enumeration::TEnum;
 use liquesco_core::schema::identifier::Identifier;

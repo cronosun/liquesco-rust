@@ -4,7 +4,7 @@ use crate::tests::value::utils::check_value;
 fn str_var_len() {
     let mut string = String::new();
     for index in 0..100 {
-         check_value(&(&string).into());
+        check_value(&(&string).into());
         string.push(index as u8 as char);
     }
 }

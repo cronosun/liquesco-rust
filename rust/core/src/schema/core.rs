@@ -47,7 +47,7 @@ pub trait Type: Debug {
     // Create the schema for the type. Note: This is always a struct, since even if the
     // type has no fields (nothing to configure) still return a struct, since the
     // system will add more fields (for example the doc fields); see `DocType`.
-   // fn build_schema<B>(_ : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder;
+    // fn build_schema<B>(_ : &mut B) -> DocType<'static, TStruct> where B : SchemaBuilder;
 }
 
 pub trait Context<'a> {
@@ -117,7 +117,7 @@ pub struct Doc<'a> {
     implements: Option<Implements>,
 }
 
-const EMPTY_DOC : &Doc = &Doc::empty();
+const EMPTY_DOC: &Doc = &Doc::empty();
 
 impl<'a> Doc<'a> {
     pub const fn empty() -> Self {

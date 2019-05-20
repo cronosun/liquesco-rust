@@ -1,20 +1,20 @@
+use crate::schema::ascii::TAscii;
+use crate::schema::doc_type::DocType;
 use crate::tests::schema::ordering::ord_assert_ascending;
 use crate::tests::schema::ordering::ord_assert_equal;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
 use crate::tests::schema::utils::single_schema;
-use crate::schema::ascii::TAscii;
-use crate::schema::doc_type::DocType;
 
 #[test]
 fn schema1() {
     let schema = single_schema(DocType::from(TAscii::try_new(5, 15, 97, 122).unwrap()));
-    
+
     // some valid items
-    assert_valid_strict("hello".to_string(), &schema);    
-    assert_valid_strict("computer".to_string(), &schema);    
-    assert_valid_strict("under".to_string(), &schema);    
-    assert_valid_strict("qwertzuiopasdfg".to_string(), &schema);    
+    assert_valid_strict("hello".to_string(), &schema);
+    assert_valid_strict("computer".to_string(), &schema);
+    assert_valid_strict("under".to_string(), &schema);
+    assert_valid_strict("qwertzuiopasdfg".to_string(), &schema);
 
     // some invalid items
     assert_invalid_strict("hell".to_string(), &schema);
@@ -34,5 +34,9 @@ fn ordering() {
 
     ord_assert_ascending(schema.clone(), "".to_string(), "a".to_string());
     ord_assert_ascending(schema.clone(), "aaaaaaaaaa".to_string(), "ab".to_string());
-    ord_assert_ascending(schema.clone(), "aaaaaaaaaa".to_string(), "aaaaaaaaaab".to_string());    
+    ord_assert_ascending(
+        schema.clone(),
+        "aaaaaaaaaa".to_string(),
+        "aaaaaaaaaab".to_string(),
+    );
 }

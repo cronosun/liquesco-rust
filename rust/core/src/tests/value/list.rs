@@ -25,7 +25,7 @@ fn list_sample() {
         Option::Some::<Value<'static>>("world".into()).into(),
         8.into(),
         (-345 as i32).into(),
-        true.into()
+        true.into(),
     ];
     check_value(&list.into());
 }

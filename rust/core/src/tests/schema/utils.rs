@@ -1,10 +1,10 @@
+use crate::schema::any_type::AnyType;
 use crate::schema::core::Config;
 use crate::schema::core::Schema;
 use crate::schema::core::TypeContainer;
 use crate::schema::core::TypeRef;
 use crate::schema::identifier::Identifier;
 use crate::schema::schema::DefaultSchema;
-use crate::schema::any_type::AnyType;
 use crate::serde::serialize;
 use crate::serialization::slice_reader::SliceReader;
 use crate::serialization::vec_writer::VecWriter;
@@ -93,12 +93,7 @@ pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     into_any_type: T,
 ) -> DefaultSchema<'a, SingleContainer<'a>> {
     let any_type = into_any_type.into();
-    DefaultSchema::new(
-        SingleContainer {
-            any_type,
-        },
-        TypeRef(0),
-    )
+    DefaultSchema::new(SingleContainer { any_type }, TypeRef(0))
 }
 
 pub struct SingleContainer<'a> {

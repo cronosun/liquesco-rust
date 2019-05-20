@@ -1,6 +1,7 @@
+use crate::schema::any_type::AnyType;
 use crate::schema::core::Schema;
 use crate::schema::core::TypeRef;
-use crate::schema::any_type::AnyType;
+use crate::schema::doc_type::DocType;
 use crate::schema::seq::Direction;
 use crate::schema::seq::Ordering;
 use crate::schema::seq::TSeq;
@@ -8,7 +9,6 @@ use crate::tests::schema::builder::builder;
 use crate::tests::schema::builder::Builder;
 use crate::tests::schema::utils::assert_invalid_strict;
 use crate::tests::schema::utils::assert_valid_strict;
-use crate::schema::doc_type::DocType;
 use std::fmt::Debug;
 
 pub fn ord_assert_equal<T, S>(any_type: T, item1: S, item2: S)
@@ -39,7 +39,7 @@ where
 pub fn ord_assert_given_schema<'a, TSchema, S>(schema: &TSchema, item1: S, item2: S)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema : Schema<'a>,
+    TSchema: Schema<'a>,
 {
     assert_valid_strict((item1, item2), schema);
 }
