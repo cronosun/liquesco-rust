@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;

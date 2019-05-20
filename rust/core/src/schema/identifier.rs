@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::schema::core::TypeRef;
 use crate::schema::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::serialization::core::DeSerializer;
@@ -8,7 +8,7 @@ use crate::serialization::unicode::Unicode;
 use core::convert::TryFrom;
 use serde::{Deserialize, Serialize};
 // TODO: use smallvec::SmallVec;
-use crate::common::ine_range::U64IneRange;
+use liquesco_common::ine_range::U64IneRange;
 use crate::schema::ascii::{CodeRange, TAscii};
 use crate::schema::doc_type::DocType;
 use crate::schema::seq::TSeq;

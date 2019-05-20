@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::schema::core::Context;
 use crate::schema::core::Schema;

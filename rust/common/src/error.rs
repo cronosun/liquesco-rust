@@ -1,28 +1,54 @@
 use std::borrow::Cow;
 use std::error::Error;
-use std::fmt::Display;
+use std::fmt::{Display, Debug};
 use std::num::TryFromIntError;
+use std::any::{Any, TypeId};
+use std::collections::HashMap;
 
-#[derive(Debug, Clone, PartialEq, Eq)]
+pub const DEFAULT_CATEGORY : Category = Category("default");
+pub const DEFAULT_CODE : ErrCode = ErrCode(0);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct Category(&'static str);
+
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub struct ErrCode(usize);
+
+#[derive(Debug)]
 pub struct LqError {
     pub msg: Cow<'static, str>,
+    pub category : Category,
+    pub code : ErrCode,
+    pub data: Option<HashMap<TypeId, Box<dyn ErrData>>>,
 }
+
+pub trait ErrData : Any + Send + Sync + Debug {}
 
 impl Error for LqError {}
 
 impl Display for LqError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "LqError({:?})", self.msg)
+        write!(f, "LqError({:?})", self)
     }
 }
 
 impl LqError {
     pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
-        Result::Err(LqError { msg: string.into() })
+        Result::Err(LqError {
+            msg: string.into(),
+            category : DEFAULT_CATEGORY,
+            code : DEFAULT_CODE,
+            data: None,
+        })
     }
 
     pub fn new<T: Into<Cow<'static, str>>>(msg: T) -> Self {
-        LqError { msg: msg.into() }
+        LqError {
+            msg: msg.into(),
+            category : DEFAULT_CATEGORY,
+            code : DEFAULT_CODE,
+            data: None,
+        }
     }
 
     pub fn err_new<Ok, T: Into<Cow<'static, str>>>(msg: T) -> Result<Ok, Self> {

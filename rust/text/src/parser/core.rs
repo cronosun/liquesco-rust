@@ -1,7 +1,7 @@
 use crate::parser::converter::Converter;
 use crate::parser::value::SrcPosition;
 use crate::parser::value::TextValue;
-use liquesco_core::common::error::LqError;
+use liquesco_common::error::LqError;
 use liquesco_core::schema::core::Schema;
 use liquesco_core::schema::core::Type;
 use liquesco_core::schema::core::TypeRef;

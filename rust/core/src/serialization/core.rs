@@ -2,7 +2,7 @@ use byteorder::{LittleEndian, ReadBytesExt, WriteBytesExt};
 use enum_repr::EnumRepr;
 use varuint::*;
 
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 
 /// The major type can be within 0-24 (inclusive).
 #[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]

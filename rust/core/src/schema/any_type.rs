@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::schema::anchors::TAnchors;
 use crate::schema::ascii::TAscii;
 use crate::schema::boolean::TBool;

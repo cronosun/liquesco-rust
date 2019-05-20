@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::serde::error::SLqError;
 use crate::serialization::binary::Binary;
 use crate::serialization::boolean::Bool;

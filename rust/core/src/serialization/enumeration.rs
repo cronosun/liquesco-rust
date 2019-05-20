@@ -4,7 +4,7 @@ use crate::serialization::major_types::TYPE_ENUM_2;
 use crate::serialization::major_types::TYPE_ENUM_3;
 use crate::serialization::major_types::TYPE_ENUM_N;
 
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::serialization::core::ContentDescription;
 use crate::serialization::core::DeSerializer;
 use crate::serialization::core::LqReader;

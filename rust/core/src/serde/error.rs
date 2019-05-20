@@ -3,9 +3,10 @@ use serde::ser;
 use std::fmt::Display;
 use std::num::TryFromIntError;
 
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 
-#[derive(Clone, Debug, PartialEq)]
+// TODO: Use LqError with additional information!
+#[derive(Debug)]
 pub struct SLqError(LqError);
 
 impl Display for SLqError {

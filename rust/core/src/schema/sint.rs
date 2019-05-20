@@ -1,6 +1,6 @@
-use crate::common::error::LqError;
-use crate::common::ine_range::{I64IneRange, U32IneRange};
-use crate::common::range::LqRangeBounds;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::{I64IneRange, U32IneRange};
+use liquesco_common::range::LqRangeBounds;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::doc_type::DocType;

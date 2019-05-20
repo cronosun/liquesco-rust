@@ -1,7 +1,7 @@
-use crate::common::float::F32Ext;
-use crate::common::float::F64Ext;
-use crate::common::range::NewFull;
-use crate::common::range::Range;
+use liquesco_common::float::F32Ext;
+use liquesco_common::float::F64Ext;
+use liquesco_common::range::NewFull;
+use liquesco_common::range::Range;
 use crate::schema::doc_type::DocType;
 use crate::schema::float::TFloat32;
 use crate::schema::float::TFloat64;

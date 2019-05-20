@@ -5,7 +5,7 @@ use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::schema::any_type::AnyType;
 use crate::serialization::core::LqReader;
 

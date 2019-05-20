@@ -6,6 +6,7 @@ edition = "2018"
 
 [dependencies]
 liquesco-core = { path = "../core" }
+liquesco-common = { path = "../common" }
 serde = {version = "1.0.91", features = ["derive"]}
 serde_yaml = "0.8.9"
 yaml-rust = "0.4"

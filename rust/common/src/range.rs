@@ -1,6 +1,6 @@
-use crate::common::error::LqError;
-use crate::common::float::F32Ext;
-use crate::common::float::F64Ext;
+use crate::error::LqError;
+use crate::float::F32Ext;
+use crate::float::F64Ext;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;

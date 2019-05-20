@@ -1,9 +1,9 @@
-use crate::common::error::LqError;
-use crate::common::float::F32Ext;
-use crate::common::float::F64Ext;
-use crate::common::ine_range::IneRange;
-use crate::common::range::LqRangeBounds;
-use crate::common::range::Range;
+use liquesco_common::error::LqError;
+use liquesco_common::float::F32Ext;
+use liquesco_common::float::F64Ext;
+use liquesco_common::ine_range::IneRange;
+use liquesco_common::range::LqRangeBounds;
+use liquesco_common::range::Range;
 use crate::schema::boolean::TBool;
 use crate::schema::core::{Context, Type};
 use crate::schema::doc_type::DocType;

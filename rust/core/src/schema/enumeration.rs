@@ -1,5 +1,5 @@
-use crate::common::error::LqError;
-use crate::common::ine_range::U32IneRange;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::U32IneRange;
 use crate::schema::core::Context;
 use crate::schema::core::Type;
 use crate::schema::core::TypeRef;

@@ -1,4 +1,4 @@
-use crate::common::error::LqError;
+use liquesco_common::error::LqError;
 use crate::serialization::core::LqWriter;
 
 pub struct VecWriter {

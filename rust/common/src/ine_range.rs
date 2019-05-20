@@ -1,7 +1,7 @@
-use crate::common::error::LqError;
-use crate::common::range::Bounds;
-use crate::common::range::LqRangeBounds;
-use crate::common::range::NewFull;
+use crate::error::LqError;
+use crate::range::Bounds;
+use crate::range::LqRangeBounds;
+use crate::range::NewFull;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;
