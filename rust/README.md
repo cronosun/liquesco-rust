@@ -1,10 +1,9 @@
 # Rust reference implementation
 
-This contains the Rust reference implementation of Liquesco.
+This contains the Rust reference implementation of liquesco.
 
- * **core/serialization**: Data de-/serialization.
- * **core/serde**: Serde (https://serde.rs/) support for data de-/serialization.
- * **core/schema**: The Liquesco schema.
+ * **serialization**: Data de-/serialization without Serde (https://serde.rs/) and with Serde; 
+ * **schema**: The liquesco schema.
  * **text**: Parse data from a textual representation (currently yaml) given a schema.
 
 # Rust version
