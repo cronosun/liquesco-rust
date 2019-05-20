@@ -4,8 +4,8 @@ use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_schema::reference::TReference;
-use liquesco_core::serialization::core::Serializer;
-use liquesco_core::serialization::uint::UInt32;
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::uint::UInt32;
 
 pub struct PReference;
 

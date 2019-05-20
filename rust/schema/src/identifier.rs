@@ -1,10 +1,10 @@
 use liquesco_common::error::LqError;
 use crate::core::TypeRef;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
-use liquesco_core::serialization::core::DeSerializer;
-use liquesco_core::serialization::core::{LqReader, LqWriter, Serializer};
-use liquesco_core::serialization::seq::SeqHeader;
-use liquesco_core::serialization::unicode::Unicode;
+use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::core::{LqReader, LqWriter, Serializer};
+use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::unicode::Unicode;
 use core::convert::TryFrom;
 use serde::{Deserialize, Serialize};
 // TODO: use smallvec::SmallVec;

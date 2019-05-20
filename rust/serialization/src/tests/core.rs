@@ -1,6 +1,6 @@
-use crate::serialization::core::ContentInfo;
-use crate::serialization::core::MajorType;
-use crate::serialization::core::TypeHeader;
+use crate::core::ContentInfo;
+use crate::core::MajorType;
+use crate::core::TypeHeader;
 
 const FACTOR: u8 = 13;
 

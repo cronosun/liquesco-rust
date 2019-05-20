@@ -1,5 +1,5 @@
 
-use crate::serialization::core::TypeId;
+use crate::core::TypeId;
 
 #[derive(Debug, Copy, Clone, Eq, PartialEq)]
 pub struct CustomTypeId(pub u8);

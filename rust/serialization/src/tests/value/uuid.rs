@@ -1,4 +1,4 @@
-use crate::serialization::uuid::Uuid;
+use crate::uuid::Uuid;
 use crate::tests::value::utils::check_value;
 
 #[test]

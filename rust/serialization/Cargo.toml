@@ -1,5 +1,5 @@
 [package]
-name = "liquesco-core"
+name = "liquesco-serialization"
 version = "0.0.1"
 authors = ["cronosun <simon.ruoss@gmail.com>"]
 edition = "2018"

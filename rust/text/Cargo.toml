@@ -5,7 +5,7 @@ authors = ["cronosun <simon.ruoss@gmail.com>"]
 edition = "2018"
 
 [dependencies]
-liquesco-core = { path = "../core" }
+liquesco-serialization = { path = "../serialization" }
 liquesco-common = { path = "../common" }
 liquesco-schema = { path = "../schema" }
 serde = {version = "1.0.91", features = ["derive"]}

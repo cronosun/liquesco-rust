@@ -4,7 +4,7 @@ use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_schema::uuid::TUuid;
-use liquesco_core::serialization::core::Serializer;
+use liquesco_serialization::core::Serializer;
 
 pub struct PUuid;
 
@@ -25,9 +25,9 @@ impl Parser<'static> for PUuid {
         let uuid = uuid::Uuid::parse_str(text);
         match uuid {
             Result::Ok(uuid) => {
-                liquesco_core::serialization::uuid::Uuid::serialize(
+                liquesco_serialization::uuid::Uuid::serialize(
                     writer,
-                    &liquesco_core::serialization::uuid::Uuid::from(uuid.as_bytes()),
+                    &liquesco_serialization::uuid::Uuid::from(uuid.as_bytes()),
                 )?;
                 Ok(())
             }

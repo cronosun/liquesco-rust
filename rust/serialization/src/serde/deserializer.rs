@@ -1,22 +1,22 @@
 use liquesco_common::error::LqError;
 use crate::serde::error::SLqError;
-use crate::serialization::binary::Binary;
-use crate::serialization::boolean::Bool;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::enumeration::EnumHeader;
-use crate::serialization::float::Float32;
-use crate::serialization::float::Float64;
-use crate::serialization::option::Presence;
-use crate::serialization::seq::SeqHeader;
-use crate::serialization::sint::{SInt16, SInt32, SInt64, SInt8};
-use crate::serialization::uint::{UInt16, UInt32, UInt64, UInt8};
-use crate::serialization::unicode::Unicode;
+use crate::binary::Binary;
+use crate::boolean::Bool;
+use crate::core::DeSerializer;
+use crate::enumeration::EnumHeader;
+use crate::float::Float32;
+use crate::float::Float64;
+use crate::option::Presence;
+use crate::seq::SeqHeader;
+use crate::sint::{SInt16, SInt32, SInt64, SInt8};
+use crate::uint::{UInt16, UInt32, UInt64, UInt8};
+use crate::unicode::Unicode;
 use serde::de::IntoDeserializer;
 use serde::de::Visitor;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 
-use crate::serialization::core::LqReader;
+use crate::core::LqReader;
 
 pub struct Deserializer<'de, R: LqReader<'de>> {
     reader: R,

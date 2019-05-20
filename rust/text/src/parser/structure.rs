@@ -6,8 +6,8 @@ use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
 use liquesco_schema::structure::TStruct;
-use liquesco_core::serialization::core::Serializer;
-use liquesco_core::serialization::seq::SeqHeader;
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::seq::SeqHeader;
 use std::convert::TryFrom;
 
 pub struct PStruct;

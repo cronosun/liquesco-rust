@@ -1,8 +1,8 @@
-use crate::serialization::core::DeSerializer;
-use crate::serialization::core::Serializer;
-use crate::serialization::slice_reader::SliceReader;
+use crate::core::DeSerializer;
+use crate::core::Serializer;
+use crate::slice_reader::SliceReader;
 use crate::value::Value;
-use crate::serialization::vec_writer::VecWriter;
+use crate::vec_writer::VecWriter;
 
 pub fn check_value(value: &Value) {
     // serialize the data

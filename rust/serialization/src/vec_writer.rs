@@ -1,5 +1,5 @@
 use liquesco_common::error::LqError;
-use crate::serialization::core::LqWriter;
+use crate::core::LqWriter;
 
 pub struct VecWriter {
     data: Vec<u8>,

@@ -5,7 +5,7 @@ use liquesco_common::error::LqError;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::Type;
 use liquesco_schema::core::TypeRef;
-use liquesco_core::serialization::core::LqWriter;
+use liquesco_serialization::core::LqWriter;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::error::Error;

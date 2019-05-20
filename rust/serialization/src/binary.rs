@@ -1,11 +1,11 @@
 use liquesco_common::error::LqError;
-use crate::serialization::common_binary::binary_read;
-use crate::serialization::common_binary::binary_write;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
-use crate::serialization::core::Serializer;
-use crate::serialization::major_types::TYPE_BINARY;
+use crate::common_binary::binary_read;
+use crate::common_binary::binary_write;
+use crate::core::DeSerializer;
+use crate::core::LqReader;
+use crate::core::LqWriter;
+use crate::core::Serializer;
+use crate::major_types::TYPE_BINARY;
 
 pub struct Binary;
 

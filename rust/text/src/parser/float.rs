@@ -5,8 +5,8 @@ use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
-use liquesco_core::serialization::core::Serializer;
-use liquesco_core::serialization::float::Float;
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::float::Float;
 
 pub struct PFloat32;
 

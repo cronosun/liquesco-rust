@@ -4,8 +4,8 @@ use crate::core::Type;
 use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
-use liquesco_core::serialization::boolean::Bool;
-use liquesco_core::serialization::core::DeSerializer;
+use liquesco_serialization::boolean::Bool;
+use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

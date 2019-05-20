@@ -11,8 +11,8 @@ use crate::seq::seq_compare;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
-use liquesco_core::serialization::core::DeSerializer;
-use liquesco_core::serialization::seq::SeqHeader;
+use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 

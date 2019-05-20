@@ -4,8 +4,8 @@ use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_schema::boolean::TBool;
-use liquesco_core::serialization::boolean::Bool;
-use liquesco_core::serialization::core::Serializer;
+use liquesco_serialization::boolean::Bool;
+use liquesco_serialization::core::Serializer;
 
 pub struct PBool;
 

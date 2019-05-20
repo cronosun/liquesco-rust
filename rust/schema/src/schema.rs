@@ -5,7 +5,7 @@ use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
-use liquesco_core::serialization::core::LqReader;
+use liquesco_serialization::core::LqReader;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
 

@@ -4,7 +4,7 @@ use crate::parser::core::AnchorInfo;
 use crate::parser::core::{Context, ParseError};
 use crate::parser::value::TextValue;
 use liquesco_schema::core::{Schema, TypeRef};
-use liquesco_core::serialization::vec_writer::VecWriter;
+use liquesco_serialization::vec_writer::VecWriter;
 use std::marker::PhantomData;
 
 pub(crate) struct ParserContext<'se, 's, TSchema>

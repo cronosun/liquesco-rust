@@ -1,4 +1,4 @@
-use crate::serialization::core::MajorType;
+use crate::core::MajorType;
 
 // Minimum type ID is 0, maximum is 20 (inclusive) - so there's
 // enough for 20 major types.

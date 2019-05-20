@@ -5,8 +5,8 @@ use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
-use liquesco_core::serialization::core::Serializer;
-use liquesco_core::serialization::seq::SeqHeader;
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::seq::SeqHeader;
 use std::convert::TryFrom;
 
 pub struct PAnchors;

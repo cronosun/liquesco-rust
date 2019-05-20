@@ -1,7 +1,7 @@
 use crate::serde::new_deserializer;
 use crate::serde::serialize;
-use crate::serialization::slice_reader::SliceReader;
-use crate::serialization::vec_writer::VecWriter;
+use crate::slice_reader::SliceReader;
+use crate::vec_writer::VecWriter;
 use std::fmt::Debug;
 
 pub fn assert_serde<S>(item: S)

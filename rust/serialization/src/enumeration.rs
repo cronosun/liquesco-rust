@@ -1,15 +1,15 @@
-use crate::serialization::major_types::TYPE_ENUM_0;
-use crate::serialization::major_types::TYPE_ENUM_1;
-use crate::serialization::major_types::TYPE_ENUM_2;
-use crate::serialization::major_types::TYPE_ENUM_3;
-use crate::serialization::major_types::TYPE_ENUM_N;
+use crate::major_types::TYPE_ENUM_0;
+use crate::major_types::TYPE_ENUM_1;
+use crate::major_types::TYPE_ENUM_2;
+use crate::major_types::TYPE_ENUM_3;
+use crate::major_types::TYPE_ENUM_N;
 
 use liquesco_common::error::LqError;
-use crate::serialization::core::ContentDescription;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
-use crate::serialization::core::Serializer;
+use crate::core::ContentDescription;
+use crate::core::DeSerializer;
+use crate::core::LqReader;
+use crate::core::LqWriter;
+use crate::core::Serializer;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {

@@ -5,7 +5,6 @@ extern crate derive_new;
 extern crate from_variants;
 
 pub mod serde;
-pub mod serialization;
 pub mod value;
 
 #[cfg(test)]

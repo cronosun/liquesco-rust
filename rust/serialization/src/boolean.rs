@@ -1,11 +1,11 @@
 use liquesco_common::error::LqError;
-use crate::serialization::core::ContentDescription;
-use crate::serialization::core::DeSerializer;
-use crate::serialization::core::LqReader;
-use crate::serialization::core::LqWriter;
-use crate::serialization::core::Serializer;
-use crate::serialization::major_types::TYPE_BOOL_FALSE;
-use crate::serialization::major_types::TYPE_BOOL_TRUE;
+use crate::core::ContentDescription;
+use crate::core::DeSerializer;
+use crate::core::LqReader;
+use crate::core::LqWriter;
+use crate::core::Serializer;
+use crate::major_types::TYPE_BOOL_FALSE;
+use crate::major_types::TYPE_BOOL_TRUE;
 
 pub struct Bool;
 

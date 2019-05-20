@@ -4,9 +4,9 @@ use crate::core::Type;
 use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
-use liquesco_core::serialization::binary::Binary;
-use liquesco_core::serialization::core::DeSerializer;
-use liquesco_core::serialization::uuid::Uuid;
+use liquesco_serialization::binary::Binary;
+use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::uuid::Uuid;
 use core::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 

@@ -1,6 +1,6 @@
 use liquesco_common::error::LqError;
-use crate::serialization::float::Float;
-use crate::serialization::uuid::Uuid;
+use crate::float::Float;
+use crate::uuid::Uuid;
 use crate::value::EnumValue;
 use crate::value::Value;
 use crate::value::ValueList;
