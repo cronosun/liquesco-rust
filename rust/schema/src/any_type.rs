@@ -1,7 +1,7 @@
-use liquesco_common::error::LqError;
 use crate::anchors::TAnchors;
 use crate::ascii::TAscii;
 use crate::boolean::TBool;
+use crate::core::Doc;
 use crate::core::Type;
 use crate::core::{Context, TypeRef};
 use crate::doc_type::DocType;
@@ -20,15 +20,16 @@ use crate::structure::TStruct;
 use crate::uint::TUInt;
 use crate::unicode::TUnicode;
 use crate::uuid::TUuid;
+use from_variants::FromVariants;
+use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use from_variants::FromVariants;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 ///
 /// Note: Sorted according to serialization major type.
-#[derive(Clone, FromVariants, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, FromVariants, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AnyType<'a> {
     Bool(DocType<'a, TBool>),
     Option(DocType<'a, TOption>),
@@ -46,6 +47,27 @@ pub enum AnyType<'a> {
     Anchors(DocType<'a, TAnchors>),
     Reference(DocType<'a, TReference>),
     Uuid(DocType<'a, TUuid>),
+}
+
+impl<'a> AnyType<'a> {
+    pub fn doc(&'a self) -> &Doc<'a> {
+        match self {
+            AnyType::Struct(value) => value.doc(),
+            AnyType::UInt(value) => value.doc(),
+            AnyType::SInt(value) => value.doc(),
+            AnyType::Ascii(value) => value.doc(),
+            AnyType::Bool(value) => value.doc(),
+            AnyType::Enum(value) => value.doc(),
+            AnyType::Anchors(value) => value.doc(),
+            AnyType::Reference(value) => value.doc(),
+            AnyType::Seq(value) => value.doc(),
+            AnyType::Float32(value) => value.doc(),
+            AnyType::Float64(value) => value.doc(),
+            AnyType::Option(value) => value.doc(),
+            AnyType::Unicode(value) => value.doc(),
+            AnyType::Uuid(value) => value.doc(),
+        }
+    }
 }
 
 impl<'a> Type for AnyType<'a> {

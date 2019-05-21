@@ -1,5 +1,5 @@
-use crate::uuid::Uuid;
 use crate::tests::value::utils::check_value;
+use crate::uuid::Uuid;
 
 #[test]
 fn test_uuids() {

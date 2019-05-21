@@ -1,5 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::U32IneRange;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -13,11 +11,12 @@ use crate::seq::Ordering as SeqOrdering;
 use crate::seq::TSeq;
 use crate::structure::Field;
 use crate::structure::TStruct;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::enumeration::EnumHeader;
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
@@ -25,16 +24,15 @@ const MIN_VALUES: usize = 1;
 const MAX_VALUES: usize = 32;
 const MIN_VARIANTS: usize = 1;
 
-/// Use a small vec with 5 items (should be enough for many cases)
-type Variants<'a> = SmallVec<[Variant<'a>; 5]>;
-type Values = SmallVec<[TypeRef; 3]>;
+type Variants<'a> = Vec<Variant<'a>>;
+type Values = Vec<TypeRef>;
 
-#[derive(new, Clone, Debug, Serialize, Deserialize, PartialEq, Hash)]
+#[derive(new, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct TEnum<'a> {
     variants: Variants<'a>,
 }
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Eq, Deserialize)]
 pub struct Variant<'a> {
     /// Textual identifier of the variant.
     pub name: Identifier<'a>,

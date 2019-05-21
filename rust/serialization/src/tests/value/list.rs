@@ -1,5 +1,5 @@
-use crate::value::Value;
 use crate::tests::value::utils::check_value;
+use crate::value::Value;
 
 #[test]
 fn list_empty() {

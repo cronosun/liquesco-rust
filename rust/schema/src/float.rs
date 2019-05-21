@@ -1,9 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::float::F32Ext;
-use liquesco_common::float::F64Ext;
-use liquesco_common::ine_range::IneRange;
-use liquesco_common::range::LqRangeBounds;
-use liquesco_common::range::Range;
 use crate::boolean::TBool;
 use crate::core::{Context, Type};
 use crate::doc_type::DocType;
@@ -14,6 +8,12 @@ use crate::seq::Ordering as SeqOrdering;
 use crate::seq::TSeq;
 use crate::structure::Field;
 use crate::structure::TStruct;
+use liquesco_common::error::LqError;
+use liquesco_common::float::F32Ext;
+use liquesco_common::float::F64Ext;
+use liquesco_common::ine_range::IneRange;
+use liquesco_common::range::LqRangeBounds;
+use liquesco_common::range::Range;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::float::Float32;
 use liquesco_serialization::float::Float64;
@@ -32,8 +32,8 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
-#[derive(new, Clone, Debug, Deserialize, Serialize, PartialEq, Hash)]
-pub struct TFloat<F: PartialOrd + Debug> {
+#[derive(new, Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+pub struct TFloat<F: Eq + PartialOrd + Debug> {
     #[serde(flatten)]
     pub range: Range<F>,
     #[new(value = "false")]
@@ -47,7 +47,7 @@ pub struct TFloat<F: PartialOrd + Debug> {
     pub allow_negative_infinity: bool,
 }
 
-impl<F: PartialOrd + Debug> TFloat<F> {
+impl<F: Eq + PartialOrd + Debug> TFloat<F> {
     /// creates a new float; range inclusive; nan and infinity not allowed.
     pub fn try_new(min: F, max: F) -> Result<Self, LqError> {
         let range = Range::<F>::try_inclusive(min, max)?;

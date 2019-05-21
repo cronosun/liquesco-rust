@@ -1,17 +1,21 @@
 use std::borrow::Cow;
-use smallvec::SmallVec;
 
-#[derive(Hash, PartialEq, PartialOrd)]
-pub struct Path(SmallVec<[Segment; 4]>);
+#[derive(Hash, PartialEq, Eq, PartialOrd)]
+pub struct Path(Vec<Segment>);
 
 impl Path {
-    pub fn new(segment : Segment) -> Self {
-        let mut this = Self(SmallVec::new());
+    pub fn new(segment: Segment) -> Self {
+        let mut this = Self(Vec::new());
         this.0.push(segment);
         this
     }
 }
 
-#[derive(From, Into, Hash, PartialEq, PartialOrd)]
+#[derive(From, Into, Hash, PartialEq, Eq, PartialOrd)]
 pub struct Segment(Cow<'static, str>);
 
+impl Segment {
+    pub fn new<T: Into<Cow<'static, str>>>(string: T) -> Self {
+        Self(string.into())
+    }
+}

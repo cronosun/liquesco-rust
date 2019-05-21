@@ -7,7 +7,7 @@ use std::ops::Bound;
 use std::ops::RangeBounds;
 
 /// A range with defined bounds.
-#[derive(new, Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(new, Clone, Hash, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct Range<T> {
     pub bounds: Bounds<T>,
     #[new(value = "true")]
@@ -16,7 +16,7 @@ pub struct Range<T> {
     pub end_included: bool,
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct Bounds<T> {
     start: T,
     end: T,

@@ -1,6 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U32IneRange, U64IneRange};
-use liquesco_common::range::LqRangeBounds;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -13,6 +10,9 @@ use crate::seq::TSeq;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::{U32IneRange, U64IneRange};
+use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::unicode::UncheckedUnicode;
 use serde::{Deserialize, Serialize};
@@ -29,7 +29,7 @@ use std::str::from_utf8;
 ///
 /// Note: There's also the ascii type. If you want to transfer non-text strings,
 /// this is usually what you want.
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUnicode {
     /// The length. Note: What "length" really means is defined by the `LengthType`.
     pub length: U64IneRange,
@@ -37,7 +37,7 @@ pub struct TUnicode {
     pub length_type: LengthType,
 }
 
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LengthType {
     /// This is the fastest possible way for validation: It just counts the number of bytes
     /// transferred. This is the same as `Utf8Byte` but only if the data has been

@@ -1,16 +1,16 @@
-use liquesco_common::error::LqError;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
+use core::cmp::Ordering;
+use liquesco_common::error::LqError;
 use liquesco_serialization::binary::Binary;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uuid::Uuid;
-use core::cmp::Ordering;
 use serde::{Deserialize, Serialize};
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUuid;
 
 impl Type for TUuid {

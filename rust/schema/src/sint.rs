@@ -1,6 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{I64IneRange, U32IneRange};
-use liquesco_common::range::LqRangeBounds;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -10,13 +7,16 @@ use crate::seq::Ordering as SeqOrdering;
 use crate::seq::{Direction, TSeq};
 use crate::structure::Field;
 use crate::structure::TStruct;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::{I64IneRange, U32IneRange};
+use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::sint::SInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt {
     pub range: I64IneRange,
 }

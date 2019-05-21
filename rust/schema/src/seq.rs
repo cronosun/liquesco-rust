@@ -1,6 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::U32IneRange;
-use liquesco_common::range::LqRangeBounds;
 use crate::boolean::TBool;
 use crate::core::Context;
 use crate::core::Type;
@@ -15,13 +12,16 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::U32IneRange;
+use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSeq {
     pub element: TypeRef,
     pub length: U32IneRange,
@@ -32,13 +32,13 @@ pub struct TSeq {
     pub multiple_of: Option<u32>,
 }
 
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Ordering {
     None,
     Sorted { direction: Direction, unique: bool },
 }
 
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Ascending,
     Descending,

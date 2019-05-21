@@ -1,17 +1,16 @@
-use liquesco_common::error::LqError;
+use crate::ascii::{CodeRange, TAscii};
 use crate::core::TypeRef;
+use crate::doc_type::DocType;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use crate::seq::TSeq;
+use core::convert::TryFrom;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::U64IneRange;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::{LqReader, LqWriter, Serializer};
 use liquesco_serialization::seq::SeqHeader;
 use liquesco_serialization::unicode::Unicode;
-use core::convert::TryFrom;
 use serde::{Deserialize, Serialize};
-// TODO: use smallvec::SmallVec;
-use liquesco_common::ine_range::U64IneRange;
-use crate::ascii::{CodeRange, TAscii};
-use crate::doc_type::DocType;
-use crate::seq::TSeq;
 use std::borrow::Cow;
 use std::ops::Deref;
 
@@ -23,8 +22,6 @@ const MAX_NUMBER_OF_SEGMENTS: usize = 12;
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Segment<'a>(Cow<'a, str>);
 
-/// We embed identifiers with 1-3 segments (since that covers 95% of all cases).
-// TODO: Go back so smallvec 3 - but there's some lifetime problem with that...
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Identifier<'a>(Vec<Segment<'a>>);
 
@@ -62,6 +59,7 @@ impl<'a> Identifier<'a> {
         }
     }
 
+    // TODO: What is this used for, we already have Eq?
     pub fn is_equal<'b>(&self, other: &Identifier<'b>) -> bool {
         let len = self.0.len();
         if len == other.0.len() {
@@ -74,6 +72,26 @@ impl<'a> Identifier<'a> {
         } else {
             false
         }
+    }
+
+    pub fn append(&mut self, segment: Segment<'a>) -> Result<(), LqError> {
+        if self.segments().len() + 1 > MAX_NUMBER_OF_SEGMENTS {
+            LqError::err_new(format!(
+                "Cannot add another segment to identifier {:?}. Max number of segments reached.",
+                self
+            ))
+        } else {
+            self.0.push(segment);
+            Ok(())
+        }
+    }
+
+    pub fn into_owned(self) -> Identifier<'static> {
+        let mut new_segments = Vec::with_capacity(self.0.len());
+        for segment in self.0 {
+            new_segments.push(segment.into_owned());
+        }
+        Identifier(new_segments)
     }
 }
 
@@ -108,7 +126,6 @@ impl<'a> TryFrom<&'a str> for Identifier<'a> {
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         let splits = value.split("_");
-        // TODO let mut segments = SmallVec::<[Segment<'a>; 3]>::new();
         let mut segments = Vec::new();
         for split in splits {
             segments.push(Segment::try_from(split)?);
@@ -125,6 +142,15 @@ impl<'a> TryFrom<&'a str> for Segment<'a> {
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
         Segment::validate(value)?;
         Result::Ok(Segment(Cow::Borrowed(value)))
+    }
+}
+
+impl<'a> TryFrom<String> for Segment<'a> {
+    type Error = LqError;
+
+    fn try_from(value: String) -> Result<Self, Self::Error> {
+        Segment::validate(&value)?;
+        Result::Ok(Segment(Cow::Owned(value)))
     }
 }
 
@@ -157,8 +183,16 @@ impl<'a> Segment<'a> {
         Result::Ok(())
     }
 
+    // TODO: WHat is this used for, there's already Eq?
     pub fn is_equal<'b>(&self, other: &Segment<'b>) -> bool {
         self.0 == other.0
+    }
+
+    pub fn into_owned(self) -> Segment<'static> {
+        match self.0 {
+            Cow::Owned(item) => Segment(Cow::Owned(item)),
+            Cow::Borrowed(item) => Segment(Cow::Owned(item.to_string())),
+        }
     }
 }
 
@@ -190,8 +224,6 @@ impl<'a> DeSerializer<'a> for Identifier<'a> {
         let number_of_segments = list_header.length();
         let usize_number_of_segments = usize::try_from(number_of_segments)?;
         Identifier::validate_number_of_segments(usize_number_of_segments)?;
-
-        // TODO: let mut segments = SmallVec::<[Segment<'a>; 3]>::with_capacity(usize_number_of_segments);
         let mut segments = Vec::with_capacity(usize_number_of_segments);
         for _ in 0..number_of_segments {
             let segment_str = Unicode::de_serialize(reader)?;

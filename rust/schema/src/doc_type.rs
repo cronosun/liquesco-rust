@@ -1,4 +1,3 @@
-use liquesco_common::error::LqError;
 use crate::core::Doc;
 use crate::core::Type;
 use crate::core::{
@@ -14,13 +13,14 @@ use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::unicode::{LengthType, TUnicode};
 use crate::uuid::TUuid;
+use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::{Deref, DerefMut};
 
 /// Wraps a type and adds an optional documentation to that type.
-#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq)]
+#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct DocType<'doc, T: Type> {
     #[serde(flatten)]
     doc: Doc<'doc>,

@@ -1,5 +1,5 @@
-use liquesco_common::error::LqError;
 use crate::core::LqReader;
+use liquesco_common::error::LqError;
 use std::io::Read;
 use std::io::Write;
 

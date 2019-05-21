@@ -1,9 +1,9 @@
-use liquesco_common::error::LqError;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
+use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
@@ -11,7 +11,7 @@ use std::cmp::Ordering;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TReference;
 
 impl Type for TReference {

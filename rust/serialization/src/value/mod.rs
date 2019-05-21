@@ -1,6 +1,5 @@
 pub mod value_into;
 
-use liquesco_common::error::LqError;
 use crate::binary::Binary;
 use crate::boolean::Bool;
 use crate::core::DeSerializer;
@@ -28,6 +27,7 @@ use crate::seq::SeqHeader;
 use crate::sint::SInt64;
 use crate::uint::UInt64;
 use crate::unicode::Unicode;
+use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 use std::ops::Deref;
 

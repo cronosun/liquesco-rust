@@ -7,10 +7,10 @@ pub struct VecRead {
 }
 
 impl From<Vec<u8>> for VecRead {
-    fn from(value : Vec<u8>) -> Self {
+    fn from(value: Vec<u8>) -> Self {
         Self {
-            offset : 0,
-            vec : value
+            offset: 0,
+            vec: value,
         }
     }
 }
@@ -24,7 +24,8 @@ impl Read for VecRead {
             return Ok(0);
         }
         let will_read = min(readable, buf_len);
-        buf.copy_from_slice(&self.vec.as_slice()[self.offset..self.offset + will_read]);
+        let target = &mut buf[0..will_read];
+        target.copy_from_slice(&self.vec.as_slice()[self.offset..self.offset + will_read]);
         self.offset = self.offset + will_read;
         Ok(will_read)
     }

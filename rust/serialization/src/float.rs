@@ -1,10 +1,10 @@
-use liquesco_common::error::LqError;
 use crate::core::ContentDescription;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;
 use crate::core::Serializer;
 use crate::major_types::TYPE_FLOAT;
+use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 use std::hash::Hash;
 use std::hash::Hasher;

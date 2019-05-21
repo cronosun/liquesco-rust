@@ -1,5 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::U32IneRange;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -10,23 +8,23 @@ use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Ordering as SeqOrdering;
 use crate::seq::TSeq;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-/// Use a small vec with 5 items (should be enough for maybe 80% of all structs)
-type Fields<'a> = SmallVec<[Field<'a>; 5]>;
+type Fields<'a> = Vec<Field<'a>>;
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TStruct<'a> {
     fields: Fields<'a>,
 }
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Field<'a> {
     pub identifier: Identifier<'a>, // TODO: Rename to "name"
     pub r#type: TypeRef,

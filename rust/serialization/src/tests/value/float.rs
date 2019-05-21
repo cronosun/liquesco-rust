@@ -1,7 +1,7 @@
 use crate::float::Float;
-use crate::value::Value;
 use crate::tests::value::utils::check_value;
 use crate::tests::value::utils::serialize_de_serialize;
+use crate::value::Value;
 
 #[test]
 fn test_some_floats_f32() {

@@ -6,7 +6,6 @@ use crate::seq::Direction;
 use crate::sint::TSInt;
 use crate::structure::Field;
 use crate::structure::TStruct;
-use crate::uint::TUInt;
 use crate::tests::builder::builder;
 use crate::tests::ordering::ord_schema;
 use crate::tests::utils::assert_invalid_extended;
@@ -14,6 +13,7 @@ use crate::tests::utils::assert_invalid_strict;
 use crate::tests::utils::assert_valid_extended;
 use crate::tests::utils::assert_valid_strict;
 use crate::tests::utils::id;
+use crate::uint::TUInt;
 use serde::{Deserialize, Serialize};
 
 #[test]

@@ -4,12 +4,12 @@ use crate::major_types::TYPE_ENUM_2;
 use crate::major_types::TYPE_ENUM_3;
 use crate::major_types::TYPE_ENUM_N;
 
-use liquesco_common::error::LqError;
 use crate::core::ContentDescription;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;
 use crate::core::Serializer;
+use liquesco_common::error::LqError;
 
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {

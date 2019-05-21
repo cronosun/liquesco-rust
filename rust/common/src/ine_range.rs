@@ -18,7 +18,7 @@ pub type U8IneRange = IneRange<u8>;
 /// Inclusive non-empty range.
 ///
 /// Similar to `std::ops::RangeInclusive` but is never empty; and `min` is always <= `max`.
-#[derive(Clone, Hash, Debug, PartialEq, PartialOrd, Serialize, Deserialize)]
+#[derive(Clone, Hash, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct IneRange<T>(Bounds<T>);
 
 impl<T> RangeBounds<T> for IneRange<T> {

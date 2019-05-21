@@ -1,10 +1,10 @@
-use liquesco_common::error::LqError;
 use crate::float::Float;
 use crate::uuid::Uuid;
 use crate::value::EnumValue;
 use crate::value::Value;
 use crate::value::ValueList;
 use crate::value::ValueRef;
+use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
 use std::borrow::Cow;

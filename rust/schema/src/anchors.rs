@@ -1,4 +1,3 @@
-use liquesco_common::error::LqError;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -11,6 +10,7 @@ use crate::seq::seq_compare;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
+use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
@@ -19,7 +19,7 @@ use std::convert::TryFrom;
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAnchors {
     pub master: TypeRef,
     pub anchor: TypeRef,

@@ -1,4 +1,3 @@
-use liquesco_common::error::LqError;
 use crate::common_binary::binary_read;
 use crate::common_binary::binary_write;
 use crate::core::DeSerializer;
@@ -6,6 +5,7 @@ use crate::core::LqReader;
 use crate::core::LqWriter;
 use crate::core::Serializer;
 use crate::major_types::TYPE_UNICODE;
+use liquesco_common::error::LqError;
 use std::str::from_utf8;
 
 pub struct Unicode;

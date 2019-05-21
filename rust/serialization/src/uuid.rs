@@ -1,9 +1,9 @@
-use liquesco_common::error::LqError;
 use crate::binary::Binary;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;
 use crate::core::Serializer;
+use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]

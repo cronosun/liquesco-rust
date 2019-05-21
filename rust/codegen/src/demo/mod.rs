@@ -1,25 +1,44 @@
-pub mod md_writer;
+pub mod html_writer;
+#[cfg(test)]
+pub mod test;
 
+use crate::demo::html_writer::HtmlWriter;
+use crate::path::Path;
+use crate::path::Segment;
+use crate::schema::SchemaBuilderReader;
 use crate::settings::Settings;
+use crate::vec_read::VecRead;
 use crate::CodeReceiver;
 use crate::Plugin;
 use liquesco_common::error::LqError;
+use liquesco_schema::any_type::AnyType;
+use liquesco_schema::schema_builder::BuildsOwnSchema;
 
-pub struct MdCodeGen;
+pub struct HtmlCodeGen;
 
-impl Plugin for MdCodeGen {
+impl Plugin for HtmlCodeGen {
     fn name(&self) -> &str {
-        "schema-md-gen"
+        "schema-html-gen"
     }
 
     fn description(&self) -> &str {
-        "Generates Markdown documentation for the liquesco schema language."
+        "Generates HTML documentation for the liquesco schema language."
     }
 
-    fn process<CR>(&self, receiver: &mut &CR, settings: &Settings) -> Result<(), LqError>
+    fn process<CR>(&self, receiver: &mut CR, _: &Settings) -> Result<(), LqError>
     where
         CR: CodeReceiver,
     {
-            Ok(())
+        let mut builder = SchemaBuilderReader::default();
+        let type_ref = AnyType::build_schema(&mut builder);
+
+        let mut html_writer = HtmlWriter::new(&builder);
+        html_writer.write(type_ref);
+
+        let vec = html_writer.finish_to_vec()?;
+
+        receiver.add(Path::new(Segment::new("schema.html")), VecRead::from(vec));
+
+        Ok(())
     }
 }

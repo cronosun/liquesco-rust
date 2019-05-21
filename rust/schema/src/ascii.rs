@@ -1,6 +1,3 @@
-use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U32IneRange, U64IneRange};
-use liquesco_common::range::LqRangeBounds;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -12,14 +9,16 @@ use crate::seq::TSeq;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
+use liquesco_common::error::LqError;
+use liquesco_common::ine_range::{U32IneRange, U64IneRange};
+use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::unicode::UncheckedUnicode;
 use serde::{Deserialize, Serialize};
-use smallvec::SmallVec;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAscii {
     /// Minimum / maximum number of bytes (which is at the same time also number
     /// of ASCII characters)
@@ -34,12 +33,12 @@ const CODE_RANGE_ELEMENTS_MAX: usize = 64;
 /// It's always a tuple of 2 values (min inclusive and max exclusive). Each value is unique
 /// and it's ordered ascending. E.g. [10, 30, 50, 60] means that codes 10-29 (inclusive) and
 /// codes 50-59 (inclusive) are allowed.
-#[derive(Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
-pub struct CodeRange(SmallVec<[u8; 4]>);
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct CodeRange(Vec<u8>);
 
 impl CodeRange {
     pub fn try_new(min: u8, max: u8) -> Result<CodeRange, LqError> {
-        let mut range = CodeRange(SmallVec::new());
+        let mut range = CodeRange(Vec::new());
         range.add(min, max)?;
         Ok(range)
     }

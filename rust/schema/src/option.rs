@@ -1,4 +1,3 @@
-use liquesco_common::error::LqError;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -8,13 +7,14 @@ use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
+use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::option::Presence;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TOption {
     pub r#type: TypeRef,
 }

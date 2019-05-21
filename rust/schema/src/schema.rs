@@ -1,10 +1,10 @@
-use liquesco_common::error::LqError;
 use crate::any_type::AnyType;
 use crate::core::Context;
 use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
+use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 use std::cmp::Ordering;
 use std::marker::PhantomData;

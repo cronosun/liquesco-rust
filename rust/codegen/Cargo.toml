@@ -6,6 +6,8 @@ edition = "2018"
 
 [dependencies]
 liquesco-common = { path = "../common" }
-smallvec = {version = "0.6.9", features = ["serde"] }
 derive_more = "0.13.0"
 liquesco-schema = { path = "../schema" }
+#for demo
+quick-xml = "0.14.0"
+minidom = "0.10.0"

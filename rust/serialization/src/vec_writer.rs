@@ -1,5 +1,5 @@
-use liquesco_common::error::LqError;
 use crate::core::LqWriter;
+use liquesco_common::error::LqError;
 
 pub struct VecWriter {
     data: Vec<u8>,

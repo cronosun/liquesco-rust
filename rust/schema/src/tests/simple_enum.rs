@@ -3,11 +3,11 @@ use crate::core::Schema;
 use crate::doc_type::DocType;
 use crate::enumeration::{TEnum, Variant};
 use crate::seq::Direction;
-use crate::uint::TUInt;
 use crate::tests::builder::builder;
 use crate::tests::ordering::ord_schema;
 use crate::tests::utils::assert_valid_extended;
 use crate::tests::utils::id;
+use crate::uint::TUInt;
 
 use crate::tests::utils::assert_invalid_strict;
 use crate::tests::utils::assert_valid_strict;

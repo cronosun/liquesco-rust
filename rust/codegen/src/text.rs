@@ -1,4 +1,5 @@
 use crate::vec_read::VecRead;
+use std::io::{Error, Write};
 use std::ops::AddAssign;
 
 pub struct Text {
@@ -91,5 +92,15 @@ impl Into<VecRead> for Text {
     fn into(self) -> VecRead {
         let vec: Vec<u8> = self.vec.into_bytes();
         vec.into()
+    }
+}
+
+impl Write for Text {
+    fn write(&mut self, buf: &[u8]) -> Result<usize, Error> {
+        unsafe { self.vec.as_mut_vec().write(buf) }
+    }
+
+    fn flush(&mut self) -> Result<(), Error> {
+        Ok(())
     }
 }

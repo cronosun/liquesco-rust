@@ -1,7 +1,3 @@
-use liquesco_common::float::F32Ext;
-use liquesco_common::float::F64Ext;
-use liquesco_common::range::NewFull;
-use liquesco_common::range::Range;
 use crate::doc_type::DocType;
 use crate::float::TFloat32;
 use crate::float::TFloat64;
@@ -10,6 +6,10 @@ use crate::tests::ordering::ord_assert_equal;
 use crate::tests::utils::assert_invalid_strict;
 use crate::tests::utils::assert_valid_strict;
 use crate::tests::utils::single_schema;
+use liquesco_common::float::F32Ext;
+use liquesco_common::float::F64Ext;
+use liquesco_common::range::NewFull;
+use liquesco_common::range::Range;
 
 #[test]
 fn schema1_32() {

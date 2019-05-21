@@ -5,11 +5,11 @@ use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::schema::DefaultSchema;
+use liquesco_serialization::serde::serialize;
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
-use liquesco_serialization::serde::serialize;
 
 pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
