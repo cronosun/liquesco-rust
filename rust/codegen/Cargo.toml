@@ -1,0 +1,11 @@
+[package]
+name = "liquesco-codegen"
+version = "0.0.1"
+authors = ["cronosun"]
+edition = "2018"
+
+[dependencies]
+liquesco-common = { path = "../common" }
+smallvec = {version = "0.6.9", features = ["serde"] }
+derive_more = "0.13.0"
+liquesco-schema = { path = "../schema" }
