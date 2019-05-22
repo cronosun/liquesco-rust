@@ -53,6 +53,22 @@ impl TSeq {
             multiple_of: Option::None,
         })
     }
+
+    pub fn element(&self) -> TypeRef {
+        self.element
+    }
+
+    pub fn length(&self) -> &U32IneRange {
+        &self.length
+    }
+
+    pub fn ordering(&self) -> &Ordering {
+        &self.ordering
+    }
+
+    pub fn multiple_of(&self) -> Option<u32> {
+        self.multiple_of
+    }
 }
 
 impl Type for TSeq {

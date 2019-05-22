@@ -29,6 +29,10 @@ impl TUInt {
             max,
         )?))
     }
+
+    pub fn range(&self) -> &U64IneRange {
+        &self.range
+    }
 }
 
 impl Type for TUInt {

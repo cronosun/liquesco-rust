@@ -1,7 +1,10 @@
+use std::fmt::Formatter;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::hash::Hash;
 use std::hash::Hasher;
+use std::ops::Deref;
+use std::fmt::Display;
 
 /// Extends float to add missing implementation for hash, ord and eq (see
 /// implementation fot rules).
@@ -90,5 +93,33 @@ impl Hash for F32Ext {
 impl Hash for F64Ext {
     fn hash<H: Hasher>(&self, state: &mut H) {
         state.write_u64(self.0.to_bits());
+    }
+}
+
+impl Deref for F32Ext {
+    type Target = f32;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Deref for F64Ext {
+    type Target = f64;
+
+    fn deref(&self) -> &Self::Target {
+        &self.0
+    }
+}
+
+impl Display for F32Ext {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        self.0.fmt(f)
+    }
+}
+
+impl Display for F64Ext {
+    fn fmt(&self, f: &mut Formatter) -> std::fmt::Result {
+        self.0.fmt(f)
     }
 }

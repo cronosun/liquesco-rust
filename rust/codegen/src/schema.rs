@@ -35,12 +35,9 @@ impl Default for NameSupplier {
 
 impl NameSupplier {
     /// Generates the technical name for the type. It's a unique name.
-    pub fn technical_name_for<R>(&mut self, reader: &R, type_ref: TypeRef) -> &Identifier
-    where
-        R: SchemaReader,
+    pub fn technical_name_for(&mut self, any_type : &AnyType, type_ref: TypeRef) -> &Identifier
     {
         if let None = self.name_for.get(&type_ref) {
-            let any_type = reader.require(type_ref);
             if let Some(name) = any_type.doc().name() {
                 // yes, type has a given name
                 if let Some(number_used) = self.used_names.get(name) {

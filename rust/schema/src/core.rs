@@ -144,6 +144,34 @@ impl<'a> Doc<'a> {
             &[]
         }
     }
+
+    pub fn set_name<I>(&mut self, name: I)
+    where
+        I: Into<Identifier<'a>>,
+    {
+        self.name = Some(name.into());
+    }
+
+    pub fn set_description<D>(&mut self, description: D)
+    where
+        D: Into<Cow<'a, str>>,
+    {
+        self.description = Some(description.into());
+    }
+
+    pub fn add_implements<U>(&mut self, uuid: U) -> Result<(), LqError>
+    where
+        U: Into<Uuid>,
+    {
+        if let None = self.implements {
+            self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
+        } else {
+            let mut implements = self.implements.take().unwrap();
+            implements.add(uuid.into())?;
+            self.implements = Some(implements);
+        }
+        Ok(())
+    }
 }
 
 impl<'a> Default for Doc<'a> {
@@ -152,8 +180,8 @@ impl<'a> Default for Doc<'a> {
     }
 }
 
+pub const MIN_IMPLEMENTS_ELEMENTS: usize = 1;
 pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
-pub const MIN_IMPLEMENTS_ELEMENTS: usize = 255;
 
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct Implements(Vec<Uuid>);
@@ -161,7 +189,7 @@ pub struct Implements(Vec<Uuid>);
 impl Implements {
     pub fn try_new(implements: &[Uuid]) -> Result<Self, LqError> {
         let number = implements.len();
-        if number < 1 {
+        if number < MIN_IMPLEMENTS_ELEMENTS {
             LqError::err_new("You need at least one element in 'implements'.")
         } else if number > MAX_IMPLEMENTS_ELEMENTS {
             LqError::err_new(format!(
@@ -170,6 +198,19 @@ impl Implements {
             ))
         } else {
             Ok(Implements(Vec::from(implements)))
+        }
+    }
+
+    pub fn add(&mut self, implements: Uuid) -> Result<(), LqError> {
+        let number = self.0.len() + 1;
+        if number > MAX_IMPLEMENTS_ELEMENTS {
+            LqError::err_new(format!(
+                "There are too many implements elements. Maximum is {:?}; got {:?} elements.",
+                MAX_IMPLEMENTS_ELEMENTS, number
+            ))
+        } else {
+            self.0.push(implements);
+            Ok(())
         }
     }
 }

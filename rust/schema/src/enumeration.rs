@@ -235,25 +235,43 @@ where
     let field_name = Identifier::build_schema(builder);
 
     let single_value = builder.add(DocType::from(TReference));
-    let values = builder.add(DocType::from(TSeq {
-        element: single_value,
-        length: U32IneRange::try_new(MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
-        ordering: SeqOrdering::None,
-        multiple_of: None,
-    }));
-    let field_values = builder.add(DocType::from(TOption::new(values)));
+    let values = builder.add(
+        DocType::from(TSeq {
+            element: single_value,
+            length: U32IneRange::try_new(MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
+            ordering: SeqOrdering::None,
+            multiple_of: None,
+        })
+        .with_name_unwrap("variant_values")
+        .with_description(
+            "Defines the one (or in rare cases more) value the enumeration \
+             variant takes.",
+        ),
+    );
+    let field_values = builder.add(
+        DocType::from(TOption::new(values))
+            .with_name_unwrap("maybe_values")
+            .with_description(
+                "Enumeration variants have usually either no value (in this case \
+                 this is absent) or one value.",
+            ),
+    );
 
-    builder.add(DocType::from(
-        TStruct::default()
-            .add(Field::new(
-                Identifier::try_from("name").unwrap(),
-                field_name,
-            ))
-            .add(Field::new(
-                Identifier::try_from("values").unwrap(),
-                field_values,
-            )),
-    ))
+    builder.add(
+        DocType::from(
+            TStruct::default()
+                .add(Field::new(
+                    Identifier::try_from("name").unwrap(),
+                    field_name,
+                ))
+                .add(Field::new(
+                    Identifier::try_from("values").unwrap(),
+                    field_values,
+                )),
+        )
+        .with_name_unwrap("variant")
+        .with_description("A single variant in an enumeration."),
+    )
 }
 
 impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
@@ -262,12 +280,17 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
         B: SchemaBuilder,
     {
         let variant = build_variant_schema(builder);
-        let field_variants = builder.add(DocType::from(TSeq {
-            element: variant,
-            length: U32IneRange::try_new(MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
-            ordering: SeqOrdering::None,
-            multiple_of: None,
-        }));
+        let field_variants = builder.add(
+            DocType::from(TSeq {
+                element: variant,
+                length: U32IneRange::try_new(MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
+                ordering: SeqOrdering::None,
+                multiple_of: None,
+            })
+            .with_name_unwrap("variants")
+            .with_description("Every enumeration has to have one or more variants (one usually \
+                makes no sense but can be used to allow extension in future)"),
+        );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("variants").unwrap(),

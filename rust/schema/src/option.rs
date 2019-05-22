@@ -19,6 +19,12 @@ pub struct TOption {
     pub r#type: TypeRef,
 }
 
+impl TOption {
+    pub fn r#type(&self) -> TypeRef {
+        self.r#type
+    }
+}
+
 impl Type for TOption {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
@@ -67,5 +73,7 @@ impl BaseTypeSchemaBuilder for TOption {
             Identifier::try_from("type").unwrap(),
             field_type,
         )))
+        .with_name_unwrap("type")
+        .with_description("The present type.")
     }
 }

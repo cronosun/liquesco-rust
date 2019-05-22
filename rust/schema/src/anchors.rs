@@ -145,12 +145,18 @@ impl BaseTypeSchemaBuilder for TAnchors {
     where
         B: SchemaBuilder,
     {
-        let field_master = builder.add(DocType::from(TReference));
-        let field_anchor = builder.add(DocType::from(TReference));
+        let field_master =
+            builder.add(DocType::from(TReference).with_name_unwrap("anchor_master_reference"));
+        let field_anchor =
+            builder.add(DocType::from(TReference).with_name_unwrap("anchor_reference"));
         let max_anchors = builder.add(DocType::from(
             TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
-        ));
-        let field_max_anchors = builder.add(DocType::from(TOption::new(max_anchors)));
+        )
+        .with_name_unwrap("max_anchors")
+        .with_description("This is the maximum number of \
+        anchors allowed. This does not include the master anchor (which is mandatory anyway)."));
+        let field_max_anchors = builder
+            .add(DocType::from(TOption::new(max_anchors)).with_name_unwrap("maybe_max_anchors"));
 
         DocType::from(
             TStruct::default()
@@ -166,6 +172,11 @@ impl BaseTypeSchemaBuilder for TAnchors {
                     Identifier::try_from("max_anchors").unwrap(),
                     field_max_anchors,
                 )),
+        )
+        .with_name_unwrap("anchors")
+        .with_description(
+            "Anchors (in combination with references) can be used to create \
+             recursive data type.",
         )
     }
 }

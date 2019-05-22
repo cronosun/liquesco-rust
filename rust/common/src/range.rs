@@ -34,6 +34,18 @@ impl<T> Range<T> {
             end_included: true,
         })
     }
+
+    pub fn bounds(&self) -> &Bounds<T> {
+        &self.bounds
+    }
+
+    pub fn start_included(&self) -> bool {
+        self.start_included
+    }
+
+    pub fn end_included(&self) -> bool {
+        self.end_included
+    }
 }
 
 impl<T> Bounds<T> {

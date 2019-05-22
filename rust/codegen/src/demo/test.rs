@@ -13,5 +13,5 @@ fn test1() {
         .take_string(&Path::new(Segment::new("schema.html")))
         .unwrap()
         .unwrap();
-    println!("{:?}", result);
+    println!("{result}", result=result);
 }

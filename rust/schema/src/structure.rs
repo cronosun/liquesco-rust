@@ -26,13 +26,17 @@ pub struct TStruct<'a> {
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Field<'a> {
-    pub identifier: Identifier<'a>, // TODO: Rename to "name"
+    pub name: Identifier<'a>,
     pub r#type: TypeRef,
 }
 
 impl<'a> Field<'a> {
-    pub fn identifier(&self) -> &Identifier<'a> {
-        &self.identifier
+    pub fn name(&self) -> &Identifier<'a> {
+        &self.name
+    }
+
+    pub fn r#type(&self) -> TypeRef {
+        self.r#type
     }
 }
 

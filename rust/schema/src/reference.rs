@@ -78,5 +78,7 @@ impl BaseTypeSchemaBuilder for TReference {
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
+        .with_name_unwrap("reference")
+        .with_description("A reference references a value in the anchors list.")
     }
 }

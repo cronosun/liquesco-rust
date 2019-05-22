@@ -29,6 +29,10 @@ impl TSInt {
             max,
         )?))
     }
+
+    pub fn range(&self) -> &I64IneRange {
+        &self.range
+    }
 }
 
 impl Type for TSInt {

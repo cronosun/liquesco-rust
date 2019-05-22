@@ -143,23 +143,30 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_reference = doc_type_ref::<TReference, B>(builder);
         let ref_uuid = doc_type_ref::<TUuid, B>(builder);
 
-        builder.add(DocType::from(
-            TEnum::default()
-                .add(variant(ref_bool, "bool"))
-                .add(variant(ref_option, "option"))
-                .add(variant(ref_seq, "seq"))
-                .add(variant(ref_unicode, "unicode"))
-                .add(variant(ref_uint, "uint"))
-                .add(variant(ref_sint, "sint"))
-                .add(variant(ref_float_32, "f32"))
-                .add(variant(ref_float_64, "f64"))
-                .add(variant(ref_enum, "enum"))
-                .add(variant(ref_struct, "struct"))
-                .add(variant(ref_ascii, "ascii"))
-                .add(variant(ref_anchors, "anchors"))
-                .add(variant(ref_reference, "reference"))
-                .add(variant(ref_uuid, "uuid")),
-        ))
+        builder.add(
+            DocType::from(
+                TEnum::default()
+                    .add(variant(ref_bool, "bool"))
+                    .add(variant(ref_option, "option"))
+                    .add(variant(ref_seq, "seq"))
+                    .add(variant(ref_unicode, "unicode"))
+                    .add(variant(ref_uint, "uint"))
+                    .add(variant(ref_sint, "sint"))
+                    .add(variant(ref_float_32, "f32"))
+                    .add(variant(ref_float_64, "f64"))
+                    .add(variant(ref_enum, "enum"))
+                    .add(variant(ref_struct, "struct"))
+                    .add(variant(ref_ascii, "ascii"))
+                    .add(variant(ref_anchors, "anchors"))
+                    .add(variant(ref_reference, "reference"))
+                    .add(variant(ref_uuid, "uuid")),
+            )
+            .with_name_unwrap("any_type")
+            .with_description(
+                "The any type is an enumeration of all possible types available \
+                 in the type system.",
+            ),
+        )
     }
 }
 

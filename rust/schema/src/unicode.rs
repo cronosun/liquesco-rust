@@ -37,7 +37,7 @@ pub struct TUnicode {
     pub length_type: LengthType,
 }
 
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LengthType {
     /// This is the fastest possible way for validation: It just counts the number of bytes
     /// transferred. This is the same as `Utf8Byte` but only if the data has been
@@ -67,6 +67,14 @@ impl TUnicode {
             length: U64IneRange::try_new_msg("Unicode length range", min_length, max_length)?,
             length_type,
         })
+    }
+
+    pub fn length(&self) -> &U64IneRange {
+        &self.length
+    }
+
+    pub fn length_type(&self) -> LengthType {
+        self.length_type
     }
 }
 

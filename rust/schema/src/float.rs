@@ -54,6 +54,10 @@ impl<F: Eq + PartialOrd + Debug> TFloat<F> {
         Ok(Self::new(range))
     }
 
+    pub fn range(&self) -> &Range<F> {
+        &self.range
+    }
+
     fn validate(
         &self,
         value: F,
@@ -165,32 +169,76 @@ where
 {
     // range
     let range_item = if float_32 {
-        builder.add(DocType::from(
-            TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
-        ))
+        builder.add(
+            DocType::from(TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap())
+                .with_name_unwrap("float_bounds_element")
+                .with_description(
+                    "The start or end of the float range bounds. Note: Whether this is \
+                     included or not can be defined.",
+                ),
+        )
     } else {
-        builder.add(DocType::from(
-            TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
-        ))
+        builder.add(
+            DocType::from(TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap())
+                .with_name_unwrap("float_bounds_element")
+                .with_description(
+                    "The start or end of the float range bounds. Note: Whether this is \
+                     included or not can be defined.",
+                ),
+        )
     };
-    let bounds_field = builder.add(DocType::from(TSeq {
-        element: range_item,
-        length: IneRange::try_new(2, 2).unwrap(),
-        ordering: SeqOrdering::Sorted {
-            direction: Ascending,
-            unique: true,
-        },
-        multiple_of: None,
-    }));
+    let bounds_field = builder.add(
+        DocType::from(TSeq {
+            element: range_item,
+            length: IneRange::try_new(2, 2).unwrap(),
+            ordering: SeqOrdering::Sorted {
+                direction: Ascending,
+                unique: true,
+            },
+            multiple_of: None,
+        })
+        .with_name_unwrap("float_bounds")
+        .with_description(
+            "The bounds the float must be contained within. It's two values: The \
+             first value is the bounds start, the second value is the bounds end.",
+        ),
+    );
 
-    let start_included_field = builder.add(DocType::from(TBool));
-    let end_included_field = builder.add(DocType::from(TBool));
+    let start_included_field = builder.add(
+        DocType::from(TBool)
+            .with_name_unwrap("start_included")
+            .with_description(
+                "This is true if you want the start of the given bounds to be included.",
+            ),
+    );
+    let end_included_field = builder.add(
+        DocType::from(TBool)
+            .with_name_unwrap("end_included")
+            .with_description(
+                "This is true if you want the end of the given bounds to be included.",
+            ),
+    );
 
     // other config
 
-    let allow_nan_field = builder.add(DocType::from(TBool));
-    let allow_positive_infinity_field = builder.add(DocType::from(TBool));
-    let allow_negative_infinity_field = builder.add(DocType::from(TBool));
+    let allow_nan_field = builder.add(
+        DocType::from(TBool)
+            .with_name_unwrap("allow_nan")
+            .with_description(
+                "This is true if NaN ('not a number') is allowed. This \
+                 should usually be false.",
+            ),
+    );
+    let allow_positive_infinity_field = builder.add(
+        DocType::from(TBool)
+            .with_name_unwrap("allow_positive_infinity")
+            .with_description("This is true if posive infinity is allowed."),
+    );
+    let allow_negative_infinity_field = builder.add(
+        DocType::from(TBool)
+            .with_name_unwrap("allow_negative_infinity")
+            .with_description("This is true if negative infinity is allowed."),
+    );
 
     // just an empty struct (but more fields will be added by the system)
     DocType::from(
@@ -220,6 +268,7 @@ where
                 allow_negative_infinity_field,
             )),
     )
+    .with_name_unwrap(if float_32 { "float_32" } else { "float_64" })
 }
 
 impl BaseTypeSchemaBuilder for Float32 {

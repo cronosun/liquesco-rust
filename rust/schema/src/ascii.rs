@@ -1,3 +1,4 @@
+use std::ops::Index;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -37,6 +38,7 @@ const CODE_RANGE_ELEMENTS_MAX: usize = 64;
 pub struct CodeRange(Vec<u8>);
 
 impl CodeRange {
+
     pub fn try_new(min: u8, max: u8) -> Result<CodeRange, LqError> {
         let mut range = CodeRange(Vec::new());
         range.add(min, max)?;
@@ -90,6 +92,18 @@ impl CodeRange {
         }
         false
     }
+
+    pub fn len(&self) -> usize {
+        self.0.len()
+    }
+}
+
+impl Index<usize> for CodeRange {
+    type Output = u8;
+
+    fn index(&self, index: usize) -> &Self::Output {
+        &self.0[index]
+    }
 }
 
 impl TAscii {
@@ -109,6 +123,10 @@ impl TAscii {
     /// Allowed ascii code range
     pub fn codes(&self) -> &CodeRange {
         &self.codes
+    }
+
+    pub fn length(&self) -> &U64IneRange {
+        &self.length
     }
 }
 

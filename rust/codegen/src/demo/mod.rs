@@ -1,6 +1,9 @@
 pub mod html_writer;
+pub mod type_info;
+pub mod types;
 #[cfg(test)]
 pub mod test;
+pub mod references;
 
 use crate::demo::html_writer::HtmlWriter;
 use crate::path::Path;

@@ -34,8 +34,8 @@ impl<'a> Parser<'a> for PStruct {
         SeqHeader::serialize(writer, &SeqHeader::new(u32_number_of_fields))?;
 
         for field in r#type.fields() {
-            let identifier = &field.identifier;
-            let r#type = field.r#type;
+            let identifier = &field.name();
+            let r#type = field.r#type();
             let identifier_string =
                 C::TConverter::identifier_to_string(identifier, IdentifierType::StructField);
 
