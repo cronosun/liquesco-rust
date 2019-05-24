@@ -4,6 +4,7 @@ pub mod types;
 #[cfg(test)]
 pub mod test;
 pub mod references;
+pub mod usage;
 
 use crate::demo::html_writer::HtmlWriter;
 use crate::path::Path;
@@ -35,10 +36,8 @@ impl Plugin for HtmlCodeGen {
         let mut builder = SchemaBuilderReader::default();
         let type_ref = AnyType::build_schema(&mut builder);
 
-        let mut html_writer = HtmlWriter::new(&builder);
-        html_writer.write(type_ref);
-
-        let vec = html_writer.finish_to_vec()?;
+        let html_writer = HtmlWriter::new(&builder);
+        let vec = html_writer.finish_to_vec(type_ref)?;
 
         receiver.add(Path::new(Segment::new("schema.html")), VecRead::from(vec));
 

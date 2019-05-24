@@ -1,4 +1,3 @@
-use liquesco_schema::reference::TReference;
 use crate::demo::html_writer::HtmlWriter;
 use liquesco_common::range::Range;
 use liquesco_schema::any_type::AnyType;
@@ -11,6 +10,7 @@ use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::option::TOption;
+use liquesco_schema::reference::TReference;
 use liquesco_schema::seq;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::sint::TSInt;
@@ -48,7 +48,7 @@ impl<'a> HtmlWriter<'a> {
 
 /// For enums
 impl<'a> HtmlWriter<'a> {
-    pub(crate) fn type_body_enum(&mut self, value: &TEnum, _: TypeRef) -> Element {
+    pub(crate) fn type_body_enum(&mut self, value: &TEnum, self_type_ref: TypeRef) -> Element {
         let mut ol = Element::builder("ol").attr("start", "0").build();
         for variant in value.variants() {
             let mut li = Element::builder("li").build();
@@ -66,7 +66,7 @@ impl<'a> HtmlWriter<'a> {
                     li.append_child(Element::bare("br"));
                     let value_any_type = self.schema.require(*value);
                     li.append_child(self.ref_link(value_any_type, *value));
-                    self.write(*value);
+                    self.set_uses(self_type_ref, *value);
                 }
             }
 
@@ -79,7 +79,7 @@ impl<'a> HtmlWriter<'a> {
 
 /// For struct
 impl<'a> HtmlWriter<'a> {
-    pub(crate) fn type_body_struct(&mut self, value: &TStruct, _: TypeRef) -> Element {
+    pub(crate) fn type_body_struct(&mut self, value: &TStruct, self_type_ref: TypeRef) -> Element {
         let mut ol = Element::builder("ol").attr("start", "0").build();
         for field in value.fields() {
             let mut li = Element::builder("li").build();
@@ -99,7 +99,7 @@ impl<'a> HtmlWriter<'a> {
 
             ol.append_child(li);
 
-            self.write(field.r#type());
+            self.set_uses(self_type_ref, field.r#type());
         }
 
         ol
@@ -108,14 +108,14 @@ impl<'a> HtmlWriter<'a> {
 
 /// For option
 impl<'a> HtmlWriter<'a> {
-    pub(crate) fn type_body_option(&mut self, value: &TOption, _: TypeRef) -> Element {
+    pub(crate) fn type_body_option(&mut self, value: &TOption, self_type_ref: TypeRef) -> Element {
         let mut item = Element::bare("p");
         item.append_text_node("Present type ");
 
         let value_any_type = self.schema.require(value.r#type());
         item.append_child(self.ref_link(value_any_type, value.r#type()));
 
-        self.write(value.r#type());
+        self.set_uses(self_type_ref, value.r#type());
 
         item
     }
@@ -143,7 +143,7 @@ fn span<D: Into<String>>(text: D) -> Element {
 
 /// For sequence
 impl<'a> HtmlWriter<'a> {
-    pub(crate) fn type_body_seq(&mut self, value: &TSeq, _: TypeRef) -> Element {
+    pub(crate) fn type_body_seq(&mut self, value: &TSeq, self_type_ref: TypeRef) -> Element {
         let mut ul = Element::bare("ul");
 
         let element_any_type = self.schema.require(value.element());
@@ -152,7 +152,7 @@ impl<'a> HtmlWriter<'a> {
             self.ref_link(element_any_type, value.element()),
         );
         ul.append_child(element);
-        self.write(value.element());
+        self.set_uses(self_type_ref, value.element());
 
         // information about length
         let length = value.length();

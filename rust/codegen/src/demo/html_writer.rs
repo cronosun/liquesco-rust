@@ -1,29 +1,33 @@
 use crate::demo::type_info::type_info;
+use crate::demo::usage::Usage;
 use crate::schema::{NameSupplier, SchemaReader};
 use liquesco_common::error::LqError;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
 use minidom::Element;
-use std::collections::HashSet;
+use std::collections::HashMap;
 
 pub struct HtmlWriter<'a> {
     pub(crate) schema: &'a SchemaReader,
-    written: HashSet<TypeRef>,
     pub(crate) name_supplier: NameSupplier,
-    types: Vec<Element>,
+    types: HashMap<TypeRef, Element>,
+    usage: Usage,
 }
 
 impl<'a> HtmlWriter<'a> {
     pub fn new(schema: &'a SchemaReader) -> Self {
         Self {
             schema,
-            written: HashSet::default(),
             name_supplier: NameSupplier::default(),
-            types: Vec::default(),
+            types: HashMap::default(),
+            usage: Usage::default(),
         }
     }
 
-    pub fn finish_to_element(mut self) -> Element {
+    pub fn finish_to_element(mut self, type_ref: TypeRef) -> Element {
+        self.write(type_ref);
+        self.write_uses_info();
+
         let mut head_element = Element::builder("head");
         let mut style = Element::bare("style");
         style.append_text_node(include_str!("style.css"));
@@ -32,8 +36,7 @@ impl<'a> HtmlWriter<'a> {
 
         let mut body_element = Element::builder("body");
 
-        self.types.reverse();
-        for r#type in self.types {
+        for (_, r#type) in self.types {
             body_element = body_element.append(r#type);
         }
 
@@ -43,8 +46,8 @@ impl<'a> HtmlWriter<'a> {
         end_element.build()
     }
 
-    pub fn finish_to_vec(self) -> Result<Vec<u8>, LqError> {
-        let element = self.finish_to_element();
+    pub fn finish_to_vec(self, type_ref: TypeRef) -> Result<Vec<u8>, LqError> {
+        let element = self.finish_to_element(type_ref);
         let mut vec = Vec::<u8>::default();
         element.write_to(&mut vec).unwrap(); // TODO
         Ok(vec)
@@ -52,12 +55,12 @@ impl<'a> HtmlWriter<'a> {
 }
 
 impl<'a> HtmlWriter<'a> {
-    pub fn write(&mut self, type_ref: TypeRef) {
-        if self.written.contains(&type_ref) {
+    fn write(&mut self, type_ref: TypeRef) {
+        if self.types.contains_key(&type_ref) {
+            // already written, skip.
             return;
         }
 
-        self.written.insert(type_ref);
         let any_type = self.schema.require(type_ref);
 
         let mut article = Element::builder("article");
@@ -66,7 +69,6 @@ impl<'a> HtmlWriter<'a> {
 
         // name / title
         let name = self.name_supplier.display_name_for(type_ref, any_type);
-        //let technical_name = self.name_supplier.technical_name_for(&mut self.schema, type_ref);
         let mut title = Element::builder("h1").build();
         title.append_text_node(name.to_string(Format::SnakeCase));
 
@@ -103,6 +105,41 @@ impl<'a> HtmlWriter<'a> {
         );
 
         article = article.append(title).append(body);
-        self.types.push(article.build());
+        self.types.insert(type_ref, article.build());
+
+        self.write_used(type_ref);
+    }
+
+    fn write_uses_info(&mut self) {
+        for (type_id, element) in &mut self.types {
+            let used_by = self.usage.is_used_by(type_id);
+            if !used_by.is_empty() {
+                let mut used_by_element = Element::builder("div")
+                    .attr("class", "liquesco-used-by")
+                    .build();
+                let mut text = Element::bare("p");
+                text.append_text_node("This type is used by:");
+                used_by_element.append_child(text);
+
+                //used_by_element.append(Element::
+                for used_by_item in used_by {
+                    used_by_element.append_text_node(format!("TODO: {:?}", used_by_item))
+                }
+
+                element.append_child(used_by_element);
+            }
+        }
+    }
+
+    pub(crate) fn set_uses(&mut self, myself: TypeRef, uses: TypeRef) {
+        self.usage.set_uses(myself, uses)
+    }
+
+    /// Processes the things this type just used.
+    fn write_used(&mut self, just_written: TypeRef) {
+        let uses = self.usage.uses(&just_written);
+        for r#type in uses.clone() {
+            self.write(r#type.clone());
+        }
     }
 }
