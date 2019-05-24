@@ -10,10 +10,10 @@ use crate::demo::html_writer::HtmlWriter;
 use crate::path::Path;
 use crate::path::Segment;
 use crate::schema::SchemaBuilderReader;
+use crate::code_receiver::Code;
 use crate::settings::Settings;
-use crate::vec_read::VecRead;
-use crate::CodeReceiver;
-use crate::Plugin;
+use crate::code_receiver::CodeReceiver;
+use crate::plugin::Plugin;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::schema_builder::BuildsOwnSchema;
@@ -29,17 +29,16 @@ impl Plugin for HtmlCodeGen {
         "Generates HTML documentation for the liquesco schema language."
     }
 
-    fn process<CR>(&self, receiver: &mut CR, _: &Settings) -> Result<(), LqError>
-    where
-        CR: CodeReceiver,
+    fn process(&self, receiver: &mut CodeReceiver, _: &Settings) -> Result<(), LqError>
     {
         let mut builder = SchemaBuilderReader::default();
         let type_ref = AnyType::build_schema(&mut builder);
 
         let html_writer = HtmlWriter::new(&builder);
-        let vec = html_writer.finish_to_vec(type_ref)?;
+        let string = html_writer.finish_to_string(type_ref)?;
 
-        receiver.add(Path::new(Segment::new("schema.html")), VecRead::from(vec));
+        receiver.add(Path::new(Segment::new("schema.html")), 
+            Code::String(string));
 
         Ok(())
     }

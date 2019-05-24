@@ -2,7 +2,7 @@ use crate::code_receiver::DefaultCodeReceiver;
 use crate::demo::HtmlCodeGen;
 use crate::path::{Path, Segment};
 use crate::settings::Settings;
-use crate::Plugin;
+use crate::plugin::Plugin;
 
 #[test]
 fn test1() {

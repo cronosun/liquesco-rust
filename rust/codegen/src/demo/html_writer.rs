@@ -1,6 +1,7 @@
 use crate::demo::type_info::type_info;
 use crate::demo::usage::Usage;
-use crate::schema::{NameSupplier, SchemaReader};
+use crate::schema::{SchemaReader};
+use crate::names::Names;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
@@ -9,7 +10,7 @@ use std::collections::HashMap;
 
 pub struct HtmlWriter<'a> {
     pub(crate) schema: &'a SchemaReader,
-    pub(crate) name_supplier: NameSupplier,
+    pub(crate) name_supplier: Names,
     types: HashMap<TypeRef, Element>,
     usage: Usage,
 }
@@ -18,7 +19,7 @@ impl<'a> HtmlWriter<'a> {
     pub fn new(schema: &'a SchemaReader) -> Self {
         Self {
             schema,
-            name_supplier: NameSupplier::default(),
+            name_supplier: Names::default(),
             types: HashMap::default(),
             usage: Usage::default(),
         }
@@ -46,12 +47,13 @@ impl<'a> HtmlWriter<'a> {
         end_element.build()
     }
 
-    pub fn finish_to_vec(self, type_ref: TypeRef) -> Result<Vec<u8>, LqError> {
+    pub fn finish_to_string(self, type_ref: TypeRef) -> Result<String, LqError> {
         let element = self.finish_to_element(type_ref);
         let mut vec = Vec::<u8>::default();
         element.write_to(&mut vec).unwrap(); // TODO
-        Ok(vec)
+        Ok(String::from_utf8(vec).unwrap()) // TODO
     }
+
 }
 
 impl<'a> HtmlWriter<'a> {
@@ -112,7 +114,7 @@ impl<'a> HtmlWriter<'a> {
 
     fn write_uses_info(&mut self) {
         for (type_id, element) in &mut self.types {
-            let used_by = self.usage.is_used_by(type_id);
+            let used_by = self.usage.is_used_by(type_id).clone();
             if !used_by.is_empty() {
                 let mut used_by_element = Element::builder("div")
                     .attr("class", "liquesco-used-by")
@@ -123,6 +125,8 @@ impl<'a> HtmlWriter<'a> {
 
                 //used_by_element.append(Element::
                 for used_by_item in used_by {
+                    let any_type = self.schema.require(used_by_item);
+                   // let link_element = self.ref_link(any_type, used_by_item);
                     used_by_element.append_text_node(format!("TODO: {:?}", used_by_item))
                 }
 
