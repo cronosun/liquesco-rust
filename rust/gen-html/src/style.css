@@ -5,7 +5,19 @@ body {
   padding: 2em;
   max-width: 60em;
 }
+.liquesco-type-header-title {
+}
 .liquesco-type-body {
+    padding-left: 2em;
+    margin-left: 1em;
+    border-left-color: #f0f0f0;
+    border-left-style: solid;
+    border-left-width: 1em;
+}
+.liquesco-type {
+    padding-bottom: 2em;
+}
+.liquesco-type-header-body {
     padding-left: 2em;
     margin-left: 1em;
     border-left-color: #f0f0f0;
@@ -28,8 +40,10 @@ body {
     border-style: solid;
     padding: 10px;
 }
-.liquesco-type {
-    padding-bottom: 2em;
+.liquesco-type-footer {
+    padding-left: 2em;
+    margin-left: 1em;
+    border-left-color: #f0f0f0;
+    border-left-style: solid;
+    border-left-width: 1em;
 }
-.liquesco-type-content {}
-.liquesco-used-by {}

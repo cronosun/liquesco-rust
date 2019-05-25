@@ -1,0 +1,14 @@
+[package]
+name = "liquesco-gen-html"
+version = "0.0.1"
+authors = ["cronosun"]
+edition = "2018"
+
+[dependencies]
+liquesco-common = { path = "../common" }
+liquesco-processing = { path = "../processing" }
+derive_more = "0.13.0"
+liquesco-schema = { path = "../schema" }
+quick-xml = "0.14.0"
+minidom = "0.10.0"
+lazy_static = "1.3.0"

@@ -1,5 +1,5 @@
 [package]
-name = "liquesco-text"
+name = "liquesco-parsing"
 version = "0.0.1"
 authors = ["cronosun"]
 edition = "2018"

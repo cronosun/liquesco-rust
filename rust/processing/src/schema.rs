@@ -1,3 +1,4 @@
+use crate::type_info::TypeInfo;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::schema_builder::SchemaBuilder;
@@ -6,6 +7,13 @@ use std::collections::HashMap;
 pub trait SchemaReader {
     fn master_ref(&self) -> TypeRef;
     fn require(&self, reference: TypeRef) -> &AnyType;
+
+    fn type_info(&self, reference : TypeRef) -> TypeInfo {
+        TypeInfo {
+            any_type : self.require(reference),
+            reference
+        }
+    }
 }
 
 /// It's at the same time a `SchemaBuilder` and a `SchemaReader`.

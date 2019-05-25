@@ -1,6 +1,6 @@
 use liquesco_schema::any_type::AnyType;
 
-pub(crate) fn type_info(any_type: &AnyType) -> (&'static str, &'static str) {
+pub(crate) fn type_description(any_type: &AnyType) -> (&'static str, &'static str) {
     match any_type {
             AnyType::Struct(_) => ("structure", "A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type."),
             AnyType::UInt(_) => ("unsigned integer", "Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range)."),

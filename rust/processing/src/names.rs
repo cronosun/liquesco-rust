@@ -1,3 +1,4 @@
+use crate::type_info::TypeInfo;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::TypeRef;
@@ -29,30 +30,29 @@ impl Default for Names {
 
 impl Names {
     /// Generates the technical name for the type. It's a unique name.
-    pub fn technical_name_for(&mut self, any_type: &AnyType, type_ref: TypeRef) -> &Identifier {
-        if let None = self.name_for.get(&type_ref) {
-            self.create_and_insert_technical_name(any_type, type_ref);
+    pub fn technical_name_for(&mut self, info : &TypeInfo) -> &Identifier {
+        if let None = self.name_for.get(&info.reference) {
+            self.create_and_insert_technical_name(info.any_type, info.reference);
         }
 
         // should be there now
-        self.name_for.get(&type_ref).unwrap()
+        self.name_for.get(&info.reference).unwrap()
     }
 
     /// Returns the display name for some given type.
     pub fn display_name_for<'a, 'b: 'a>(
         &'a mut self,
-        type_ref: TypeRef,
-        any_type: &'b AnyType<'b>,
+        info : &'b TypeInfo<'b>, 
     ) -> &'a Identifier<'a> {
-        if let Some(name) = any_type.doc().name() {
+        if let Some(name) = info.any_type.doc().name() {
             name
         } else {
             // ok, we have no name, take the hash name
-            if let None = self.hashed_display_name.get(&type_ref) {
-                let hashed_name = Self::hash_to_identifier(any_type);
-                self.hashed_display_name.insert(type_ref, hashed_name);
+            if let None = self.hashed_display_name.get(&info.reference) {
+                let hashed_name = Self::hash_to_identifier(info.any_type);
+                self.hashed_display_name.insert(info.reference, hashed_name);
             }
-            self.hashed_display_name.get(&type_ref).unwrap()
+            self.hashed_display_name.get(&info.reference).unwrap()
         }
     }
 

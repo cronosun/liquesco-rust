@@ -4,7 +4,13 @@ This contains the Rust reference implementation of liquesco.
 
  * **serialization**: Data de-/serialization without Serde (https://serde.rs/) and with Serde; 
  * **schema**: The liquesco schema.
- * **text**: Parse data from a textual representation (currently yaml) given a schema.
+ * **parsing**: Parse data from a textual representation (currently yaml) given a schema.
+ 
+Some data processing:
+ 
+ * **processing**: Generic library for processing input data and output some data.
+ * **gen-html**: Used to generate HTML output for a given schema.
+ * **gen-schema**: A processing plugin: Generates HTML output for a given schema.
 
 # Rust version
 

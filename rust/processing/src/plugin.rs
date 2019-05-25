@@ -5,7 +5,7 @@ use liquesco_common::error::LqError;
 use std::io::Read;
 
 pub trait Input {
-    type R : Read;
+    type R: Read;
     fn get(&self, path: &Path) -> Option<Self::R>;
 }
 
