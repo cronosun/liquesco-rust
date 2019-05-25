@@ -1,8 +1,8 @@
+use liquesco_common::error::LqError;
 use crate::parser::anchors::PAnchors;
 use crate::parser::ascii::PAscii;
 use crate::parser::boolean::PBool;
 use crate::parser::core::Context;
-use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::enumeration::PEnum;
 use crate::parser::float::PFloat32;
@@ -23,7 +23,7 @@ pub(crate) fn parse_any<'c, C>(
     any_type: &AnyType,
     text_value: &TextValue,
     writer: &mut C::TWriter,
-) -> Result<(), ParseError>
+) -> Result<(), LqError>
 where
     C: Context<'c>,
 {

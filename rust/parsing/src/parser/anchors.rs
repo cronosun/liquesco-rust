@@ -1,9 +1,8 @@
+use liquesco_common::error::LqError;
 use crate::parser::value::TextValue;
 use liquesco_schema::anchors::TAnchors;
-
 use crate::parser::converter::Converter;
 use crate::parser::core::Context;
-use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::seq::SeqHeader;
@@ -19,7 +18,7 @@ impl<'a> Parser<'a> for PAnchors {
         writer: &mut C::TWriter,
         value: &TextValue,
         r#type: &Self::T,
-    ) -> Result<(), ParseError>
+    ) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
@@ -50,14 +49,14 @@ impl<'a> Parser<'a> for PAnchors {
                         if let Some(anchor) = string_map.get(anchor_name) {
                             context.parse(writer, r#type.anchor, anchor)?;
                         } else {
-                            return Err(ParseError::new(format!(
+                            return Err(LqError::new(format!(
                                 "Got a reference to anchor named \
                                  `{:?}` - but no such anchor found!",
                                 anchor_name
                             )));
                         }
                     } else {
-                        return Err(ParseError::new(format!("Not all anchors are referenced \
+                        return Err(LqError::new(format!("Not all anchors are referenced \
                     (there are {:?} anchors; exluding the master) but only {:?} anchors \
                     are referenced. Remove unused anchors! Currently referenced anchors: {:?}",
                     number_of_anchors,index-1, context.present_anchor_info())));
@@ -66,7 +65,7 @@ impl<'a> Parser<'a> for PAnchors {
 
                 Ok(())
             } else {
-                Err(ParseError::new(format!(
+                Err(LqError::new(format!(
                     "Master anchor not found. Master anchor must be 
             called `{:?}`. Found {:?}",
                     C::TConverter::master_anchor(),

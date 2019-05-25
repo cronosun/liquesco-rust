@@ -1,7 +1,6 @@
 use crate::parser::converter::Converter;
 use crate::parser::converter::IdentifierType;
 use crate::parser::core::Context;
-use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
@@ -9,6 +8,7 @@ use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::identifier::Identifier;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::enumeration::EnumHeader;
+use liquesco_common::error::LqError;
 
 use std::convert::TryFrom;
 
@@ -22,7 +22,7 @@ impl<'a> Parser<'a> for PEnum {
         writer: &mut C::TWriter,
         value: &TextValue,
         r#type: &Self::T,
-    ) -> Result<(), ParseError>
+    ) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
@@ -49,7 +49,7 @@ impl<'a> Parser<'a> for PEnum {
                 };
 
                 if number_of_values != number_of_expected_values {
-                    return Err(ParseError::new(format!(
+                    return Err(LqError::new(format!(
                         "The enum variant {:?} \
                          requires {:?} values. You specified {:?} values.",
                         variant_id, number_of_expected_values, number_of_values
@@ -64,13 +64,13 @@ impl<'a> Parser<'a> for PEnum {
 
                 Ok(())
             } else {
-                Err(ParseError::new(format!(
+                Err(LqError::new(format!(
                     "No such enum variant found: {:?}",
                     variant_id
                 )))
             }
         } else {
-            Err(ParseError::new(format!(
+            Err(LqError::new(format!(
                 "Could not extract enum variant identifier from \
                  given value. An enum variant is either just a string (variant tag; variants \
                  without values) or a sequence where the first element is a string (variant tag) \
@@ -84,7 +84,7 @@ impl<'a> Parser<'a> for PEnum {
 /// enum can be either a string or a sequence (containting a string and 1-n values)
 fn extract_variant_identifier<'a, 'v, T: Converter>(
     value: &'a Value<'v>,
-) -> Result<Option<Identifier<'a>>, ParseError> {
+) -> Result<Option<Identifier<'a>>, LqError> {
     match value {
         Value::Text(text) => {
             let x: &'a str = &text;

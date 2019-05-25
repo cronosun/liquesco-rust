@@ -1,7 +1,6 @@
 use crate::parser::converter::Converter;
 use crate::parser::converter::IdentifierType;
 use crate::parser::core::Context;
-use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
@@ -9,6 +8,7 @@ use liquesco_schema::structure::TStruct;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::seq::SeqHeader;
 use std::convert::TryFrom;
+use liquesco_common::error::LqError;
 
 pub struct PStruct;
 
@@ -20,7 +20,7 @@ impl<'a> Parser<'a> for PStruct {
         writer: &mut C::TWriter,
         value: &TextValue,
         r#type: &Self::T,
-    ) -> Result<(), ParseError>
+    ) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
@@ -54,7 +54,7 @@ impl<'a> Parser<'a> for PStruct {
 
         // the map should now be empty (all fields processed)
         if value.len() > 0 {
-            Result::Err(ParseError::new(format!(
+            Result::Err(LqError::new(format!(
                 "Not all fields have been processed (consumed). \
                  There are unprocessed field(s): {:?}. Value: {:?}; Type: {:?}",
                 value.keys(),

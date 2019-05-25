@@ -1,4 +1,5 @@
-use crate::parser::core::{Context, ParseError};
+use liquesco_common::error::LqError;
+use crate::parser::core::{Context};
 use crate::parser::parser::ParserContext;
 use crate::yaml::deserializer::deserialize;
 use liquesco_schema::core::{Config, Schema};
@@ -9,7 +10,7 @@ use yaml_rust::{Yaml, YamlLoader};
 
 pub mod deserializer;
 
-pub fn parse_from_yaml_str<'s, S>(schema: &S, src: &str) -> Result<Vec<u8>, ParseError>
+pub fn parse_from_yaml_str<'s, S>(schema: &S, src: &str) -> Result<Vec<u8>, LqError>
 where
     S: Schema<'s>,
 {
@@ -18,7 +19,7 @@ where
     parse_from_yaml(schema, yaml)
 }
 
-pub fn parse_from_yaml<'s, S>(schema: &S, yaml: Yaml) -> Result<Vec<u8>, ParseError>
+pub fn parse_from_yaml<'s, S>(schema: &S, yaml: Yaml) -> Result<Vec<u8>, LqError>
 where
     S: Schema<'s>,
 {

@@ -1,4 +1,3 @@
-use crate::parser::core::ParseError;
 use crate::parser::value::Seq;
 use crate::parser::value::Text;
 use crate::parser::value::TextValue;
@@ -7,6 +6,7 @@ use liquesco_schema::identifier::Format;
 use liquesco_schema::identifier::Identifier;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use liquesco_common::error::LqError;
 
 /// Naming:
 /// - require: Returns an error when conversion is not possible.
@@ -20,7 +20,7 @@ pub trait Converter {
         }
     }
 
-    fn string_to_identifier(value: &str, _: IdentifierType) -> Result<Identifier, ParseError> {
+    fn string_to_identifier(value: &str, _: IdentifierType) -> Result<Identifier, LqError> {
         Ok(Identifier::try_from(value)?)
     }
 
@@ -31,7 +31,7 @@ pub trait Converter {
         }
     }
 
-    fn require_text<'a>(value: &'a Value<'a>) -> Result<&'a Text<'a>, ParseError> {
+    fn require_text<'a>(value: &'a Value<'a>) -> Result<&'a Text<'a>, LqError> {
         require(Self::to_text(value), || {
             format!("Expecting to have a string; got {:?}", value)
         })
@@ -54,7 +54,7 @@ pub trait Converter {
         }
     }
 
-    fn require_u64(value: &Value) -> Result<u64, ParseError> {
+    fn require_u64(value: &Value) -> Result<u64, LqError> {
         require(Self::to_u64(value), || {
             format!("Expecting an unsiged integer, got {:?}", value)
         })
@@ -75,7 +75,7 @@ pub trait Converter {
         }
     }
 
-    fn require_bool(value: &Value) -> Result<bool, ParseError> {
+    fn require_bool(value: &Value) -> Result<bool, LqError> {
         require(Self::to_bool(value), || {
             format!("Expecting a boolean, got {:?}", value)
         })
@@ -96,7 +96,7 @@ pub trait Converter {
         }
     }
 
-    fn require_i64(value: &Value) -> Result<i64, ParseError> {
+    fn require_i64(value: &Value) -> Result<i64, LqError> {
         require(Self::to_i64(value), || {
             format!("Expecting a signed integer, got {:?}", value)
         })
@@ -110,7 +110,7 @@ pub trait Converter {
         }
     }
 
-    fn require_f64(value: &Value) -> Result<f64, ParseError> {
+    fn require_f64(value: &Value) -> Result<f64, LqError> {
         require(Self::to_f64(value), || {
             format!(
                 "Expecting a float 64 (if this is an integer, try adding .0; e.g. 12 \
@@ -137,7 +137,7 @@ pub trait Converter {
         }
     }
 
-    fn require_f32(value: &Value) -> Result<f32, ParseError> {
+    fn require_f32(value: &Value) -> Result<f32, LqError> {
         require(Self::to_f32(value), || {
             format!(
                 "Expecting a float 32 (if this is an integer, try adding .0; e.g. 12 \
@@ -174,7 +174,7 @@ pub trait Converter {
 
     fn require_string_map<'a>(
         value: &'a Value<'a>,
-    ) -> Result<HashMap<&'a str, &'a TextValue<'a>>, ParseError> {
+    ) -> Result<HashMap<&'a str, &'a TextValue<'a>>, LqError> {
         require(Self::to_string_map(value), || {
             format!(
                 "Expecting to have a map with text keys (or a sequence with 0-n \
@@ -185,9 +185,9 @@ pub trait Converter {
         })
     }
 
-    fn require_no_name(value: &TextValue) -> Result<(), ParseError> {
+    fn require_no_name(value: &TextValue) -> Result<(), LqError> {
         if let Some(name) = &value.name {
-            Result::Err(ParseError::new(format!(
+            Result::Err(LqError::new(format!(
                 "The given value has a name (name \
                  is {:?}). This name is unused and must be removed. Value is {:?}.",
                 name, value
@@ -205,7 +205,7 @@ pub trait Converter {
         }
     }
 
-    fn require_seq<'a>(value: &'a Value<'a>) -> Result<&'a Seq<'a>, ParseError> {
+    fn require_seq<'a>(value: &'a Value<'a>) -> Result<&'a Seq<'a>, LqError> {
         require(Self::to_seq(value), || {
             format!(
                 "Expecting to have a sequence (aka. list or vector). got {:?}",
@@ -218,13 +218,13 @@ pub trait Converter {
         "MAIN*"
     }
 
-    fn validate_reference(value: &str) -> Result<(), ParseError> {
+    fn validate_reference(value: &str) -> Result<(), LqError> {
         if value == Self::master_anchor() {
             // of course the master anchor is OK
             Result::Ok(())
         } else {
             if !value.ends_with("*") {
-                return Err(ParseError::new(format!(
+                return Err(LqError::new(format!(
                     "References must end with `*`; \
                      the reference you supplied does not: `{:?}`",
                     value
@@ -233,7 +233,7 @@ pub trait Converter {
             let len = value.len();
             let (identifier, _) = value.split_at(len - 1);
             if Identifier::try_from(identifier).is_err() {
-                return Err(ParseError::new(format!(
+                return Err(LqError::new(format!(
                     "References must be valid \
                      identifiers (see doc; essentially only latin lower cases and underscores). \
                      You supplied: `{:?}`",
@@ -250,10 +250,10 @@ pub enum IdentifierType {
     EnumIdentifier, // TODO: Vielleicht das in klammern?
 }
 
-fn require<T, Msg: FnOnce() -> String>(value: Option<T>, msg: Msg) -> Result<T, ParseError> {
+fn require<T, Msg: FnOnce() -> String>(value: Option<T>, msg: Msg) -> Result<T, LqError> {
     if let Some(value) = value {
         Result::Ok(value)
     } else {
-        Result::Err(ParseError::new(msg()))
+        Result::Err(LqError::new(msg()))
     }
 }

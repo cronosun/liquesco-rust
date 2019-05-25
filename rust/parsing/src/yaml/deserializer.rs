@@ -1,14 +1,14 @@
-use crate::parser::core::ParseError;
+use liquesco_common::error::LqError;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
 use std::borrow::Cow;
 use yaml_rust::Yaml;
 
-pub(crate) fn deserialize(yaml: Yaml) -> Result<TextValue<'static>, ParseError> {
+pub(crate) fn deserialize(yaml: Yaml) -> Result<TextValue<'static>, LqError> {
     deserialize_single(yaml)
 }
 
-fn deserialize_single(yaml: Yaml) -> Result<TextValue<'static>, ParseError> {
+fn deserialize_single(yaml: Yaml) -> Result<TextValue<'static>, LqError> {
     Result::Ok(
         match yaml {
             Yaml::Null => Value::Nothing,
@@ -32,7 +32,7 @@ fn deserialize_single(yaml: Yaml) -> Result<TextValue<'static>, ParseError> {
             Yaml::Integer(integer) => Value::I64(integer).into(),
             Yaml::Real(real) => Value::Text(Cow::Owned(real)),
             _ => {
-                return Result::Err(ParseError::new(format!(
+                return Result::Err(LqError::new(format!(
                     "Unable to parse yaml, \
                      unhandled element: {:?}",
                     yaml

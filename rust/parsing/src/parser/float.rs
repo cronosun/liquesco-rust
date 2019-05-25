@@ -1,12 +1,12 @@
 use crate::parser::converter::Converter;
 use crate::parser::core::Context;
-use crate::parser::core::ParseError;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::float::Float;
+use liquesco_common::error::LqError;
 
 pub struct PFloat32;
 
@@ -18,7 +18,7 @@ impl Parser<'static> for PFloat32 {
         writer: &mut C::TWriter,
         value: &TextValue,
         _: &Self::T,
-    ) -> Result<(), ParseError>
+    ) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
@@ -39,7 +39,7 @@ impl Parser<'static> for PFloat64 {
         writer: &mut C::TWriter,
         value: &TextValue,
         _: &Self::T,
-    ) -> Result<(), ParseError>
+    ) -> Result<(), LqError>
     where
         C: Context<'c>,
     {
