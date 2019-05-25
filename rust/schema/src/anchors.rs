@@ -145,16 +145,31 @@ impl BaseTypeSchemaBuilder for TAnchors {
     where
         B: SchemaBuilder,
     {
-        let field_master =
-            builder.add(DocType::from(TReference).with_name_unwrap("anchor_master_reference"));
-        let field_anchor =
-            builder.add(DocType::from(TReference).with_name_unwrap("anchor_reference"));
-        let max_anchors = builder.add(DocType::from(
-            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
-        )
-        .with_name_unwrap("max_anchors")
-        .with_description("This is the maximum number of \
-        anchors allowed. This does not include the master anchor (which is mandatory anyway)."));
+        let field_master = builder.add(
+            DocType::from(TReference)
+                .with_name_unwrap("anchor_master_type")
+                .with_description(
+                    "Anchors have exactly one master (required) and 0-n more \
+                     anchors. This defines the master type.",
+                ),
+        );
+        let field_anchor = builder.add(
+            DocType::from(TReference)
+                .with_name_unwrap("anchor_type")
+                .with_description(
+                    "Defines the type of the anchors. Note: There's also the master \
+                     anchor type which can (but usually doesn't) differ from this.",
+                ),
+        );
+        let max_anchors = builder.add(
+            DocType::from(TUInt::try_new(0, std::u32::MAX as u64).unwrap())
+                .with_name_unwrap("max_anchors")
+                .with_description(
+                    "This is the maximum number of \
+                     anchors allowed. This does not include the master anchor (which is mandatory \
+                     anyway).",
+                ),
+        );
         let field_max_anchors = builder
             .add(DocType::from(TOption::new(max_anchors)).with_name_unwrap("maybe_max_anchors"));
 

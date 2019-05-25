@@ -234,7 +234,10 @@ where
 {
     let field_name = Identifier::build_schema(builder);
 
-    let single_value = builder.add(DocType::from(TReference));
+    let single_value =
+        builder.add(DocType::from(TReference)
+        .with_name_unwrap("value_type")
+        .with_description("Value type in an enum variant."));
     let values = builder.add(
         DocType::from(TSeq {
             element: single_value,
@@ -245,7 +248,8 @@ where
         .with_name_unwrap("variant_values")
         .with_description(
             "Defines the one (or in rare cases more) value the enumeration \
-             variant takes.",
+             variant takes. You should only have two or more values when variant got extended - \
+             do not use more than one value in the initial schema design.",
         ),
     );
     let field_values = builder.add(
@@ -288,13 +292,17 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
                 multiple_of: None,
             })
             .with_name_unwrap("variants")
-            .with_description("Every enumeration has to have one or more variants (one usually \
-                makes no sense but can be used to allow extension in future)"),
+            .with_description(
+                "Every enumeration has to have one or more variants (just one usually \
+                 makes no sense but can be used to allow extension in future).",
+            ),
         );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("variants").unwrap(),
             field_variants,
         )))
+        .with_name_unwrap("enum")
+        .with_description("An enumeration of variants.")
     }
 }

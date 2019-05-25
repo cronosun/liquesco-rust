@@ -46,5 +46,7 @@ impl BaseTypeSchemaBuilder for TUuid {
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
+            .with_name_unwrap("uuid")
+            .with_description("16 byte UUID; RFC 4122.")
     }
 }

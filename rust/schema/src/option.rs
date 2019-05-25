@@ -67,13 +67,15 @@ impl BaseTypeSchemaBuilder for TOption {
     where
         B: SchemaBuilder,
     {
-        let field_type = builder.add(DocType::from(TReference));
+        let field_type = builder.add(DocType::from(TReference)
+        .with_name_unwrap("present_type")
+        .with_description("Type of the present value in an option."));
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("type").unwrap(),
             field_type,
         )))
-        .with_name_unwrap("type")
-        .with_description("The present type.")
+        .with_name_unwrap("option")
+        .with_description("Can have a value (some; present) or no value (none; empty; absent).")
     }
 }

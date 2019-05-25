@@ -66,22 +66,32 @@ impl BaseTypeSchemaBuilder for TUInt {
     where
         B: SchemaBuilder,
     {
-        let element = builder.add(DocType::from(
-            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
-        ));
-        let field_range = builder.add(DocType::from(TSeq {
-            element,
-            length: U32IneRange::try_new(2, 2).unwrap(),
-            ordering: SeqOrdering::Sorted {
-                direction: Direction::Ascending,
-                unique: true,
-            },
-            multiple_of: None,
-        }));
+        let element = builder.add(
+            DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap())
+                .with_name_unwrap("uint_range_element"),
+        );
+        let field_range = builder.add(
+            DocType::from(TSeq {
+                element,
+                length: U32IneRange::try_new(2, 2).unwrap(),
+                ordering: SeqOrdering::Sorted {
+                    direction: Direction::Ascending,
+                    unique: true,
+                },
+                multiple_of: None,
+            })
+            .with_name_unwrap("uint_range")
+            .with_description(
+                "The range within the integer must be. Both (start and end) \
+                 are inclusive.",
+            ),
+        );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("range").unwrap(),
             field_range,
         )))
+        .with_name_unwrap("uint")
+        .with_description("Unsigned integer - maximum 64 bit.")
     }
 }

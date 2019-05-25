@@ -1,7 +1,5 @@
 #[macro_use]
 extern crate derive_more;
-#[macro_use]
-extern crate lazy_static;
 
 pub mod code_receiver;
 pub mod names;

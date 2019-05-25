@@ -43,5 +43,7 @@ impl BaseTypeSchemaBuilder for TBool {
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
+        .with_name_unwrap("bool")
+        .with_description("A boolean: Can either be true or false.")
     }
 }

@@ -1,6 +1,4 @@
 #[macro_use]
-extern crate derive_more;
-#[macro_use]
 extern crate lazy_static;
 
 pub mod html_writer;

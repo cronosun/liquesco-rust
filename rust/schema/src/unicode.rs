@@ -127,20 +127,26 @@ impl BaseTypeSchemaBuilder for TUnicode {
     {
         let range_element = builder.add(DocType::from(
             TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
-        ));
+        )
+        .with_name_unwrap("unicode_length_element"));
         let field_length = builder.add(DocType::from(TSeq {
             element: range_element,
             length: U32IneRange::try_new(2, 2).unwrap(),
             ordering: SeqOrdering::None,
             multiple_of: None,
-        }));
+        })
+        .with_name_unwrap("unicode_length"));
 
         let field_length_type = builder.add(DocType::from(
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("byte").unwrap()))
                 .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
                 .add(Variant::new(Identifier::try_from("scalar").unwrap())),
-        ));
+        )
+        .with_name_unwrap("length_type")
+        .with_description("Specifies how the length of the unicode is measured. 'byte' can be \
+        mesaured very efficiently - but depends on the encoding. Note: Scalar must not be \
+        confused with uncode grapheme clusters."));
 
         DocType::from(
             TStruct::default()
@@ -153,5 +159,7 @@ impl BaseTypeSchemaBuilder for TUnicode {
                     field_length_type,
                 )),
         )
+        .with_name_unwrap("unicode")
+        .with_description("Arbitrary unicode text. This can be used for human readable text.")
     }
 }

@@ -66,22 +66,32 @@ impl BaseTypeSchemaBuilder for TSInt {
     where
         B: SchemaBuilder,
     {
-        let element = builder.add(DocType::from(
-            TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
-        ));
-        let field_range = builder.add(DocType::from(TSeq {
-            element,
-            length: U32IneRange::try_new(2, 2).unwrap(),
-            ordering: SeqOrdering::Sorted {
-                direction: Direction::Ascending,
-                unique: true,
-            },
-            multiple_of: None,
-        }));
+        let element = builder.add(
+            DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap())
+                .with_name_unwrap("sint_range_element"),
+        );
+        let field_range = builder.add(
+            DocType::from(TSeq {
+                element,
+                length: U32IneRange::try_new(2, 2).unwrap(),
+                ordering: SeqOrdering::Sorted {
+                    direction: Direction::Ascending,
+                    unique: true,
+                },
+                multiple_of: None,
+            })
+            .with_name_unwrap("sint_range")
+            .with_description(
+                "The range within the integer must be. Both (start and end) \
+                 are inclusive.",
+            ),
+        );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("range").unwrap(),
             field_range,
         )))
+        .with_name_unwrap("sint")
+        .with_description("Signed integer - maximum 64 bit.")
     }
 }

@@ -13,6 +13,7 @@ use crate::types::wint::WUInt;
 use crate::types::wint::WSInt;
 use crate::types::woption::WOption;
 use crate::types::wunicode::WUnicode;
+use crate::types::wuuid::WUuid;
 use crate::usage::Usage;
 use liquesco_processing::names::Names;
 
@@ -31,6 +32,7 @@ pub mod wfloat;
 pub mod wanchor;
 pub mod wbool;
 pub mod wunicode;
+pub mod wuuid;
 
 pub fn write_body(ctx: BodyWriteContext) -> Element {
     let any_type = ctx.schema.require(ctx.type_ref);
@@ -49,11 +51,7 @@ pub fn write_body(ctx: BodyWriteContext) -> Element {
         AnyType::SInt(value) => WSInt::write(&mut ctx.into(value)),
         AnyType::Option(value) => WOption::write(&mut ctx.into(value)),
         AnyType::Unicode(value) => WUnicode::write(&mut ctx.into(value)),
-        _ => {
-            let mut element = Element::bare("div");
-            element.append_text_node("Not yet implemented");
-            element
-        },
+        AnyType::Uuid(value) => WUuid::write(&mut ctx.into(value)),
     }
 }
 

@@ -19,7 +19,7 @@ impl Plugin for HtmlGenSchemaPlugin {
     fn description(&self) -> &str {
         "Generates HTML documentation from a liquesco schema."
     }
-    fn process(&self, receiver: &mut CodeReceiver, settings: &Settings) -> Result<(), LqError> {
+    fn process(&self, receiver: &mut CodeReceiver, _: &Settings) -> Result<(), LqError> {
         let mut builder = SchemaBuilderReader::default();
         let type_ref = AnyType::build_schema(&mut builder);
 

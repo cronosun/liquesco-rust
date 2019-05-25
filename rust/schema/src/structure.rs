@@ -154,26 +154,42 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type = builder.add(DocType::from(TReference));
-        let field_struct = builder.add(DocType::from(
-            TStruct::default()
-                .add(Field::new(
-                    Identifier::try_from("name").unwrap(),
-                    identifier,
-                ))
-                .add(Field::new(Identifier::try_from("type").unwrap(), r#type)),
-        ));
+        let r#type = builder.add(DocType::from(TReference).with_name_unwrap("field_type"));
+        let field_struct = builder.add(
+            DocType::from(
+                TStruct::default()
+                    .add(Field::new(
+                        Identifier::try_from("name").unwrap(),
+                        identifier,
+                    ))
+                    .add(Field::new(Identifier::try_from("type").unwrap(), r#type)),
+            )
+            .with_name_unwrap("field")
+            .with_description(
+                "A single field in a structure. A field contains a name \
+                 and a type.",
+            ),
+        );
 
-        let fields_field = builder.add(DocType::from(TSeq {
-            element: field_struct,
-            length: U32IneRange::try_new(std::u32::MIN, std::u32::MAX).unwrap(),
-            ordering: SeqOrdering::None,
-            multiple_of: None,
-        }));
+        let fields_field = builder.add(
+            DocType::from(TSeq {
+                element: field_struct,
+                length: U32IneRange::try_new(std::u32::MIN, std::u32::MAX).unwrap(),
+                ordering: SeqOrdering::None,
+                multiple_of: None,
+            })
+            .with_name_unwrap("fields")
+            .with_description("A sequence of fields in a structure."),
+        );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("fields").unwrap(),
             fields_field,
         )))
+        .with_name_unwrap("struct")
+        .with_description(
+            "A structure is similar to a sequence but has a defined length and \
+             can contain fields of different types.",
+        )
     }
 }
