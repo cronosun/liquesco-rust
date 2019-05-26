@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -34,6 +35,10 @@ impl Type for TBool {
         let bool2 = Bool::de_serialize(r2)?;
         Result::Ok(bool1.cmp(&bool2))
     }
+
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 impl BaseTypeSchemaBuilder for TBool {
@@ -43,7 +48,7 @@ impl BaseTypeSchemaBuilder for TBool {
     {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
-        .with_name_unwrap("bool")
-        .with_description("A boolean: Can either be true or false.")
+            .with_name_unwrap("bool")
+            .with_description("A boolean: Can either be true or false.")
     }
 }

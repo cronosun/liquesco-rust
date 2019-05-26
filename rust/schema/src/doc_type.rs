@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Doc;
 use crate::core::Type;
 use crate::core::{
@@ -78,6 +79,10 @@ impl<'doc, T: Type> Type for DocType<'doc, T> {
         C: Context<'c>,
     {
         self.r#type.compare(context, r1, r2)
+    }
+
+    fn reference(&self, index : usize) -> Option<TypeRef> {
+         self.r#type.reference(index) 
     }
 }
 

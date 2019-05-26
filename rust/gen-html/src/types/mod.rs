@@ -69,7 +69,6 @@ impl<'a> BodyWriteContext<'a> {
             r#type,
             type_ref: self.type_ref,
             names: self.names,
-            usage: self.usage,
         }
     }
 }

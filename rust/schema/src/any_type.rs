@@ -121,6 +121,25 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Uuid(value) => value.compare(context, r1, r2),
         }
     }
+
+     fn reference(&self, index : usize) -> Option<TypeRef> {
+         match self {
+            AnyType::Struct(value) => value.reference(index),
+            AnyType::UInt(value) => value.reference(index),
+            AnyType::SInt(value) => value.reference(index),
+            AnyType::Ascii(value) => value.reference(index),
+            AnyType::Bool(value) => value.reference(index),
+            AnyType::Enum(value) => value.reference(index),
+            AnyType::Anchors(value) => value.reference(index),
+            AnyType::Reference(value) => value.reference(index),
+            AnyType::Seq(value) => value.reference(index),
+            AnyType::Float32(value) => value.reference(index),
+            AnyType::Float64(value) => value.reference(index),
+            AnyType::Option(value) => value.reference(index),
+            AnyType::Unicode(value) => value.reference(index),
+            AnyType::Uuid(value) => value.reference(index),
+        }
+     }
 }
 
 impl BuildsOwnSchema for AnyType<'_> {

@@ -140,6 +140,15 @@ impl<'a> Type for TStruct<'a> {
 
         Result::Ok(Ordering::Equal)
     }
+
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        let number_of_fields = self.fields().len();
+        if index>=number_of_fields {
+            None
+        } else {
+            Some(self.fields()[index].r#type)
+        }
+    }
 }
 
 impl<'a> TStruct<'a> {

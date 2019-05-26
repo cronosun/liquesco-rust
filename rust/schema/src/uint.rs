@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -59,6 +60,10 @@ impl Type for TUInt {
         let int2 = UInt64::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
     }
+
+        fn reference(&self, _: usize) -> Option<TypeRef> {
+            None
+        }
 }
 
 impl BaseTypeSchemaBuilder for TUInt {

@@ -226,6 +226,19 @@ impl<'a> Type for TEnum<'a> {
             Result::Ok(Ordering::Equal)
         }
     }
+
+    fn reference(&self, index : usize) -> Option<TypeRef> {
+        let mut current = 0;
+        for variant in self.variants() {
+            for value in variant.values() {
+                if current==index {
+                    return Some(*value);
+                }
+                current += 1;
+            }
+        }
+        None 
+    }
 }
 
 fn build_variant_schema<B>(builder: &mut B) -> TypeRef

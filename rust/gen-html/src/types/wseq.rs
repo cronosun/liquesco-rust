@@ -1,25 +1,21 @@
-use crate::html::span;
-use crate::html::list_item;
-use minidom::Element;
-use crate::body_writer::Context;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::seq;
 use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
+use crate::html::list_item;
+use crate::html::span;
+use liquesco_schema::seq;
+use liquesco_schema::seq::TSeq;
+use minidom::Element;
 
 pub struct WSeq;
 
 impl BodyWriter for WSeq {
     type T = TSeq;
 
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-         let mut ul = Element::bare("ul");
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ul = Element::bare("ul");
 
-        let element = list_item(
-            "Element type",
-            ctx.link(ctx.r#type.element())
-        );
+        let element = list_item("Element type", ctx.link(ctx.r#type.element()));
         ul.append_child(element);
-        ctx.set_uses(ctx.r#type.element());
 
         // information about length
         let length = ctx.r#type.length();
@@ -35,9 +31,7 @@ impl BodyWriter for WSeq {
             );
             ul.append_child(max_len);
         } else {
-            let fix_len = list_item("Fixed length", 
-            span(format!("{len}", 
-            len = length.start())));
+            let fix_len = list_item("Fixed length", span(format!("{len}", len = length.start())));
             ul.append_child(fix_len);
         }
         if let Some(multiple_of) = ctx.r#type.multiple_of() {

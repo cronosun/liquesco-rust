@@ -6,7 +6,7 @@ use liquesco_processing::schema::SchemaBuilderReader;
 use liquesco_processing::path::Path;
 use liquesco_processing::path::Segment;
 use liquesco_processing::code_receiver::Code;
-use liquesco_schema::any_type::AnyType;
+use liquesco_schema::schema_anchors::SchemaAnchors;
 use liquesco_gen_html::html_writer::HtmlWriter;
 use liquesco_schema::schema_builder::BuildsOwnSchema;
 
@@ -21,7 +21,7 @@ impl Plugin for HtmlGenSchemaPlugin {
     }
     fn process(&self, receiver: &mut CodeReceiver, _: &Settings) -> Result<(), LqError> {
         let mut builder = SchemaBuilderReader::default();
-        let type_ref = AnyType::build_schema(&mut builder);
+        let type_ref = SchemaAnchors::build_schema(&mut builder);
 
         let html_writer = HtmlWriter::new(&builder);
         let string = html_writer.write_to_string(type_ref)?;

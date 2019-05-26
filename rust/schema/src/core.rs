@@ -41,6 +41,14 @@ pub trait Type: Debug {
     ) -> Result<Ordering, LqError>
     where
         C: Context<'c>;
+
+    // Returns the embedded references by index (starting at index 0).
+    // Returns `None` if there are no more references (does not contain
+    // gaps).
+    //
+    // This is mostly used internally; usually you get embedded references
+    // by the appropriate methods. 
+    fn reference(&self, _ : usize) -> Option<TypeRef>;
 }
 
 pub trait Context<'a> {

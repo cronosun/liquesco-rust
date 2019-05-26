@@ -8,6 +8,7 @@ use crate::types::BodyWriteContext;
 use crate::usage::Usage;
 use liquesco_processing::names::Names;
 use liquesco_processing::schema::SchemaReader;
+use liquesco_schema::core::Type;
 
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
@@ -103,6 +104,17 @@ impl HtmlWriter<'_> {
             usage: &mut self.usage,
         };
         self.bodies.insert(type_ref, write_body(write_context));
+
+        // add all embedded references
+        let any_type = self.schema.require(type_ref);
+        for index in 0..std::usize::MAX {
+            let maybe_ref = any_type.reference(index);
+            if let Some(reference) = maybe_ref {
+                self.usage.set_uses(type_ref, reference);
+            } else {
+                break;
+            }
+        }
 
         // now write all dependencies
         let dependencies = self.usage.uses(&type_ref).clone();

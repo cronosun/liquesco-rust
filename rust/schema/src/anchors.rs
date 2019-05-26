@@ -32,7 +32,22 @@ pub struct TAnchors {
     pub max_anchors: Option<u32>,
 }
 
+impl TAnchors {
+    pub fn master(&self) -> TypeRef {
+        self.master
+    }
+
+    pub fn anchor(&self) -> TypeRef {
+        self.anchor
+    }
+
+        pub fn max_anchors(&self) -> Option<u32> {
+        self.max_anchors
+    }
+}
+
 impl Type for TAnchors {
+    // TODO: There must be no DUPLICATES! -> Hinweis: Dann müsste das aber sorted sein, nicht?
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -138,6 +153,14 @@ impl Type for TAnchors {
             seq_compare(|_| self.anchor, context, r1, r2)
         }
     }
+
+     fn reference(&self, index : usize) -> Option<TypeRef> {
+         match index {
+             0 => Some(self.master()),
+             1 => Some(self.anchor()),
+             _ => None
+         }
+     }
 }
 
 impl BaseTypeSchemaBuilder for TAnchors {
@@ -191,7 +214,10 @@ impl BaseTypeSchemaBuilder for TAnchors {
         .with_name_unwrap("anchors")
         .with_description(
             "Anchors (in combination with references) can be used to create \
-             recursive data type.",
+             recursive data type. The anchors is basically a sequence of 1-n anchors. Those \
+             anchors can be referenced using the reference type. Multiple anchors can be nested; \
+             references reference always the anchor in the next anchor sequence in the \
+             hierarchy (upwards).",
         )
     }
 }

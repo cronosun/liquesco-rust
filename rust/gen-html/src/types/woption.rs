@@ -20,9 +20,6 @@ impl BodyWriter for WOption {
         }.link();
 
         item.append_child(link);
-
-        ctx.set_uses(ctx.r#type.r#type());
-
         item
     }
 }

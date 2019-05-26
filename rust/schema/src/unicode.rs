@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -118,6 +119,10 @@ impl<'a> Type for TUnicode {
         // lex compare
         Result::Ok(bytes1.cmp(&bytes2))
     }
+
+     fn reference(&self, _: usize) -> Option<TypeRef> {
+         None
+     }
 }
 
 impl BaseTypeSchemaBuilder for TUnicode {

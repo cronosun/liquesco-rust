@@ -7,6 +7,7 @@ pub mod doc_type;
 pub mod identifier;
 pub mod schema;
 pub mod schema_builder;
+pub mod schema_anchors;
 #[cfg(test)]
 pub mod tests;
 

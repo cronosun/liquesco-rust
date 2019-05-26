@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::boolean::TBool;
 use crate::core::{Context, Type};
 use crate::doc_type::DocType;
@@ -126,6 +127,10 @@ impl Type for TFloat32 {
 
         Result::Ok(F32Ext::from(float1).cmp(&F32Ext::from(float2)))
     }
+
+        fn reference(&self, _ : usize) -> Option<TypeRef> {
+            None
+        }
 }
 
 impl Type for TFloat64 {
@@ -161,6 +166,10 @@ impl Type for TFloat64 {
         let float2 = Float64::de_serialize(r2)?;
         Result::Ok(F64Ext::from(float1).cmp(&F64Ext::from(float2)))
     }
+
+            fn reference(&self, _ : usize) -> Option<TypeRef> {
+                None
+        }
 }
 
 fn build_schema<B>(builder: &mut B, float_32: bool) -> DocType<'static, TStruct<'static>>

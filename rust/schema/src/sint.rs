@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -58,6 +59,10 @@ impl Type for TSInt {
         let int1 = SInt64::de_serialize(r1)?;
         let int2 = SInt64::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
+    }
+
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
     }
 }
 

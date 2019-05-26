@@ -34,7 +34,6 @@ impl<'a> BodyWriter for WEnum<'a> {
                         names : &mut ctx.names
                     }.link();
                     li.append_child(link);
-                    ctx.set_uses(*value);
                 }
             }
 

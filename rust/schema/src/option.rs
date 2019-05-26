@@ -60,6 +60,14 @@ impl Type for TOption {
             (Presence::Present, Presence::Absent) => Result::Ok(Ordering::Greater),
         }
     }
+
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        if index == 0 {
+            Some(self.r#type)
+        } else {
+            None
+        }
+    }
 }
 
 impl BaseTypeSchemaBuilder for TOption {
@@ -67,9 +75,11 @@ impl BaseTypeSchemaBuilder for TOption {
     where
         B: SchemaBuilder,
     {
-        let field_type = builder.add(DocType::from(TReference)
-        .with_name_unwrap("present_type")
-        .with_description("Type of the present value in an option."));
+        let field_type = builder.add(
+            DocType::from(TReference)
+                .with_name_unwrap("present_type")
+                .with_description("Type of the present value in an option."),
+        );
 
         DocType::from(TStruct::default().add(Field::new(
             Identifier::try_from("type").unwrap(),

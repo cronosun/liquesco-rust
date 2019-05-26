@@ -1,4 +1,5 @@
 
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -172,6 +173,10 @@ impl<'a> Type for TAscii {
         let bytes2 = UncheckedUnicode::de_serialize(r2)?;
         // lex compare
         Result::Ok(bytes1.cmp(&bytes2))
+    }
+
+    fn reference(&self, _ : usize) -> Option<TypeRef> {
+        None 
     }
 }
 

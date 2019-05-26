@@ -30,8 +30,6 @@ impl<'a> BodyWriter for WStruct<'a> {
             li.append_child(ctx.link(field.r#type()));
 
             ol.append_child(li);
-
-            ctx.set_uses(field.r#type());
         }
 
         ol

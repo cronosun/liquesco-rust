@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -69,6 +70,10 @@ impl Type for TReference {
         let int2 = UInt32::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
     }
+
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 impl BaseTypeSchemaBuilder for TReference {
@@ -79,6 +84,7 @@ impl BaseTypeSchemaBuilder for TReference {
         // just an empty struct (but more fields will be added by the system)
         DocType::from(TStruct::default())
         .with_name_unwrap("reference")
-        .with_description("A reference references a value in the anchors list.")
+        .with_description("A reference references a value in the anchors list. See \
+        anchors for more details.")
     }
 }

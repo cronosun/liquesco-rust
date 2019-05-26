@@ -1,3 +1,4 @@
+use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
 use crate::doc_type::DocType;
@@ -37,6 +38,10 @@ impl Type for TUuid {
         let bin2 = Binary::de_serialize(r2)?;
         Result::Ok(bin1.cmp(&bin2))
     }
+
+         fn reference(&self, _: usize) -> Option<TypeRef> {
+         None
+     }
 }
 
 impl BaseTypeSchemaBuilder for TUuid {

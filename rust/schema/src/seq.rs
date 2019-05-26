@@ -122,6 +122,14 @@ impl Type for TSeq {
     {
         seq_compare(|_| self.element, context, r1, r2)
     }
+
+        fn reference(&self, index: usize) -> Option<TypeRef> {
+            if index==0 {
+                Some(self.element())
+            } else {
+                None
+            }
+    }
 }
 
 #[inline]
