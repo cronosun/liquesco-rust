@@ -73,7 +73,7 @@ impl Type for TAnchors {
         context.set_anchor_index(Option::Some(0));
         context.validate(self.master)?;
 
-        // no validate all anchors
+        // now validate all anchors
         let anchors_seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_anchors = anchors_seq.length();
         if let Some(max_anchors) = self.max_anchors {

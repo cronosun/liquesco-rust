@@ -33,6 +33,7 @@ impl Display for LqError {
 }
 
 impl LqError {
+    // TODO: Can be removed?
     pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
         Result::Err(LqError {
             msg: string.into(),
