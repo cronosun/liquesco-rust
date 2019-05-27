@@ -42,7 +42,7 @@ fn schema2() {
 
 #[test]
 fn ordering() {
-    let schema =TUInt::try_new(0, std::u64::MAX).unwrap();
+    let schema = TUInt::try_new(0, std::u64::MAX).unwrap();
 
     ord_assert_equal(schema.clone(), 100usize, 100usize);
     ord_assert_equal(schema.clone(), 0usize, 0usize);

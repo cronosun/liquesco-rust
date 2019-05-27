@@ -14,15 +14,9 @@ use liquesco_schema::sint::TSInt;
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
 
-    let variant1 = builder.add(AnyType::Ascii(
-        TAscii::try_new(1, 50, 0, 127).unwrap(),
-    ));
-    let variant2_1 = builder.add(AnyType::Ascii(
-        TAscii::try_new(1, 50, 0, 127).unwrap(),
-    ));
-    let variant2_2 = builder.add(AnyType::SInt(
-        TSInt::try_new(-10, 3000).unwrap(),
-    ));
+    let variant1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
+    let variant2_1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
+    let variant2_2 = builder.add(AnyType::SInt(TSInt::try_new(-10, 3000).unwrap()));
 
     let enum_value = TEnum::default()
         .add(Variant::new(id("the_empty_variant")))
@@ -36,9 +30,7 @@ fn create_schema() -> impl Schema<'static> {
     let enumeration = builder.add(AnyType::Enum(enum_value));
 
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(
-        TSeq::try_new(enumeration, 1, 20).unwrap(),
-    ))
+    builder.finish(AnyType::Seq(TSeq::try_new(enumeration, 1, 20).unwrap()))
 }
 
 #[test]

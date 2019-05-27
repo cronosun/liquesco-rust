@@ -4,12 +4,12 @@ use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::identifier::Segment;
+use liquesco_schema::metadata::WithMetadata;
 use std::collections::hash_map::DefaultHasher;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::hash::Hash;
 use std::hash::Hasher;
-use liquesco_schema::metadata::WithMetadata;
 
 /// Generates (or just supplies) names for schema types.
 pub struct Names {

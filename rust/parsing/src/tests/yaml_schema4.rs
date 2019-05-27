@@ -28,9 +28,7 @@ fn create_schema() -> impl Schema<'static> {
     let structure = builder.add(AnyType::Struct(struct_value.into()));
 
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(
-        TSeq::try_new(structure, 1, 20).unwrap(),
-    ))
+    builder.finish(AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()))
 }
 
 #[test]

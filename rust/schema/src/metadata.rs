@@ -1,10 +1,10 @@
-use liquesco_serialization::uuid::Uuid;
-use std::borrow::Cow;
-use liquesco_common::error::LqError;
-use serde::{Deserialize, Serialize};
 use crate::identifier::Identifier;
-use std::convert::TryFrom;
+use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
+use liquesco_serialization::uuid::Uuid;
+use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
+use std::convert::TryFrom;
 
 use crate::option::TOption;
 use crate::schema_builder::BuildsOwnSchema;
@@ -29,7 +29,9 @@ pub trait WithMetadata {
 pub trait MetadataSetter<'m>: WithMetadata {
     fn set_meta(&mut self, meta: Meta<'m>);
 
-    fn with_meta<M : Into<Meta<'m>>>(mut self, meta: M) -> Self where Self: Sized
+    fn with_meta<M: Into<Meta<'m>>>(mut self, meta: M) -> Self
+    where
+        Self: Sized,
     {
         self.set_meta(meta.into());
         self
@@ -48,8 +50,8 @@ pub struct Meta<'a> {
 }
 
 pub struct NameDescription<'a> {
-    pub name : &'a str,
-    pub description : &'a str,
+    pub name: &'a str,
+    pub description: &'a str,
 }
 
 const EMPTY_META: &Meta = &Meta::empty();
@@ -57,23 +59,23 @@ const EMPTY_META: &Meta = &Meta::empty();
 impl<'a> Into<Meta<'a>> for NameDescription<'a> {
     fn into(self) -> Meta<'a> {
         Meta {
-            name : Some(Identifier::try_from(self.name).unwrap()),
-            description : Some(Cow::Borrowed(self.description)),
-            implements : None,
+            name: Some(Identifier::try_from(self.name).unwrap()),
+            description: Some(Cow::Borrowed(self.description)),
+            implements: None,
         }
     }
 }
 
 pub struct NameOnly<'a> {
-    pub name : &'a str,
+    pub name: &'a str,
 }
 
 impl<'a> Into<Meta<'a>> for NameOnly<'a> {
     fn into(self) -> Meta<'a> {
         Meta {
-            name : Some(Identifier::try_from(self.name).unwrap()),
-            description : None,
-            implements : None,
+            name: Some(Identifier::try_from(self.name).unwrap()),
+            description: None,
+            implements: None,
         }
     }
 }
@@ -112,22 +114,22 @@ impl<'a> Meta<'a> {
     }
 
     pub fn set_name<I>(&mut self, name: I)
-        where
-            I: Into<Identifier<'a>>,
+    where
+        I: Into<Identifier<'a>>,
     {
         self.name = Some(name.into());
     }
 
     pub fn set_description<D>(&mut self, description: D)
-        where
-            D: Into<Cow<'a, str>>,
+    where
+        D: Into<Cow<'a, str>>,
     {
         self.description = Some(description.into());
     }
 
     pub fn add_implements<U>(&mut self, uuid: U) -> Result<(), LqError>
-        where
-            U: Into<Uuid>,
+    where
+        U: Into<Uuid>,
     {
         if let None = self.implements {
             self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
@@ -181,52 +183,44 @@ impl Implements {
     }
 }
 
-pub struct WithMetaSchemaBuilder<T : BaseTypeSchemaBuilder> {
-    _phantom : PhantomData<T>
+pub struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
+    _phantom: PhantomData<T>,
 }
 
-impl<T : BaseTypeSchemaBuilder>  BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T>
-{
+impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         // Adding fields for the doc
         let identifier_ref = Identifier::build_schema(builder);
-        let field_name = builder.add(
-            TOption::new(identifier_ref).with_meta(
-                NameDescription {
-                    name: "maybe_name",
-                    description: "An optional name for the type.",
-                }
-            )
-        );
+        let field_name = builder.add(TOption::new(identifier_ref).with_meta(NameDescription {
+            name: "maybe_name",
+            description: "An optional name for the type.",
+        }));
         let description_ref = builder.add(
             TUnicode::try_new(
                 DOC_MIN_LEN_UTF8_BYTES as u64,
                 DOC_MAX_LEN_UTF8_BYTES as u64,
                 LengthType::Utf8Byte,
             )
-                .unwrap().with_meta(NameDescription {
+            .unwrap()
+            .with_meta(NameDescription {
                 name: "description",
                 description: "Describes / documents the type. Use human readable text. \
-                 No markup is allowed.",
-            })
+                              No markup is allowed.",
+            }),
         );
-        let field_description = builder.add(
-            TOption::new(description_ref)
-                .with_meta(NameDescription {
-                    name: "maybe_description",
-                    description: "Optional type description / documentation.",
-                })
-        );
-        let uuid_ref = builder.add(
-            TUuid::default()
-                .with_meta(NameDescription {
-                    name: "implements_uuid",
-                    description: "UUID to describe the conformance / implementation / \
-                     protocol of this type uniquely."})
-        );
+        let field_description =
+            builder.add(TOption::new(description_ref).with_meta(NameDescription {
+                name: "maybe_description",
+                description: "Optional type description / documentation.",
+            }));
+        let uuid_ref = builder.add(TUuid::default().with_meta(NameDescription {
+            name: "implements_uuid",
+            description: "UUID to describe the conformance / implementation / \
+                          protocol of this type uniquely.",
+        }));
         let uuid_seq = builder.add(
             TSeq {
                 meta: Meta::empty(),
@@ -247,8 +241,9 @@ impl<T : BaseTypeSchemaBuilder>  BaseTypeSchemaBuilder for WithMetaSchemaBuilder
         company: It's a part number. So you can give that ASCII type a UUID to declare 'this \
         type is a part number'. This makes it possible to find part numbers company wide." }));
 
-        let field_implements =
-            builder.add(TOption::new(uuid_seq).with_meta(NameOnly { name : "maybe_implements" }));
+        let field_implements = builder.add(TOption::new(uuid_seq).with_meta(NameOnly {
+            name: "maybe_implements",
+        }));
 
         let meta_struct = TStruct::default()
             .add(Field {
@@ -271,11 +266,10 @@ impl<T : BaseTypeSchemaBuilder>  BaseTypeSchemaBuilder for WithMetaSchemaBuilder
 
         let mut inner_struct = T::build_schema(builder);
         inner_struct.prepend(Field {
-            name : Identifier::try_from("meta").unwrap(),
-        r#type : meta_ref
+            name: Identifier::try_from("meta").unwrap(),
+            r#type: meta_ref,
         });
 
         inner_struct
     }
 }
-

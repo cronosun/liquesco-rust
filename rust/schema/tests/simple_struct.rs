@@ -100,9 +100,7 @@ fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let type_x = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
-            let type_y = builder.add(
-                TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()
-            );
+            let type_y = builder.add(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
             let inner_struct = builder.add(Into::<TStruct>::into(
                 TStruct::default()
                     .add(Field::new(id("x"), type_x))

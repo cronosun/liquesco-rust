@@ -1,6 +1,10 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -8,10 +12,6 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
@@ -20,13 +20,13 @@ use crate::metadata::NameDescription;
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TReference<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
 }
 
 impl<'a> Default for TReference<'a> {
     fn default() -> Self {
         Self {
-            meta : Meta::empty()
+            meta: Meta::empty(),
         }
     }
 }
@@ -99,7 +99,7 @@ impl WithMetadata for TReference<'_> {
 }
 
 impl<'a> MetadataSetter<'a> for TReference<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -111,9 +111,9 @@ impl BaseTypeSchemaBuilder for TReference<'_> {
     {
         // just an empty struct (but more fields will be added by the system)
         TStruct::default().with_meta(NameDescription {
-            name : "reference",
-            description : "A reference references a value in the anchors list. See \
-                 anchors for more details."
+            name: "reference",
+            description: "A reference references a value in the anchors list. See \
+                          anchors for more details.",
         })
     }
 }

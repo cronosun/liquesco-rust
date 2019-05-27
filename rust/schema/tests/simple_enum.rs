@@ -66,12 +66,11 @@ enum Schema1EnumTooManyValues {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let variant1_type =
-                builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let variant1_type = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
             builder.add(
                 TEnum::default()
                     .add(Variant::new(id("variant1")).add_value(variant1_type))
-                    .add(Variant::new(id("variant2")))
+                    .add(Variant::new(id("variant2"))),
             )
         },
         Direction::Ascending,

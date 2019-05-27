@@ -23,12 +23,8 @@ fn create_schema() -> impl Schema<'static> {
     let field_last_name = builder.add(AnyType::Unicode(
         TUnicode::try_new(1, 100, LengthType::Byte).unwrap(),
     ));
-    let field_year_born = builder.add(AnyType::UInt(
-        TUInt::try_new(1000, 3000).unwrap(),
-    ));
-    let email = builder.add(AnyType::Ascii(
-        TAscii::try_new(1, 100, 0, 127).unwrap(),
-    ));
+    let field_year_born = builder.add(AnyType::UInt(TUInt::try_new(1000, 3000).unwrap()));
+    let email = builder.add(AnyType::Ascii(TAscii::try_new(1, 100, 0, 127).unwrap()));
     let field_email = builder.add(AnyType::Option(TOption::new(email)));
 
     let struct_type = TStruct::default()
@@ -40,9 +36,7 @@ fn create_schema() -> impl Schema<'static> {
     let structure = builder.add(struct_type);
 
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(
-        TSeq::try_new(structure, 1, 20).unwrap(),
-    ))
+    builder.finish(AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()))
 }
 
 #[test]

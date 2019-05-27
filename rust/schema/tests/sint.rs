@@ -27,7 +27,7 @@ fn schema1() {
 
 #[test]
 fn ordering() {
-    let schema =TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap();
+    let schema = TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap();
 
     ord_assert_equal(schema.clone(), -100isize, -100isize);
     ord_assert_equal(schema.clone(), 0isize, 0isize);

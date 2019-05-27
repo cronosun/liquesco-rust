@@ -1,8 +1,6 @@
 use crate::anchors::TAnchors;
 use crate::ascii::TAscii;
 use crate::boolean::TBool;
-use crate::metadata::{WithMetadata, MetadataSetter};
-use crate::metadata::Meta;
 use crate::core::Type;
 use crate::core::{Context, TypeRef};
 use crate::enumeration::TEnum;
@@ -10,8 +8,10 @@ use crate::enumeration::Variant;
 use crate::float::TFloat32;
 use crate::float::TFloat64;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
 use crate::metadata::NameDescription;
 use crate::metadata::WithMetaSchemaBuilder;
+use crate::metadata::{MetadataSetter, WithMetadata};
 use crate::option::TOption;
 use crate::range::TRange;
 use crate::reference::TReference;
@@ -172,30 +172,28 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_range = doc_type_ref::<TRange, B>(builder);
 
         builder.add(
-
-                TEnum::default()
-                    .add(variant(ref_bool, "bool"))
-                    .add(variant(ref_option, "option"))
-                    .add(variant(ref_seq, "seq"))
-                    .add(variant(ref_unicode, "unicode"))
-                    .add(variant(ref_uint, "uint"))
-                    .add(variant(ref_sint, "sint"))
-                    .add(variant(ref_float_32, "f32"))
-                    .add(variant(ref_float_64, "f64"))
-                    .add(variant(ref_enum, "enum"))
-                    .add(variant(ref_struct, "struct"))
-                    .add(variant(ref_ascii, "ascii"))
-                    .add(variant(ref_anchors, "anchors"))
-                    .add(variant(ref_reference, "reference"))
-                    .add(variant(ref_uuid, "uuid"))
-                    .add(variant(ref_range, "range")).with_meta(
-                    NameDescription {
-                        name : "any_type",
-                        description : "The any type is an enumeration of all possible types available \
-                 in the type system."
-                    }
-                )
-            )
+            TEnum::default()
+                .add(variant(ref_bool, "bool"))
+                .add(variant(ref_option, "option"))
+                .add(variant(ref_seq, "seq"))
+                .add(variant(ref_unicode, "unicode"))
+                .add(variant(ref_uint, "uint"))
+                .add(variant(ref_sint, "sint"))
+                .add(variant(ref_float_32, "f32"))
+                .add(variant(ref_float_64, "f64"))
+                .add(variant(ref_enum, "enum"))
+                .add(variant(ref_struct, "struct"))
+                .add(variant(ref_ascii, "ascii"))
+                .add(variant(ref_anchors, "anchors"))
+                .add(variant(ref_reference, "reference"))
+                .add(variant(ref_uuid, "uuid"))
+                .add(variant(ref_range, "range"))
+                .with_meta(NameDescription {
+                    name: "any_type",
+                    description: "The any type is an enumeration of all possible types available \
+                                  in the type system.",
+                }),
+        )
     }
 }
 

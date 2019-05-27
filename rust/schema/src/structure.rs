@@ -2,6 +2,11 @@ use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+use crate::metadata::WithMetadata;
 use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -15,18 +20,13 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 
 type Fields<'a> = Vec<Field<'a>>;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TStruct<'a> {
     #[new(value = "Meta::empty()")]
-    meta : Meta<'a>,
+    meta: Meta<'a>,
     fields: Fields<'a>,
 }
 
@@ -49,7 +49,7 @@ impl<'a> Field<'a> {
 impl<'a> Default for TStruct<'a> {
     fn default() -> Self {
         Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             fields: Fields::new(),
         }
     }
@@ -165,7 +165,7 @@ impl WithMetadata for TStruct<'_> {
 }
 
 impl<'a> MetadataSetter<'a> for TStruct<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -182,45 +182,44 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type =
-            builder.add(TReference::default()
-                .with_meta(NameOnly {
-                name : "field_type"
-            }));
+        let r#type = builder.add(TReference::default().with_meta(NameOnly { name: "field_type" }));
         let field_struct = builder.add(
-                TStruct::default()
-                    .add(Field::new(
-                        Identifier::try_from("name").unwrap(),
-                        identifier,
-                    ))
-                    .add(Field::new(Identifier::try_from("type").unwrap(), r#type))
-                    .with_meta(NameDescription {
-                        name: "field",
-                        description: "A single field in a structure. A field contains a name \
-                 and a type."
-                    })
+            TStruct::default()
+                .add(Field::new(
+                    Identifier::try_from("name").unwrap(),
+                    identifier,
+                ))
+                .add(Field::new(Identifier::try_from("type").unwrap(), r#type))
+                .with_meta(NameDescription {
+                    name: "field",
+                    description: "A single field in a structure. A field contains a name \
+                                  and a type.",
+                }),
         );
 
         let fields_field = builder.add(
             TSeq {
-                meta : Meta::empty(),
+                meta: Meta::empty(),
                 element: field_struct,
                 length: U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
-            }.with_meta(NameDescription {
+            }
+            .with_meta(NameDescription {
                 name: "fields",
-                description: "A sequence of fields in a structure."
-            })
+                description: "A sequence of fields in a structure.",
+            }),
         );
 
-        TStruct::default().add(Field::new(
-            Identifier::try_from("fields").unwrap(),
-            fields_field,
-        )).with_meta(NameDescription {
-            name : "struct",
-            description : "A structure is similar to a sequence but has a defined length and \
-             can contain fields of different types."
-        })
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("fields").unwrap(),
+                fields_field,
+            ))
+            .with_meta(NameDescription {
+                name: "struct",
+                description: "A structure is similar to a sequence but has a defined length and \
+                              can contain fields of different types.",
+            })
     }
 }

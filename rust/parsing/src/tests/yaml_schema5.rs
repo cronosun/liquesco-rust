@@ -22,9 +22,7 @@ fn create_schema() -> impl Schema<'static> {
     let field_next1 = builder.add(AnyType::Reference(TReference::default()));
     // optionally a second reference
     let field_next2_present = builder.add(AnyType::Reference(TReference::default()));
-    let field_next2 = builder.add(AnyType::Option(TOption::new(
-        field_next2_present,
-    )));
+    let field_next2 = builder.add(AnyType::Option(TOption::new(field_next2_present)));
 
     let struct_value = TStruct::default()
         .add(Field::new(id("text"), field_text))
@@ -34,9 +32,7 @@ fn create_schema() -> impl Schema<'static> {
     let structure = builder.add(AnyType::Struct(struct_value.into()));
 
     // now wrap that inside anchors
-    builder.finish(AnyType::Anchors(TAnchors::new(
-        structure, structure,
-    )))
+    builder.finish(AnyType::Anchors(TAnchors::new(structure, structure)))
 }
 
 #[test]

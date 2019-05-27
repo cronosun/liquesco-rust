@@ -4,6 +4,11 @@ use crate::core::TypeRef;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Ordering as SeqOrdering;
 use crate::seq::TSeq;
@@ -19,11 +24,6 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::str::from_utf8;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 
 /// A unicode text.
 ///
@@ -37,7 +37,7 @@ use crate::metadata::NameOnly;
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUnicode<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
     /// The length. Note: What "length" really means is defined by the `LengthType`.
     pub length: U64IneRange,
     /// Defines what `length` means.
@@ -71,7 +71,7 @@ impl<'a> TUnicode<'a> {
         length_type: LengthType,
     ) -> Result<Self, LqError> {
         Result::Ok(Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             length: U64IneRange::try_new("Unicode length range", min_length, max_length)?,
             length_type,
         })
@@ -139,7 +139,7 @@ impl WithMetadata for TUnicode<'_> {
 }
 
 impl<'a> MetadataSetter<'a> for TUnicode<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -150,22 +150,24 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
         B: SchemaBuilder,
     {
         let range_element = builder.add(
-            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap()
+            TUInt::try_new(std::u64::MIN, std::u64::MAX)
+                .unwrap()
                 .with_meta(NameOnly {
-                    name : "unicode_length_element"
-                })
+                    name: "unicode_length_element",
+                }),
         );
         // TODO: Use a range here
         let field_length = builder.add(
             TSeq {
-                meta : Meta::empty(),
+                meta: Meta::empty(),
                 element: range_element,
                 length: U32IneRange::try_new("", 2, 2).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
-            }.with_meta(NameOnly {
-                name : "unicode_length"
-            })
+            }
+            .with_meta(NameOnly {
+                name: "unicode_length",
+            }),
         );
 
         let field_length_type = builder.add(
@@ -181,17 +183,18 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
                     })
         );
 
-            TStruct::default()
-                .add(Field::new(
-                    Identifier::try_from("length").unwrap(),
-                    field_length,
-                ))
-                .add(Field::new(
-                    Identifier::try_from("length_type").unwrap(),
-                    field_length_type,
-                )).with_meta(NameDescription {
-                name : "unicode",
-                description : "Arbitrary unicode text. This can be used for human readable text."
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("length").unwrap(),
+                field_length,
+            ))
+            .add(Field::new(
+                Identifier::try_from("length_type").unwrap(),
+                field_length_type,
+            ))
+            .with_meta(NameDescription {
+                name: "unicode",
+                description: "Arbitrary unicode text. This can be used for human readable text.",
             })
     }
 }

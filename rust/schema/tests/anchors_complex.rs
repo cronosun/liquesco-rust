@@ -177,8 +177,8 @@ fn create_schema() -> impl Schema<'static> {
     let structure = builder.add(
         TStruct::default()
             .add(Field::new(id("text"), text))
-            .add(Field::new(id("children"), children)
-    ));
+            .add(Field::new(id("children"), children)),
+    );
     builder.finish(TAnchors::new(structure, structure))
 }
 

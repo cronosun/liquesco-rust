@@ -2,6 +2,11 @@ use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Direction::Ascending;
 use crate::seq::Ordering as SeqOrdering;
@@ -18,16 +23,11 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAscii<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
     /// Minimum / maximum number of bytes (which is at the same time also number
     /// of ASCII characters)
     pub length: U64IneRange,
@@ -120,7 +120,7 @@ impl TAscii<'_> {
         max_code: u8,
     ) -> Result<Self, LqError> {
         Result::Ok(Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             length: U64IneRange::try_new("Ascii length range", min_length, max_length)?,
             // note: we add 1 since this here is inclusive.
             codes: CodeRange::try_new(min_code, max_code + 1)?,
@@ -193,7 +193,7 @@ impl<'a> WithMetadata for TAscii<'a> {
 }
 
 impl<'a> MetadataSetter<'a> for TAscii<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -203,16 +203,15 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
     where
         B: SchemaBuilder,
     {
-        let length_element = builder.add(
-            TUInt::try_new(0, std::u64::MAX).unwrap()
-                .with_meta(NameOnly {
-                    name : "ascii_length_element"
-                })
-        );
+        let length_element = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap().with_meta(
+            NameOnly {
+                name: "ascii_length_element",
+            },
+        ));
         // TODO: Use a range here
         let field_length = builder.add(
             TSeq {
-                meta : Meta::empty(),
+                meta: Meta::empty(),
                 element: length_element,
                 length: U32IneRange::try_new("Ascii", 2, 2).unwrap(),
                 ordering: SeqOrdering::Sorted {
@@ -220,16 +219,20 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                     unique: true,
                 },
                 multiple_of: None,
-            }.with_meta(NameDescription {
+            }
+            .with_meta(NameDescription {
                 name: "ascii_length",
                 description: "The length constraint of the ASCII string (also number of bytes). \
-                Start and end \
-                 are both inclusive." })
+                              Start and end \
+                              are both inclusive.",
+            }),
         );
 
-        let range_element = builder
-            .add(TUInt::try_new(0, 128).unwrap()
-                .with_meta(NameOnly{name : "ascii_code"}));
+        let range_element = builder.add(
+            TUInt::try_new(0, 128)
+                .unwrap()
+                .with_meta(NameOnly { name: "ascii_code" }),
+        );
         let field_codes = builder.add(
             TSeq {
                 meta : Meta::empty(),
@@ -252,19 +255,21 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                  valid if every character of the ASCII string is within one of those ranges." })
         );
 
-            TStruct::default()
-                .add(Field::new(
-                    Identifier::try_from("length").unwrap(),
-                    field_length,
-                ))
-                .add(Field::new(
-                    Identifier::try_from("codes").unwrap(),
-                    field_codes,
-                ))
-                .with_meta(NameDescription{
-                    name: "ascii",
-                    description: "The ascii type must not be used to transfer human readable text. It's to be \
-             used to transfer machine readable strings. Only characters withing the ASCII \
-             range are allowed." })
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("length").unwrap(),
+                field_length,
+            ))
+            .add(Field::new(
+                Identifier::try_from("codes").unwrap(),
+                field_codes,
+            ))
+            .with_meta(NameDescription {
+                name: "ascii",
+                description:
+                    "The ascii type must not be used to transfer human readable text. It's to be \
+                     used to transfer machine readable strings. Only characters withing the ASCII \
+                     range are allowed.",
+            })
     }
 }

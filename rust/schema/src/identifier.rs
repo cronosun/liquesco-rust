@@ -130,15 +130,16 @@ impl BuildsOwnSchema for Identifier<'_> {
                 min = MIN_NUMBER_OF_SEGMENTS,
                 max = MAX_NUMBER_OF_SEGMENTS
             ))),
-            implements: None
+            implements: None,
         };
         builder.add(
-                TSeq::try_new(
-                    segment_ref,
-                    MIN_NUMBER_OF_SEGMENTS as u32,
-                    MAX_NUMBER_OF_SEGMENTS as u32,
-                )
-                .unwrap().with_meta(meta),
+            TSeq::try_new(
+                segment_ref,
+                MIN_NUMBER_OF_SEGMENTS as u32,
+                MAX_NUMBER_OF_SEGMENTS as u32,
+            )
+            .unwrap()
+            .with_meta(meta),
         )
     }
 }

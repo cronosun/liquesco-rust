@@ -1,6 +1,10 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -8,21 +12,17 @@ use liquesco_serialization::boolean::Bool;
 use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::Meta;
 
 #[derive(new, Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TBool<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
 }
 
 impl<'a> Default for TBool<'a> {
     fn default() -> Self {
         Self {
-            meta : Meta::empty()
+            meta: Meta::empty(),
         }
     }
 }
@@ -62,7 +62,7 @@ impl WithMetadata for TBool<'_> {
 }
 
 impl<'a> MetadataSetter<'a> for TBool<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -74,8 +74,8 @@ impl BaseTypeSchemaBuilder for TBool<'_> {
     {
         // just an empty struct (but more fields will be added by the system)
         TStruct::default().with_meta(NameDescription {
-            name : "bool",
-            description : "A boolean: Can either be true or false."
+            name: "bool",
+            description: "A boolean: Can either be true or false.",
         })
     }
 }

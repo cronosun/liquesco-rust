@@ -28,7 +28,7 @@ fn schema1() {
 
 #[test]
 fn ordering() {
-    let schema =TAscii::try_new(0, 500, 0, 127).unwrap();
+    let schema = TAscii::try_new(0, 500, 0, 127).unwrap();
 
     ord_assert_equal(schema.clone(), "".to_string(), "".to_string());
     ord_assert_equal(schema.clone(), "hello".to_string(), "hello".to_string());

@@ -2,6 +2,10 @@ use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::WithMetadata;
 use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
@@ -12,15 +16,11 @@ use liquesco_serialization::option::Presence;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TOption<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
     pub r#type: TypeRef,
 }
 
@@ -82,7 +82,7 @@ impl WithMetadata for TOption<'_> {
 }
 
 impl<'a> MetadataSetter<'a> for TOption<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -92,20 +92,19 @@ impl BaseTypeSchemaBuilder for TOption<'_> {
     where
         B: SchemaBuilder,
     {
-        let field_type = builder.add(
-            TReference::default()
-                .with_meta(NameDescription {
-                    name: "present_type",
-                    description: "Type of the present value in an option."
-                })
-        );
+        let field_type = builder.add(TReference::default().with_meta(NameDescription {
+            name: "present_type",
+            description: "Type of the present value in an option.",
+        }));
 
-        TStruct::default().add(Field::new(
-            Identifier::try_from("type").unwrap(),
-            field_type,
-        )).with_meta(NameDescription {
-            name : "option",
-            description : "Can have a value (some; present) or no value (none; empty; absent).",
-        })
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("type").unwrap(),
+                field_type,
+            ))
+            .with_meta(NameDescription {
+                name: "option",
+                description: "Can have a value (some; present) or no value (none; empty; absent).",
+            })
     }
 }

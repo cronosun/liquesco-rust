@@ -27,9 +27,7 @@ fn schema1() {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let element = builder.add(
-                TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap()
-            );
+            let element = builder.add(TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap());
             let option = TOption::new(element);
             builder.add(option)
         },

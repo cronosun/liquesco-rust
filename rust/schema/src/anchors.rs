@@ -1,11 +1,12 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::metadata::WithMetadata;
-use crate::metadata::MetadataSetter;
-use crate::metadata::Meta;
-use crate::metadata::NameDescription;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+use crate::metadata::WithMetadata;
 use crate::option::TOption;
 use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -18,7 +19,6 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use crate::metadata::NameOnly;
 
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
@@ -26,7 +26,7 @@ use crate::metadata::NameOnly;
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAnchors<'a> {
     #[new(value = "Meta::empty()")]
-    pub meta : Meta<'a>,
+    pub meta: Meta<'a>,
     pub master: TypeRef,
     pub anchor: TypeRef,
 
@@ -176,7 +176,7 @@ impl<'a> WithMetadata for TAnchors<'a> {
 }
 
 impl<'a> MetadataSetter<'a> for TAnchors<'a> {
-    fn set_meta(&mut self, meta : Meta<'a>) {
+    fn set_meta(&mut self, meta: Meta<'a>) {
         self.meta = meta;
     }
 }
@@ -186,38 +186,30 @@ impl BaseTypeSchemaBuilder for TAnchors<'_> {
     where
         B: SchemaBuilder,
     {
-        let field_master = builder.add(
-            TReference::default()
-                .with_meta(NameDescription {
-                    name : "anchor_master_type",
-                    description : "Anchors have exactly one master (required) and 0-n more \
-                     anchors. This defines the master type."
-                })
-        );
-        let field_anchor = builder.add(
-            TReference::default()
-                .with_meta(NameDescription {
-                name : "anchor_type",
-                description : "Defines the type of the anchors. Note: There's also the master \
-                     anchor type which can (but usually doesn't) differ from this."
-            })
-        );
-        let max_anchors = builder.add(
-            TUInt::try_new(0, std::u32::MAX as u64).unwrap()
-                .with_meta(NameDescription {
-                    name : "max_anchors",
-                    description : "This is the maximum number of \
+        let field_master = builder.add(TReference::default().with_meta(NameDescription {
+            name: "anchor_master_type",
+            description: "Anchors have exactly one master (required) and 0-n more \
+                          anchors. This defines the master type.",
+        }));
+        let field_anchor = builder.add(TReference::default().with_meta(NameDescription {
+            name: "anchor_type",
+            description: "Defines the type of the anchors. Note: There's also the master \
+                          anchor type which can (but usually doesn't) differ from this.",
+        }));
+        let max_anchors = builder.add(TUInt::try_new(0, std::u32::MAX as u64).unwrap().with_meta(
+            NameDescription {
+                name: "max_anchors",
+                description:
+                    "This is the maximum number of \
                      anchors allowed. This does not include the master anchor (which is mandatory \
-                     anyway)."
-                })
-        );
-        let field_max_anchors = builder
-            .add(TOption::new(max_anchors)
-                     .with_meta(NameOnly {
-                         name : "maybe_max_anchors"
-                     }));
+                     anyway).",
+            },
+        ));
+        let field_max_anchors = builder.add(TOption::new(max_anchors).with_meta(NameOnly {
+            name: "maybe_max_anchors",
+        }));
 
-            TStruct::default()
+        TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("master").unwrap(),
                     field_master,
@@ -239,5 +231,4 @@ impl BaseTypeSchemaBuilder for TAnchors<'_> {
              hierarchy (upwards)."
                 })
     }
-
 }

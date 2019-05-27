@@ -4,7 +4,6 @@ use crate::range::NewFull;
 use serde::{Deserialize, Serialize};
 use std::fmt::Debug;
 use std::ops::Bound;
-use std::ops::Deref;
 use std::ops::RangeBounds;
 
 pub type F32IneRange = IneRange<f32>;

@@ -7,8 +7,8 @@ use liquesco_common::error::LqError;
 use liquesco_processing::names::Names;
 use liquesco_processing::schema::SchemaReader;
 use liquesco_schema::core::Type;
-use minidom::Element;
 use liquesco_schema::metadata::WithMetadata;
+use minidom::Element;
 
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
