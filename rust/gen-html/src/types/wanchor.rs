@@ -8,8 +8,8 @@ use minidom::Element;
 
 pub struct WAnchors;
 
-impl BodyWriter for WAnchors {
-    type T = TAnchors;
+impl<'a> BodyWriter<'a> for WAnchors {
+    type T = TAnchors<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");
@@ -37,8 +37,8 @@ impl BodyWriter for WAnchors {
 
 pub struct WReference;
 
-impl BodyWriter for WReference {
-    type T = TReference;
+impl<'a> BodyWriter<'a> for WReference {
+    type T = TReference<'a>;
 
     fn write(_: &mut Context<Self::T>) -> Element {
         Element::bare("span")

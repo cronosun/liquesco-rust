@@ -7,15 +7,14 @@ use common::utils::assert_valid_strict;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::option::TOption;
 use liquesco_schema::seq::Direction;
 
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let boolean = builder.add(DocType::from(TBool::default()));
-    let schema = builder.finish(DocType::from(TOption::new(boolean)));
+    let boolean = builder.add(TBool::default());
+    let schema = builder.finish(TOption::new(boolean));
 
     // some valid items
     assert_valid_strict(Option::<bool>::None, &schema);
@@ -28,10 +27,10 @@ fn schema1() {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let element = builder.add(DocType::from(
-                TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap(),
-            ));
-            let option = DocType::from(TOption::new(element));
+            let element = builder.add(
+                TAscii::try_new(0, std::u64::MAX, 0, 127).unwrap()
+            );
+            let option = TOption::new(element);
             builder.add(option)
         },
         Direction::Ascending,

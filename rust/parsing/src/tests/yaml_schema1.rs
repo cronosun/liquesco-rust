@@ -4,17 +4,16 @@ use crate::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::seq::TSeq;
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let text = builder.add(AnyType::Ascii(DocType::from(
+    let text = builder.add(AnyType::Ascii(
         TAscii::try_new(2, 20, 65, 90).unwrap(),
-    )));
-    builder.finish(AnyType::Seq(DocType::from(
+    ));
+    builder.finish(AnyType::Seq(
         TSeq::try_new(text, 3, 6).unwrap(),
-    )))
+    ))
 }
 
 #[test]

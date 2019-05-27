@@ -9,8 +9,8 @@ use liquesco_serialization::unicode::Unicode;
 
 pub struct PAscii;
 
-impl Parser<'static> for PAscii {
-    type T = TAscii;
+impl<'a> Parser<'a> for PAscii {
+    type T = TAscii<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

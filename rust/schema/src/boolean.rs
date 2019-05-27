@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -9,18 +8,26 @@ use liquesco_serialization::boolean::Bool;
 use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::Meta;
 
-/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
 #[derive(new, Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct TBool {}
+pub struct TBool<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
+}
 
-impl Default for TBool {
+impl<'a> Default for TBool<'a> {
     fn default() -> Self {
-        Self {}
+        Self {
+            meta : Meta::empty()
+        }
     }
 }
 
-impl Type for TBool {
+impl Type for TBool<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -48,14 +55,27 @@ impl Type for TBool {
     }
 }
 
-impl BaseTypeSchemaBuilder for TBool {
-    fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TBool<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TBool<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TBool<'_> {
+    fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         // just an empty struct (but more fields will be added by the system)
-        DocType::from(TStruct::default())
-            .with_name_unwrap("bool")
-            .with_description("A boolean: Can either be true or false.")
+        TStruct::default().with_meta(NameDescription {
+            name : "bool",
+            description : "A boolean: Can either be true or false."
+        })
     }
 }

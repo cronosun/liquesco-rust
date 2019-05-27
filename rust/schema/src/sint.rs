@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -15,13 +14,20 @@ use liquesco_serialization::sint::SInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameOnly;
+use crate::metadata::NameDescription;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TSInt {
+pub struct TSInt<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     pub range: I64IneRange,
 }
 
-impl TSInt {
+impl<'a> TSInt<'a> {
     pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
         Result::Ok(TSInt::new(I64IneRange::try_new(
             "Signed integer range",
@@ -35,7 +41,7 @@ impl TSInt {
     }
 }
 
-impl Type for TSInt {
+impl Type for TSInt<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -65,34 +71,49 @@ impl Type for TSInt {
     }
 }
 
-impl BaseTypeSchemaBuilder for TSInt {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TSInt<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TSInt<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TSInt<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let element = builder.add(
-            DocType::from(TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap())
-                .with_name_unwrap("sint_range_element"),
+            TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()
+                .with_meta(NameOnly {
+                    name : "sint_range_element"
+                })
         );
 
         let field_range = builder.add(
-            DocType::from(TRange {
+            TRange {
+                meta : Meta::empty(),
                 element,
                 inclusion: Inclusion::BothInclusive,
                 allow_empty: false,
+            }.with_meta(NameDescription {
+                name: "sint_range",
+                description:  "The range within the integer must be. Both (start and end) \
+                 are inclusive."
             })
-            .with_name_unwrap("sint_range")
-            .with_description(
-                "The range within the integer must be. Both (start and end) \
-                 are inclusive.",
-            ),
         );
 
-        DocType::from(TStruct::default().add(Field::new(
+        TStruct::default().add(Field::new(
             Identifier::try_from("range").unwrap(),
             field_range,
-        )))
-        .with_name_unwrap("sint")
-        .with_description("Signed integer - maximum 64 bit.")
+        )).with_meta(NameDescription {
+            name : "sint",
+            description : "Signed integer - maximum 64 bit."
+        })
     }
 }

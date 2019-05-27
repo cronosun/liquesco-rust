@@ -6,8 +6,8 @@ use minidom::Element;
 
 pub struct WOption;
 
-impl BodyWriter for WOption {
-    type T = TOption;
+impl<'a> BodyWriter<'a> for WOption {
+    type T = TOption<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut item = Element::bare("p");

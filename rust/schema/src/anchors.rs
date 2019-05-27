@@ -1,7 +1,10 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
 use crate::identifier::Identifier;
 use crate::option::TOption;
 use crate::reference::TReference;
@@ -15,12 +18,15 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use crate::metadata::NameOnly;
 
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TAnchors {
+pub struct TAnchors<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     pub master: TypeRef,
     pub anchor: TypeRef,
 
@@ -32,7 +38,7 @@ pub struct TAnchors {
     pub max_anchors: Option<u32>,
 }
 
-impl TAnchors {
+impl TAnchors<'_> {
     pub fn master(&self) -> TypeRef {
         self.master
     }
@@ -46,8 +52,8 @@ impl TAnchors {
     }
 }
 
-impl Type for TAnchors {
-    // TODO: There must be no DUPLICATES! -> Hinweis: Dann müsste das aber sorted sein, nicht?
+impl Type for TAnchors<'_> {
+    // TODO: Vermutlich reihenfoge gerade umdrehen!
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -163,40 +169,54 @@ impl Type for TAnchors {
     }
 }
 
-impl BaseTypeSchemaBuilder for TAnchors {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl<'a> WithMetadata for TAnchors<'a> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TAnchors<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TAnchors<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let field_master = builder.add(
-            DocType::from(TReference::default())
-                .with_name_unwrap("anchor_master_type")
-                .with_description(
-                    "Anchors have exactly one master (required) and 0-n more \
-                     anchors. This defines the master type.",
-                ),
+            TReference::default()
+                .with_meta(NameDescription {
+                    name : "anchor_master_type",
+                    description : "Anchors have exactly one master (required) and 0-n more \
+                     anchors. This defines the master type."
+                })
         );
         let field_anchor = builder.add(
-            DocType::from(TReference::default())
-                .with_name_unwrap("anchor_type")
-                .with_description(
-                    "Defines the type of the anchors. Note: There's also the master \
-                     anchor type which can (but usually doesn't) differ from this.",
-                ),
+            TReference::default()
+                .with_meta(NameDescription {
+                name : "anchor_type",
+                description : "Defines the type of the anchors. Note: There's also the master \
+                     anchor type which can (but usually doesn't) differ from this."
+            })
         );
         let max_anchors = builder.add(
-            DocType::from(TUInt::try_new(0, std::u32::MAX as u64).unwrap())
-                .with_name_unwrap("max_anchors")
-                .with_description(
-                    "This is the maximum number of \
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap()
+                .with_meta(NameDescription {
+                    name : "max_anchors",
+                    description : "This is the maximum number of \
                      anchors allowed. This does not include the master anchor (which is mandatory \
-                     anyway).",
-                ),
+                     anyway)."
+                })
         );
         let field_max_anchors = builder
-            .add(DocType::from(TOption::new(max_anchors)).with_name_unwrap("maybe_max_anchors"));
+            .add(TOption::new(max_anchors)
+                     .with_meta(NameOnly {
+                         name : "maybe_max_anchors"
+                     }));
 
-        DocType::from(
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("master").unwrap(),
@@ -209,15 +229,15 @@ impl BaseTypeSchemaBuilder for TAnchors {
                 .add(Field::new(
                     Identifier::try_from("max_anchors").unwrap(),
                     field_max_anchors,
-                )),
-        )
-        .with_name_unwrap("anchors")
-        .with_description(
-            "Anchors (in combination with references) can be used to create \
+                ))
+                .with_meta(NameDescription {
+                    name : "anchors",
+                    description : "Anchors (in combination with references) can be used to create \
              recursive data type. The anchors is basically a sequence of 1-n anchors. Those \
              anchors can be referenced using the reference type. Multiple anchors can be nested; \
              references reference always the anchor in the next anchor sequence in the \
-             hierarchy (upwards).",
-        )
+             hierarchy (upwards)."
+                })
     }
+
 }

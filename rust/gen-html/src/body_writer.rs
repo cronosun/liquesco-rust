@@ -5,7 +5,7 @@ use liquesco_schema::core::Type;
 use liquesco_schema::core::TypeRef;
 use minidom::Element;
 
-pub trait BodyWriter {
+pub trait BodyWriter<'a> {
     type T: Type + Sized;
     fn write(ctx: &mut Context<Self::T>) -> Element;
 }

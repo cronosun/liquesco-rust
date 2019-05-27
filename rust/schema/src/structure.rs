@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
@@ -16,11 +15,18 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
 
 type Fields<'a> = Vec<Field<'a>>;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TStruct<'a> {
+    #[new(value = "Meta::empty()")]
+    meta : Meta<'a>,
     fields: Fields<'a>,
 }
 
@@ -43,6 +49,7 @@ impl<'a> Field<'a> {
 impl<'a> Default for TStruct<'a> {
     fn default() -> Self {
         Self {
+            meta : Meta::empty(),
             fields: Fields::new(),
         }
     }
@@ -151,6 +158,18 @@ impl<'a> Type for TStruct<'a> {
     }
 }
 
+impl WithMetadata for TStruct<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TStruct<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
 impl<'a> TStruct<'a> {
     pub fn fields(&self) -> &[Field<'a>] {
         &self.fields
@@ -158,48 +177,50 @@ impl<'a> TStruct<'a> {
 }
 
 impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
         let r#type =
-            builder.add(DocType::from(TReference::default()).with_name_unwrap("field_type"));
+            builder.add(TReference::default()
+                .with_meta(NameOnly {
+                name : "field_type"
+            }));
         let field_struct = builder.add(
-            DocType::from(
                 TStruct::default()
                     .add(Field::new(
                         Identifier::try_from("name").unwrap(),
                         identifier,
                     ))
-                    .add(Field::new(Identifier::try_from("type").unwrap(), r#type)),
-            )
-            .with_name_unwrap("field")
-            .with_description(
-                "A single field in a structure. A field contains a name \
-                 and a type.",
-            ),
+                    .add(Field::new(Identifier::try_from("type").unwrap(), r#type))
+                    .with_meta(NameDescription {
+                        name: "field",
+                        description: "A single field in a structure. A field contains a name \
+                 and a type."
+                    })
         );
 
         let fields_field = builder.add(
-            DocType::from(TSeq {
+            TSeq {
+                meta : Meta::empty(),
                 element: field_struct,
                 length: U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
+            }.with_meta(NameDescription {
+                name: "fields",
+                description: "A sequence of fields in a structure."
             })
-            .with_name_unwrap("fields")
-            .with_description("A sequence of fields in a structure."),
         );
 
-        DocType::from(TStruct::default().add(Field::new(
+        TStruct::default().add(Field::new(
             Identifier::try_from("fields").unwrap(),
             fields_field,
-        )))
-        .with_name_unwrap("struct")
-        .with_description(
-            "A structure is similar to a sequence but has a defined length and \
-             can contain fields of different types.",
-        )
+        )).with_meta(NameDescription {
+            name : "struct",
+            description : "A structure is similar to a sequence but has a defined length and \
+             can contain fields of different types."
+        })
     }
 }

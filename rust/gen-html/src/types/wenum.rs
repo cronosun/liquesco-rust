@@ -4,13 +4,10 @@ use crate::reference::Reference;
 use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::identifier::Format;
 use minidom::Element;
-use std::marker::PhantomData;
 
-pub struct WEnum<'a> {
-    _phantom: &'a PhantomData<()>,
-}
+pub struct WEnum;
 
-impl<'a> BodyWriter for WEnum<'a> {
+impl<'a> BodyWriter<'a> for WEnum {
     type T = TEnum<'a>;
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ol = Element::builder("ol").attr("start", "0").build();

@@ -1,6 +1,5 @@
 use crate::any_type::AnyType;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::structure::TStruct;
 
 pub trait SchemaBuilder {
@@ -17,7 +16,7 @@ pub trait BuildsOwnSchema {
 /// A base type (a single type, not the any type) that can build its own schema. Note:
 /// It's always a struct.
 pub trait BaseTypeSchemaBuilder {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder;
 }

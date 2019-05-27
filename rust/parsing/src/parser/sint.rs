@@ -9,8 +9,8 @@ use liquesco_serialization::sint::SInt64;
 
 pub struct PSInt;
 
-impl Parser<'static> for PSInt {
-    type T = TSInt;
+impl<'a> Parser<'a> for PSInt {
+    type T = TSInt<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

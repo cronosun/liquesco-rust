@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
@@ -20,6 +19,11 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::str::from_utf8;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
 
 /// A unicode text.
 ///
@@ -30,8 +34,10 @@ use std::str::from_utf8;
 ///
 /// Note: There's also the ascii type. If you want to transfer non-text strings,
 /// this is usually what you want.
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TUnicode {
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TUnicode<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     /// The length. Note: What "length" really means is defined by the `LengthType`.
     pub length: U64IneRange,
     /// Defines what `length` means.
@@ -58,13 +64,14 @@ pub enum LengthType {
     ScalarValue,
 }
 
-impl TUnicode {
+impl<'a> TUnicode<'a> {
     pub fn try_new(
         min_length: u64,
         max_length: u64,
         length_type: LengthType,
     ) -> Result<Self, LqError> {
         Result::Ok(Self {
+            meta : Meta::empty(),
             length: U64IneRange::try_new("Unicode length range", min_length, max_length)?,
             length_type,
         })
@@ -79,7 +86,7 @@ impl TUnicode {
     }
 }
 
-impl<'a> Type for TUnicode {
+impl Type for TUnicode<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -125,41 +132,55 @@ impl<'a> Type for TUnicode {
     }
 }
 
-impl BaseTypeSchemaBuilder for TUnicode {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TUnicode<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TUnicode<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TUnicode<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let range_element = builder.add(
-            DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap())
-                .with_name_unwrap("unicode_length_element"),
+            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap()
+                .with_meta(NameOnly {
+                    name : "unicode_length_element"
+                })
         );
+        // TODO: Use a range here
         let field_length = builder.add(
-            DocType::from(TSeq {
+            TSeq {
+                meta : Meta::empty(),
                 element: range_element,
                 length: U32IneRange::try_new("", 2, 2).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
+            }.with_meta(NameOnly {
+                name : "unicode_length"
             })
-            .with_name_unwrap("unicode_length"),
         );
 
         let field_length_type = builder.add(
-            DocType::from(
                 TEnum::default()
                     .add(Variant::new(Identifier::try_from("byte").unwrap()))
                     .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
-                    .add(Variant::new(Identifier::try_from("scalar").unwrap())),
-            )
-            .with_name_unwrap("length_type")
-            .with_description(
-                "Specifies how the length of the unicode is measured. 'byte' can be \
-                 mesaured very efficiently - but depends on the encoding. Note: Scalar must not be \
-                 confused with uncode grapheme clusters.",
-            ),
+                    .add(Variant::new(Identifier::try_from("scalar").unwrap()))
+                    .with_meta(NameDescription {
+                        name: "length_type",
+                        description: "Specifies how the length of the unicode is measured. 'byte' can be \
+                 measured very efficiently - but depends on the encoding. Note: Scalar must not be \
+                 confused with unicode grapheme clusters."
+                    })
         );
 
-        DocType::from(
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("length").unwrap(),
@@ -168,9 +189,9 @@ impl BaseTypeSchemaBuilder for TUnicode {
                 .add(Field::new(
                     Identifier::try_from("length_type").unwrap(),
                     field_length_type,
-                )),
-        )
-        .with_name_unwrap("unicode")
-        .with_description("Arbitrary unicode text. This can be used for human readable text.")
+                )).with_meta(NameDescription {
+                name : "unicode",
+                description : "Arbitrary unicode text. This can be used for human readable text."
+            })
     }
 }

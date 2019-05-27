@@ -7,8 +7,8 @@ use minidom::Element;
 
 pub struct WAscii;
 
-impl BodyWriter for WAscii {
-    type T = TAscii;
+impl<'a> BodyWriter<'a> for WAscii {
+    type T = TAscii<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

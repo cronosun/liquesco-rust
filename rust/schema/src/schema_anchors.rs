@@ -2,14 +2,15 @@ use crate::anchors::TAnchors;
 use crate::any_type::AnyType;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::SchemaBuilder;
+use crate::metadata::NameDescription;
 use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use crate::metadata::MetadataSetter;
 
 /// This is the base of a liquesco schema.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -53,13 +54,13 @@ impl BuildsOwnSchema for SchemaAnchors<'_> {
     {
         let any_type = AnyType::build_schema(builder);
         builder.add(
-            DocType::from(TAnchors::new(any_type, any_type))
-                .with_name_unwrap("schema_anchors")
-                .with_description(
-                    "This anchors is the base of any liquesco schema. It \
+            TAnchors::new(any_type, any_type)
+                .with_meta(NameDescription {
+                name: "schema_anchors",
+                description:  "This anchors is the base of any liquesco schema. It \
                      contains at least one type. It can contain more types that can be referenced \
-                     to create recursive types.",
-                ),
+                     to create recursive types."
+            })
         )
     }
 }

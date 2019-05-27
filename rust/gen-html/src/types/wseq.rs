@@ -8,8 +8,8 @@ use minidom::Element;
 
 pub struct WSeq;
 
-impl BodyWriter for WSeq {
-    type T = TSeq;
+impl<'a> BodyWriter<'a> for WSeq {
+    type T = TSeq<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

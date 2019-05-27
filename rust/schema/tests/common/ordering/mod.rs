@@ -7,7 +7,6 @@ use crate::common::utils::assert_valid_strict;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::TypeRef;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::seq::Direction;
 use liquesco_schema::seq::Ordering;
 use liquesco_schema::seq::TSeq;
@@ -57,7 +56,7 @@ pub fn ord_schema<FElement: FnOnce(&mut Builder<'static>) -> TypeRef>(
     let mut seq = TSeq::try_new(element_ref, 0, std::u32::MAX).unwrap();
     seq.ordering = Ordering::Sorted { direction, unique };
 
-    builder.finish(DocType::from(seq))
+    builder.finish(seq)
 }
 
 fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema<'static>

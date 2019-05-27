@@ -10,7 +10,6 @@ use common::utils::id;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::seq::Direction;
 use liquesco_schema::sint::TSInt;
 use liquesco_schema::structure::Field;
@@ -22,13 +21,13 @@ use std::string::ToString;
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(DocType::from(TUInt::try_new(2, 144).unwrap()));
-    let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
-    let schema = builder.finish(DocType::from(
+    let int = builder.add(TUInt::try_new(2, 144).unwrap());
+    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
+    let schema = builder.finish(
         TStruct::default()
             .add(Field::new(id("age"), int))
             .add(Field::new(id("name"), upper_case)),
-    ));
+    );
 
     // valid
     assert_valid_strict(
@@ -100,17 +99,17 @@ struct Schema1StructLong {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let type_x = builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
-            let type_y = builder.add(DocType::from(
-                TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
-            ));
-            let inner_struct = builder.add(Into::<DocType<TStruct>>::into(
+            let type_x = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let type_y = builder.add(
+                TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap()
+            );
+            let inner_struct = builder.add(Into::<TStruct>::into(
                 TStruct::default()
                     .add(Field::new(id("x"), type_x))
                     .add(Field::new(id("y"), type_y)),
             ));
-            let type_more = builder.add(DocType::from(TBool::default()));
-            builder.add(Into::<DocType<TStruct>>::into(
+            let type_more = builder.add(TBool::default());
+            builder.add(Into::<TStruct>::into(
                 TStruct::default()
                     .add(Field::new(id("content"), inner_struct))
                     .add(Field::new(id("more"), type_more)),

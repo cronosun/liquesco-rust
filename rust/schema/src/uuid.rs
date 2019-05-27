@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
 use core::cmp::Ordering;
@@ -10,18 +9,27 @@ use liquesco_serialization::binary::Binary;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uuid::Uuid;
 use serde::{Deserialize, Serialize};
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
 
 /// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TUuid {}
+pub struct TUuid<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
+}
 
-impl Default for TUuid {
+impl<'a> Default for TUuid<'a> {
     fn default() -> Self {
-        Self {}
+        Self {
+            meta : Meta::empty(),
+        }
     }
 }
 
-impl Type for TUuid {
+impl Type for TUuid<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -51,14 +59,27 @@ impl Type for TUuid {
     }
 }
 
-impl BaseTypeSchemaBuilder for TUuid {
-    fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TUuid<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TUuid<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TUuid<'_> {
+    fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         // just an empty struct (but more fields will be added by the system)
-        DocType::from(TStruct::default())
-            .with_name_unwrap("uuid")
-            .with_description("16 byte UUID; RFC 4122.")
+        TStruct::default().with_meta(NameDescription {
+            name : "uuid",
+            description : "16 byte UUID; RFC 4122."
+        })
     }
 }

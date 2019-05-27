@@ -9,13 +9,12 @@ use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
 use liquesco_common::range::NewFull;
 use liquesco_common::range::Range;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
 
 #[test]
 fn schema1_32() {
-    let schema = single_schema(DocType::from(TFloat32::new(Range::<F32Ext>::full())));
+    let schema = single_schema(TFloat32::new(Range::<F32Ext>::full()));
 
     // some valid items
     assert_valid_strict(-0.0f32, &schema);
@@ -34,7 +33,7 @@ fn schema1_32() {
 
 #[test]
 fn schema1_64() {
-    let schema = single_schema(DocType::from(TFloat64::new(Range::<F64Ext>::full())));
+    let schema = single_schema(TFloat64::new(Range::<F64Ext>::full()));
 
     // some valid items
     assert_valid_strict(-0.0f64, &schema);
@@ -59,7 +58,7 @@ fn schema2_32() {
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
-    let schema = single_schema(DocType::from(float));
+    let schema = single_schema(float);
 
     // some valid items
     assert_valid_strict(-14.5f32, &schema);
@@ -83,7 +82,7 @@ fn schema2_64() {
     float.allow_nan = true;
     float.allow_positive_infinity = true;
     float.allow_negative_infinity = true;
-    let schema = single_schema(DocType::from(float));
+    let schema = single_schema(float);
 
     // some valid items
     assert_valid_strict(-14.5f64, &schema);
@@ -107,7 +106,6 @@ fn ordering_64() {
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
-    let schema = DocType::from(schema);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
@@ -148,7 +146,6 @@ fn ordering_32() {
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
     schema.allow_negative_infinity = true;
-    let schema = DocType::from(schema);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);

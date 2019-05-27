@@ -5,12 +5,11 @@ use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::uint::TUInt;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(DocType::from(TUInt::try_new(5, 158).unwrap()));
+    let schema = single_schema(TUInt::try_new(5, 158).unwrap());
 
     // some valid items
     assert_valid_strict(5usize, &schema);
@@ -29,7 +28,7 @@ fn schema1() {
 
 #[test]
 fn schema2() {
-    let schema = single_schema(DocType::from(TUInt::try_new(999, std::u64::MAX).unwrap()));
+    let schema = single_schema(TUInt::try_new(999, std::u64::MAX).unwrap());
 
     // some valid items
     assert_valid_strict(999usize, &schema);
@@ -43,7 +42,7 @@ fn schema2() {
 
 #[test]
 fn ordering() {
-    let schema = DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap());
+    let schema =TUInt::try_new(0, std::u64::MAX).unwrap();
 
     ord_assert_equal(schema.clone(), 100usize, 100usize);
     ord_assert_equal(schema.clone(), 0usize, 0usize);

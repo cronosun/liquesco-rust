@@ -1,15 +1,17 @@
 use crate::anchors::TAnchors;
 use crate::ascii::TAscii;
 use crate::boolean::TBool;
-use crate::core::Doc;
+use crate::metadata::{WithMetadata, MetadataSetter};
+use crate::metadata::Meta;
 use crate::core::Type;
 use crate::core::{Context, TypeRef};
-use crate::doc_type::DocType;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::float::TFloat32;
 use crate::float::TFloat64;
 use crate::identifier::Identifier;
+use crate::metadata::NameDescription;
+use crate::metadata::WithMetaSchemaBuilder;
 use crate::option::TOption;
 use crate::range::TRange;
 use crate::reference::TReference;
@@ -32,43 +34,43 @@ use std::convert::TryFrom;
 /// Note: Sorted according to serialization major type.
 #[derive(Clone, FromVariants, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum AnyType<'a> {
-    Bool(DocType<'a, TBool>),
-    Option(DocType<'a, TOption>),
-    Seq(DocType<'a, TSeq>),
+    Bool(TBool<'a>),
+    Option(TOption<'a>),
+    Seq(TSeq<'a>),
     // TODO: Binary
-    Unicode(DocType<'a, TUnicode>),
-    UInt(DocType<'a, TUInt>),
-    SInt(DocType<'a, TSInt>),
-    Float32(DocType<'a, TFloat32>),
-    Float64(DocType<'a, TFloat64>),
-    Enum(DocType<'a, TEnum<'a>>),
+    Unicode(TUnicode<'a>),
+    UInt(TUInt<'a>),
+    SInt(TSInt<'a>),
+    Float32(TFloat32<'a>),
+    Float64(TFloat64<'a>),
+    Enum(TEnum<'a>),
 
-    Struct(DocType<'a, TStruct<'a>>),
-    Ascii(DocType<'a, TAscii>),
-    Anchors(DocType<'a, TAnchors>),
-    Reference(DocType<'a, TReference>),
-    Uuid(DocType<'a, TUuid>),
-    Range(DocType<'a, TRange>),
+    Struct(TStruct<'a>),
+    Ascii(TAscii<'a>),
+    Anchors(TAnchors<'a>),
+    Reference(TReference<'a>),
+    Uuid(TUuid<'a>),
+    Range(TRange<'a>),
 }
 
-impl<'a> AnyType<'a> {
-    pub fn doc(&'a self) -> &Doc<'a> {
+impl<'a> WithMetadata for AnyType<'a> {
+    fn meta(&self) -> &Meta {
         match self {
-            AnyType::Struct(value) => value.doc(),
-            AnyType::UInt(value) => value.doc(),
-            AnyType::SInt(value) => value.doc(),
-            AnyType::Ascii(value) => value.doc(),
-            AnyType::Bool(value) => value.doc(),
-            AnyType::Enum(value) => value.doc(),
-            AnyType::Anchors(value) => value.doc(),
-            AnyType::Reference(value) => value.doc(),
-            AnyType::Seq(value) => value.doc(),
-            AnyType::Float32(value) => value.doc(),
-            AnyType::Float64(value) => value.doc(),
-            AnyType::Option(value) => value.doc(),
-            AnyType::Unicode(value) => value.doc(),
-            AnyType::Uuid(value) => value.doc(),
-            AnyType::Range(value) => value.doc(),
+            AnyType::Struct(value) => value.meta(),
+            AnyType::UInt(value) => value.meta(),
+            AnyType::SInt(value) => value.meta(),
+            AnyType::Ascii(value) => value.meta(),
+            AnyType::Bool(value) => value.meta(),
+            AnyType::Enum(value) => value.meta(),
+            AnyType::Anchors(value) => value.meta(),
+            AnyType::Reference(value) => value.meta(),
+            AnyType::Seq(value) => value.meta(),
+            AnyType::Float32(value) => value.meta(),
+            AnyType::Float64(value) => value.meta(),
+            AnyType::Option(value) => value.meta(),
+            AnyType::Unicode(value) => value.meta(),
+            AnyType::Uuid(value) => value.meta(),
+            AnyType::Range(value) => value.meta(),
         }
     }
 }
@@ -170,7 +172,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_range = doc_type_ref::<TRange, B>(builder);
 
         builder.add(
-            DocType::from(
+
                 TEnum::default()
                     .add(variant(ref_bool, "bool"))
                     .add(variant(ref_option, "option"))
@@ -186,14 +188,14 @@ impl BuildsOwnSchema for AnyType<'_> {
                     .add(variant(ref_anchors, "anchors"))
                     .add(variant(ref_reference, "reference"))
                     .add(variant(ref_uuid, "uuid"))
-                    .add(variant(ref_range, "range")),
+                    .add(variant(ref_range, "range")).with_meta(
+                    NameDescription {
+                        name : "any_type",
+                        description : "The any type is an enumeration of all possible types available \
+                 in the type system."
+                    }
+                )
             )
-            .with_name_unwrap("any_type")
-            .with_description(
-                "The any type is an enumeration of all possible types available \
-                 in the type system.",
-            ),
-        )
     }
 }
 
@@ -206,6 +208,6 @@ where
     T: BaseTypeSchemaBuilder + Type,
     B: SchemaBuilder,
 {
-    let doc_type = DocType::<T>::build_schema(builder);
-    builder.add(doc_type)
+    let schema = WithMetaSchemaBuilder::<T>::build_schema(builder);
+    builder.add(schema)
 }

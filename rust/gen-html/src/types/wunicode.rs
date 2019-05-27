@@ -8,8 +8,8 @@ use minidom::Element;
 
 pub struct WUnicode;
 
-impl BodyWriter for WUnicode {
-    type T = TUnicode;
+impl<'a> BodyWriter<'a> for WUnicode {
+    type T = TUnicode<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

@@ -12,8 +12,8 @@ use std::fmt::Display;
 
 pub struct WFloat32;
 
-impl BodyWriter for WFloat32 {
-    type T = TFloat32;
+impl<'a> BodyWriter<'a> for WFloat32 {
+    type T = TFloat32<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");
@@ -26,8 +26,8 @@ impl BodyWriter for WFloat32 {
 
 pub struct WFloat64;
 
-impl BodyWriter for WFloat64 {
-    type T = TFloat64;
+impl<'a> BodyWriter<'a> for WFloat64 {
+    type T = TFloat64<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

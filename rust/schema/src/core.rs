@@ -1,6 +1,4 @@
-use crate::identifier::Identifier;
-use liquesco_serialization::uuid::Uuid;
-use std::borrow::Cow;
+use crate::metadata::WithMetadata;
 use std::cmp::Ordering;
 use std::fmt::Debug;
 
@@ -10,13 +8,7 @@ use liquesco_serialization::core::LqReader;
 
 use serde::{Deserialize, Serialize};
 
-pub trait Type: Debug {
-    fn doc(&self) -> &Doc {
-        // types usually have no documentation. We use a special wrapper that adds
-        // documentation to a type. See `DocType`.
-        EMPTY_DOC
-    }
-
+pub trait Type: Debug + WithMetadata {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>;
@@ -42,12 +34,12 @@ pub trait Type: Debug {
     where
         C: Context<'c>;
 
-    // Returns the embedded references by index (starting at index 0).
-    // Returns `None` if there are no more references (does not contain
-    // gaps).
-    //
-    // This is mostly used internally; usually you get embedded references
-    // by the appropriate methods.
+    /// Returns the embedded references by index (starting at index 0).
+    /// Returns `None` if there are no more references (does not contain
+    /// gaps).
+    ///
+    /// This is mostly used internally; usually you get embedded references
+    /// by the appropriate methods.
     fn reference(&self, _: usize) -> Option<TypeRef>;
 }
 
@@ -106,119 +98,4 @@ pub trait TypeContainer<'a> {
 pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
     fn main_type(&self) -> TypeRef;
-}
-
-pub const DOC_MIN_LEN_UTF8_BYTES: usize = 1;
-pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
-
-#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
-pub struct Doc<'a> {
-    name: Option<Identifier<'a>>,
-    description: Option<Cow<'a, str>>,
-    implements: Option<Implements>,
-}
-
-const EMPTY_DOC: &Doc = &Doc::empty();
-
-impl<'a> Doc<'a> {
-    pub const fn empty() -> Self {
-        Self {
-            name: None,
-            description: None,
-            implements: None,
-        }
-    }
-
-    pub fn name(&self) -> Option<&Identifier<'a>> {
-        if let Some(identifier) = &self.name {
-            Some(&identifier)
-        } else {
-            None
-        }
-    }
-
-    pub fn description(&self) -> Option<&str> {
-        if let Some(desc) = &self.description {
-            Some(desc)
-        } else {
-            None
-        }
-    }
-
-    pub fn implements(&self) -> &[Uuid] {
-        if let Some(implements) = &self.implements {
-            &implements.0
-        } else {
-            &[]
-        }
-    }
-
-    pub fn set_name<I>(&mut self, name: I)
-    where
-        I: Into<Identifier<'a>>,
-    {
-        self.name = Some(name.into());
-    }
-
-    pub fn set_description<D>(&mut self, description: D)
-    where
-        D: Into<Cow<'a, str>>,
-    {
-        self.description = Some(description.into());
-    }
-
-    pub fn add_implements<U>(&mut self, uuid: U) -> Result<(), LqError>
-    where
-        U: Into<Uuid>,
-    {
-        if let None = self.implements {
-            self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
-        } else {
-            let mut implements = self.implements.take().unwrap();
-            implements.add(uuid.into())?;
-            self.implements = Some(implements);
-        }
-        Ok(())
-    }
-}
-
-impl<'a> Default for Doc<'a> {
-    fn default() -> Self {
-        Doc::empty()
-    }
-}
-
-pub const MIN_IMPLEMENTS_ELEMENTS: usize = 1;
-pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
-
-#[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
-pub struct Implements(Vec<Uuid>);
-
-impl Implements {
-    pub fn try_new(implements: &[Uuid]) -> Result<Self, LqError> {
-        let number = implements.len();
-        if number < MIN_IMPLEMENTS_ELEMENTS {
-            LqError::err_new("You need at least one element in 'implements'.")
-        } else if number > MAX_IMPLEMENTS_ELEMENTS {
-            LqError::err_new(format!(
-                "There are too many implements elements. Maximum is {:?}; got {:?} elements.",
-                MAX_IMPLEMENTS_ELEMENTS, number
-            ))
-        } else {
-            Ok(Implements(Vec::from(implements)))
-        }
-    }
-
-    pub fn add(&mut self, implements: Uuid) -> Result<(), LqError> {
-        let number = self.0.len() + 1;
-        if number > MAX_IMPLEMENTS_ELEMENTS {
-            LqError::err_new(format!(
-                "There are too many implements elements. Maximum is {:?}; got {:?} elements.",
-                MAX_IMPLEMENTS_ELEMENTS, number
-            ))
-        } else {
-            self.0.push(implements);
-            Ok(())
-        }
-    }
 }

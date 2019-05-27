@@ -8,7 +8,6 @@ use liquesco_schema::anchors::TAnchors;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::reference::TReference;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
@@ -170,22 +169,22 @@ fn wrong_ordering() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(DocType::from(TReference::default()));
-    let name = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
-    let bool_field = builder.add(DocType::from(TBool::default()));
-    let structure = builder.add(Into::<DocType<TStruct>>::into(
+    let reference = builder.add(TReference::default());
+    let name = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
+    let bool_field = builder.add(TBool::default());
+    let structure = builder.add(Into::<TStruct>::into(
         TStruct::default()
             .add(Field::new(id("name"), name))
             .add(Field::new(id("reference"), reference)),
     ));
-    let structure_master = builder.add(Into::<DocType<TStruct>>::into(
+    let structure_master = builder.add(Into::<TStruct>::into(
         TStruct::default()
             .add(Field::new(id("name"), name))
             .add(Field::new(id("reference"), reference))
             .add(Field::new(id("i_am_great"), bool_field)),
     ));
 
-    builder.finish(DocType::from(TAnchors::new(structure_master, structure)))
+    builder.finish(TAnchors::new(structure_master, structure))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

@@ -7,7 +7,6 @@ use common::utils::id;
 use liquesco_schema::anchors::TAnchors;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::reference::TReference;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::structure::Field;
@@ -172,15 +171,15 @@ fn can_back_reference() {
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(DocType::from(TReference::default()));
-    let text = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
-    let children = builder.add(DocType::from(TSeq::try_new(reference, 0, 1000).unwrap()));
-    let structure = builder.add(DocType::from(
+    let reference = builder.add(TReference::default());
+    let text = builder.add(TAscii::try_new(0, 100, 0, 127).unwrap());
+    let children = builder.add(TSeq::try_new(reference, 0, 1000).unwrap());
+    let structure = builder.add(
         TStruct::default()
             .add(Field::new(id("text"), text))
-            .add(Field::new(id("children"), children)),
+            .add(Field::new(id("children"), children)
     ));
-    builder.finish(DocType::from(TAnchors::new(structure, structure)))
+    builder.finish(TAnchors::new(structure, structure))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

@@ -5,8 +5,8 @@ use minidom::Element;
 
 pub struct WBool;
 
-impl BodyWriter for WBool {
-    type T = TBool;
+impl<'a> BodyWriter<'a> for WBool {
+    type T = TBool<'a>;
 
     fn write(_: &mut Context<Self::T>) -> Element {
         Element::bare("span")

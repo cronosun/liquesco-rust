@@ -4,14 +4,12 @@ use crate::html::list_item;
 use crate::html::span;
 use crate::reference::Reference;
 use liquesco_schema::range::{Inclusion, TRange};
-use liquesco_schema::sint::TSInt;
-use liquesco_schema::uint::TUInt;
 use minidom::Element;
 
 pub struct WRange;
 
-impl BodyWriter for WRange {
-    type T = TRange;
+impl<'a> BodyWriter<'a> for WRange {
+    type T = TRange<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

@@ -8,8 +8,8 @@ use liquesco_serialization::core::Serializer;
 
 pub struct PUuid;
 
-impl Parser<'static> for PUuid {
-    type T = TUuid;
+impl<'a> Parser<'a> for PUuid {
+    type T = TUuid<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

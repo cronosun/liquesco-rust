@@ -6,7 +6,6 @@ use common::utils::assert_valid_extended;
 use common::utils::id;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::enumeration::{TEnum, Variant};
 use liquesco_schema::seq::Direction;
 use liquesco_schema::uint::TUInt;
@@ -18,14 +17,14 @@ use serde::{Deserialize, Serialize};
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(DocType::from(TUInt::try_new(1, 200).unwrap()));
-    let upper_case = builder.add(DocType::from(TAscii::try_new(2, 10, 65, 90).unwrap()));
-    let schema = builder.finish(DocType::from(
+    let int = builder.add(TUInt::try_new(1, 200).unwrap());
+    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
+    let schema = builder.finish(
         TEnum::default()
             .add(Variant::new(id("shutdown")))
             .add(Variant::new(id("add")).add_value(int))
             .add(Variant::new(id("delete_account")).add_value(upper_case)),
-    ));
+    );
 
     // valid
     assert_valid_strict(Schema1Enum::Shutdown, &schema);
@@ -68,12 +67,12 @@ fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let variant1_type =
-                builder.add(DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap()));
-            builder.add(DocType::from(
+                builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            builder.add(
                 TEnum::default()
                     .add(Variant::new(id("variant1")).add_value(variant1_type))
-                    .add(Variant::new(id("variant2"))),
-            ))
+                    .add(Variant::new(id("variant2")))
+            )
         },
         Direction::Ascending,
         true,

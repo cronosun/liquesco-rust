@@ -3,13 +3,10 @@ use crate::body_writer::Context;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::structure::TStruct;
 use minidom::Element;
-use std::marker::PhantomData;
 
-pub struct WStruct<'a> {
-    _phantom: &'a PhantomData<()>,
-}
+pub struct WStruct;
 
-impl<'a> BodyWriter for WStruct<'a> {
+impl<'a> BodyWriter<'a> for WStruct {
     type T = TStruct<'a>;
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ol = Element::builder("ol").attr("start", "0").build();

@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Direction::Ascending;
@@ -19,8 +18,16 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TAscii {
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TAscii<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     /// Minimum / maximum number of bytes (which is at the same time also number
     /// of ASCII characters)
     pub length: U64IneRange,
@@ -105,14 +112,15 @@ impl Index<usize> for CodeRange {
     }
 }
 
-impl TAscii {
+impl TAscii<'_> {
     pub fn try_new(
         min_length: u64,
         max_length: u64,
         min_code: u8,
         max_code: u8,
-    ) -> Result<TAscii, LqError> {
+    ) -> Result<Self, LqError> {
         Result::Ok(Self {
+            meta : Meta::empty(),
             length: U64IneRange::try_new("Ascii length range", min_length, max_length)?,
             // note: we add 1 since this here is inclusive.
             codes: CodeRange::try_new(min_code, max_code + 1)?,
@@ -129,7 +137,7 @@ impl TAscii {
     }
 }
 
-impl<'a> Type for TAscii {
+impl Type for TAscii<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -178,17 +186,33 @@ impl<'a> Type for TAscii {
     }
 }
 
-impl BaseTypeSchemaBuilder for TAscii {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl<'a> WithMetadata for TAscii<'a> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TAscii<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TAscii<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let length_element = builder.add(
-            DocType::from(TUInt::try_new(0, std::u64::MAX).unwrap())
-                .with_name_unwrap("ascii_length_element"),
+            TUInt::try_new(0, std::u64::MAX).unwrap()
+                .with_meta(NameOnly {
+                    name : "ascii_length_element"
+                })
         );
+        // TODO: Use a range here
         let field_length = builder.add(
-            DocType::from(TSeq {
+            TSeq {
+                meta : Meta::empty(),
                 element: length_element,
                 length: U32IneRange::try_new("Ascii", 2, 2).unwrap(),
                 ordering: SeqOrdering::Sorted {
@@ -196,18 +220,19 @@ impl BaseTypeSchemaBuilder for TAscii {
                     unique: true,
                 },
                 multiple_of: None,
-            })
-            .with_name_unwrap("ascii_length")
-            .with_description(
-                "The length constraint of the ASCII string (also number of bytes). Start and end \
-                 are both inclusive.",
-            ),
+            }.with_meta(NameDescription {
+                name: "ascii_length",
+                description: "The length constraint of the ASCII string (also number of bytes). \
+                Start and end \
+                 are both inclusive." })
         );
 
         let range_element = builder
-            .add(DocType::from(TUInt::try_new(0, 128).unwrap()).with_name_unwrap("ascii_code"));
+            .add(TUInt::try_new(0, 128).unwrap()
+                .with_meta(NameOnly{name : "ascii_code"}));
         let field_codes = builder.add(
-            DocType::from(TSeq {
+            TSeq {
+                meta : Meta::empty(),
                 element: range_element,
                 length: U32IneRange::try_new(
                     "Code range",
@@ -220,16 +245,13 @@ impl BaseTypeSchemaBuilder for TAscii {
                     unique: true,
                 },
                 multiple_of: Some(2),
-            })
-            .with_name_unwrap("codes")
-            .with_description(
-                "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
+            }.with_meta(NameDescription {
+                name: "codes",
+                description: "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
                  codes (start, end); start is inclusive, end is exclusive. The ASCII string is \
-                 valid if every character of the ASCII string is within one of those ranges.",
-            ),
+                 valid if every character of the ASCII string is within one of those ranges." })
         );
 
-        DocType::from(
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("length").unwrap(),
@@ -238,13 +260,11 @@ impl BaseTypeSchemaBuilder for TAscii {
                 .add(Field::new(
                     Identifier::try_from("codes").unwrap(),
                     field_codes,
-                )),
-        )
-        .with_name_unwrap("ascii")
-        .with_description(
-            "The ascii type must not be used to transfer human readable text. It's to be \
+                ))
+                .with_meta(NameDescription{
+                    name: "ascii",
+                    description: "The ascii type must not be used to transfer human readable text. It's to be \
              used to transfer machine readable strings. Only characters withing the ASCII \
-             range are allowed.",
-        )
+             range are allowed." })
     }
 }

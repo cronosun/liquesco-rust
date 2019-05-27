@@ -2,7 +2,6 @@ use crate::boolean::TBool;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
@@ -20,9 +19,16 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameOnly;
+use crate::metadata::NameDescription;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TSeq {
+pub struct TSeq<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     pub element: TypeRef,
     pub length: U32IneRange,
     pub ordering: Ordering,
@@ -44,9 +50,10 @@ pub enum Direction {
     Descending,
 }
 
-impl TSeq {
+impl<'a> TSeq<'a> {
     pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
+            meta : Meta::empty(),
             element,
             length: U32IneRange::try_new("", min_len, max_len)?,
             ordering: Ordering::None,
@@ -71,7 +78,7 @@ impl TSeq {
     }
 }
 
-impl Type for TSeq {
+impl Type for TSeq<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -129,6 +136,18 @@ impl Type for TSeq {
         } else {
             None
         }
+    }
+}
+
+impl WithMetadata for TSeq<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TSeq<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
     }
 }
 
@@ -245,22 +264,26 @@ where
     Result::Ok(())
 }
 
-impl BaseTypeSchemaBuilder for TSeq {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl BaseTypeSchemaBuilder for TSeq<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let element_field = builder.add(
-            DocType::from(TReference::default())
-                .with_name_unwrap("element")
-                .with_description("The element type of a sequence."),
+            TReference::default()
+                .with_meta(NameDescription {
+                    name: "element",
+                    description: "The element type of a sequence." })
         );
         let length_element = builder.add(
-            DocType::from(TUInt::try_new(0, std::u32::MAX as u64).unwrap())
-                .with_name_unwrap("seq_length_element"),
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap()
+                .with_meta(NameOnly {
+                    name : "seq_length_element"
+                })
         );
         let length_field = builder.add(
-            DocType::from(TSeq {
+            TSeq {
+                meta : Meta::empty(),
                 element: length_element,
                 length: U32IneRange::try_new("", 2, 2).unwrap(),
                 ordering: Ordering::Sorted {
@@ -268,73 +291,71 @@ impl BaseTypeSchemaBuilder for TSeq {
                     unique: true,
                 },
                 multiple_of: None,
-            })
-            .with_name_unwrap("seq_length")
-            .with_description(
-                "The length of a sequence (number of elements). It's tuple of start \
-                 and end. Both - end and start - are included.",
-            ),
+            }.with_meta(NameDescription {
+                name: "seq_length",
+                description: "The length of a sequence (number of elements). It's tuple of start \
+                 and end. Both - end and start - are included." })
         );
 
         let directed_enum = builder.add(
-            DocType::from(
                 TEnum::default()
                     .add(Variant::new(Identifier::try_from("ascending").unwrap()))
-                    .add(Variant::new(Identifier::try_from("descending").unwrap())),
-            )
-            .with_name_unwrap("direction")
-            .with_description(
-                "Determines how the elements in the sequence need to be sorted for \
-                 the sequence to be valid.",
-            ),
+                    .add(Variant::new(Identifier::try_from("descending").unwrap()))
+                    .with_meta(
+                        NameDescription {
+                        name: "direction",
+                        description: "Determines how the elements in the sequence need to be sorted for \
+                 the sequence to be valid."
+                    })
         );
         let unique = builder.add(
-            DocType::from(TBool::default())
-                .with_name_unwrap("unique")
-                .with_description(
-                    "When this is true, no duplicate elements are allowed in the sequence. \
-                     This automatically implies a sorted sequence.",
-                ),
+            TBool::default()
+                .with_meta(
+                    NameDescription {
+                    name : "unique",
+                    description : "When this is true, no duplicate elements are allowed in the sequence. \
+                     This automatically implies a sorted sequence."
+                })
         );
         let sorted_struct = builder.add(
-            DocType::from(
                 TStruct::default()
                     .add(Field::new(
                         Identifier::try_from("direction").unwrap(),
                         directed_enum,
                     ))
-                    .add(Field::new(Identifier::try_from("unique").unwrap(), unique)),
-            )
-            .with_name_unwrap("sorting")
-            .with_description(
-                "Determines how the sequence needs to be sorted and whether duplicate \
-                 elements are allowed.",
-            ),
+                    .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
+                    .with_meta(
+                        NameDescription {
+                        name: "sorting",
+                        description: "Determines how the sequence needs to be sorted and whether duplicate \
+                 elements are allowed."
+                    })
         );
-        let ordering_field = builder.add(DocType::from(
+        let ordering_field = builder.add(
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("none").unwrap()))
                 .add(
                     Variant::new(Identifier::try_from("sorted").unwrap()).add_value(sorted_struct),
-                ),
-        )
-        .with_name_unwrap("ordering")
-        .with_description("Ordering is optional. When there's no ordering it can be irelevant or \
+                ).with_meta(
+                NameDescription {
+                    name: "ordering",
+                    description: "Ordering is optional. When there's no ordering it can be irrelevant or \
         ordering has a special meaning. It's also possible to specify a required sorting (in this \
-        case it's also possible to disallow duplicates)."));
+        case it's also possible to disallow duplicates)."
+                }));
 
-        let multiple_of = builder.add(DocType::from(
-            TUInt::try_new(2, std::u32::MAX as u64).unwrap(),
-        )
-        .with_name_unwrap("multiple_of")
-        .with_description("It's possible to specify another requirement on the length of the list \
+        let multiple_of = builder.add(
+            TUInt::try_new(2, std::u32::MAX as u64).unwrap()
+                .with_meta(NameDescription {
+                    name : "multiple_of",
+                    description : "It's possible to specify another requirement on the length of the list \
         (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
-        ... are allowed."));
+        ... are allowed."
+                }));
         let multiple_of_field = builder
-            .add(DocType::from(TOption::new(multiple_of)).with_name_unwrap("maybe_multiple_of"));
+            .add(TOption::new(multiple_of).with_meta(
+                NameOnly {name : "maybe_multiple_of" }));
 
-        // just an empty struct (but more fields will be added by the system)
-        DocType::from(
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("element").unwrap(),
@@ -351,9 +372,9 @@ impl BaseTypeSchemaBuilder for TSeq {
                 .add(Field::new(
                     Identifier::try_from("multiple_of").unwrap(),
                     multiple_of_field,
-                )),
-        )
-        .with_name_unwrap("seq")
-        .with_description("A sequence contains 0-n elements of the same type.")
+                )).with_meta(NameDescription {
+                name : "seq",
+                description : "A sequence contains 0-n elements of the same type."
+            })
     }
 }

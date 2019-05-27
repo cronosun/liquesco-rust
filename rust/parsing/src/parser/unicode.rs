@@ -9,8 +9,8 @@ use liquesco_serialization::unicode::Unicode;
 
 pub struct PUnicode;
 
-impl Parser<'static> for PUnicode {
-    type T = TUnicode;
+impl<'a> Parser<'a> for PUnicode {
+    type T = TUnicode<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

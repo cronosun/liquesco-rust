@@ -9,6 +9,7 @@ use std::collections::HashMap;
 use std::convert::TryFrom;
 use std::hash::Hash;
 use std::hash::Hasher;
+use liquesco_schema::metadata::WithMetadata;
 
 /// Generates (or just supplies) names for schema types.
 pub struct Names {
@@ -44,7 +45,7 @@ impl Names {
         &'a mut self,
         info: &'b TypeInfo<'b>,
     ) -> &'a Identifier<'a> {
-        if let Some(name) = info.any_type.doc().name() {
+        if let Some(name) = info.any_type.meta().name() {
             name
         } else {
             // ok, we have no name, take the hash name
@@ -98,7 +99,7 @@ impl Names {
     }
 
     fn create_technical_name(&self, any_type: &AnyType) -> Identifier<'static> {
-        if let Some(name) = any_type.doc().name() {
+        if let Some(name) = any_type.meta().name() {
             // yes, type has a given name
             if let Some(number_used) = self.used_names.get(name) {
                 // we have a problem (duplicate)

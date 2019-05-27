@@ -1,7 +1,6 @@
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -9,21 +8,30 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
 ///
 /// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
-#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TReference {}
+#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct TReference<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
+}
 
-impl Default for TReference {
+impl<'a> Default for TReference<'a> {
     fn default() -> Self {
-        Self {}
+        Self {
+            meta : Meta::empty()
+        }
     }
 }
 
-impl Type for TReference {
+impl Type for TReference<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -84,17 +92,28 @@ impl Type for TReference {
     }
 }
 
-impl BaseTypeSchemaBuilder for TReference {
-    fn build_schema<B>(_: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TReference<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TReference<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TReference<'_> {
+    fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         // just an empty struct (but more fields will be added by the system)
-        DocType::from(TStruct::default())
-            .with_name_unwrap("reference")
-            .with_description(
-                "A reference references a value in the anchors list. See \
-                 anchors for more details.",
-            )
+        TStruct::default().with_meta(NameDescription {
+            name : "reference",
+            description : "A reference references a value in the anchors list. See \
+                 anchors for more details."
+        })
     }
 }

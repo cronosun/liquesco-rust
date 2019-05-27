@@ -10,7 +10,6 @@ use crate::boolean::TBool;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
@@ -21,11 +20,17 @@ use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
+use crate::metadata::WithMetadata;
+use crate::metadata::MetadataSetter;
+use crate::metadata::Meta;
+use crate::metadata::NameDescription;
 
 /// A range. Constraints:
 ///  - start <= end (if allow_equal) or start < end (if !allow_equal).
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TRange {
+pub struct TRange<'a> {
+    #[new(value = "Meta::empty()")]
+    pub meta : Meta<'a>,
     /// The element in the range.
     pub element: TypeRef,
     pub inclusion: Inclusion,
@@ -43,7 +48,7 @@ pub enum Inclusion {
     Supplied,
 }
 
-impl TRange {
+impl TRange<'_> {
     pub fn inclusion(&self) -> Inclusion {
         self.inclusion
     }
@@ -57,7 +62,7 @@ impl TRange {
     }
 }
 
-impl Type for TRange {
+impl Type for TRange<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -179,19 +184,32 @@ impl Type for TRange {
     }
 }
 
-impl BaseTypeSchemaBuilder for TRange {
-    fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
+impl WithMetadata for TRange<'_> {
+    fn meta(&self) -> &Meta {
+        &self.meta
+    }
+}
+
+impl<'a> MetadataSetter<'a> for TRange<'a> {
+    fn set_meta(&mut self, meta : Meta<'a>) {
+        self.meta = meta;
+    }
+}
+
+impl BaseTypeSchemaBuilder for TRange<'_> {
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder,
     {
         let element_field = builder.add(
-            DocType::from(TReference::default())
-                .with_name_unwrap("range_element")
-                .with_description("The start and end type of the range."),
+            TReference::default()
+                .with_meta(NameDescription {
+                    name: "range_element",
+                    description: "The start and end type of the range."
+                })
         );
 
         let inclusion_field = builder.add(
-            DocType::from(
                 TEnum::default()
                     .add(Variant::new(
                         Identifier::try_from("both_inclusive").unwrap(),
@@ -203,24 +221,21 @@ impl BaseTypeSchemaBuilder for TRange {
                         Identifier::try_from("both_exclusive").unwrap(),
                     ))
                     .add(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
-                    .add(Variant::new(Identifier::try_from("supplied").unwrap())),
-            )
-            .with_name_unwrap("inclusion")
-            .with_description(
-                "Determines whether start and end are inclusive. There's one \
+                    .add(Variant::new(Identifier::try_from("supplied").unwrap()))
+                    .with_meta(NameDescription {
+                        name: "inclusion",
+                        description: "Determines whether start and end are inclusive. There's one \
                  special value: 'Supplied'. When you choose this, the data has to contain \
-                 the information whether start/end are inclusive or not.",
-            ),
+                 the information whether start/end are inclusive or not." })
         );
 
-        let allow_empty_field = builder.add(DocType::from(TBool::default())
-            .with_name_unwrap("allow_empty")
-            .with_description("General rule is start < end. When start equals end it's \
+        let allow_empty_field = builder.add(TBool::default()
+            .with_meta(NameDescription {
+                name: "allow_empty",
+                description: "General rule is start < end. When start equals end it's \
             possible to construct empty ranges (depending on the inclusion). If this is false \
-            it's not allowed to specify a range that's empty. You usually want this to be false."));
+            it's not allowed to specify a range that's empty. You usually want this to be false." }));
 
-        // just an empty struct (but more fields will be added by the system)
-        DocType::from(
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("element").unwrap(),
@@ -233,9 +248,9 @@ impl BaseTypeSchemaBuilder for TRange {
                 .add(Field::new(
                     Identifier::try_from("allow_empty").unwrap(),
                     allow_empty_field,
-                )),
-        )
-        .with_name_unwrap("range")
-        .with_description("A sequence contains 0-n elements of the same type.")
+                )).with_meta(NameDescription {
+                name : "range",
+                description : "A sequence contains 0-n elements of the same type."
+            })
     }
 }

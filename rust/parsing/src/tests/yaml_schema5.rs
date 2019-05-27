@@ -5,7 +5,6 @@ use crate::yaml::parse_from_yaml_str;
 use liquesco_schema::anchors::TAnchors;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::option::TOption;
 use liquesco_schema::reference::TReference;
 use liquesco_schema::structure::Field;
@@ -16,16 +15,16 @@ use liquesco_schema::unicode::{LengthType, TUnicode};
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
 
-    let field_text = builder.add(AnyType::Unicode(DocType::from(
+    let field_text = builder.add(AnyType::Unicode(
         TUnicode::try_new(0, 500, LengthType::Byte).unwrap(),
-    )));
+    ));
     // this is required
-    let field_next1 = builder.add(AnyType::Reference(DocType::from(TReference::default())));
+    let field_next1 = builder.add(AnyType::Reference(TReference::default()));
     // optionally a second reference
-    let field_next2_present = builder.add(AnyType::Reference(DocType::from(TReference::default())));
-    let field_next2 = builder.add(AnyType::Option(DocType::from(TOption::new(
+    let field_next2_present = builder.add(AnyType::Reference(TReference::default()));
+    let field_next2 = builder.add(AnyType::Option(TOption::new(
         field_next2_present,
-    ))));
+    )));
 
     let struct_value = TStruct::default()
         .add(Field::new(id("text"), field_text))
@@ -35,9 +34,9 @@ fn create_schema() -> impl Schema<'static> {
     let structure = builder.add(AnyType::Struct(struct_value.into()));
 
     // now wrap that inside anchors
-    builder.finish(AnyType::Anchors(DocType::from(TAnchors::new(
+    builder.finish(AnyType::Anchors(TAnchors::new(
         structure, structure,
-    ))))
+    )))
 }
 
 #[test]

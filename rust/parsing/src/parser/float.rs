@@ -10,8 +10,8 @@ use liquesco_serialization::float::Float;
 
 pub struct PFloat32;
 
-impl Parser<'static> for PFloat32 {
-    type T = TFloat32;
+impl<'a> Parser<'a> for PFloat32 {
+    type T = TFloat32<'a>;
 
     fn parse<'c, C>(
         _: &mut C,
@@ -31,8 +31,8 @@ impl Parser<'static> for PFloat32 {
 
 pub struct PFloat64;
 
-impl Parser<'static> for PFloat64 {
-    type T = TFloat64;
+impl<'a> Parser<'a> for PFloat64 {
+    type T = TFloat64<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

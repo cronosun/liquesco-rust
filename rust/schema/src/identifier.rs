@@ -1,6 +1,6 @@
 use crate::ascii::{CodeRange, TAscii};
 use crate::core::TypeRef;
-use crate::doc_type::DocType;
+use crate::metadata::{Meta, MetadataSetter, NameDescription};
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::seq::TSeq;
 use core::convert::TryFrom;
@@ -103,7 +103,8 @@ impl BuildsOwnSchema for Identifier<'_> {
         let mut code_range = CodeRange::try_new(48, 57 + 1).unwrap();
         code_range.add(97, 122 + 1).unwrap();
         let segment_ref = builder.add(
-            DocType::from(TAscii {
+            TAscii {
+                meta : Meta::empty(),
                 length: U64IneRange::try_new(
                     "Segment len",
                     SEGMENT_MIN_LEN as u64,
@@ -111,24 +112,15 @@ impl BuildsOwnSchema for Identifier<'_> {
                 )
                 .unwrap(),
                 codes: code_range,
+            }.with_meta(NameDescription {
+                name : "segment",
+                description : "A single segment of an identifier. \
+                 An identifier can only contain certain ASCII characters and is limited in length."
             })
-            .with_name_unwrap("segment")
-            .with_description(
-                "A single segment of an identifier. \
-                 An identifier can only contain certain ASCII characters and is limited in length.",
-            ),
         );
-        builder.add(
-            DocType::from(
-                TSeq::try_new(
-                    segment_ref,
-                    MIN_NUMBER_OF_SEGMENTS as u32,
-                    MAX_NUMBER_OF_SEGMENTS as u32,
-                )
-                .unwrap(),
-            )
-            .with_name_unwrap("identifier")
-            .with_description(format!(
+        let meta = Meta {
+            name: Some(Identifier::try_from("identifier").unwrap()),
+            description: Some(Cow::Owned(format!(
                 "An identifier identifies something in the system. An \
                  identifier is composed of {min}-{max} segments. Each segment is composed of ASCII \
                  characters (see segment for details what characters are allowed and about min/max \
@@ -137,7 +129,16 @@ impl BuildsOwnSchema for Identifier<'_> {
                  class names, ...).",
                 min = MIN_NUMBER_OF_SEGMENTS,
                 max = MAX_NUMBER_OF_SEGMENTS
-            )),
+            ))),
+            implements: None
+        };
+        builder.add(
+                TSeq::try_new(
+                    segment_ref,
+                    MIN_NUMBER_OF_SEGMENTS as u32,
+                    MAX_NUMBER_OF_SEGMENTS as u32,
+                )
+                .unwrap().with_meta(meta),
         )
     }
 }

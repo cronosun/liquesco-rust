@@ -5,8 +5,8 @@ use minidom::Element;
 
 pub struct WUuid;
 
-impl BodyWriter for WUuid {
-    type T = TUuid;
+impl<'a> BodyWriter<'a> for WUuid {
+    type T = TUuid<'a>;
 
     fn write(_: &mut Context<Self::T>) -> Element {
         Element::bare("span")

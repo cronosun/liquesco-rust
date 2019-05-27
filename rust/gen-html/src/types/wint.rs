@@ -8,8 +8,8 @@ use minidom::Element;
 
 pub struct WUInt;
 
-impl BodyWriter for WUInt {
-    type T = TUInt;
+impl<'a> BodyWriter<'a> for WUInt {
+    type T = TUInt<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");
@@ -31,8 +31,8 @@ impl BodyWriter for WUInt {
 
 pub struct WSInt;
 
-impl BodyWriter for WSInt {
-    type T = TSInt;
+impl<'a> BodyWriter<'a> for WSInt {
+    type T = TSInt<'a>;
 
     fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ul = Element::bare("ul");

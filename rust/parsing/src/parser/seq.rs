@@ -10,8 +10,8 @@ use std::convert::TryFrom;
 
 pub struct PSeq;
 
-impl Parser<'static> for PSeq {
-    type T = TSeq;
+impl<'a> Parser<'a> for PSeq {
+    type T = TSeq<'a>;
 
     fn parse<'c, C>(
         context: &mut C,

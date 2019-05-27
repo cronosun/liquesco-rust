@@ -9,8 +9,8 @@ use liquesco_serialization::option::Presence;
 
 pub struct POption;
 
-impl Parser<'static> for POption {
-    type T = TOption;
+impl<'a> Parser<'a> for POption {
+    type T = TOption<'a>;
 
     fn parse<'c, C>(
         context: &mut C,

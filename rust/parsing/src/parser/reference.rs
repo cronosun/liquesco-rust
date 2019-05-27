@@ -9,8 +9,8 @@ use liquesco_serialization::uint::UInt32;
 
 pub struct PReference;
 
-impl Parser<'static> for PReference {
-    type T = TReference;
+impl<'a> Parser<'a> for PReference {
+    type T = TReference<'a>;
 
     fn parse<'c, C>(
         context: &mut C,

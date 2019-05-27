@@ -5,15 +5,14 @@ use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
-use liquesco_schema::doc_type::DocType;
 use liquesco_schema::unicode::LengthType;
 use liquesco_schema::unicode::TUnicode;
 
 #[test]
 fn schema1() {
-    let schema = single_schema(DocType::from(
+    let schema = single_schema(
         TUnicode::try_new(5, 10, LengthType::Byte).unwrap(),
-    ));
+    );
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -32,9 +31,9 @@ fn schema1() {
 
 #[test]
 fn schema2() {
-    let schema = single_schema(DocType::from(
-        TUnicode::try_new(5, 10, LengthType::Utf8Byte).unwrap(),
-    ));
+    let schema = single_schema(
+        TUnicode::try_new(5, 10, LengthType::Utf8Byte).unwrap()
+    );
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -51,9 +50,9 @@ fn schema2() {
 
 #[test]
 fn schema3() {
-    let schema = single_schema(DocType::from(
+    let schema = single_schema(
         TUnicode::try_new(5, 10, LengthType::ScalarValue).unwrap(),
-    ));
+    );
 
     // some valid items
     assert_valid_strict("12345".to_string(), &schema);
@@ -72,7 +71,7 @@ fn schema3() {
 
 #[test]
 fn ordering() {
-    let schema = DocType::from(TUnicode::try_new(0, 100, LengthType::ScalarValue).unwrap());
+    let schema =TUnicode::try_new(0, 100, LengthType::ScalarValue).unwrap();
 
     ord_assert_equal(schema.clone(), "".to_string(), "".to_string());
     ord_assert_equal(schema.clone(), "hello".to_string(), "hello".to_string());

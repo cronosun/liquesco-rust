@@ -9,8 +9,8 @@ use liquesco_serialization::core::Serializer;
 
 pub struct PBool;
 
-impl Parser<'static> for PBool {
-    type T = TBool;
+impl<'a> Parser<'a> for PBool {
+    type T = TBool<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

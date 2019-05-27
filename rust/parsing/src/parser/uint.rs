@@ -9,8 +9,8 @@ use liquesco_serialization::uint::UInt64;
 
 pub struct PUInt;
 
-impl Parser<'static> for PUInt {
-    type T = TUInt;
+impl<'a> Parser<'a> for PUInt {
+    type T = TUInt<'a>;
 
     fn parse<'c, C>(
         _: &mut C,

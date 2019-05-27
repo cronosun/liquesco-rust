@@ -8,6 +8,7 @@ use liquesco_processing::names::Names;
 use liquesco_processing::schema::SchemaReader;
 use liquesco_schema::core::Type;
 use minidom::Element;
+use liquesco_schema::metadata::WithMetadata;
 
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
@@ -147,7 +148,7 @@ impl HtmlWriter<'_> {
         header_body = header_body.append(type_info_elem);
 
         // description?
-        if let Some(description) = type_info.any_type.doc().description() {
+        if let Some(description) = type_info.any_type.meta().description() {
             let mut description_elem = Element::builder("p")
                 .attr("class", "liquesco-description")
                 .build();

@@ -2,20 +2,17 @@ use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
-use core::borrow::Borrow;
 use liquesco_common::error::LqError;
-use liquesco_schema::ascii::TAscii;
 use liquesco_schema::range::{Inclusion, TRange};
 use liquesco_serialization::boolean::Bool;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::seq::SeqHeader;
-use liquesco_serialization::unicode::Unicode;
 use std::convert::TryFrom;
 
 pub struct PRange;
 
-impl Parser<'static> for PRange {
-    type T = TRange;
+impl<'a> Parser<'a> for PRange {
+    type T = TRange<'a>;
 
     fn parse<'c, C>(
         context: &mut C,
@@ -42,8 +39,8 @@ impl Parser<'static> for PRange {
         let u32_number_of_fields = u32::try_from(number_of_fields)?;
         SeqHeader::serialize(writer, &SeqHeader::new(u32_number_of_fields))?;
 
-        let start = context.parse(writer, r#type.element(), &sequence[0])?;
-        let end = context.parse(writer, r#type.element(), &sequence[1])?;
+        context.parse(writer, r#type.element(), &sequence[0])?;
+        context.parse(writer, r#type.element(), &sequence[1])?;
 
         if supplied_inclusion {
             let value = C::TConverter::require_bool(&sequence[2].value)?;
