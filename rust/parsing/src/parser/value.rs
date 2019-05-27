@@ -6,6 +6,7 @@ pub type Seq<'a> = Vec<TextValue<'a>>;
 
 #[derive(Clone, Debug, PartialEq)]
 pub struct TextValue<'a> {
+    // TODO: can be removed
     pub name: MaybeName<'a>,
     pub value: Value<'a>,
     pub position: Option<SrcPosition>,

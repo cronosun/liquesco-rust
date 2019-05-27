@@ -16,5 +16,6 @@ pub(crate) fn type_description(any_type: &AnyType) -> (&'static str, &'static st
             AnyType::Option(_) => ("option", "Use the option type (aka maybe; optional; nullable) to describe data that can either be there ('present'; 'some') or absent ('missing'; 'empty'). Alternatively you can also use an enum with two variants to achieve the same."),
             AnyType::Unicode(_) => ("unicode", "The unicode type (aka string) can be used to describe arbitrary human readable text."),
             AnyType::Uuid(_) => ("uuid", "16 byte UUID; RFC 4122."),
+            AnyType::Range(_) => ("range", "A range (start - end); start/end with configurable inclusion/exclusion."),
         }
 }

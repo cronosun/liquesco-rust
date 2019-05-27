@@ -17,6 +17,7 @@ use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::seq::TSeq;
 use crate::sint::TSInt;
 use crate::structure::TStruct;
+use crate::range::TRange;
 use crate::uint::TUInt;
 use crate::unicode::TUnicode;
 use crate::uuid::TUuid;
@@ -47,6 +48,7 @@ pub enum AnyType<'a> {
     Anchors(DocType<'a, TAnchors>),
     Reference(DocType<'a, TReference>),
     Uuid(DocType<'a, TUuid>),
+    Range(DocType<'a, TRange>),
 }
 
 impl<'a> AnyType<'a> {
@@ -66,6 +68,7 @@ impl<'a> AnyType<'a> {
             AnyType::Option(value) => value.doc(),
             AnyType::Unicode(value) => value.doc(),
             AnyType::Uuid(value) => value.doc(),
+            AnyType::Range(value) => value.doc(),
         }
     }
 }
@@ -91,6 +94,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Option(value) => value.validate(context),
             AnyType::Unicode(value) => value.validate(context),
             AnyType::Uuid(value) => value.validate(context),
+            AnyType::Range(value) => value.validate(context),
         }
     }
 
@@ -119,6 +123,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Option(value) => value.compare(context, r1, r2),
             AnyType::Unicode(value) => value.compare(context, r1, r2),
             AnyType::Uuid(value) => value.compare(context, r1, r2),
+            AnyType::Range(value) => value.compare(context, r1, r2),
         }
     }
 
@@ -138,6 +143,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Option(value) => value.reference(index),
             AnyType::Unicode(value) => value.reference(index),
             AnyType::Uuid(value) => value.reference(index),
+             AnyType::Range(value) => value.reference(index),
         }
      }
 }
@@ -161,6 +167,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_anchors = doc_type_ref::<TAnchors, B>(builder);
         let ref_reference = doc_type_ref::<TReference, B>(builder);
         let ref_uuid = doc_type_ref::<TUuid, B>(builder);
+        let ref_range = doc_type_ref::<TRange, B>(builder);
 
         builder.add(
             DocType::from(
@@ -178,7 +185,8 @@ impl BuildsOwnSchema for AnyType<'_> {
                     .add(variant(ref_ascii, "ascii"))
                     .add(variant(ref_anchors, "anchors"))
                     .add(variant(ref_reference, "reference"))
-                    .add(variant(ref_uuid, "uuid")),
+                    .add(variant(ref_uuid, "uuid"))
+                    .add(variant(ref_uuid, "range")),
             )
             .with_name_unwrap("any_type")
             .with_description(

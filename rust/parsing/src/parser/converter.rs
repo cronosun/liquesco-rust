@@ -185,6 +185,7 @@ pub trait Converter {
         })
     }
 
+    // TODO: can be removed
     fn require_no_name(value: &TextValue) -> Result<(), LqError> {
         if let Some(name) = &value.name {
             Result::Err(LqError::new(format!(

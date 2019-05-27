@@ -22,3 +22,4 @@ pub mod structure;
 pub mod uint;
 pub mod unicode;
 pub mod uuid;
+pub mod range;

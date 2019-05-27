@@ -15,6 +15,7 @@ use crate::parser::structure::PStruct;
 use crate::parser::uint::PUInt;
 use crate::parser::unicode::PUnicode;
 use crate::parser::uuid::PUuid;
+use crate::parser::range::PRange;
 use crate::parser::value::TextValue;
 use liquesco_schema::any_type::AnyType;
 
@@ -42,5 +43,6 @@ where
         AnyType::Anchors(value) => PAnchors::parse(context, writer, text_value, value),
         AnyType::Reference(value) => PReference::parse(context, writer, text_value, value),
         AnyType::Uuid(value) => PUuid::parse(context, writer, text_value, value),
+        AnyType::Range(value) => PRange::parse(context, writer, text_value, value),
     }
 }

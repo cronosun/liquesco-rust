@@ -14,6 +14,7 @@ use crate::types::wint::WSInt;
 use crate::types::woption::WOption;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
+use crate::types::wrange::WRange;
 use crate::usage::Usage;
 use liquesco_processing::names::Names;
 
@@ -33,6 +34,7 @@ pub mod wanchor;
 pub mod wbool;
 pub mod wunicode;
 pub mod wuuid;
+pub mod wrange;
 
 pub fn write_body(ctx: BodyWriteContext) -> Element {
     let any_type = ctx.schema.require(ctx.type_ref);
@@ -52,6 +54,7 @@ pub fn write_body(ctx: BodyWriteContext) -> Element {
         AnyType::Option(value) => WOption::write(&mut ctx.into(value)),
         AnyType::Unicode(value) => WUnicode::write(&mut ctx.into(value)),
         AnyType::Uuid(value) => WUuid::write(&mut ctx.into(value)),
+        AnyType::Range(value) => WRange::write(&mut ctx.into(value)),
     }
 }
 
