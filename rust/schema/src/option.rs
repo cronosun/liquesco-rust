@@ -76,7 +76,7 @@ impl BaseTypeSchemaBuilder for TOption {
         B: SchemaBuilder,
     {
         let field_type = builder.add(
-            DocType::from(TReference)
+            DocType::from(TReference::default())
                 .with_name_unwrap("present_type")
                 .with_description("Type of the present value in an option."),
         );

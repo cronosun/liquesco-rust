@@ -141,7 +141,7 @@ where
                 .with_description("Optional type description / documentation."),
         );
         let uuid_ref = builder.add(
-            DocType::from(TUuid)
+            DocType::from(TUuid::default())
                 .with_name_unwrap("implements_uuid")
                 .with_description(
                     "UUID to describe the conformance / implementation / \

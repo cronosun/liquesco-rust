@@ -1,12 +1,14 @@
-use crate::core::Schema;
-use crate::doc_type::DocType;
-use crate::seq::Direction;
-use crate::seq::TSeq;
-use crate::tests::builder::builder;
-use crate::tests::ordering::ord_schema;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
-use crate::uint::TUInt;
+mod common;
+
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::seq::Direction;
+use liquesco_schema::seq::TSeq;
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use liquesco_schema::uint::TUInt;
 
 use serde::{Deserialize, Serialize};
 

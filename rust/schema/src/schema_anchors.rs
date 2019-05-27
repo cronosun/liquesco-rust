@@ -10,11 +10,19 @@ use crate::doc_type::DocType;
 use crate::schema_builder::BuildsOwnSchema;
 use std::convert::TryFrom;
 use liquesco_common::error::LqError;
+use serde::{Deserialize, Serialize};
 
 /// This is the base of a liquesco schema.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct SchemaAnchors<'a> {
     pub r#type : Cow<'a, AnyType<'a>>,
     pub types : Cow<'a, [AnyType<'a>]>
+}
+
+impl SchemaAnchors<'_> {
+    pub fn main_type(&self) -> TypeRef {
+        TypeRef(u32::try_from(self.types.len()).unwrap())
+    }
 }
 
 impl<'a> TypeContainer<'a> for SchemaAnchors<'a> {
@@ -59,6 +67,14 @@ impl BuildsOwnSchema for SchemaAnchors<'_> {
 
 pub struct SchemaAnchorsBuilder<'a> {
     type_to_ref : HashMap<AnyType<'a>, TypeRef>,
+}
+
+impl<'a> Default for SchemaAnchorsBuilder<'a> {
+    fn default() -> Self {
+        Self {
+            type_to_ref : HashMap::default()
+        }
+    }
 }
 
 impl<'a> SchemaBuilder for SchemaAnchorsBuilder<'a> {

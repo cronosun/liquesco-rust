@@ -214,14 +214,14 @@ where
     );
 
     let start_included_field = builder.add(
-        DocType::from(TBool)
+        DocType::from(TBool::default())
             .with_name_unwrap("start_included")
             .with_description(
                 "This is true if you want the start of the given bounds to be included.",
             ),
     );
     let end_included_field = builder.add(
-        DocType::from(TBool)
+        DocType::from(TBool::default())
             .with_name_unwrap("end_included")
             .with_description(
                 "This is true if you want the end of the given bounds to be included.",
@@ -231,7 +231,7 @@ where
     // other config
 
     let allow_nan_field = builder.add(
-        DocType::from(TBool)
+        DocType::from(TBool::default())
             .with_name_unwrap("allow_nan")
             .with_description(
                 "This is true if NaN ('not a number') is allowed. This \
@@ -239,12 +239,12 @@ where
             ),
     );
     let allow_positive_infinity_field = builder.add(
-        DocType::from(TBool)
+        DocType::from(TBool::default())
             .with_name_unwrap("allow_positive_infinity")
             .with_description("This is true if posive infinity is allowed."),
     );
     let allow_negative_infinity_field = builder.add(
-        DocType::from(TBool)
+        DocType::from(TBool::default())
             .with_name_unwrap("allow_negative_infinity")
             .with_description("This is true if negative infinity is allowed."),
     );

@@ -1,11 +1,13 @@
-use crate::doc_type::DocType;
-use crate::float::TFloat32;
-use crate::float::TFloat64;
-use crate::tests::ordering::ord_assert_ascending;
-use crate::tests::ordering::ord_assert_equal;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
-use crate::tests::utils::single_schema;
+mod common;
+
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::float::TFloat32;
+use liquesco_schema::float::TFloat64;
+use common::ordering::ord_assert_ascending;
+use common::ordering::ord_assert_equal;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use common::utils::single_schema;
 use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
 use liquesco_common::range::NewFull;

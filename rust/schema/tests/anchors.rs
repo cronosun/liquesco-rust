@@ -1,15 +1,17 @@
-use crate::anchors::TAnchors;
-use crate::ascii::TAscii;
-use crate::boolean::TBool;
-use crate::core::Schema;
-use crate::doc_type::DocType;
-use crate::reference::TReference;
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::tests::builder::builder;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
-use crate::tests::utils::id;
+mod common;
+
+use liquesco_schema::anchors::TAnchors;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::boolean::TBool;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::reference::TReference;
+use liquesco_schema::structure::Field;
+use liquesco_schema::structure::TStruct;
+use common::builder::builder;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use common::utils::id;
 
 use serde::{Deserialize, Serialize};
 
@@ -168,9 +170,9 @@ fn wrong_ordering() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(DocType::from(TReference));
+    let reference = builder.add(DocType::from(TReference::default()));
     let name = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
-    let bool_field = builder.add(DocType::from(TBool));
+    let bool_field = builder.add(DocType::from(TBool::default()));
     let structure = builder.add(Into::<DocType<TStruct>>::into(
         TStruct::default()
             .add(Field::new(id("name"), name))

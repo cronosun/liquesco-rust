@@ -248,7 +248,7 @@ where
     let field_name = Identifier::build_schema(builder);
 
     let single_value =
-        builder.add(DocType::from(TReference)
+        builder.add(DocType::from(TReference::default())
         .with_name_unwrap("value_type")
         .with_description("Value type in an enum variant."));
     let values = builder.add(

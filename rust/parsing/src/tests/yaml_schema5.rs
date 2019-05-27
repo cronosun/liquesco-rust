@@ -20,9 +20,9 @@ fn create_schema() -> impl Schema<'static> {
         TUnicode::try_new(0, 500, LengthType::Byte).unwrap(),
     )));
     // this is required
-    let field_next1 = builder.add(AnyType::Reference(DocType::from(TReference)));
+    let field_next1 = builder.add(AnyType::Reference(DocType::from(TReference::default())));
     // optionally a second reference
-    let field_next2_present = builder.add(AnyType::Reference(DocType::from(TReference)));
+    let field_next2_present = builder.add(AnyType::Reference(DocType::from(TReference::default())));
     let field_next2 = builder.add(AnyType::Option(DocType::from(TOption::new(
         field_next2_present,
     ))));

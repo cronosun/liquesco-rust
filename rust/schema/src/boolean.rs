@@ -10,8 +10,15 @@ use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
+/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
 #[derive(new, Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
-pub struct TBool;
+pub struct TBool {}
+
+impl Default for TBool {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Type for TBool {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>

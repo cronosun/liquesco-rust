@@ -12,8 +12,16 @@ use std::cmp::Ordering;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
+///
+/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TReference;
+pub struct TReference {}
+
+impl Default for TReference {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Type for TReference {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>

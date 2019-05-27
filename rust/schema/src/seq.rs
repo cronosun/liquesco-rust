@@ -251,7 +251,7 @@ impl BaseTypeSchemaBuilder for TSeq {
         B: SchemaBuilder,
     {
         let element_field = builder.add(
-            DocType::from(TReference)
+            DocType::from(TReference::default())
                 .with_name_unwrap("element")
                 .with_description("The element type of a sequence."),
         );
@@ -287,7 +287,7 @@ impl BaseTypeSchemaBuilder for TSeq {
             ),
         );
         let unique = builder.add(
-            DocType::from(TBool)
+            DocType::from(TBool::default())
                 .with_name_unwrap("unique")
                 .with_description(
                     "When this is true, no duplicate elements are allowed in the sequence. \

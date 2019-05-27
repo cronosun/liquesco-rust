@@ -1,16 +1,18 @@
-use crate::ascii::TAscii;
-use crate::core::Schema;
-use crate::doc_type::DocType;
-use crate::enumeration::{TEnum, Variant};
-use crate::seq::Direction;
-use crate::tests::builder::builder;
-use crate::tests::ordering::ord_schema;
-use crate::tests::utils::assert_valid_extended;
-use crate::tests::utils::id;
-use crate::uint::TUInt;
+mod common;
 
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::enumeration::{TEnum, Variant};
+use liquesco_schema::seq::Direction;
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_valid_extended;
+use common::utils::id;
+use liquesco_schema::uint::TUInt;
+
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
 use serde::{Deserialize, Serialize};
 
 #[test]

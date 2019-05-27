@@ -198,7 +198,7 @@ impl<'a, W: LqWriter> ser::Serializer for &'a mut Serializer<'a, W> {
 
     fn serialize_map(self, len: Option<usize>) -> Result<Self::SerializeMap> {
         let present_len: usize = len.ok_or(LqError::new(
-            "Only supports sequences with computed length.",
+            "Only supports maps with computed length. This can happen with structs #flatten.",
         ))?;
         let u32_len = u32::try_from(present_len)?;
         let list_header = SeqHeader::new(u32_len);

@@ -9,3 +9,4 @@ pub mod enum_extensible;
 pub mod seq_extensible;
 
 pub mod struct_defaults;
+pub mod struct_demo;

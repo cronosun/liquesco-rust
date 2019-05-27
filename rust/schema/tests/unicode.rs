@@ -1,11 +1,13 @@
-use crate::doc_type::DocType;
-use crate::tests::ordering::ord_assert_ascending;
-use crate::tests::ordering::ord_assert_equal;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
-use crate::tests::utils::single_schema;
-use crate::unicode::LengthType;
-use crate::unicode::TUnicode;
+mod common;
+
+use liquesco_schema::doc_type::DocType;
+use common::ordering::ord_assert_ascending;
+use common::ordering::ord_assert_equal;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use common::utils::single_schema;
+use liquesco_schema::unicode::LengthType;
+use liquesco_schema::unicode::TUnicode;
 
 #[test]
 fn schema1() {

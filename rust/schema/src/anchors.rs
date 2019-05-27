@@ -169,7 +169,7 @@ impl BaseTypeSchemaBuilder for TAnchors {
         B: SchemaBuilder,
     {
         let field_master = builder.add(
-            DocType::from(TReference)
+            DocType::from(TReference::default())
                 .with_name_unwrap("anchor_master_type")
                 .with_description(
                     "Anchors have exactly one master (required) and 0-n more \
@@ -177,7 +177,7 @@ impl BaseTypeSchemaBuilder for TAnchors {
                 ),
         );
         let field_anchor = builder.add(
-            DocType::from(TReference)
+            DocType::from(TReference::default())
                 .with_name_unwrap("anchor_type")
                 .with_description(
                     "Defines the type of the anchors. Note: There's also the master \

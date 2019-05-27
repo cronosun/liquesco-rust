@@ -1,15 +1,17 @@
-use crate::anchors::TAnchors;
-use crate::ascii::TAscii;
-use crate::core::Schema;
-use crate::doc_type::DocType;
-use crate::reference::TReference;
-use crate::seq::TSeq;
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::tests::builder::builder;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_strict;
-use crate::tests::utils::id;
+mod common;
+
+use liquesco_schema::anchors::TAnchors;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::reference::TReference;
+use liquesco_schema::seq::TSeq;
+use liquesco_schema::structure::Field;
+use liquesco_schema::structure::TStruct;
+use common::builder::builder;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use common::utils::id;
 
 use serde::{Deserialize, Serialize};
 
@@ -170,7 +172,7 @@ fn can_back_reference() {
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let reference = builder.add(DocType::from(TReference));
+    let reference = builder.add(DocType::from(TReference::default()));
     let text = builder.add(DocType::from(TAscii::try_new(0, 100, 0, 127).unwrap()));
     let children = builder.add(DocType::from(TSeq::try_new(reference, 0, 1000).unwrap()));
     let structure = builder.add(DocType::from(

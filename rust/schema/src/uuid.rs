@@ -11,8 +11,15 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
+/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
-pub struct TUuid;
+pub struct TUuid {}
+
+impl Default for TUuid {
+    fn default() -> Self {
+        Self {}
+    }
+}
 
 impl Type for TUuid {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>

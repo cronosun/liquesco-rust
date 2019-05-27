@@ -163,7 +163,8 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type = builder.add(DocType::from(TReference).with_name_unwrap("field_type"));
+        let r#type = builder.add(DocType::from(TReference::default())
+            .with_name_unwrap("field_type"));
         let field_struct = builder.add(
             DocType::from(
                 TStruct::default()

@@ -1,20 +1,23 @@
-use crate::ascii::TAscii;
-use crate::boolean::TBool;
-use crate::core::Schema;
-use crate::doc_type::DocType;
-use crate::seq::Direction;
-use crate::sint::TSInt;
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::tests::builder::builder;
-use crate::tests::ordering::ord_schema;
-use crate::tests::utils::assert_invalid_extended;
-use crate::tests::utils::assert_invalid_strict;
-use crate::tests::utils::assert_valid_extended;
-use crate::tests::utils::assert_valid_strict;
-use crate::tests::utils::id;
-use crate::uint::TUInt;
+mod common;
+
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::boolean::TBool;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::seq::Direction;
+use liquesco_schema::sint::TSInt;
+use liquesco_schema::structure::Field;
+use liquesco_schema::structure::TStruct;
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_invalid_extended;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_extended;
+use common::utils::assert_valid_strict;
+use common::utils::id;
+use liquesco_schema::uint::TUInt;
 use serde::{Deserialize, Serialize};
+use std::string::ToString;
 
 #[test]
 fn schema1() {
@@ -106,7 +109,7 @@ fn ordering_create_schema() -> impl Schema<'static> {
                     .add(Field::new(id("x"), type_x))
                     .add(Field::new(id("y"), type_y)),
             ));
-            let type_more = builder.add(DocType::from(TBool));
+            let type_more = builder.add(DocType::from(TBool::default()));
             builder.add(Into::<DocType<TStruct>>::into(
                 TStruct::default()
                     .add(Field::new(id("content"), inner_struct))

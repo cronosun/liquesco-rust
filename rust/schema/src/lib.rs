@@ -8,8 +8,6 @@ pub mod identifier;
 pub mod schema;
 pub mod schema_builder;
 pub mod schema_anchors;
-#[cfg(test)]
-pub mod tests;
 
 pub mod anchors;
 pub mod ascii;
