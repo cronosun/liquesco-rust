@@ -1,4 +1,4 @@
-use crate::tests::serde::utils::can_decode_from;
+use crate::serde::can_decode_from;
 use serde::{Deserialize, Serialize};
 
 /// It's possible to extend enums (schema evolution) - it's still possible

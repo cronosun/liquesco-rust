@@ -1,4 +1,4 @@
-use crate::tests::serde::utils::assert_serde;
+use crate::serde::assert_serde;
 use serde::{Deserialize, Serialize};
 
 #[test]

@@ -1,4 +1,4 @@
-use crate::tests::serde::utils::can_decode_from;
+use crate::serde::can_decode_from;
 use serde::{Deserialize, Serialize};
 
 /// This is required when we want to read old formats (version 1). Serde

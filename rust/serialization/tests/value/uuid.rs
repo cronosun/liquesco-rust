@@ -1,5 +1,5 @@
-use crate::tests::value::utils::check_value;
-use crate::uuid::Uuid;
+use crate::value::check_value;
+use liquesco_serialization::uuid::Uuid;
 
 #[test]
 fn test_uuids() {

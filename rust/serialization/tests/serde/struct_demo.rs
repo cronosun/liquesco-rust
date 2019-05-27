@@ -1,7 +1,6 @@
-use crate::tests::serde::utils::can_decode_from;
 use serde::{Deserialize, Serialize};
 use std::string::ToString;
-use crate::tests::serde::utils::assert_serde;
+use crate::serde::assert_serde;
 
 #[test]
 fn struct_demo() {

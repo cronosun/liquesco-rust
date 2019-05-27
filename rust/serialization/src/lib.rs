@@ -1,9 +1,6 @@
 pub mod serde;
 pub mod value;
 
-#[cfg(test)]
-pub mod tests;
-
 pub mod core;
 pub mod slice_reader;
 pub mod vec_writer;

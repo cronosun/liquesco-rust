@@ -1,12 +1,21 @@
-use crate::serde::new_deserializer;
-use crate::serde::serialize;
-use crate::slice_reader::SliceReader;
-use crate::vec_writer::VecWriter;
+use liquesco_serialization::serde::new_deserializer;
+use liquesco_serialization::serde::serialize;
+use liquesco_serialization::slice_reader::SliceReader;
+use liquesco_serialization::vec_writer::VecWriter;
 use std::fmt::Debug;
 
+pub mod enum_extensible;
+pub mod seq_extensible;
+pub mod simple_enum;
+pub mod simple_map;
+pub mod simple_scalars;
+pub mod simple_sequences;
+pub mod struct_defaults;
+pub mod struct_demo;
+
 pub fn assert_serde<S>(item: S)
-where
-    S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    where
+        S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     let mut writer = VecWriter::default();
     serialize(&mut writer, &item).expect("Unable to serialize value");
@@ -22,9 +31,9 @@ where
 }
 
 pub fn serialize_to_same<S1, S2>(item1: S1, item2: S2)
-where
-    S1: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    where
+        S1: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+        S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // item 1
     let mut writer1 = VecWriter::default();
@@ -44,9 +53,9 @@ where
 }
 
 pub fn can_decode_from<Source, Destination>(source: Source, destination: Destination)
-where
-    Source: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    where
+        Source: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+        Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // serialize source
     let mut writer = VecWriter::default();

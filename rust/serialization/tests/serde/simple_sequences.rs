@@ -1,5 +1,5 @@
-use crate::tests::serde::utils::assert_serde;
-use crate::tests::serde::utils::serialize_to_same;
+use crate::serde::assert_serde;
+use crate::serde::serialize_to_same;
 use serde::{Deserialize, Serialize};
 
 #[test]

@@ -1,4 +1,4 @@
-use crate::tests::value::utils::check_value;
+use crate::value::check_value;
 
 #[test]
 fn test_i8() {

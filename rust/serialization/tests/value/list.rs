@@ -1,5 +1,5 @@
-use crate::tests::value::utils::check_value;
-use crate::value::Value;
+use crate::value::check_value;
+use liquesco_serialization::value::Value;
 
 #[test]
 fn list_empty() {

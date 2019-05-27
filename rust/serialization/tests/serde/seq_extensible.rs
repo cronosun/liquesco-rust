@@ -1,4 +1,4 @@
-use crate::tests::serde::utils::can_decode_from;
+use crate::serde::can_decode_from;
 use serde::{Deserialize, Serialize};
 
 /// It's always OK when there's more input data than required (this

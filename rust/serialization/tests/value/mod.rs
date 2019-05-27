@@ -1,8 +1,19 @@
-use crate::core::DeSerializer;
-use crate::core::Serializer;
-use crate::slice_reader::SliceReader;
-use crate::value::Value;
-use crate::vec_writer::VecWriter;
+use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::slice_reader::SliceReader;
+use liquesco_serialization::value::Value;
+use liquesco_serialization::vec_writer::VecWriter;
+
+pub mod binary;
+pub mod boolean;
+pub mod enumeration;
+pub mod float;
+pub mod list;
+pub mod option;
+pub mod signed_int;
+pub mod unsigned_int;
+pub mod utf8;
+pub mod uuid;
 
 pub fn check_value(value: &Value) {
     // serialize the data
@@ -25,8 +36,8 @@ pub fn check_value(value: &Value) {
 }
 
 pub fn serialize_de_serialize<F>(value: &Value, value_receiver: F)
-where
-    F: FnOnce(&Value),
+    where
+        F: FnOnce(&Value),
 {
     // serialize the data
     let mut writer = VecWriter::default();
