@@ -1,5 +1,12 @@
 mod common;
 
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_invalid_extended;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_extended;
+use common::utils::assert_valid_strict;
+use common::utils::id;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
@@ -8,13 +15,6 @@ use liquesco_schema::seq::Direction;
 use liquesco_schema::sint::TSInt;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
-use common::builder::builder;
-use common::ordering::ord_schema;
-use common::utils::assert_invalid_extended;
-use common::utils::assert_invalid_strict;
-use common::utils::assert_valid_extended;
-use common::utils::assert_valid_strict;
-use common::utils::id;
 use liquesco_schema::uint::TUInt;
 use serde::{Deserialize, Serialize};
 use std::string::ToString;

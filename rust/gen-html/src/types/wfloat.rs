@@ -1,22 +1,22 @@
-use liquesco_schema::float::TFloat;
-use liquesco_schema::float::TFloat64;
-use liquesco_schema::float::TFloat32;
-use crate::html::span;
-use crate::html::list_item;
-use minidom::Element;
-use crate::body_writer::Context;
 use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
+use crate::html::list_item;
+use crate::html::span;
+use liquesco_common::range::Range;
+use liquesco_schema::float::TFloat;
+use liquesco_schema::float::TFloat32;
+use liquesco_schema::float::TFloat64;
+use minidom::Element;
 use std::fmt::Debug;
 use std::fmt::Display;
-use liquesco_common::range::Range;
 
 pub struct WFloat32;
 
 impl BodyWriter for WFloat32 {
     type T = TFloat32;
 
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-               let mut ul = Element::bare("ul");
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ul = Element::bare("ul");
         let range = ctx.r#type.range();
         float_range(&mut ul, range, std::f32::MIN.into(), std::f32::MAX.into());
         float_properties(&mut ul, ctx.r#type);
@@ -29,8 +29,8 @@ pub struct WFloat64;
 impl BodyWriter for WFloat64 {
     type T = TFloat64;
 
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-               let mut ul = Element::bare("ul");
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ul = Element::bare("ul");
         let range = ctx.r#type.range();
         float_range(&mut ul, range, std::f64::MIN.into(), std::f64::MAX.into());
         float_properties(&mut ul, ctx.r#type);

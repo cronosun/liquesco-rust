@@ -1,20 +1,20 @@
-use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
+use crate::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
+use liquesco_common::ine_range::I64IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::sint::SInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::range::{TRange, Inclusion};
-use liquesco_common::ine_range::I64IneRange;
 
 #[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt {
@@ -79,13 +79,13 @@ impl BaseTypeSchemaBuilder for TSInt {
             DocType::from(TRange {
                 element,
                 inclusion: Inclusion::BothInclusive,
-                allow_empty: false
+                allow_empty: false,
             })
-                .with_name_unwrap("sint_range")
-                .with_description(
-                    "The range within the integer must be. Both (start and end) \
+            .with_name_unwrap("sint_range")
+            .with_description(
+                "The range within the integer must be. Both (start and end) \
                  are inclusive.",
-                ),
+            ),
         );
 
         DocType::from(TStruct::default().add(Field::new(

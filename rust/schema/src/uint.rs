@@ -1,14 +1,14 @@
-use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
+use crate::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::range::{TRange, Inclusion};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U64IneRange};
+use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt64;
@@ -60,9 +60,9 @@ impl Type for TUInt {
         Result::Ok(int1.cmp(&int2))
     }
 
-        fn reference(&self, _: usize) -> Option<TypeRef> {
-            None
-        }
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 impl BaseTypeSchemaBuilder for TUInt {
@@ -79,7 +79,7 @@ impl BaseTypeSchemaBuilder for TUInt {
             DocType::from(TRange {
                 element,
                 inclusion: Inclusion::BothInclusive,
-                allow_empty: false
+                allow_empty: false,
             })
             .with_name_unwrap("uint_range")
             .with_description(

@@ -1,14 +1,13 @@
-
 use crate::reference::Reference;
 use crate::type_description::type_description;
-use liquesco_common::error::LqError;
-use minidom::Element;
 use crate::types::write_body;
 use crate::types::BodyWriteContext;
 use crate::usage::Usage;
+use liquesco_common::error::LqError;
 use liquesco_processing::names::Names;
 use liquesco_processing::schema::SchemaReader;
 use liquesco_schema::core::Type;
+use minidom::Element;
 
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Format;
@@ -123,17 +122,17 @@ impl HtmlWriter<'_> {
         }
     }
 
-    fn type_header(&mut self, type_ref: TypeRef) -> Element {        
+    fn type_header(&mut self, type_ref: TypeRef) -> Element {
         let type_info = self.schema.type_info(type_ref);
 
         // name / title
-        let mut header_title = Element::builder("div").attr("class", "liquesco-type-header-title");        
+        let mut header_title = Element::builder("div").attr("class", "liquesco-type-header-title");
         let name = self.names.display_name_for(&type_info);
         let mut title = Element::builder("h1").build();
         title.append_text_node(name.to_string(Format::SnakeCase));
         header_title = header_title.append(title);
 
-        let mut header_body = Element::builder("div").attr("class", "liquesco-type-header-body");        
+        let mut header_body = Element::builder("div").attr("class", "liquesco-type-header-body");
 
         // type info
         let (type_name, type_description) = type_description(type_info.any_type);
@@ -154,13 +153,18 @@ impl HtmlWriter<'_> {
                 .build();
             description_elem.append_text_node(description);
             header_body = header_body.append(description_elem);
-        }        
+        }
 
         let id = Reference {
-            type_info : &type_info,
-            names : &mut self.names,
-        }.anchor_id();
-        Element::builder("div").attr("id", id).append(header_title).append(header_body.build()).build()
+            type_info: &type_info,
+            names: &mut self.names,
+        }
+        .anchor_id();
+        Element::builder("div")
+            .attr("id", id)
+            .append(header_title)
+            .append(header_body.build())
+            .build()
     }
 
     fn type_footer(&mut self, type_ref: TypeRef) -> Option<Element> {

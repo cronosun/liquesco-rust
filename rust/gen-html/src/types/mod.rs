@@ -1,20 +1,20 @@
 use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
-use crate::types::wseq::WSeq;
-use crate::types::wstruct::WStruct;
-use crate::types::wenum::WEnum;
 use crate::types::wanchor::WAnchors;
 use crate::types::wanchor::WReference;
 use crate::types::wascii::WAscii;
 use crate::types::wbool::WBool;
+use crate::types::wenum::WEnum;
 use crate::types::wfloat::WFloat32;
 use crate::types::wfloat::WFloat64;
-use crate::types::wint::WUInt;
 use crate::types::wint::WSInt;
+use crate::types::wint::WUInt;
 use crate::types::woption::WOption;
+use crate::types::wrange::WRange;
+use crate::types::wseq::WSeq;
+use crate::types::wstruct::WStruct;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
-use crate::types::wrange::WRange;
 use crate::usage::Usage;
 use liquesco_processing::names::Names;
 
@@ -23,18 +23,18 @@ use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::TypeRef;
 use minidom::Element;
 
+pub mod wanchor;
+pub mod wascii;
+pub mod wbool;
+pub mod wenum;
+pub mod wfloat;
+pub mod wint;
+pub mod woption;
+pub mod wrange;
 pub mod wseq;
 pub mod wstruct;
-pub mod wenum;
-pub mod woption;
-pub mod wascii;
-pub mod wint;
-pub mod wfloat;
-pub mod wanchor;
-pub mod wbool;
 pub mod wunicode;
 pub mod wuuid;
-pub mod wrange;
 
 pub fn write_body(ctx: BodyWriteContext) -> Element {
     let any_type = ctx.schema.require(ctx.type_ref);

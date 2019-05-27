@@ -2,11 +2,11 @@ use crate::parser::value::Seq;
 use crate::parser::value::Text;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
+use liquesco_common::error::LqError;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::identifier::Identifier;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use liquesco_common::error::LqError;
 
 /// Naming:
 /// - require: Returns an error when conversion is not possible.

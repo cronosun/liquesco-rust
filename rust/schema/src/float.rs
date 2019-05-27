@@ -1,11 +1,11 @@
-use crate::core::TypeRef;
 use crate::boolean::TBool;
+use crate::core::TypeRef;
 use crate::core::{Context, Type};
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
-use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::range::TRange;
 use crate::range::Inclusion;
+use crate::range::TRange;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -126,9 +126,9 @@ impl Type for TFloat32 {
         Result::Ok(F32Ext::from(float1).cmp(&F32Ext::from(float2)))
     }
 
-        fn reference(&self, _ : usize) -> Option<TypeRef> {
-            None
-        }
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 impl Type for TFloat64 {
@@ -165,9 +165,9 @@ impl Type for TFloat64 {
         Result::Ok(F64Ext::from(float1).cmp(&F64Ext::from(float2)))
     }
 
-            fn reference(&self, _ : usize) -> Option<TypeRef> {
-                None
-        }
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 fn build_schema<B>(builder: &mut B, float_32: bool) -> DocType<'static, TStruct<'static>>
@@ -195,13 +195,19 @@ where
         )
     };
 
-    let range_field = builder.add(DocType::from(TRange {
-        element: range_item,
-        inclusion: Inclusion::Supplied,
-        allow_empty: false
-    })
-        .with_name_unwrap(if float_32 {"float_32_range" } else {"float_64_range"})
-        .with_description("The range the float must be contained within."));
+    let range_field = builder.add(
+        DocType::from(TRange {
+            element: range_item,
+            inclusion: Inclusion::Supplied,
+            allow_empty: false,
+        })
+        .with_name_unwrap(if float_32 {
+            "float_32_range"
+        } else {
+            "float_64_range"
+        })
+        .with_description("The range the float must be contained within."),
+    );
 
     // other config
 

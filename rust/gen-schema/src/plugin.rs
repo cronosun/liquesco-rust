@@ -1,21 +1,21 @@
 use liquesco_common::error::LqError;
-use liquesco_processing::settings::Settings;
+use liquesco_gen_html::html_writer::HtmlWriter;
+use liquesco_processing::code_receiver::Code;
 use liquesco_processing::code_receiver::CodeReceiver;
-use liquesco_processing::plugin::Plugin;
-use liquesco_processing::schema::SchemaBuilderReader;
 use liquesco_processing::path::Path;
 use liquesco_processing::path::Segment;
-use liquesco_processing::code_receiver::Code;
+use liquesco_processing::plugin::Plugin;
+use liquesco_processing::schema::SchemaBuilderReader;
+use liquesco_processing::settings::Settings;
 use liquesco_schema::schema_anchors::SchemaAnchors;
-use liquesco_gen_html::html_writer::HtmlWriter;
 use liquesco_schema::schema_builder::BuildsOwnSchema;
 
 pub struct HtmlGenSchemaPlugin;
 
 impl Plugin for HtmlGenSchemaPlugin {
-        fn name(&self) -> &str {
-            "liquesco-gen-schema"
-        }
+    fn name(&self) -> &str {
+        "liquesco-gen-schema"
+    }
     fn description(&self) -> &str {
         "Generates HTML documentation from a liquesco schema."
     }
@@ -26,8 +26,7 @@ impl Plugin for HtmlGenSchemaPlugin {
         let html_writer = HtmlWriter::new(&builder);
         let string = html_writer.write_to_string(type_ref)?;
 
-        receiver.add(Path::new(Segment::new("schema.html")), 
-            Code::String(string));
+        receiver.add(Path::new(Segment::new("schema.html")), Code::String(string));
 
         Ok(())
     }

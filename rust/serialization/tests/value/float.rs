@@ -1,6 +1,6 @@
-use liquesco_serialization::float::Float;
 use crate::value::check_value;
 use crate::value::serialize_de_serialize;
+use liquesco_serialization::float::Float;
 use liquesco_serialization::value::Value;
 
 #[test]

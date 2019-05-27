@@ -68,8 +68,13 @@ impl<'a> DeSerializer<'a> for EnumHeader {
                     TYPE_ENUM_1 => 1,
                     TYPE_ENUM_2 => 2,
                     TYPE_ENUM_3 => 3,
-                    n => return LqError::err_new(format!("Not an enum type; \
-                    wrong major type. Need one of the enum major types. Have {:?}.", n)),
+                    n => {
+                        return LqError::err_new(format!(
+                            "Not an enum type; \
+                             wrong major type. Need one of the enum major types. Have {:?}.",
+                            n
+                        ))
+                    }
                 }
             }
         };

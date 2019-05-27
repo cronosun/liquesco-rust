@@ -36,8 +36,8 @@ pub fn check_value(value: &Value) {
 }
 
 pub fn serialize_de_serialize<F>(value: &Value, value_receiver: F)
-    where
-        F: FnOnce(&Value),
+where
+    F: FnOnce(&Value),
 {
     // serialize the data
     let mut writer = VecWriter::default();

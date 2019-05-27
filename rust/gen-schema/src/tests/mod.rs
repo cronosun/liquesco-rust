@@ -1,9 +1,9 @@
-use liquesco_processing::code_receiver::DefaultCodeReceiver;
 use crate::plugin::HtmlGenSchemaPlugin;
+use liquesco_processing::code_receiver::DefaultCodeReceiver;
 use liquesco_processing::path::Path;
 use liquesco_processing::path::Segment;
-use liquesco_processing::settings::Settings;
 use liquesco_processing::plugin::Plugin;
+use liquesco_processing::settings::Settings;
 
 #[test]
 fn test1() {
@@ -14,5 +14,5 @@ fn test1() {
         .take_string(&Path::new(Segment::new("schema.html")))
         .unwrap()
         .unwrap();
-    println!("{result}", result=result);
+    println!("{result}", result = result);
 }

@@ -1,18 +1,18 @@
-use liquesco_schema::unicode::TUnicode;
-use crate::html::span;
-use crate::html::list_item;
-use minidom::Element;
-use crate::body_writer::Context;
 use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
+use crate::html::list_item;
+use crate::html::span;
 use liquesco_schema::unicode;
+use liquesco_schema::unicode::TUnicode;
+use minidom::Element;
 
 pub struct WUnicode;
 
 impl BodyWriter for WUnicode {
     type T = TUnicode;
 
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-       let mut ul = Element::bare("ul");
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ul = Element::bare("ul");
 
         let min_len = list_item(
             "Minimum length (inclusive)",

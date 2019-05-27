@@ -25,8 +25,7 @@ impl Default for DefaultCodeReceiver {
 }
 
 impl CodeReceiver for DefaultCodeReceiver {
-    fn add(&mut self, path: Path, code: Code)
-    {
+    fn add(&mut self, path: Path, code: Code) {
         self.artifacts.insert(path, code);
     }
 }

@@ -1,6 +1,6 @@
-use liquesco_common::error::LqError;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
+use liquesco_common::error::LqError;
 use std::borrow::Cow;
 use yaml_rust::Yaml;
 

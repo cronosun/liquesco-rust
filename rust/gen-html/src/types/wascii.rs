@@ -1,17 +1,17 @@
-use liquesco_schema::ascii::TAscii;
-use crate::html::span;
-use crate::html::list_item;
-use minidom::Element;
-use crate::body_writer::Context;
 use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
+use crate::html::list_item;
+use crate::html::span;
+use liquesco_schema::ascii::TAscii;
+use minidom::Element;
 
 pub struct WAscii;
 
 impl BodyWriter for WAscii {
     type T = TAscii;
 
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-       let mut ul = Element::bare("ul");
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ul = Element::bare("ul");
 
         // information about Length
         let length = ctx.r#type.length();

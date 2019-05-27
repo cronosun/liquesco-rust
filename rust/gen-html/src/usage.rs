@@ -18,9 +18,7 @@ impl Default for Usage {
 }
 
 lazy_static! {
-    static ref EMPTY_SET: HashSet<TypeRef> = {
-        HashSet::with_capacity(0)
-    };
+    static ref EMPTY_SET: HashSet<TypeRef> = { HashSet::with_capacity(0) };
 }
 
 impl Usage {
@@ -44,7 +42,7 @@ impl Usage {
         self.is_used_by.insert(uses, used_by);
     }
 
-    pub fn uses(&self, type_ref : &TypeRef) -> &HashSet<TypeRef> {
+    pub fn uses(&self, type_ref: &TypeRef) -> &HashSet<TypeRef> {
         if let Some(uses) = self.uses.get(type_ref) {
             uses
         } else {
@@ -52,7 +50,7 @@ impl Usage {
         }
     }
 
-    pub fn is_used_by(&self, type_ref : &TypeRef) -> &HashSet<TypeRef> {
+    pub fn is_used_by(&self, type_ref: &TypeRef) -> &HashSet<TypeRef> {
         if let Some(uses) = self.is_used_by.get(type_ref) {
             uses
         } else {

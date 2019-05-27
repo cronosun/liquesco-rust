@@ -1,10 +1,10 @@
-use std::fmt::Formatter;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::fmt::Display;
+use std::fmt::Formatter;
 use std::hash::Hash;
 use std::hash::Hasher;
 use std::ops::Deref;
-use std::fmt::Display;
 
 /// Extends float to add missing implementation for hash, ord and eq (see
 /// implementation fot rules).

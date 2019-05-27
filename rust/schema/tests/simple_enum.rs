@@ -1,14 +1,14 @@
 mod common;
 
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_valid_extended;
+use common::utils::id;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
 use liquesco_schema::doc_type::DocType;
 use liquesco_schema::enumeration::{TEnum, Variant};
 use liquesco_schema::seq::Direction;
-use common::builder::builder;
-use common::ordering::ord_schema;
-use common::utils::assert_valid_extended;
-use common::utils::id;
 use liquesco_schema::uint::TUInt;
 
 use common::utils::assert_invalid_strict;

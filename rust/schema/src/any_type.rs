@@ -11,13 +11,13 @@ use crate::float::TFloat32;
 use crate::float::TFloat64;
 use crate::identifier::Identifier;
 use crate::option::TOption;
+use crate::range::TRange;
 use crate::reference::TReference;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::seq::TSeq;
 use crate::sint::TSInt;
 use crate::structure::TStruct;
-use crate::range::TRange;
 use crate::uint::TUInt;
 use crate::unicode::TUnicode;
 use crate::uuid::TUuid;
@@ -127,8 +127,8 @@ impl<'a> Type for AnyType<'a> {
         }
     }
 
-     fn reference(&self, index : usize) -> Option<TypeRef> {
-         match self {
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        match self {
             AnyType::Struct(value) => value.reference(index),
             AnyType::UInt(value) => value.reference(index),
             AnyType::SInt(value) => value.reference(index),
@@ -143,9 +143,9 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Option(value) => value.reference(index),
             AnyType::Unicode(value) => value.reference(index),
             AnyType::Uuid(value) => value.reference(index),
-             AnyType::Range(value) => value.reference(index),
+            AnyType::Range(value) => value.reference(index),
         }
-     }
+    }
 }
 
 impl BuildsOwnSchema for AnyType<'_> {

@@ -227,17 +227,17 @@ impl<'a> Type for TEnum<'a> {
         }
     }
 
-    fn reference(&self, index : usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<TypeRef> {
         let mut current = 0;
         for variant in self.variants() {
             for value in variant.values() {
-                if current==index {
+                if current == index {
                     return Some(*value);
                 }
                 current += 1;
             }
         }
-        None 
+        None
     }
 }
 
@@ -247,14 +247,15 @@ where
 {
     let field_name = Identifier::build_schema(builder);
 
-    let single_value =
-        builder.add(DocType::from(TReference::default())
-        .with_name_unwrap("value_type")
-        .with_description("Value type in an enum variant."));
+    let single_value = builder.add(
+        DocType::from(TReference::default())
+            .with_name_unwrap("value_type")
+            .with_description("Value type in an enum variant."),
+    );
     let values = builder.add(
         DocType::from(TSeq {
             element: single_value,
-            length: U32IneRange::try_new("",MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
+            length: U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
             ordering: SeqOrdering::None,
             multiple_of: None,
         })
@@ -300,7 +301,7 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
         let field_variants = builder.add(
             DocType::from(TSeq {
                 element: variant,
-                length: U32IneRange::try_new("",MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
+                length: U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
             })

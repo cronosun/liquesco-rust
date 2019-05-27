@@ -1,19 +1,18 @@
-use std::marker::PhantomData;
-use minidom::Element;
-use crate::body_writer::Context;
-use liquesco_schema::structure::TStruct;
-use liquesco_schema::identifier::Format;
 use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
+use liquesco_schema::identifier::Format;
+use liquesco_schema::structure::TStruct;
+use minidom::Element;
+use std::marker::PhantomData;
 
 pub struct WStruct<'a> {
-    _phantom : &'a PhantomData<()>
+    _phantom: &'a PhantomData<()>,
 }
 
 impl<'a> BodyWriter for WStruct<'a> {
     type T = TStruct<'a>;
-    fn write(ctx : &mut Context<Self::T>) -> Element {
-        
-         let mut ol = Element::builder("ol").attr("start", "0").build();
+    fn write(ctx: &mut Context<Self::T>) -> Element {
+        let mut ol = Element::builder("ol").attr("start", "0").build();
         for field in ctx.r#type.fields() {
             let mut li = Element::builder("li").build();
 

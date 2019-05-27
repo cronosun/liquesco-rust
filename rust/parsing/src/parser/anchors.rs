@@ -1,9 +1,9 @@
-use liquesco_common::error::LqError;
-use crate::parser::value::TextValue;
-use liquesco_schema::anchors::TAnchors;
 use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
+use crate::parser::value::TextValue;
+use liquesco_common::error::LqError;
+use liquesco_schema::anchors::TAnchors;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::seq::SeqHeader;
 use std::convert::TryFrom;

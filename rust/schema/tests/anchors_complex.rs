@@ -1,5 +1,9 @@
 mod common;
 
+use common::builder::builder;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
+use common::utils::id;
 use liquesco_schema::anchors::TAnchors;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
@@ -8,10 +12,6 @@ use liquesco_schema::reference::TReference;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
-use common::builder::builder;
-use common::utils::assert_invalid_strict;
-use common::utils::assert_valid_strict;
-use common::utils::id;
 
 use serde::{Deserialize, Serialize};
 

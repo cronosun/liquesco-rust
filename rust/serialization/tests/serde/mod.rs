@@ -14,8 +14,8 @@ pub mod struct_defaults;
 pub mod struct_demo;
 
 pub fn assert_serde<S>(item: S)
-    where
-        S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+where
+    S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     let mut writer = VecWriter::default();
     serialize(&mut writer, &item).expect("Unable to serialize value");
@@ -31,9 +31,9 @@ pub fn assert_serde<S>(item: S)
 }
 
 pub fn serialize_to_same<S1, S2>(item1: S1, item2: S2)
-    where
-        S1: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-        S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+where
+    S1: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // item 1
     let mut writer1 = VecWriter::default();
@@ -53,9 +53,9 @@ pub fn serialize_to_same<S1, S2>(item1: S1, item2: S2)
 }
 
 pub fn can_decode_from<Source, Destination>(source: Source, destination: Destination)
-    where
-        Source: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-        Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+where
+    Source: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
+    Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // serialize source
     let mut writer = VecWriter::default();

@@ -48,7 +48,7 @@ impl TSeq {
     pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
             element,
-            length: U32IneRange::try_new("",min_len, max_len)?,
+            length: U32IneRange::try_new("", min_len, max_len)?,
             ordering: Ordering::None,
             multiple_of: Option::None,
         })
@@ -123,12 +123,12 @@ impl Type for TSeq {
         seq_compare(|_| self.element, context, r1, r2)
     }
 
-        fn reference(&self, index: usize) -> Option<TypeRef> {
-            if index==0 {
-                Some(self.element())
-            } else {
-                None
-            }
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        if index == 0 {
+            Some(self.element())
+        } else {
+            None
+        }
     }
 }
 
@@ -262,7 +262,7 @@ impl BaseTypeSchemaBuilder for TSeq {
         let length_field = builder.add(
             DocType::from(TSeq {
                 element: length_element,
-                length: U32IneRange::try_new("",2, 2).unwrap(),
+                length: U32IneRange::try_new("", 2, 2).unwrap(),
                 ordering: Ordering::Sorted {
                     direction: Direction::Ascending,
                     unique: true,
@@ -270,8 +270,10 @@ impl BaseTypeSchemaBuilder for TSeq {
                 multiple_of: None,
             })
             .with_name_unwrap("seq_length")
-            .with_description("The length of a sequence (number of elements). It's tuple of start \
-            and end. Both - end and start - are included."),
+            .with_description(
+                "The length of a sequence (number of elements). It's tuple of start \
+                 and end. Both - end and start - are included.",
+            ),
         );
 
         let directed_enum = builder.add(

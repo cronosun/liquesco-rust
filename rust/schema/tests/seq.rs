@@ -1,13 +1,13 @@
 mod common;
 
-use liquesco_schema::core::Schema;
-use liquesco_schema::doc_type::DocType;
-use liquesco_schema::seq::Direction;
-use liquesco_schema::seq::TSeq;
 use common::builder::builder;
 use common::ordering::ord_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
+use liquesco_schema::core::Schema;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::seq::Direction;
+use liquesco_schema::seq::TSeq;
 use liquesco_schema::uint::TUInt;
 
 use serde::{Deserialize, Serialize};

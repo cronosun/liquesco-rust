@@ -47,8 +47,8 @@ pub trait Type: Debug {
     // gaps).
     //
     // This is mostly used internally; usually you get embedded references
-    // by the appropriate methods. 
-    fn reference(&self, _ : usize) -> Option<TypeRef>;
+    // by the appropriate methods.
+    fn reference(&self, _: usize) -> Option<TypeRef>;
 }
 
 pub trait Context<'a> {

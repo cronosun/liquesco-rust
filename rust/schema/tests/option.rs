@@ -1,15 +1,15 @@
 mod common;
 
+use common::builder::builder;
+use common::ordering::ord_schema;
+use common::utils::assert_invalid_strict;
+use common::utils::assert_valid_strict;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
 use liquesco_schema::doc_type::DocType;
 use liquesco_schema::option::TOption;
 use liquesco_schema::seq::Direction;
-use common::builder::builder;
-use common::ordering::ord_schema;
-use common::utils::assert_invalid_strict;
-use common::utils::assert_valid_strict;
 
 #[test]
 fn schema1() {

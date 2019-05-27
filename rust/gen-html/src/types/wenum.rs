@@ -1,18 +1,18 @@
+use crate::body_writer::BodyWriter;
+use crate::body_writer::Context;
 use crate::reference::Reference;
 use liquesco_schema::enumeration::TEnum;
-use std::marker::PhantomData;
-use minidom::Element;
-use crate::body_writer::Context;
 use liquesco_schema::identifier::Format;
-use crate::body_writer::BodyWriter;
+use minidom::Element;
+use std::marker::PhantomData;
 
 pub struct WEnum<'a> {
-    _phantom : &'a PhantomData<()>
+    _phantom: &'a PhantomData<()>,
 }
 
 impl<'a> BodyWriter for WEnum<'a> {
     type T = TEnum<'a>;
-    fn write(ctx : &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context<Self::T>) -> Element {
         let mut ol = Element::builder("ol").attr("start", "0").build();
         for variant in ctx.r#type.variants() {
             let mut li = Element::builder("li").build();
@@ -30,9 +30,10 @@ impl<'a> BodyWriter for WEnum<'a> {
                     li.append_child(Element::bare("br"));
                     let type_info = ctx.schema.type_info(*value);
                     let link = Reference {
-                        type_info : &type_info,
-                        names : &mut ctx.names
-                    }.link();
+                        type_info: &type_info,
+                        names: &mut ctx.names,
+                    }
+                    .link();
                     li.append_child(link);
                 }
             }

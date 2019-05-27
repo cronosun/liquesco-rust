@@ -1,26 +1,26 @@
-use std::cmp::Ordering;
-use std::convert::TryFrom;
 use liquesco_serialization::boolean::Bool;
 use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
+use std::convert::TryFrom;
 
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 
+use crate::boolean::TBool;
 use crate::core::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::doc_type::DocType;
+use crate::enumeration::TEnum;
+use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
-use crate::boolean::TBool;
-use crate::reference::TReference;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
+use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
-use liquesco_serialization::core::LqReader;
 
 /// A range. Constraints:
 ///  - start <= end (if allow_equal) or start < end (if !allow_equal).
@@ -59,22 +59,25 @@ impl TRange {
 
 impl Type for TRange {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();
 
-        let expected_number_of_items = if self.inclusion==Inclusion::Supplied {
+        let expected_number_of_items = if self.inclusion == Inclusion::Supplied {
             4
         } else {
             2
         };
 
-        if number_of_items!=expected_number_of_items {
-            return LqError::err_new(format!("The given range has a seq length of {}, we \
-            need a length of {} (start, end and maybe 2 more items with information about \
-            inclusion).", number_of_items, expected_number_of_items));
+        if number_of_items != expected_number_of_items {
+            return LqError::err_new(format!(
+                "The given range has a seq length of {}, we \
+                 need a length of {} (start, end and maybe 2 more items with information about \
+                 inclusion).",
+                number_of_items, expected_number_of_items
+            ));
         }
 
         // start
@@ -84,10 +87,11 @@ impl Type for TRange {
         let mut end_reader = context.reader().clone();
         context.validate(self.element)?;
 
-        let inclusive : (bool, bool) = match self.inclusion {
-            Inclusion::Supplied => {
-                (Bool::de_serialize(context.reader())?,  Bool::de_serialize(context.reader())?)
-            },
+        let inclusive: (bool, bool) = match self.inclusion {
+            Inclusion::Supplied => (
+                Bool::de_serialize(context.reader())?,
+                Bool::de_serialize(context.reader())?,
+            ),
             Inclusion::BothInclusive => (true, true),
             Inclusion::StartInclusive => (true, false),
             Inclusion::BothExclusive => (false, false),
@@ -95,12 +99,12 @@ impl Type for TRange {
         };
 
         // Now compare start and end
-        let cmp = context.compare(self.element,&mut start_reader, &mut end_reader)?;
+        let cmp = context.compare(self.element, &mut start_reader, &mut end_reader)?;
         match cmp {
-            Ordering::Greater => {
-                LqError::err_new("The given start (first element) is greater then \
-                given end (second element) in range. Start can never be greater than end.")
-            }
+            Ordering::Greater => LqError::err_new(
+                "The given start (first element) is greater then \
+                 given end (second element) in range. Start can never be greater than end.",
+            ),
             Ordering::Equal => {
                 if self.allow_empty {
                     Ok(())
@@ -109,7 +113,7 @@ impl Type for TRange {
                         (true, false) => false,
                         (true, true) => true,
                         (false, false) => false,
-                        (false, true) => false
+                        (false, true) => false,
                     };
                     if !ok {
                         LqError::err_new(format!("Start (first element) is equal to \
@@ -121,10 +125,8 @@ impl Type for TRange {
                         Ok(())
                     }
                 }
-            },
-            Ordering::Less => {
-                Ok(())
             }
+            Ordering::Less => Ok(()),
         }
     }
 
@@ -134,29 +136,29 @@ impl Type for TRange {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         let header1 = SeqHeader::de_serialize(r1)?;
         let header2 = SeqHeader::de_serialize(r2)?;
 
-        if header1.length()!=header2.length() {
-            return LqError::err_new("Ranges with different length (cannot compare them).")
+        if header1.length() != header2.length() {
+            return LqError::err_new("Ranges with different length (cannot compare them).");
         }
 
-        let with_inclusion = header1.length()==4;
+        let with_inclusion = header1.length() == 4;
 
-        let cmp1 = context.compare(self.element,r1, r2)?;
-        Ok(if cmp1!=Equal {
+        let cmp1 = context.compare(self.element, r1, r2)?;
+        Ok(if cmp1 != Equal {
             cmp1
         } else {
-            let cmp2 = context.compare(self.element,r1, r2)?;
-            if cmp2!=Equal {
+            let cmp2 = context.compare(self.element, r1, r2)?;
+            if cmp2 != Equal {
                 cmp2
             } else {
                 if with_inclusion {
                     let cmp3 = Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?);
-                    if cmp3!=Equal {
+                    if cmp3 != Equal {
                         cmp3
                     } else {
                         Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?)
@@ -177,11 +179,10 @@ impl Type for TRange {
     }
 }
 
-
 impl BaseTypeSchemaBuilder for TRange {
     fn build_schema<B>(builder: &mut B) -> DocType<'static, TStruct<'static>>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         let element_field = builder.add(
             DocType::from(TReference::default())
@@ -192,18 +193,24 @@ impl BaseTypeSchemaBuilder for TRange {
         let inclusion_field = builder.add(
             DocType::from(
                 TEnum::default()
-                    .add(Variant::new(Identifier::try_from("both_inclusive").unwrap()))
-                    .add(Variant::new(Identifier::try_from("start_inclusive").unwrap()))
-                    .add(Variant::new(Identifier::try_from("both_exclusive").unwrap()))
+                    .add(Variant::new(
+                        Identifier::try_from("both_inclusive").unwrap(),
+                    ))
+                    .add(Variant::new(
+                        Identifier::try_from("start_inclusive").unwrap(),
+                    ))
+                    .add(Variant::new(
+                        Identifier::try_from("both_exclusive").unwrap(),
+                    ))
                     .add(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
-                    .add(Variant::new(Identifier::try_from("supplied").unwrap()))
+                    .add(Variant::new(Identifier::try_from("supplied").unwrap())),
             )
-                .with_name_unwrap("inclusion")
-                .with_description(
-                    "Determines whether start and end are inclusive. There's one \
-                    special value: 'Supplied'. When you choose this, the data has to contain \
-                    the information whether start/end are inclusive or not.",
-                ),
+            .with_name_unwrap("inclusion")
+            .with_description(
+                "Determines whether start and end are inclusive. There's one \
+                 special value: 'Supplied'. When you choose this, the data has to contain \
+                 the information whether start/end are inclusive or not.",
+            ),
         );
 
         let allow_empty_field = builder.add(DocType::from(TBool::default())
@@ -226,9 +233,9 @@ impl BaseTypeSchemaBuilder for TRange {
                 .add(Field::new(
                     Identifier::try_from("allow_empty").unwrap(),
                     allow_empty_field,
-                ))
+                )),
         )
-            .with_name_unwrap("range")
-            .with_description("A sequence contains 0-n elements of the same type.")
+        .with_name_unwrap("range")
+        .with_description("A sequence contains 0-n elements of the same type.")
     }
 }

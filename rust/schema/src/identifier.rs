@@ -104,9 +104,12 @@ impl BuildsOwnSchema for Identifier<'_> {
         code_range.add(97, 122 + 1).unwrap();
         let segment_ref = builder.add(
             DocType::from(TAscii {
-                length: U64IneRange::try_new("Segment len",
-                                             SEGMENT_MIN_LEN as u64, SEGMENT_MAX_LEN as u64)
-                    .unwrap(),
+                length: U64IneRange::try_new(
+                    "Segment len",
+                    SEGMENT_MIN_LEN as u64,
+                    SEGMENT_MAX_LEN as u64,
+                )
+                .unwrap(),
                 codes: code_range,
             })
             .with_name_unwrap("segment")

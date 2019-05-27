@@ -1,7 +1,6 @@
-
-use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -39,7 +38,6 @@ const CODE_RANGE_ELEMENTS_MAX: usize = 64;
 pub struct CodeRange(Vec<u8>);
 
 impl CodeRange {
-
     pub fn try_new(min: u8, max: u8) -> Result<CodeRange, LqError> {
         let mut range = CodeRange(Vec::new());
         range.add(min, max)?;
@@ -175,8 +173,8 @@ impl<'a> Type for TAscii {
         Result::Ok(bytes1.cmp(&bytes2))
     }
 
-    fn reference(&self, _ : usize) -> Option<TypeRef> {
-        None 
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
     }
 }
 
@@ -192,7 +190,7 @@ impl BaseTypeSchemaBuilder for TAscii {
         let field_length = builder.add(
             DocType::from(TSeq {
                 element: length_element,
-                length: U32IneRange::try_new("Ascii",2, 2).unwrap(),
+                length: U32IneRange::try_new("Ascii", 2, 2).unwrap(),
                 ordering: SeqOrdering::Sorted {
                     direction: Ascending,
                     unique: true,
@@ -211,7 +209,8 @@ impl BaseTypeSchemaBuilder for TAscii {
         let field_codes = builder.add(
             DocType::from(TSeq {
                 element: range_element,
-                length: U32IneRange::try_new("Code range",
+                length: U32IneRange::try_new(
+                    "Code range",
                     CODE_RANGE_ELEMENTS_MIN as u32,
                     CODE_RANGE_ELEMENTS_MAX as u32,
                 )

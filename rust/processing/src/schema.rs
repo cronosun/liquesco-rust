@@ -8,10 +8,10 @@ pub trait SchemaReader {
     fn master_ref(&self) -> TypeRef;
     fn require(&self, reference: TypeRef) -> &AnyType;
 
-    fn type_info(&self, reference : TypeRef) -> TypeInfo {
+    fn type_info(&self, reference: TypeRef) -> TypeInfo {
         TypeInfo {
-            any_type : self.require(reference),
-            reference
+            any_type: self.require(reference),
+            reference,
         }
     }
 }

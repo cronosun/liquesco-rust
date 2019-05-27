@@ -1,8 +1,8 @@
 use crate::type_description::type_description;
 
-use liquesco_schema::identifier::Format;
 use liquesco_processing::names::Names;
 use liquesco_processing::type_info::TypeInfo;
+use liquesco_schema::identifier::Format;
 use minidom::Element;
 
 pub struct Reference<'a> {

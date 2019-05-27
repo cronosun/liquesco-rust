@@ -19,8 +19,8 @@ pub struct Range<T> {
 
 impl<T> Range<T> {
     pub fn try_inclusive(start: T, end: T) -> Result<Range<T>, LqError>
-        where
-            T: PartialOrd + Debug,
+    where
+        T: PartialOrd + Debug,
     {
         if start > end {
             return LqError::err_new(format!(
@@ -38,8 +38,10 @@ impl<T> Range<T> {
     }
 
     #[inline]
-    pub fn try_new_msg<M: Debug>(msg: M, start: T, end: T) -> Result<Self, LqError>         where
-        T: PartialOrd + Debug,{
+    pub fn try_new_msg<M: Debug>(msg: M, start: T, end: T) -> Result<Self, LqError>
+    where
+        T: PartialOrd + Debug,
+    {
         if end < start {
             LqError::err_new(format!(
                 "{:?}: You're trying to construct a range. Those ranges require \
@@ -95,8 +97,8 @@ impl<T> LqRangeBounds<T> for Range<T> {}
 
 pub trait LqRangeBounds<T>: RangeBounds<T> {
     fn is_within_range(&self, item: &T) -> bool
-        where
-            T: PartialOrd,
+    where
+        T: PartialOrd,
     {
         match self.start_bound() {
             Bound::Included(start) => {
@@ -131,8 +133,8 @@ pub trait LqRangeBounds<T>: RangeBounds<T> {
 
     #[inline]
     fn require_within<M: Debug>(&self, msg: M, item: &T) -> Result<(), LqError>
-        where
-            T: Debug + PartialOrd,
+    where
+        T: Debug + PartialOrd,
     {
         if !self.is_within_range(item) {
             LqError::err_new(format!(

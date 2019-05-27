@@ -1,6 +1,6 @@
-use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;

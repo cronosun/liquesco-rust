@@ -41,7 +41,7 @@ impl TAnchors {
         self.anchor
     }
 
-        pub fn max_anchors(&self) -> Option<u32> {
+    pub fn max_anchors(&self) -> Option<u32> {
         self.max_anchors
     }
 }
@@ -154,13 +154,13 @@ impl Type for TAnchors {
         }
     }
 
-     fn reference(&self, index : usize) -> Option<TypeRef> {
-         match index {
-             0 => Some(self.master()),
-             1 => Some(self.anchor()),
-             _ => None
-         }
-     }
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        match index {
+            0 => Some(self.master()),
+            1 => Some(self.anchor()),
+            _ => None,
+        }
+    }
 }
 
 impl BaseTypeSchemaBuilder for TAnchors {

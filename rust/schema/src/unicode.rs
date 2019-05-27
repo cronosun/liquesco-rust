@@ -1,6 +1,6 @@
-use crate::core::TypeRef;
 use crate::core::Context;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
@@ -120,9 +120,9 @@ impl<'a> Type for TUnicode {
         Result::Ok(bytes1.cmp(&bytes2))
     }
 
-     fn reference(&self, _: usize) -> Option<TypeRef> {
-         None
-     }
+    fn reference(&self, _: usize) -> Option<TypeRef> {
+        None
+    }
 }
 
 impl BaseTypeSchemaBuilder for TUnicode {
@@ -130,28 +130,34 @@ impl BaseTypeSchemaBuilder for TUnicode {
     where
         B: SchemaBuilder,
     {
-        let range_element = builder.add(DocType::from(
-            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
-        )
-        .with_name_unwrap("unicode_length_element"));
-        let field_length = builder.add(DocType::from(TSeq {
-            element: range_element,
-            length: U32IneRange::try_new("",2, 2).unwrap(),
-            ordering: SeqOrdering::None,
-            multiple_of: None,
-        })
-        .with_name_unwrap("unicode_length"));
+        let range_element = builder.add(
+            DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap())
+                .with_name_unwrap("unicode_length_element"),
+        );
+        let field_length = builder.add(
+            DocType::from(TSeq {
+                element: range_element,
+                length: U32IneRange::try_new("", 2, 2).unwrap(),
+                ordering: SeqOrdering::None,
+                multiple_of: None,
+            })
+            .with_name_unwrap("unicode_length"),
+        );
 
-        let field_length_type = builder.add(DocType::from(
-            TEnum::default()
-                .add(Variant::new(Identifier::try_from("byte").unwrap()))
-                .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
-                .add(Variant::new(Identifier::try_from("scalar").unwrap())),
-        )
-        .with_name_unwrap("length_type")
-        .with_description("Specifies how the length of the unicode is measured. 'byte' can be \
-        mesaured very efficiently - but depends on the encoding. Note: Scalar must not be \
-        confused with uncode grapheme clusters."));
+        let field_length_type = builder.add(
+            DocType::from(
+                TEnum::default()
+                    .add(Variant::new(Identifier::try_from("byte").unwrap()))
+                    .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
+                    .add(Variant::new(Identifier::try_from("scalar").unwrap())),
+            )
+            .with_name_unwrap("length_type")
+            .with_description(
+                "Specifies how the length of the unicode is measured. 'byte' can be \
+                 mesaured very efficiently - but depends on the encoding. Note: Scalar must not be \
+                 confused with uncode grapheme clusters.",
+            ),
+        );
 
         DocType::from(
             TStruct::default()

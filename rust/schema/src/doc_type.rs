@@ -1,6 +1,6 @@
-use crate::core::TypeRef;
 use crate::core::Doc;
 use crate::core::Type;
+use crate::core::TypeRef;
 use crate::core::{
     Context, DOC_MAX_LEN_UTF8_BYTES, DOC_MIN_LEN_UTF8_BYTES, MAX_IMPLEMENTS_ELEMENTS,
     MIN_IMPLEMENTS_ELEMENTS,
@@ -81,8 +81,8 @@ impl<'doc, T: Type> Type for DocType<'doc, T> {
         self.r#type.compare(context, r1, r2)
     }
 
-    fn reference(&self, index : usize) -> Option<TypeRef> {
-         self.r#type.reference(index) 
+    fn reference(&self, index: usize) -> Option<TypeRef> {
+        self.r#type.reference(index)
     }
 }
 

@@ -4,11 +4,11 @@ use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
+use liquesco_common::error::LqError;
 use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::identifier::Identifier;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::enumeration::EnumHeader;
-use liquesco_common::error::LqError;
 
 use std::convert::TryFrom;
 

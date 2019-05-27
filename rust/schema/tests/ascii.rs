@@ -1,12 +1,12 @@
 mod common;
 
-use liquesco_schema::ascii::TAscii;
-use liquesco_schema::doc_type::DocType;
 use common::ordering::ord_assert_ascending;
 use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
+use liquesco_schema::ascii::TAscii;
+use liquesco_schema::doc_type::DocType;
 
 #[test]
 fn schema1() {

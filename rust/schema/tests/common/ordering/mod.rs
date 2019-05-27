@@ -1,5 +1,9 @@
 #![allow(dead_code)]
 
+use crate::common::builder::builder;
+use crate::common::builder::Builder;
+use crate::common::utils::assert_invalid_strict;
+use crate::common::utils::assert_valid_strict;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::TypeRef;
@@ -7,10 +11,6 @@ use liquesco_schema::doc_type::DocType;
 use liquesco_schema::seq::Direction;
 use liquesco_schema::seq::Ordering;
 use liquesco_schema::seq::TSeq;
-use crate::common::builder::builder;
-use crate::common::builder::Builder;
-use crate::common::utils::assert_invalid_strict;
-use crate::common::utils::assert_valid_strict;
 use std::fmt::Debug;
 
 pub fn ord_assert_equal<T, S>(any_type: T, item1: S, item2: S)

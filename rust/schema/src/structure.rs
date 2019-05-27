@@ -143,7 +143,7 @@ impl<'a> Type for TStruct<'a> {
 
     fn reference(&self, index: usize) -> Option<TypeRef> {
         let number_of_fields = self.fields().len();
-        if index>=number_of_fields {
+        if index >= number_of_fields {
             None
         } else {
             Some(self.fields()[index].r#type)
@@ -163,8 +163,8 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         B: SchemaBuilder,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type = builder.add(DocType::from(TReference::default())
-            .with_name_unwrap("field_type"));
+        let r#type =
+            builder.add(DocType::from(TReference::default()).with_name_unwrap("field_type"));
         let field_struct = builder.add(
             DocType::from(
                 TStruct::default()
@@ -184,7 +184,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         let fields_field = builder.add(
             DocType::from(TSeq {
                 element: field_struct,
-                length: U32IneRange::try_new("",std::u32::MIN, std::u32::MAX).unwrap(),
+                length: U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
             })

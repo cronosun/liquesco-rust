@@ -19,24 +19,23 @@ pub type U8IneRange = IneRange<u8>;
 /// Similar to `std::ops::RangeInclusive` but is never empty; and `min` is always <= `max`.
 #[derive(Clone, Hash, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct IneRange<T> {
-    start : T,
-    end : T
+    start: T,
+    end: T,
 }
 
 impl<T> IneRange<T> {
-    pub fn try_new<Msg : Debug>(msg : Msg, start : T, end : T) -> Result<Self, LqError>
-        where
-        T: PartialOrd + Debug {
-        if start>end {
+    pub fn try_new<Msg: Debug>(msg: Msg, start: T, end: T) -> Result<Self, LqError>
+    where
+        T: PartialOrd + Debug,
+    {
+        if start > end {
             LqError::err_new(format!(
                 "{:?}: You're trying to construct a range. Those ranges require \
                  max>=main. Got {:?} for start and {:?} for end.",
                 msg, start, end
             ))
         } else {
-            Ok(IneRange {
-                start, end
-            })
+            Ok(IneRange { start, end })
         }
     }
 

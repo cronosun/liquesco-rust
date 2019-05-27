@@ -7,10 +7,10 @@ use liquesco_schema::core::Schema;
 use liquesco_schema::doc_type::DocType;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
+use liquesco_schema::range::{Inclusion, TRange};
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
-use liquesco_schema::range::{TRange, Inclusion};
 use liquesco_schema::uint::TUInt;
 
 fn create_schema_given_inclusion() -> impl Schema<'static> {
@@ -23,7 +23,7 @@ fn create_schema_given_inclusion() -> impl Schema<'static> {
     let range_value = TRange {
         element: range_element,
         inclusion: Inclusion::StartInclusive,
-        allow_empty: false
+        allow_empty: false,
     };
 
     let range = builder.add(AnyType::Range(range_value.into()));
@@ -43,7 +43,7 @@ fn create_schema_supplied_inclusion() -> impl Schema<'static> {
     let range_value = TRange {
         element: range_element,
         inclusion: Inclusion::Supplied,
-        allow_empty: false
+        allow_empty: false,
     };
 
     let range = builder.add(AnyType::Range(range_value.into()));

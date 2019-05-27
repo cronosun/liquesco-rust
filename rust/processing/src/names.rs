@@ -30,7 +30,7 @@ impl Default for Names {
 
 impl Names {
     /// Generates the technical name for the type. It's a unique name.
-    pub fn technical_name_for(&mut self, info : &TypeInfo) -> &Identifier {
+    pub fn technical_name_for(&mut self, info: &TypeInfo) -> &Identifier {
         if let None = self.name_for.get(&info.reference) {
             self.create_and_insert_technical_name(info.any_type, info.reference);
         }
@@ -42,7 +42,7 @@ impl Names {
     /// Returns the display name for some given type.
     pub fn display_name_for<'a, 'b: 'a>(
         &'a mut self,
-        info : &'b TypeInfo<'b>, 
+        info: &'b TypeInfo<'b>,
     ) -> &'a Identifier<'a> {
         if let Some(name) = info.any_type.doc().name() {
             name

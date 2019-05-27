@@ -1,8 +1,5 @@
 mod common;
 
-use liquesco_schema::doc_type::DocType;
-use liquesco_schema::float::TFloat32;
-use liquesco_schema::float::TFloat64;
 use common::ordering::ord_assert_ascending;
 use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
@@ -12,6 +9,9 @@ use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
 use liquesco_common::range::NewFull;
 use liquesco_common::range::Range;
+use liquesco_schema::doc_type::DocType;
+use liquesco_schema::float::TFloat32;
+use liquesco_schema::float::TFloat64;
 
 #[test]
 fn schema1_32() {
