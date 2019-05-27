@@ -1,4 +1,4 @@
 - [10, 30]
-# This is not allowed (equal is set to false)
+# This is not allowed (equal is set to false) -> This would be an empty range
 - [90, 90]
 - [20, 110]

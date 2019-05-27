@@ -65,7 +65,7 @@ impl TUnicode {
         length_type: LengthType,
     ) -> Result<Self, LqError> {
         Result::Ok(Self {
-            length: U64IneRange::try_new_msg("Unicode length range", min_length, max_length)?,
+            length: U64IneRange::try_new("Unicode length range", min_length, max_length)?,
             length_type,
         })
     }
@@ -136,7 +136,7 @@ impl BaseTypeSchemaBuilder for TUnicode {
         .with_name_unwrap("unicode_length_element"));
         let field_length = builder.add(DocType::from(TSeq {
             element: range_element,
-            length: U32IneRange::try_new(2, 2).unwrap(),
+            length: U32IneRange::try_new("",2, 2).unwrap(),
             ordering: SeqOrdering::None,
             multiple_of: None,
         })

@@ -4,9 +4,7 @@ use liquesco_serialization::boolean::Bool;
 use serde::{Deserialize, Serialize};
 
 use liquesco_common::error::LqError;
-use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::sint::SInt64;
 
 use crate::core::Context;
 use crate::core::Type;
@@ -14,8 +12,6 @@ use crate::core::TypeRef;
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::{Direction, TSeq};
-use crate::seq::Ordering as SeqOrdering;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::boolean::TBool;
@@ -33,8 +29,8 @@ pub struct TRange {
     /// The element in the range.
     pub element: TypeRef,
     pub inclusion: Inclusion,
-    /// If this is true, we allow `start`==`end`.
-    pub allow_equal: bool,
+    /// If this is true, we allow empty ranges. Empty ranges depend on the inclusion.
+    pub allow_empty: bool,
 }
 
 #[derive(new, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -56,21 +52,8 @@ impl TRange {
         self.element
     }
 
-    pub fn allow_equal(&self) -> bool {
-        self.allow_equal
-    }
-}
-
-impl Inclusion {
-    fn try_from(ordinal : u8) -> Option<Inclusion> {
-        match ordinal {
-            0 => Some(Inclusion::BothInclusive),
-            1 => Some(Inclusion::StartInclusive),
-            2 => Some(Inclusion::BothExclusive),
-            3 => Some(Inclusion::EndInclusive),
-            4 => Some(Inclusion::Supplied),
-            _ => None
-        }
+    pub fn allow_empty(&self) -> bool {
+        self.allow_empty
     }
 }
 
@@ -96,10 +79,10 @@ impl Type for TRange {
 
         // start
         let mut start_reader = context.reader().clone();
-        context.validate(self.element);
+        context.validate(self.element)?;
         // end
         let mut end_reader = context.reader().clone();
-        context.validate(self.element);
+        context.validate(self.element)?;
 
         let inclusive : (bool, bool) = match self.inclusion {
             Inclusion::Supplied => {
@@ -119,11 +102,24 @@ impl Type for TRange {
                 given end (second element) in range. Start can never be greater than end.")
             }
             Ordering::Equal => {
-                if self.allow_equal {
+                if self.allow_empty {
                     Ok(())
                 } else {
-                    LqError::err_new("Start (first element) is equal to end (second element). \
-                    This is not allowed according to the schema (see 'allow_equal').")
+                    let ok = match inclusive {
+                        (true, false) => false,
+                        (true, true) => true,
+                        (false, false) => false,
+                        (false, true) => false
+                    };
+                    if !ok {
+                        LqError::err_new(format!("Start (first element) is equal to \
+                        end (second element). \
+                    This is not allowed according to the schema (see 'allow_empty'). Start \
+                    inclusive {}, end inclusive {}.",
+                        inclusive.0, inclusive.1))
+                    } else {
+                        Ok(())
+                    }
                 }
             },
             Ordering::Less => {
@@ -210,10 +206,11 @@ impl BaseTypeSchemaBuilder for TRange {
                 ),
         );
 
-        let allow_equal_field = builder.add(DocType::from(TBool::default())
-            .with_name_unwrap("allow_equal")
-            .with_description("General rule is start < end. If this value is true, \
-            start == end is also allowed."));
+        let allow_empty_field = builder.add(DocType::from(TBool::default())
+            .with_name_unwrap("allow_empty")
+            .with_description("General rule is start < end. When start equals end it's \
+            possible to construct empty ranges (depending on the inclusion). If this is false \
+            it's not allowed to specify a range that's empty. You usually want this to be false."));
 
         // just an empty struct (but more fields will be added by the system)
         DocType::from(
@@ -227,8 +224,8 @@ impl BaseTypeSchemaBuilder for TRange {
                     inclusion_field,
                 ))
                 .add(Field::new(
-                    Identifier::try_from("allow_equal").unwrap(),
-                    allow_equal_field,
+                    Identifier::try_from("allow_empty").unwrap(),
+                    allow_empty_field,
                 ))
         )
             .with_name_unwrap("range")

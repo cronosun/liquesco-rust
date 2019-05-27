@@ -184,7 +184,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         let fields_field = builder.add(
             DocType::from(TSeq {
                 element: field_struct,
-                length: U32IneRange::try_new(std::u32::MIN, std::u32::MAX).unwrap(),
+                length: U32IneRange::try_new("",std::u32::MIN, std::u32::MAX).unwrap(),
                 ordering: SeqOrdering::None,
                 multiple_of: None,
             })

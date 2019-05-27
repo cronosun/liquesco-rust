@@ -186,7 +186,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                     .add(variant(ref_anchors, "anchors"))
                     .add(variant(ref_reference, "reference"))
                     .add(variant(ref_uuid, "uuid"))
-                    .add(variant(ref_uuid, "range")),
+                    .add(variant(ref_range, "range")),
             )
             .with_name_unwrap("any_type")
             .with_description(

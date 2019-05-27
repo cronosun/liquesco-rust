@@ -4,12 +4,11 @@ use crate::core::Type;
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::Ordering as SeqOrdering;
-use crate::seq::{Direction, TSeq};
+use crate::range::{TRange, Inclusion};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U32IneRange, U64IneRange};
+use liquesco_common::ine_range::{U64IneRange};
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt64;
@@ -24,7 +23,7 @@ pub struct TUInt {
 
 impl TUInt {
     pub fn try_new(min: u64, max: u64) -> Result<Self, LqError> {
-        Result::Ok(TUInt::new(U64IneRange::try_new_msg(
+        Result::Ok(TUInt::new(U64IneRange::try_new(
             "Unsigned integer range",
             min,
             max,
@@ -75,15 +74,12 @@ impl BaseTypeSchemaBuilder for TUInt {
             DocType::from(TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap())
                 .with_name_unwrap("uint_range_element"),
         );
+
         let field_range = builder.add(
-            DocType::from(TSeq {
+            DocType::from(TRange {
                 element,
-                length: U32IneRange::try_new(2, 2).unwrap(),
-                ordering: SeqOrdering::Sorted {
-                    direction: Direction::Ascending,
-                    unique: true,
-                },
-                multiple_of: None,
+                inclusion: Inclusion::BothInclusive,
+                allow_empty: false
             })
             .with_name_unwrap("uint_range")
             .with_description(

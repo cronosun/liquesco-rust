@@ -63,7 +63,7 @@ where
         span(format!(
             "{value} ({incl})",
             incl = included(range.start_included()),
-            value = number_display(*range.bounds().start(), min, max)
+            value = number_display(*range.start(), min, max)
         )),
     );
     element.append_child(min_len);
@@ -72,7 +72,7 @@ where
         span(format!(
             "{value} ({incl})",
             incl = included(range.end_included()),
-            value = number_display(*range.bounds().end(), min, max)
+            value = number_display(*range.end(), min, max)
         )),
     );
     element.append_child(max_len);

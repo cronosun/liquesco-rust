@@ -115,7 +115,7 @@ impl TAscii {
         max_code: u8,
     ) -> Result<TAscii, LqError> {
         Result::Ok(Self {
-            length: U64IneRange::try_new_msg("Ascii length range", min_length, max_length)?,
+            length: U64IneRange::try_new("Ascii length range", min_length, max_length)?,
             // note: we add 1 since this here is inclusive.
             codes: CodeRange::try_new(min_code, max_code + 1)?,
         })
@@ -192,7 +192,7 @@ impl BaseTypeSchemaBuilder for TAscii {
         let field_length = builder.add(
             DocType::from(TSeq {
                 element: length_element,
-                length: U32IneRange::try_new(2, 2).unwrap(),
+                length: U32IneRange::try_new("Ascii",2, 2).unwrap(),
                 ordering: SeqOrdering::Sorted {
                     direction: Ascending,
                     unique: true,
@@ -201,7 +201,7 @@ impl BaseTypeSchemaBuilder for TAscii {
             })
             .with_name_unwrap("ascii_length")
             .with_description(
-                "The length constrant of the ASCII string (also number of bytes). Start and end \
+                "The length constraint of the ASCII string (also number of bytes). Start and end \
                  are both inclusive.",
             ),
         );
@@ -211,7 +211,7 @@ impl BaseTypeSchemaBuilder for TAscii {
         let field_codes = builder.add(
             DocType::from(TSeq {
                 element: range_element,
-                length: U32IneRange::try_new(
+                length: U32IneRange::try_new("Code range",
                     CODE_RANGE_ELEMENTS_MIN as u32,
                     CODE_RANGE_ELEMENTS_MAX as u32,
                 )

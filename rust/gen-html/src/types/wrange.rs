@@ -36,17 +36,20 @@ impl BodyWriter for WRange {
             Inclusion::Supplied => ("Supplied (by data)", "Supplied (by data)"),
         };
 
-        let start_inclusion = list_item(
+         ul.append_child(list_item(
             "Start inclusive",
             span(inclusion.0)
-        );
-        ul.append_child(start_inclusion);
+        ));
 
-        let end_inclusion = list_item(
+         ul.append_child(list_item(
             "End inclusive",
             span(inclusion.1)
-        );
-        ul.append_child(end_inclusion);
+        ));
+
+        ul.append_child(list_item(
+            "Allow empty range",
+            span(if ctx.r#type.allow_empty { "Yes"} else {"No"})
+        ));
 
         ul
     }

@@ -48,7 +48,7 @@ impl TSeq {
     pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
             element,
-            length: U32IneRange::try_new(min_len, max_len)?,
+            length: U32IneRange::try_new("",min_len, max_len)?,
             ordering: Ordering::None,
             multiple_of: Option::None,
         })
@@ -262,7 +262,7 @@ impl BaseTypeSchemaBuilder for TSeq {
         let length_field = builder.add(
             DocType::from(TSeq {
                 element: length_element,
-                length: U32IneRange::try_new(2, 2).unwrap(),
+                length: U32IneRange::try_new("",2, 2).unwrap(),
                 ordering: Ordering::Sorted {
                     direction: Direction::Ascending,
                     unique: true,

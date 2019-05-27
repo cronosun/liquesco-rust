@@ -4,15 +4,13 @@ use crate::core::{Context, Type};
 use crate::doc_type::DocType;
 use crate::identifier::Identifier;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::Direction::Ascending;
-use crate::seq::Ordering as SeqOrdering;
-use crate::seq::TSeq;
+use crate::range::TRange;
+use crate::range::Inclusion;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
-use liquesco_common::ine_range::IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_common::range::Range;
 use liquesco_serialization::core::DeSerializer;
@@ -180,7 +178,7 @@ where
     let range_item = if float_32 {
         builder.add(
             DocType::from(TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap())
-                .with_name_unwrap("float_bounds_element")
+                .with_name_unwrap("float_32_range_element")
                 .with_description(
                     "The start or end of the float range bounds. Note: Whether this is \
                      included or not can be defined.",
@@ -189,44 +187,21 @@ where
     } else {
         builder.add(
             DocType::from(TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap())
-                .with_name_unwrap("float_bounds_element")
+                .with_name_unwrap("float_64_range_element")
                 .with_description(
                     "The start or end of the float range bounds. Note: Whether this is \
                      included or not can be defined.",
                 ),
         )
     };
-    let bounds_field = builder.add(
-        DocType::from(TSeq {
-            element: range_item,
-            length: IneRange::try_new(2, 2).unwrap(),
-            ordering: SeqOrdering::Sorted {
-                direction: Ascending,
-                unique: true,
-            },
-            multiple_of: None,
-        })
-        .with_name_unwrap("float_bounds")
-        .with_description(
-            "The bounds the float must be contained within. It's two values: The \
-             first value is the bounds start, the second value is the bounds end.",
-        ),
-    );
 
-    let start_included_field = builder.add(
-        DocType::from(TBool::default())
-            .with_name_unwrap("start_included")
-            .with_description(
-                "This is true if you want the start of the given bounds to be included.",
-            ),
-    );
-    let end_included_field = builder.add(
-        DocType::from(TBool::default())
-            .with_name_unwrap("end_included")
-            .with_description(
-                "This is true if you want the end of the given bounds to be included.",
-            ),
-    );
+    let range_field = builder.add(DocType::from(TRange {
+        element: range_item,
+        inclusion: Inclusion::Supplied,
+        allow_empty: false
+    })
+        .with_name_unwrap(if float_32 {"float_32_range" } else {"float_64_range"})
+        .with_description("The range the float must be contained within."));
 
     // other config
 
@@ -253,16 +228,8 @@ where
     DocType::from(
         TStruct::default()
             .add(Field::new(
-                Identifier::try_from("bounds").unwrap(),
-                bounds_field,
-            ))
-            .add(Field::new(
-                Identifier::try_from("start_included").unwrap(),
-                start_included_field,
-            ))
-            .add(Field::new(
-                Identifier::try_from("end_included").unwrap(),
-                end_included_field,
+                Identifier::try_from("range").unwrap(),
+                range_field,
             ))
             .add(Field::new(
                 Identifier::try_from("allow_nan").unwrap(),

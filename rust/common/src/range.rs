@@ -9,34 +9,59 @@ use std::ops::RangeBounds;
 /// A range with defined bounds.
 #[derive(new, Clone, Hash, Debug, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
 pub struct Range<T> {
-    pub bounds: Bounds<T>,
+    start: T,
+    end: T,
     #[new(value = "true")]
     pub start_included: bool,
     #[new(value = "true")]
     pub end_included: bool,
 }
 
-#[derive(Clone, Debug, Hash, PartialEq, Eq, PartialOrd, Serialize, Deserialize)]
-pub struct Bounds<T> {
-    start: T,
-    end: T,
-}
-
 impl<T> Range<T> {
     pub fn try_inclusive(start: T, end: T) -> Result<Range<T>, LqError>
-    where
-        T: PartialOrd + Debug,
+        where
+            T: PartialOrd + Debug,
     {
-        let bounds = Bounds::try_new(start, end)?;
-        Result::Ok(Self {
-            bounds,
+        if start > end {
+            return LqError::err_new(format!(
+                "You're trying to construct a range. Those ranges require \
+                 max>=main. Got {:?} for start and {:?} for end.",
+                start, end
+            ));
+        }
+        Ok(Self {
+            start,
+            end,
             start_included: true,
             end_included: true,
         })
     }
 
-    pub fn bounds(&self) -> &Bounds<T> {
-        &self.bounds
+    #[inline]
+    pub fn try_new_msg<M: Debug>(msg: M, start: T, end: T) -> Result<Self, LqError>         where
+        T: PartialOrd + Debug,{
+        if end < start {
+            LqError::err_new(format!(
+                "{:?}: You're trying to construct a range. Those ranges require \
+                 max>=main. Got {:?} for min and {:?} for max.",
+                msg, start, end
+            ))
+        } else {
+            Ok(Self {
+                start,
+                end,
+                start_included: true,
+                end_included: true,
+            })
+        }
+    }
+
+    pub fn start(&self) -> &T {
+        &self.start
+    }
+
+    pub fn end(&self) -> &T {
+        &self.end
     }
 
     pub fn start_included(&self) -> bool {
@@ -48,65 +73,20 @@ impl<T> Range<T> {
     }
 }
 
-impl<T> Bounds<T> {
-    #[inline]
-    pub fn start(&self) -> &T {
-        &self.start
-    }
-
-    #[inline]
-    pub fn end(&self) -> &T {
-        &self.end
-    }
-}
-
-impl<T: PartialOrd + Debug> Bounds<T> {
-    #[inline]
-    pub fn try_new(start: T, end: T) -> Result<Self, LqError> {
-        if end < start {
-            LqError::err_new(format!(
-                "You're trying to construct a range. Those ranges require \
-                 max>=main. Got {:?} for min and {:?} for max.",
-                start, end
-            ))
-        } else {
-            Result::Ok(Self { start, end })
-        }
-    }
-
-    #[inline]
-    pub fn try_new_msg<M: Debug>(msg: M, start: T, end: T) -> Result<Self, LqError> {
-        if end < start {
-            LqError::err_new(format!(
-                "{:?}: You're trying to construct a range. Those ranges require \
-                 max>=main. Got {:?} for min and {:?} for max.",
-                msg, start, end
-            ))
-        } else {
-            Result::Ok(Self { start, end })
-        }
-    }
-
-    #[inline]
-    pub fn contains(&self, item: &T) -> bool {
-        item >= &self.start && item <= &self.end
-    }
-}
-
 impl<T> RangeBounds<T> for Range<T> {
     fn start_bound(&self) -> Bound<&T> {
         if self.start_included {
-            Bound::Included(&self.bounds.start)
+            Bound::Included(&self.start)
         } else {
-            Bound::Excluded(&self.bounds.start)
+            Bound::Excluded(&self.start)
         }
     }
 
     fn end_bound(&self) -> Bound<&T> {
         if self.start_included {
-            Bound::Included(&self.bounds.end)
+            Bound::Included(&self.end)
         } else {
-            Bound::Excluded(&self.bounds.end)
+            Bound::Excluded(&self.end)
         }
     }
 }
@@ -115,8 +95,8 @@ impl<T> LqRangeBounds<T> for Range<T> {}
 
 pub trait LqRangeBounds<T>: RangeBounds<T> {
     fn is_within_range(&self, item: &T) -> bool
-    where
-        T: PartialOrd,
+        where
+            T: PartialOrd,
     {
         match self.start_bound() {
             Bound::Included(start) => {
@@ -151,8 +131,8 @@ pub trait LqRangeBounds<T>: RangeBounds<T> {
 
     #[inline]
     fn require_within<M: Debug>(&self, msg: M, item: &T) -> Result<(), LqError>
-    where
-        T: Debug + PartialOrd,
+        where
+            T: Debug + PartialOrd,
     {
         if !self.is_within_range(item) {
             LqError::err_new(format!(
@@ -175,40 +155,24 @@ pub trait NewFull {
 
 impl NewFull for Range<f32> {
     fn full() -> Self {
-        Self {
-            bounds: Bounds::try_new(std::f32::MIN, std::f32::MAX).unwrap(),
-            start_included: true,
-            end_included: true,
-        }
+        Self::try_inclusive(std::f32::MIN, std::f32::MAX).unwrap()
     }
 }
 
 impl NewFull for Range<f64> {
     fn full() -> Self {
-        Self {
-            bounds: Bounds::try_new(std::f64::MIN, std::f64::MAX).unwrap(),
-            start_included: true,
-            end_included: true,
-        }
+        Self::try_inclusive(std::f64::MIN, std::f64::MAX).unwrap()
     }
 }
 
 impl NewFull for Range<F32Ext> {
     fn full() -> Self {
-        Self {
-            bounds: Bounds::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
-            start_included: true,
-            end_included: true,
-        }
+        Self::try_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap()
     }
 }
 
 impl NewFull for Range<F64Ext> {
     fn full() -> Self {
-        Self {
-            bounds: Bounds::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
-            start_included: true,
-            end_included: true,
-        }
+        Self::try_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap()
     }
 }

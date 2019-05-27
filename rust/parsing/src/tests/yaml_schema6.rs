@@ -22,8 +22,8 @@ fn create_schema_given_inclusion() -> impl Schema<'static> {
 
     let range_value = TRange {
         element: range_element,
-        inclusion: Inclusion::BothInclusive,
-        allow_equal: false
+        inclusion: Inclusion::StartInclusive,
+        allow_empty: false
     };
 
     let range = builder.add(AnyType::Range(range_value.into()));
@@ -43,7 +43,7 @@ fn create_schema_supplied_inclusion() -> impl Schema<'static> {
     let range_value = TRange {
         element: range_element,
         inclusion: Inclusion::Supplied,
-        allow_equal: false
+        allow_empty: false
     };
 
     let range = builder.add(AnyType::Range(range_value.into()));

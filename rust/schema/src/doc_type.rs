@@ -151,7 +151,7 @@ where
         let uuid_seq = builder.add(DocType::from(
             TSeq {
                 element : uuid_ref,
-                length : U32IneRange::try_new(
+                length : U32IneRange::try_new("Doc type implements",
                     MIN_IMPLEMENTS_ELEMENTS as u32,
                     MAX_IMPLEMENTS_ELEMENTS as u32).unwrap(),
                 ordering : seq::Ordering::Sorted {
