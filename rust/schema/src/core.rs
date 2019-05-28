@@ -71,6 +71,10 @@ pub trait Context<'a> {
 pub struct Config {
     #[new(value = "false")]
     pub no_extension: bool,
+    /// When this is true, wrong anchor ordering is ignored. Also unused anchors are allowed. You
+    /// usually want this to be false.
+    #[new(value = "false")]
+    pub weak_reference_validation: bool
 }
 
 impl Config {
@@ -81,7 +85,10 @@ impl Config {
     }
 
     pub fn strict() -> Self {
-        Self { no_extension: true }
+        Self {
+            no_extension: true,
+            weak_reference_validation: false
+        }
     }
 }
 
@@ -89,10 +96,13 @@ impl Config {
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct TypeRef(pub u32);
 
+
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
     /// Returns a `Type` if contained within this container.
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
+
+    // TODO: Why not returning th master type ID here?
 }
 
 pub trait Schema<'a>: TypeContainer<'a> {

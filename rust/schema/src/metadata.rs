@@ -10,7 +10,7 @@ use crate::option::TOption;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq;
-use crate::seq::TSeq;
+use crate::seq::{TSeq, Sorted};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::unicode::{LengthType, TUnicode};
@@ -228,10 +228,10 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                 length: U32IneRange::try_new("Doc type implements",
                                              MIN_IMPLEMENTS_ELEMENTS as u32,
                                              MAX_IMPLEMENTS_ELEMENTS as u32).unwrap(),
-                ordering: seq::Ordering::Sorted {
+                ordering: seq::Ordering::Sorted(Sorted {
                     direction: seq::Direction::Ascending,
                     unique: true,
-                },
+                }),
                 multiple_of: None,
             }.with_meta(NameDescription{
                 name: "implements",

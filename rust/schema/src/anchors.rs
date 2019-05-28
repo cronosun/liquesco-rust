@@ -86,7 +86,7 @@ impl Type for TAnchors<'_> {
             if number_of_anchors > max_anchors {
                 return LqError::err_new(format!(
                     "According to the schema {:?} anchors are \
-                     allowed at max (not couting the master anchor). You have {:?} anchors \
+                     allowed at max (not counting the master anchor). You have {:?} anchors \
                      (not counting the master anchor).",
                     max_anchors, number_of_anchors
                 ));
@@ -97,13 +97,15 @@ impl Type for TAnchors<'_> {
             let max_used_index_opt = context.max_used_anchor_index();
             if let Some(max_used_index) = max_used_index_opt {
                 if max_used_index < index {
-                    return LqError::err_new(format!(
-                        "There's no reference to anchor at index {:?}. Every \
+                    if !context.config().weak_reference_validation {
+                        return LqError::err_new(format!(
+                            "There's no reference to anchor at index {:?}. Every \
                          anchor has to be referenced (except the master anchor). \
                          Unused anchors are not allowed. The last anchor that \
                          has been referenced is the anchor at index {:?}.",
-                        index, max_used_index
-                    ));
+                            index, max_used_index
+                        ));
+                    }
                 }
             } else {
                 // this should never happen

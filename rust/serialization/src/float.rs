@@ -8,6 +8,7 @@ use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 use std::hash::Hash;
 use std::hash::Hasher;
+use std::fmt::{Display, Formatter, Error};
 
 /// 32 bit or 64 bit float.
 #[derive(Copy, Clone, Debug, PartialEq)]
@@ -198,4 +199,13 @@ fn begin_serialize<W: LqWriter>(writer: &mut W, float_type: Type) -> Result<(), 
 enum Type {
     F32,
     F64,
+}
+
+impl Display for Float {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            Float::F32(value) => write!(f, "Float32({})", value),
+            Float::F64(value) => write!(f, "Float64({})", value),
+        }
+    }
 }

@@ -60,6 +60,10 @@ impl LqError {
         self.msg = msg.into();
         self
     }
+
+    pub fn msg(&self) -> &str {
+        &self.msg
+    }
 }
 
 impl From<TryFromIntError> for LqError {

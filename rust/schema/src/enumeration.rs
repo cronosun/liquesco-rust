@@ -134,8 +134,8 @@ impl<'a> Type for TEnum<'a> {
         let schema_number_of_values = variant.values().len();
         if context.config().no_extension() && (schema_number_of_values != usize_number_of_values) {
             return LqError::err_new(format!(
-                "Error processing enum variant {:?} (ordinal \
-                 {:?}); strict mode: Schema expects {:?} values - have {:?} values in \
+                "Error processing enum variant {} (ordinal \
+                 {}); strict mode: Schema expects {} values - have {} values in \
                  data.",
                 variant.name(),
                 ordinal,
@@ -144,8 +144,8 @@ impl<'a> Type for TEnum<'a> {
             ));
         } else if usize_number_of_values < schema_number_of_values {
             return LqError::err_new(format!(
-                "Error processing enum variant {:?} (ordinal \
-                 {:?}): Schema expects at least {:?} values - have {:?} values in \
+                "Error processing enum variant {} (ordinal \
+                 {}): Schema expects at least {} values - have {} values in \
                  data.",
                 variant.name(),
                 ordinal,

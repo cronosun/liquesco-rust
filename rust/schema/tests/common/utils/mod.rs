@@ -71,6 +71,7 @@ where
         schema,
         Config {
             no_extension: false,
+            weak_reference_validation: false
         },
         true,
     );
@@ -86,6 +87,7 @@ where
         schema,
         Config {
             no_extension: false,
+            weak_reference_validation: false
         },
         false,
     );

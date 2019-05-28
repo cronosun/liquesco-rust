@@ -55,16 +55,16 @@ impl<'a> BodyWriter<'a> for WSeq {
                 );
                 ul.append_child(ordering);
             }
-            seq::Ordering::Sorted { direction, unique } => {
+            seq::Ordering::Sorted(value) => {
                 let ordering = list_item(
                     "Sorting direction",
-                    match direction {
+                    match value.direction {
                         seq::Direction::Ascending => span("Ascending (required sorting)"),
                         seq::Direction::Descending => span("Descending (required sorting)"),
                     },
                 );
                 ul.append_child(ordering);
-                if *unique {
+                if value.unique {
                     let unique_li = list_item("Unique", span("Duplicate elements are not allowed"));
                     ul.append_child(unique_li);
                 }

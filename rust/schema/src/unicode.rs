@@ -10,13 +10,13 @@ use crate::metadata::NameDescription;
 use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::Ordering as SeqOrdering;
-use crate::seq::TSeq;
+use crate::range::TRange;
+use crate::range::Inclusion;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U32IneRange, U64IneRange};
+use liquesco_common::ine_range::{U64IneRange};
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::unicode::UncheckedUnicode;
@@ -156,14 +156,12 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
                     name: "unicode_length_element",
                 }),
         );
-        // TODO: Use a range here
         let field_length = builder.add(
-            TSeq {
+            TRange {
                 meta: Meta::empty(),
                 element: range_element,
-                length: U32IneRange::try_new("", 2, 2).unwrap(),
-                ordering: SeqOrdering::None,
-                multiple_of: None,
+                inclusion: Inclusion::BothInclusive,
+                allow_empty: false
             }
             .with_meta(NameOnly {
                 name: "unicode_length",

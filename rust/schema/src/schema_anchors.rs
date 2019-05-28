@@ -12,10 +12,12 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
-/// This is the base of a liquesco schema.
+/// This is the base of a liquesco schema. This is serializable.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct SchemaAnchors<'a> {
+    /// Gets the highest type ID.
     pub r#type: Cow<'a, AnyType<'a>>,
+    /// Type ID from 0 to n
     pub types: Cow<'a, [AnyType<'a>]>,
 }
 
@@ -28,21 +30,23 @@ impl SchemaAnchors<'_> {
 impl<'a> TypeContainer<'a> for SchemaAnchors<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
         let ref_num = reference.0;
-        if ref_num == 0 {
-            Some(&self.r#type)
-        } else {
-            let number_of_anchors = self.types.len();
-            let usize_ref_num: Result<usize, _> = TryFrom::try_from(ref_num);
-            if let Some(usize_ref_num) = usize_ref_num.ok() {
-                let index = usize_ref_num - 1;
-                if number_of_anchors > index {
-                    Some(&self.types[index])
-                } else {
-                    None
-                }
+        if let Ok(number_of_types_u32) = u32::try_from(self.types.len()) {
+            if ref_num == number_of_types_u32 {
+                Some(&self.r#type)
             } else {
-                None
+                if ref_num > number_of_types_u32 {
+                    None
+                } else {
+                    let usize_ref_num: Result<usize, _> = TryFrom::try_from(ref_num);
+                    if let Some(usize_ref_num) = usize_ref_num.ok() {
+                        Some(&self.types[usize_ref_num])
+                    } else {
+                        None
+                    }
+                }
             }
+        } else {
+            None
         }
     }
 }

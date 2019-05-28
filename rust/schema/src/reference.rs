@@ -46,15 +46,17 @@ impl Type for TReference<'_> {
         if let (Some(current_index), Some(max_used_index)) = (opt_current_index, opt_max_used_index)
         {
             if reference > max_used_index + 1 {
-                return LqError::err_new(format!(
-                    "The current anchor index is {:?}. The last reference is {:?}. It's only possible to \
+                if !context.config().weak_reference_validation {
+                    return LqError::err_new(format!(
+                        "The current anchor index is {:?}. The last reference is {:?}. It's only possible to \
                     reference next item - so reference has to be within the range [0 - {:?}] (inclusive). \
                     This usually happens when ordering of anchors is invalid. Anchors have to be \
                     ordered to make sure data is canonical.",
-                    current_index,
-                    max_used_index,
-                    max_used_index + 1,
-                ));
+                        current_index,
+                        max_used_index,
+                        max_used_index + 1,
+                    ));
+                }
             }
             if reference > max_used_index {
                 context.set_max_used_anchor_index(Option::Some(reference));

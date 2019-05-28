@@ -11,6 +11,8 @@ use crate::metadata::NameDescription;
 use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::option::TOption;
+use crate::range::TRange;
+use crate::range::Inclusion;
 use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
@@ -41,13 +43,21 @@ pub struct TSeq<'a> {
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Ordering {
     None,
-    Sorted { direction: Direction, unique: bool },
+    /// Note: We use a dedicated struct (required for serde so the enum variant
+    /// only has one value).
+    Sorted(Sorted),
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Ascending,
     Descending,
+}
+
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+pub struct Sorted {
+    pub direction: Direction,
+    pub unique: bool,
 }
 
 impl<'a> TSeq<'a> {
@@ -110,8 +120,8 @@ impl Type for TSeq<'_> {
                     context.validate(self.element)?;
                 }
             }
-            Ordering::Sorted { direction, unique } => {
-                validate_with_ordering(self, context, direction.clone(), *unique, number_of_items)?;
+            Ordering::Sorted(value) => {
+                validate_with_ordering(self, context, value.direction.clone(), value.unique, number_of_items)?;
             }
         }
 
@@ -281,15 +291,11 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 }),
         );
         let length_field = builder.add(
-            TSeq {
+            TRange {
                 meta: Meta::empty(),
                 element: length_element,
-                length: U32IneRange::try_new("", 2, 2).unwrap(),
-                ordering: Ordering::Sorted {
-                    direction: Direction::Ascending,
-                    unique: true,
-                },
-                multiple_of: None,
+                inclusion: Inclusion::BothInclusive,
+                allow_empty: false
             }
             .with_meta(NameDescription {
                 name: "seq_length",

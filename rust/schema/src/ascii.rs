@@ -10,7 +10,10 @@ use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Direction::Ascending;
 use crate::seq::Ordering as SeqOrdering;
+use crate::seq::Sorted;
 use crate::seq::TSeq;
+use crate::range::TRange;
+use crate::range::Inclusion;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
@@ -208,17 +211,12 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                 name: "ascii_length_element",
             },
         ));
-        // TODO: Use a range here
         let field_length = builder.add(
-            TSeq {
+            TRange {
                 meta: Meta::empty(),
                 element: length_element,
-                length: U32IneRange::try_new("Ascii", 2, 2).unwrap(),
-                ordering: SeqOrdering::Sorted {
-                    direction: Ascending,
-                    unique: true,
-                },
-                multiple_of: None,
+                inclusion: Inclusion::BothInclusive,
+                allow_empty: false
             }
             .with_meta(NameDescription {
                 name: "ascii_length",
@@ -243,10 +241,10 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                     CODE_RANGE_ELEMENTS_MAX as u32,
                 )
                 .unwrap(),
-                ordering: SeqOrdering::Sorted {
+                ordering: SeqOrdering::Sorted(Sorted {
                     direction: Ascending,
                     unique: true,
-                },
+                }),
                 multiple_of: Some(2),
             }.with_meta(NameDescription {
                 name: "codes",

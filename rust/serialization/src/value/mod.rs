@@ -1,4 +1,5 @@
 pub mod value_into;
+pub mod value_fmt;
 
 use crate::binary::Binary;
 use crate::boolean::Bool;
@@ -39,7 +40,7 @@ pub enum Value<'a> {
     Unicode(Cow<'a, str>),
     Binary(Cow<'a, [u8]>),
     Option(Option<ValueRef<'a>>),
-    List(ValueList<'a>),
+    Seq(ValueSeq<'a>),
     Enum(EnumValue<'a>),
     UInt(u64),
     SInt(i64),
@@ -53,7 +54,7 @@ pub enum ValueRef<'a> {
 }
 
 #[derive(Clone, Debug, PartialEq, Hash)]
-pub enum ValueList<'a> {
+pub enum ValueSeq<'a> {
     Owned(Vec<Value<'a>>),
     Borrowed(&'a [Value<'a>]),
     Empty,
@@ -64,25 +65,25 @@ const EMPTY_VALUE_VEC: &[Value<'static>] = &[];
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub struct EnumValue<'a> {
     ordinal: u32,
-    values: ValueList<'a>,
+    values: ValueSeq<'a>,
 }
 
 impl<'a> EnumValue<'a> {
     pub fn new_no_value(ordinal: u32) -> EnumValue<'static> {
         EnumValue {
             ordinal,
-            values: ValueList::Empty,
+            values: ValueSeq::Empty,
         }
     }
 
     pub fn new(ordinal: u32, value: Value) -> EnumValue {
         EnumValue {
             ordinal,
-            values: ValueList::Owned(vec![value]),
+            values: ValueSeq::Owned(vec![value]),
         }
     }
 
-    pub fn new_values(ordinal: u32, values: ValueList) -> EnumValue {
+    pub fn new_values(ordinal: u32, values: ValueSeq) -> EnumValue {
         EnumValue { ordinal, values }
     }
 
@@ -90,7 +91,7 @@ impl<'a> EnumValue<'a> {
         self.ordinal
     }
 
-    pub fn values(&self) -> &ValueList<'a> {
+    pub fn values(&self) -> &ValueSeq<'a> {
         &self.values
     }
 }
@@ -107,14 +108,14 @@ impl<'a> From<&'a Value<'a>> for ValueRef<'a> {
     }
 }
 
-impl<'a> Deref for ValueList<'a> {
+impl<'a> Deref for ValueSeq<'a> {
     type Target = [Value<'a>];
 
     fn deref(&self) -> &Self::Target {
         match self {
-            ValueList::Borrowed(value) => value,
-            ValueList::Owned(value) => value,
-            ValueList::Empty => EMPTY_VALUE_VEC,
+            ValueSeq::Borrowed(value) => value,
+            ValueSeq::Owned(value) => value,
+            ValueSeq::Empty => EMPTY_VALUE_VEC,
         }
     }
 }
@@ -150,14 +151,14 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 let list_data = SeqHeader::de_serialize(reader)?;
                 let length = list_data.length();
                 if length == 0 {
-                    Value::List(ValueList::Empty)
+                    Value::Seq(ValueSeq::Empty)
                 } else {
                     let usize_length = usize::try_from(length)?;
                     let mut vec = Vec::with_capacity(usize_length);
                     for _ in 0..length {
                         vec.push(Value::de_serialize(reader)?);
                     }
-                    Value::List(ValueList::Owned(vec))
+                    Value::Seq(ValueSeq::Owned(vec))
                 }
             }
             TYPE_BINARY => {
@@ -180,12 +181,12 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                     }
                     Value::Enum(EnumValue {
                         ordinal: enum_header.ordinal(),
-                        values: ValueList::Owned(values),
+                        values: ValueSeq::Owned(values),
                     })
                 } else {
                     Value::Enum(EnumValue {
                         ordinal: enum_header.ordinal(),
-                        values: ValueList::Empty,
+                        values: ValueSeq::Empty,
                     })
                 }
             }
@@ -222,7 +223,7 @@ impl<'a> Serializer for Value<'a> {
                 }
                 Option::None => Presence::serialize(writer, &Presence::Absent),
             },
-            Value::List(value) => {
+            Value::Seq(value) => {
                 let len = value.len();
                 let u32_len = u32::try_from(len)?;
                 let list_data = SeqHeader::new(u32_len);

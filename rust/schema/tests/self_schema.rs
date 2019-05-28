@@ -1,7 +1,7 @@
 // makes sure that the schema itself is valid
 
 use liquesco_serialization::serde::new_deserializer;
-use liquesco_schema::core::Config;
+use liquesco_schema::core::{Config};
 use liquesco_schema::core::Schema;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_anchors::{SchemaAnchors, SchemaAnchorsBuilder};
@@ -12,10 +12,10 @@ use liquesco_serialization::vec_writer::VecWriter;
 use std::convert::TryInto;
 use serde::{Deserialize};
 
-// TODO: This does not yet work #[test]
+#[test]
 fn test_self_schema_is_valid() {
     let mut builder = SchemaAnchorsBuilder::default();
-    SchemaAnchors::build_schema(&mut builder);
+    let main_type = SchemaAnchors::build_schema(&mut builder);
     let anchors: SchemaAnchors = builder.try_into().unwrap();
 
     let mut writer = VecWriter::default();
@@ -25,11 +25,15 @@ fn test_self_schema_is_valid() {
 
     // Now validate using itself
 
-    let main_type = anchors.main_type();
     let type_container = anchors;
-    let schema = DefaultSchema::new(type_container, main_type);
+    let mut schema = DefaultSchema::new(type_container, main_type);
+
+    schema.set_extended_diagnostics(true);
     schema
-        .validate(Config { no_extension: true }, &mut reader)
+        .validate(Config {
+            no_extension: true,
+            weak_reference_validation: true // TODO: Must also work when this is false
+        }, &mut reader)
         .expect("The schema itself is not valid");
 }
 

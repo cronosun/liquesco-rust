@@ -2,7 +2,7 @@ use crate::float::Float;
 use crate::uuid::Uuid;
 use crate::value::EnumValue;
 use crate::value::Value;
-use crate::value::ValueList;
+use crate::value::ValueSeq;
 use crate::value::ValueRef;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
@@ -53,7 +53,7 @@ impl<'a> From<&'a Vec<u8>> for Value<'a> {
 
 impl<'a> From<&'a [Value<'a>]> for Value<'a> {
     fn from(value: &'a [Value<'a>]) -> Self {
-        Value::List(ValueList::Borrowed(value))
+        Value::Seq(ValueSeq::Borrowed(value))
     }
 }
 
@@ -89,13 +89,13 @@ impl<'a, T: Into<Value<'a>>> From<Option<T>> for Value<'a> {
 impl<'a, T: Into<Value<'a>>> From<Vec<T>> for Value<'a> {
     fn from(value: Vec<T>) -> Self {
         if value.is_empty() {
-            Value::List(ValueList::Empty)
+            Value::Seq(ValueSeq::Empty)
         } else {
             let mut vec: Vec<Value<'a>> = Vec::with_capacity(value.len());
             for item in value {
                 vec.push(item.into());
             }
-            Value::List(ValueList::Owned(vec))
+            Value::Seq(ValueSeq::Owned(vec))
         }
     }
 }
@@ -176,7 +176,7 @@ impl<'a> TryFrom<&'a Value<'a>> for &'a [Value<'a>] {
     type Error = LqError;
 
     fn try_from(value: &'a Value<'a>) -> Result<Self, Self::Error> {
-        if let Value::List(list) = value {
+        if let Value::Seq(list) = value {
             Result::Ok(list)
         } else {
             invalid_type("list", value)
