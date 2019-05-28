@@ -12,8 +12,8 @@ use liquesco_serialization::seq::SeqHeader;
 use liquesco_serialization::unicode::Unicode;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
+use std::fmt::{Display, Error, Formatter};
 use std::ops::Deref;
-use std::fmt::{Display, Formatter, Error};
 
 const SEGMENT_MIN_LEN: usize = 1;
 const SEGMENT_MAX_LEN: usize = 30;

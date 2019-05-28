@@ -5,16 +5,16 @@ use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
 use liquesco_common::error::LqError;
+use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
+use liquesco_serialization::value::Value;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
-use liquesco_serialization::value::Value;
-use liquesco_serialization::core::DeSerializer;
 
 pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
     types: C,
     main_reference: TypeRef,
-    extended_diagnostics : bool,
+    extended_diagnostics: bool,
     _phantom: &'a PhantomData<()>,
 }
 
@@ -39,12 +39,12 @@ impl<'a, C: TypeContainer<'a>> DefaultSchema<'a, C> {
         Self {
             types,
             main_reference,
-            extended_diagnostics : false,
+            extended_diagnostics: false,
             _phantom: &PhantomData,
         }
     }
 
-    pub fn set_extended_diagnostics(&mut self, enabled : bool) {
+    pub fn set_extended_diagnostics(&mut self, enabled: bool) {
         self.extended_diagnostics = enabled;
     }
 
@@ -60,7 +60,7 @@ impl<'a, C: TypeContainer<'a>> DefaultSchema<'a, C> {
             reader,
             anchor_index: Option::None,
             max_used_anchor_index: Option::None,
-            extended_diagnostics : self.extended_diagnostics,
+            extended_diagnostics: self.extended_diagnostics,
             _phantom1: &PhantomData,
             _phantom2: &PhantomData,
         };
@@ -74,7 +74,7 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> {
     reader: &'s mut R,
     anchor_index: Option<u32>,
     max_used_anchor_index: Option<u32>,
-    extended_diagnostics : bool,
+    extended_diagnostics: bool,
     _phantom1: &'c PhantomData<()>,
     _phantom2: &'r PhantomData<()>,
 }
@@ -149,10 +149,12 @@ impl<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> Context<'r>
 }
 
 fn enrich_validation_error<'a, R: LqReader<'a>>(
-    err : LqError, mut reader : R, r#type : &AnyType) -> LqError {
+    err: LqError,
+    mut reader: R,
+    r#type: &AnyType,
+) -> LqError {
     let mut reader_content_description = reader.clone();
-    let content_description =
-        reader_content_description.read_content_description();
+    let content_description = reader_content_description.read_content_description();
 
     let mut reader_next_10_bytes = reader.clone();
     let next_20_bytes = reader_next_10_bytes.read_slice(10);
@@ -160,11 +162,17 @@ fn enrich_validation_error<'a, R: LqReader<'a>>(
     let value = Value::de_serialize(&mut reader);
     let value_str = match value {
         Ok(ok) => format!("{}", ok),
-        Err(err) => format!("{:?}", err)
+        Err(err) => format!("{:?}", err),
     };
 
-    let new_msg = format!("{}. Extended diagnostics:\n\n - Type to validate: {:?}\n\n - \
-    Content description: {:?}\n\n - 10 bytes: {:?}\n\n - Value: {}",
-        err.msg(), r#type, content_description, next_20_bytes, value_str);
+    let new_msg = format!(
+        "{}. Extended diagnostics:\n\n - Type to validate: {:?}\n\n - \
+         Content description: {:?}\n\n - 10 bytes: {:?}\n\n - Value: {}",
+        err.msg(),
+        r#type,
+        content_description,
+        next_20_bytes,
+        value_str
+    );
     err.with_msg(new_msg)
 }

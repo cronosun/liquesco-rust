@@ -100,9 +100,9 @@ impl Type for TAnchors<'_> {
                     if !context.config().weak_reference_validation {
                         return LqError::err_new(format!(
                             "There's no reference to anchor at index {:?}. Every \
-                         anchor has to be referenced (except the master anchor). \
-                         Unused anchors are not allowed. The last anchor that \
-                         has been referenced is the anchor at index {:?}.",
+                             anchor has to be referenced (except the master anchor). \
+                             Unused anchors are not allowed. The last anchor that \
+                             has been referenced is the anchor at index {:?}.",
                             index, max_used_index
                         ));
                     }

@@ -6,9 +6,9 @@ use crate::core::Serializer;
 use crate::major_types::TYPE_FLOAT;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
+use std::fmt::{Display, Error, Formatter};
 use std::hash::Hash;
 use std::hash::Hasher;
-use std::fmt::{Display, Formatter, Error};
 
 /// 32 bit or 64 bit float.
 #[derive(Copy, Clone, Debug, PartialEq)]

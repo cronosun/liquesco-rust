@@ -1,11 +1,17 @@
-use std::fmt::{Display, Formatter, Error};
 use crate::value::Value;
+use std::fmt::{Display, Error, Formatter};
 use std::ops::Deref;
 
 impl<'a> Display for Value<'a> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
-            Value::Bool(value) => if *value { write!(f, "Bool(true)") } else { write!(f, "Bool(false)") }
+            Value::Bool(value) => {
+                if *value {
+                    write!(f, "Bool(true)")
+                } else {
+                    write!(f, "Bool(false)")
+                }
+            }
             Value::Unicode(value) => write!(f, "Text(\"{}\")", value),
             Value::Binary(value) => write!(f, "Binary({}, {:?})", value.len(), value),
             Value::Option(value) => {
@@ -14,10 +20,10 @@ impl<'a> Display for Value<'a> {
                 } else {
                     write!(f, "Option(None)")
                 }
-            },
+            }
             Value::Seq(value) => {
                 let len = value.len();
-                if len==0 {
+                if len == 0 {
                     write!(f, "Seq(empty)")
                 } else {
                     write!(f, "Seq(len={}, [", len)?;
@@ -26,10 +32,10 @@ impl<'a> Display for Value<'a> {
                     }
                     write!(f, "])")
                 }
-            },
+            }
             Value::Enum(value) => {
                 let number_of_values = value.values.len();
-                if number_of_values==0 {
+                if number_of_values == 0 {
                     write!(f, "Enum(ordinal={})", value.ordinal)
                 } else {
                     write!(f, "Enum(ordinal={}, [", value.ordinal)?;
@@ -38,17 +44,10 @@ impl<'a> Display for Value<'a> {
                     }
                     write!(f, "])")
                 }
-            },
-            Value::UInt(value) => {
-                write!(f, "UInt({})", value)
-            },
-            Value::SInt(value) => {
-                write!(f, "SInt({})", value)
-            },
-            Value::Float(value) => {
-                write!(f, "Float({})", value)
             }
+            Value::UInt(value) => write!(f, "UInt({})", value),
+            Value::SInt(value) => write!(f, "SInt({})", value),
+            Value::Float(value) => write!(f, "Float({})", value),
         }
-
     }
 }

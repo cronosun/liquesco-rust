@@ -1,5 +1,5 @@
-pub mod value_into;
 pub mod value_fmt;
+pub mod value_into;
 
 use crate::binary::Binary;
 use crate::boolean::Bool;

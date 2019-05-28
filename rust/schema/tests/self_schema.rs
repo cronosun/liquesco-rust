@@ -1,16 +1,16 @@
 // makes sure that the schema itself is valid
 
-use liquesco_serialization::serde::new_deserializer;
-use liquesco_schema::core::{Config};
+use liquesco_schema::core::Config;
 use liquesco_schema::core::Schema;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_anchors::{SchemaAnchors, SchemaAnchorsBuilder};
 use liquesco_schema::schema_builder::BuildsOwnSchema;
+use liquesco_serialization::serde::new_deserializer;
 use liquesco_serialization::serde::serialize;
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
+use serde::Deserialize;
 use std::convert::TryInto;
-use serde::{Deserialize};
 
 #[test]
 fn test_self_schema_is_valid() {
@@ -30,10 +30,13 @@ fn test_self_schema_is_valid() {
 
     schema.set_extended_diagnostics(true);
     schema
-        .validate(Config {
-            no_extension: true,
-            weak_reference_validation: true // TODO: Must also work when this is false
-        }, &mut reader)
+        .validate(
+            Config {
+                no_extension: true,
+                weak_reference_validation: true, // TODO: Must also work when this is false
+            },
+            &mut reader,
+        )
         .expect("The schema itself is not valid");
 }
 
@@ -53,8 +56,8 @@ fn can_serde_self_schema() {
 
     // now try to de-serialize that
     let mut deserializer = new_deserializer(reader);
-    let deserialized_value = SchemaAnchors::deserialize(&mut deserializer)
-    .expect("Unable to de-serialize schema");
+    let deserialized_value =
+        SchemaAnchors::deserialize(&mut deserializer).expect("Unable to de-serialize schema");
 
     assert_eq!(&anchors, &deserialized_value);
 }

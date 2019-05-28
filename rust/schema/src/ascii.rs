@@ -7,13 +7,13 @@ use crate::metadata::MetadataSetter;
 use crate::metadata::NameDescription;
 use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
+use crate::range::Inclusion;
+use crate::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Direction::Ascending;
 use crate::seq::Ordering as SeqOrdering;
 use crate::seq::Sorted;
 use crate::seq::TSeq;
-use crate::range::TRange;
-use crate::range::Inclusion;
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
@@ -216,7 +216,7 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                 meta: Meta::empty(),
                 element: length_element,
                 inclusion: Inclusion::BothInclusive,
-                allow_empty: false
+                allow_empty: false,
             }
             .with_meta(NameDescription {
                 name: "ascii_length",

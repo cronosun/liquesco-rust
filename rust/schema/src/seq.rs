@@ -11,8 +11,8 @@ use crate::metadata::NameDescription;
 use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::option::TOption;
-use crate::range::TRange;
 use crate::range::Inclusion;
+use crate::range::TRange;
 use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
@@ -121,7 +121,13 @@ impl Type for TSeq<'_> {
                 }
             }
             Ordering::Sorted(value) => {
-                validate_with_ordering(self, context, value.direction.clone(), value.unique, number_of_items)?;
+                validate_with_ordering(
+                    self,
+                    context,
+                    value.direction.clone(),
+                    value.unique,
+                    number_of_items,
+                )?;
             }
         }
 
@@ -295,7 +301,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 meta: Meta::empty(),
                 element: length_element,
                 inclusion: Inclusion::BothInclusive,
-                allow_empty: false
+                allow_empty: false,
             }
             .with_meta(NameDescription {
                 name: "seq_length",

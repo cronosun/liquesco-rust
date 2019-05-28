@@ -9,14 +9,14 @@ use crate::metadata::MetadataSetter;
 use crate::metadata::NameDescription;
 use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
-use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::range::TRange;
 use crate::range::Inclusion;
+use crate::range::TRange;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U64IneRange};
+use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::unicode::UncheckedUnicode;
@@ -161,7 +161,7 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
                 meta: Meta::empty(),
                 element: range_element,
                 inclusion: Inclusion::BothInclusive,
-                allow_empty: false
+                allow_empty: false,
             }
             .with_meta(NameOnly {
                 name: "unicode_length",

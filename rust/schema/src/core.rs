@@ -74,7 +74,7 @@ pub struct Config {
     /// When this is true, wrong anchor ordering is ignored. Also unused anchors are allowed. You
     /// usually want this to be false.
     #[new(value = "false")]
-    pub weak_reference_validation: bool
+    pub weak_reference_validation: bool,
 }
 
 impl Config {
@@ -87,7 +87,7 @@ impl Config {
     pub fn strict() -> Self {
         Self {
             no_extension: true,
-            weak_reference_validation: false
+            weak_reference_validation: false,
         }
     }
 }
@@ -95,7 +95,6 @@ impl Config {
 /// References a single type within a schema.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct TypeRef(pub u32);
-
 
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
