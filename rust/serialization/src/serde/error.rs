@@ -3,10 +3,10 @@ use serde::ser;
 use std::fmt::Display;
 use std::num::TryFromIntError;
 
-use liquesco_common::error::{LqError, Category};
+use liquesco_common::error::{Category, LqError};
 
 /// Errors resulting from serde problems.
-pub(crate) const CATEGORY : Category = Category::new("liquesco_serde");
+pub(crate) const CATEGORY: Category = Category::new("liquesco_serde");
 
 #[derive(Debug)]
 pub(crate) struct SLqError(LqError);

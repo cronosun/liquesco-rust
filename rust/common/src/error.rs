@@ -34,7 +34,7 @@ impl Display for LqError {
 }
 
 impl Category {
-    pub const fn new(string : &'static str) -> Self {
+    pub const fn new(string: &'static str) -> Self {
         Self(string)
     }
 }
@@ -67,7 +67,7 @@ impl LqError {
     }
 
     /// With a different category.
-    pub fn with_category(mut self, category : Category) -> Self {
+    pub fn with_category(mut self, category: Category) -> Self {
         self.category = category;
         self
     }

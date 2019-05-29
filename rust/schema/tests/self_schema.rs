@@ -5,7 +5,7 @@ use liquesco_schema::core::Schema;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_anchors::{SchemaAnchors, SchemaAnchorsBuilder};
 use liquesco_schema::schema_builder::BuildsOwnSchema;
-use liquesco_serialization::serde::{serialize_to_vec, de_serialize_from_slice};
+use liquesco_serialization::serde::{de_serialize_from_slice, serialize_to_vec};
 use liquesco_serialization::slice_reader::SliceReader;
 use std::convert::TryInto;
 
@@ -15,8 +15,7 @@ fn test_self_schema_is_valid() {
     let main_type = SchemaAnchors::build_schema(&mut builder);
     let anchors: SchemaAnchors = builder.try_into().unwrap();
 
-    let serialized_data = serialize_to_vec(&anchors)
-        .expect("Unable to serialize value");
+    let serialized_data = serialize_to_vec(&anchors).expect("Unable to serialize value");
 
     // Now validate using itself
 
@@ -44,13 +43,11 @@ fn can_serde_self_schema() {
     let anchors: SchemaAnchors = builder.try_into().unwrap();
 
     // serialize
-    let serialized_data = serialize_to_vec(&anchors)
-        .expect("Unable to serialize schema");
+    let serialized_data = serialize_to_vec(&anchors).expect("Unable to serialize schema");
 
     // now try to de-serialize that
-    let de_serialized_value =
-        de_serialize_from_slice::<SchemaAnchors>(&serialized_data)
-            .expect("Unable to de-serialize schema");
+    let de_serialized_value = de_serialize_from_slice::<SchemaAnchors>(&serialized_data)
+        .expect("Unable to de-serialize schema");
 
     assert_eq!(&anchors, &de_serialized_value);
 }

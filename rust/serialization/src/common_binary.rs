@@ -21,7 +21,9 @@ pub(crate) fn binary_write<W: LqWriter>(
 }
 
 #[inline]
-pub(crate) fn binary_read<'a, R: LqReader<'a>>(reader: &mut R) -> Result<(MajorType, &'a [u8]), LqError> {
+pub(crate) fn binary_read<'a, R: LqReader<'a>>(
+    reader: &mut R,
+) -> Result<(MajorType, &'a [u8]), LqError> {
     let header = reader.read_header_byte()?;
     let content_description = reader.read_content_description_given_header_byte(header)?;
     let len = content_description.self_length();

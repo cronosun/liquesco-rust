@@ -32,7 +32,7 @@ impl<T> IneRange<T> {
             LqError::err_new(format!(
                 "You're trying to construct a range. Those ranges require \
                  max>=main. Got {:?} for start and {:?} for end. Message: '{:?}'.",
-                 start, end, msg
+                start, end, msg
             ))
         } else {
             Ok(IneRange { start, end })

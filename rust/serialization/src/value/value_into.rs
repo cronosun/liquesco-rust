@@ -1,9 +1,9 @@
 use crate::float::Float;
 use crate::uuid::Uuid;
-use crate::value::ValueVariant;
 use crate::value::Value;
 use crate::value::ValueRef;
 use crate::value::ValueSeq;
+use crate::value::ValueVariant;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 

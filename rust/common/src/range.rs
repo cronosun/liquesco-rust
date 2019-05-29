@@ -54,12 +54,12 @@ impl<T> Range<T> {
         self.end_included
     }
 
-    pub fn with_start_included(mut self, included : bool) -> Self {
+    pub fn with_start_included(mut self, included: bool) -> Self {
         self.start_included = included;
         self
     }
 
-    pub fn with_end_included(mut self, included : bool) -> Self {
+    pub fn with_end_included(mut self, included: bool) -> Self {
         self.end_included = included;
         self
     }

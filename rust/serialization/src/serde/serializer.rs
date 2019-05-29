@@ -20,11 +20,9 @@ pub(crate) struct Serializer<'a, W: LqWriter> {
     writer: &'a mut W,
 }
 
-impl<'a, W: LqWriter>  Serializer<'a, W> {
-    pub(crate) fn new(writer : &'a mut W) -> Self {
-        Self {
-            writer
-        }
+impl<'a, W: LqWriter> Serializer<'a, W> {
+    pub(crate) fn new(writer: &'a mut W) -> Self {
+        Self { writer }
     }
 }
 

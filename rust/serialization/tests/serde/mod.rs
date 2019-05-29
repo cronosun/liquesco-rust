@@ -1,4 +1,4 @@
-use liquesco_serialization::serde::{serialize_to_vec, de_serialize_from_slice};
+use liquesco_serialization::serde::{de_serialize_from_slice, serialize_to_vec};
 use std::fmt::Debug;
 
 pub mod enum_extensible;
@@ -14,12 +14,10 @@ pub fn assert_serde<S>(item: S)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
-    let serialized_data = serialize_to_vec(&item)
-        .expect("Unable to serialize value");
+    let serialized_data = serialize_to_vec(&item).expect("Unable to serialize value");
 
     // now de-serialize the data
-    let value = de_serialize_from_slice::<S>(&serialized_data)
-        .expect("Unable to de-serialize");
+    let value = de_serialize_from_slice::<S>(&serialized_data).expect("Unable to de-serialize");
 
     // make sure we got the same values
     assert_eq!(item, value);
@@ -31,11 +29,9 @@ where
     S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // item 1
-    let serialized_data1 = serialize_to_vec(&item1)
-        .expect("Unable to serialize value 1");
+    let serialized_data1 = serialize_to_vec(&item1).expect("Unable to serialize value 1");
     // item 2
-    let serialized_data2 = serialize_to_vec(&item2)
-        .expect("Unable to serialize value 2");
+    let serialized_data2 = serialize_to_vec(&item2).expect("Unable to serialize value 2");
 
     assert_eq!(serialized_data1, serialized_data2);
 
@@ -50,12 +46,11 @@ where
     Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // serialize source
-    let serialized_data = serialize_to_vec(&source)
-        .expect("Unable to serialize value");
+    let serialized_data = serialize_to_vec(&source).expect("Unable to serialize value");
 
     // now de-serialize destination
-    let value = de_serialize_from_slice::<Destination>(&serialized_data)
-        .expect("Unable to de-serialize");
+    let value =
+        de_serialize_from_slice::<Destination>(&serialized_data).expect("Unable to de-serialize");
 
     assert_eq!(destination, value);
 

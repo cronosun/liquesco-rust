@@ -1,6 +1,6 @@
 use crate::value::check_value;
-use liquesco_serialization::value::ValueVariant;
 use liquesco_serialization::value::Value;
+use liquesco_serialization::value::ValueVariant;
 
 #[test]
 fn no_value_enum() {
