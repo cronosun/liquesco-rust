@@ -16,7 +16,7 @@ impl<'a> DeSerializer<'a> for Binary {
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let (id, read_result) = binary_read(reader)?;
         if id != TYPE_BINARY {
-            return LqError::err_static("Type is not binary data");
+            return LqError::err_new("Type is not binary data");
         }
         Result::Ok(read_result)
     }

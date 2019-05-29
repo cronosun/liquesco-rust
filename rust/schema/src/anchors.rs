@@ -109,7 +109,7 @@ impl Type for TAnchors<'_> {
                 }
             } else {
                 // this should never happen
-                return LqError::err_static("Invalid max used index (None).");
+                return LqError::err_new("Invalid max used index (None).");
             }
 
             context.set_anchor_index(Option::Some(index));
@@ -149,7 +149,7 @@ impl Type for TAnchors<'_> {
         let container_seq1 = SeqHeader::de_serialize(r1)?;
         let container_seq2 = SeqHeader::de_serialize(r2)?;
         if container_seq1.length() != 2 || container_seq2.length() != 2 {
-            return LqError::err_static("Invalid anchors (cannot compare)");
+            return LqError::err_new("Invalid anchors (cannot compare)");
         }
 
         // compare master

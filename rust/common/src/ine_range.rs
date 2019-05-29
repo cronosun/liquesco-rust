@@ -23,25 +23,28 @@ pub struct IneRange<T> {
 }
 
 impl<T> IneRange<T> {
+    /// Creates a new range. Fails if start > end. The given message can be found in the error.
     pub fn try_new<Msg: Debug>(msg: Msg, start: T, end: T) -> Result<Self, LqError>
     where
         T: PartialOrd + Debug,
     {
         if start > end {
             LqError::err_new(format!(
-                "{:?}: You're trying to construct a range. Those ranges require \
-                 max>=main. Got {:?} for start and {:?} for end.",
-                msg, start, end
+                "You're trying to construct a range. Those ranges require \
+                 max>=main. Got {:?} for start and {:?} for end. Message: '{:?}'.",
+                 start, end, msg
             ))
         } else {
             Ok(IneRange { start, end })
         }
     }
 
+    /// The start (inclusive).
     pub fn start(&self) -> &T {
         &self.start
     }
 
+    /// The end (inclusive).
     pub fn end(&self) -> &T {
         &self.end
     }

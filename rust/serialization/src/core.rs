@@ -322,7 +322,7 @@ pub trait LqReader<'a>: std::io::Read {
                     self_length: 0,
                 })
             }
-            ContentInfo::Reserved => LqError::err_static(
+            ContentInfo::Reserved => LqError::err_new(
                 "Cannot decode content description: Got the reserved content info 
                 (must not be found; this is reserved for future extensions).",
             ),

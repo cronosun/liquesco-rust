@@ -71,7 +71,7 @@ impl CodeRange {
         }
         let len = self.0.len();
         if len > CODE_RANGE_ELEMENTS_MAX {
-            return LqError::err_static("Too many elements in ascii code range.");
+            return LqError::err_new("Too many elements in ascii code range.");
         }
         // strict ordering
         if len > 0 {

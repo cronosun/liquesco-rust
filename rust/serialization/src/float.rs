@@ -123,7 +123,7 @@ impl<'a> DeSerializer<'a> for Float32 {
         if float_type == Type::F32 {
             reader.read_f32()
         } else {
-            LqError::err_static("It's a 64 bit float and not a 32 bit float (expected).")
+            LqError::err_new("It's a 64 bit float and not a 32 bit float (expected).")
         }
     }
 }
@@ -147,7 +147,7 @@ impl<'a> DeSerializer<'a> for Float64 {
         if float_type == Type::F64 {
             reader.read_f64()
         } else {
-            LqError::err_static("It's a 32 bit float and not a 64 bit float (expected).")
+            LqError::err_new("It's a 32 bit float and not a 64 bit float (expected).")
         }
     }
 }
@@ -167,10 +167,10 @@ fn begin_de_serialize<'a, R: LqReader<'a>>(reader: &mut R) -> Result<Type, LqErr
     let content_description = reader.read_content_description_given_header_byte(type_header)?;
 
     if type_header.major_type() != TYPE_FLOAT {
-        return LqError::err_static("Given type is not a float type");
+        return LqError::err_new("Given type is not a float type");
     }
     if content_description.number_of_embedded_items() != 0 {
-        return LqError::err_static("Float types must not contain embedded values.");
+        return LqError::err_new("Float types must not contain embedded values.");
     }
 
     match content_description.self_length() {

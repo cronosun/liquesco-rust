@@ -30,7 +30,7 @@ impl<'a> SliceReader<'a> {
     /// Makes sure the reader has been read completely and there's no additional data.
     pub fn finish(&self) -> Result<(), LqError> {
         if self.offset != self.data.len() {
-            LqError::err_static(
+            LqError::err_new(
                 "There's additional data not read from any. The any data must have been consumed
             entirely (for security reasons).",
             )
@@ -45,7 +45,7 @@ impl<'a> LqReader<'a> for SliceReader<'a> {
     fn peek_u8(&self) -> Result<u8, LqError> {
         let len = self.data.len();
         if self.offset >= len {
-            LqError::err_static("End of reader")
+            LqError::err_new("End of reader")
         } else {
             let value = self.data[self.offset];
             Result::Ok(value)
@@ -56,7 +56,7 @@ impl<'a> LqReader<'a> for SliceReader<'a> {
     fn read_u8(&mut self) -> Result<u8, LqError> {
         let len = self.data.len();
         if self.offset >= len {
-            LqError::err_static("End of reader")
+            LqError::err_new("End of reader")
         } else {
             let value = self.data[self.offset];
             self.offset += 1;
@@ -68,7 +68,7 @@ impl<'a> LqReader<'a> for SliceReader<'a> {
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
         let data_len = self.data.len();
         if self.offset + len > data_len {
-            LqError::err_static("End of reader")
+            LqError::err_new("End of reader")
         } else {
             let end_index = self.offset + len;
             let data = self.data;

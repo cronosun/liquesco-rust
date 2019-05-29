@@ -14,12 +14,13 @@ pub struct Category(&'static str);
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub struct ErrCode(usize);
 
+/// A liquesco error. Has a message, a category, an error code and optionally some data.
 #[derive(Debug)]
 pub struct LqError {
-    pub msg: Cow<'static, str>,
-    pub category: Category,
-    pub code: ErrCode,
-    pub data: Option<HashMap<TypeId, Box<dyn ErrData>>>,
+    msg: Cow<'static, str>,
+    category: Category,
+    code: ErrCode,
+    data: Option<HashMap<TypeId, Box<dyn ErrData>>>,
 }
 
 pub trait ErrData: Any + Send + Sync + Debug {}
@@ -39,16 +40,7 @@ impl Category {
 }
 
 impl LqError {
-    // TODO: Can be removed?
-    pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
-        Result::Err(LqError {
-            msg: string.into(),
-            category: DEFAULT_CATEGORY,
-            code: DEFAULT_CODE,
-            data: None,
-        })
-    }
-
+    /// Creates a new error with a message.
     pub fn new<T: Into<Cow<'static, str>>>(msg: T) -> Self {
         LqError {
             msg: msg.into(),
@@ -58,22 +50,31 @@ impl LqError {
         }
     }
 
+    /// Creates a new `Result::Err` with a message.
     pub fn err_new<Ok, T: Into<Cow<'static, str>>>(msg: T) -> Result<Ok, Self> {
         Result::Err(Self::new(msg))
     }
 
+    /// With a different message.
     pub fn with_msg<T: Into<Cow<'static, str>>>(mut self, msg: T) -> LqError {
         self.msg = msg.into();
         self
     }
 
+    /// The message.
     pub fn msg(&self) -> &str {
         &self.msg
     }
 
+    /// With a different category.
     pub fn with_category(mut self, category : Category) -> Self {
         self.category = category;
         self
+    }
+
+    /// The category of this error.
+    pub fn category(&self) -> &Category {
+        &self.category
     }
 }
 

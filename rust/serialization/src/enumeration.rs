@@ -57,7 +57,7 @@ impl<'a> DeSerializer<'a> for EnumHeader {
                 2 => u32::from(reader.read_u16()?),
                 4 => reader.read_u32()?,
                 _ => {
-                    return LqError::err_static("Invalid enum self length.");
+                    return LqError::err_new("Invalid enum self length.");
                 }
             },
             _ => {

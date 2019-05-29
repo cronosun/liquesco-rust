@@ -25,7 +25,7 @@ impl<'a> DeSerializer<'a> for UInt64 {
             ));
         }
         if content_description.number_of_embedded_items() != 0 {
-            return LqError::err_static("Integer types must not contain embedded values.");
+            return LqError::err_new("Integer types must not contain embedded values.");
         }
 
         match content_description.self_length() {
@@ -34,7 +34,7 @@ impl<'a> DeSerializer<'a> for UInt64 {
             2 => Result::Ok(u64::from(reader.read_u16()?)),
             4 => Result::Ok(u64::from(reader.read_u32()?)),
             8 => reader.read_u64(),
-            _ => LqError::err_static("Invalid length for unsigned integer type"),
+            _ => LqError::err_new("Invalid length for unsigned integer type"),
         }
     }
 }

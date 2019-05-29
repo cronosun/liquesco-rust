@@ -22,7 +22,7 @@ impl<'a> DeSerializer<'a> for Unicode {
         let maybe_str = from_utf8(read_result);
         match maybe_str {
             Result::Ok(value) => Result::Ok(value),
-            Result::Err(_) => LqError::err_static("Invalid utf8 data found"),
+            Result::Err(_) => LqError::err_new("Invalid utf8 data found"),
         }
     }
 }

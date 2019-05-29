@@ -53,7 +53,7 @@ fn schema1_64() {
 #[test]
 fn schema2_32() {
     let mut float = TFloat32::new(
-        Range::<F32Ext>::try_inclusive(F32Ext::from(-14.5f32), F32Ext::from(19.7f32)).unwrap(),
+        Range::<F32Ext>::try_new_inclusive(F32Ext::from(-14.5f32), F32Ext::from(19.7f32)).unwrap(),
     );
     float.allow_nan = true;
     float.allow_positive_infinity = true;
@@ -77,7 +77,7 @@ fn schema2_32() {
 #[test]
 fn schema2_64() {
     let mut float = TFloat64::new(
-        Range::<F64Ext>::try_inclusive(F64Ext::from(-14.5f64), F64Ext::from(19.7f64)).unwrap(),
+        Range::<F64Ext>::try_new_inclusive(F64Ext::from(-14.5f64), F64Ext::from(19.7f64)).unwrap(),
     );
     float.allow_nan = true;
     float.allow_positive_infinity = true;
@@ -101,7 +101,7 @@ fn schema2_64() {
 #[test]
 fn ordering_64() {
     let mut schema = TFloat64::new(
-        Range::<F64Ext>::try_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
+        Range::<F64Ext>::try_new_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
     );
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;
@@ -141,7 +141,7 @@ fn ordering_64() {
 #[test]
 fn ordering_32() {
     let mut schema = TFloat32::new(
-        Range::<F32Ext>::try_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
+        Range::<F32Ext>::try_new_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
     );
     schema.allow_nan = true;
     schema.allow_positive_infinity = true;

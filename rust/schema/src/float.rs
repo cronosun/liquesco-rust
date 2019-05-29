@@ -51,7 +51,7 @@ pub struct TFloat<'a, F: Eq + PartialOrd + Debug> {
 impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
     /// creates a new float; range inclusive; nan and infinity not allowed.
     pub fn try_new(min: F, max: F) -> Result<Self, LqError> {
-        let range = Range::<F>::try_inclusive(min, max)?;
+        let range = Range::<F>::try_new_inclusive(min, max)?;
         Ok(Self::new(range))
     }
 
@@ -69,17 +69,17 @@ impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
         if is_nan {
             // validation for not-a-number
             if !self.allow_nan {
-                return LqError::err_static(NOT_A_NUMBER_ERR_STR);
+                return LqError::err_new(NOT_A_NUMBER_ERR_STR);
             }
             Result::Ok(())
         } else if is_positive_infinity {
             if !self.allow_positive_infinity {
-                return LqError::err_static(NO_POSITIVE_INFINITY);
+                return LqError::err_new(NO_POSITIVE_INFINITY);
             }
             Result::Ok(())
         } else if is_negative_infinity {
             if !self.allow_positive_infinity {
-                return LqError::err_static(NO_NEGATIVE_INFINITY);
+                return LqError::err_new(NO_NEGATIVE_INFINITY);
             }
             Result::Ok(())
         } else {

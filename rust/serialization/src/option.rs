@@ -25,7 +25,7 @@ impl<'a> DeSerializer<'a> for Presence {
         let content_description = reader.read_content_description_given_header_byte(type_header)?;
 
         if type_header.major_type() != TYPE_OPTION {
-            return LqError::err_static("Given type is not the option type");
+            return LqError::err_new("Given type is not the option type");
         }
         if content_description.self_length() != 0 {
             return LqError::err_new(format!(

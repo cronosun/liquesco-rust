@@ -18,7 +18,7 @@ impl<'a> DeSerializer<'a> for Bool {
         match major_type {
             TYPE_BOOL_TRUE => Result::Ok(true),
             TYPE_BOOL_FALSE => Result::Ok(false),
-            _ => LqError::err_static("Type is not a boolean"),
+            _ => LqError::err_new("Type is not a boolean"),
         }
     }
 }
