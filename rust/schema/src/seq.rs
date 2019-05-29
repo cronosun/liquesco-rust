@@ -37,6 +37,7 @@ pub struct TSeq<'a> {
     multiple_of: Option<u32>,
 }
 
+/// Requirements regarding ordering of the sequence.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Ordering {
     /// No special ordering requirements.
@@ -49,15 +50,18 @@ pub enum Ordering {
     Sorted(Sorted),
 }
 
+/// Ascending or descending.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Direction {
     Ascending,
     Descending,
 }
 
+/// When sorted ordering is requires this specifies further details.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Sorted {
     pub direction: Direction,
+    /// If this is true, no duplicate elements are allowed.
     pub unique: bool,
 }
 

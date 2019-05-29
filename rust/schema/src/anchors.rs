@@ -20,7 +20,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
-/// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
+/// A list containing 1-n anchors. Every anchor (except the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

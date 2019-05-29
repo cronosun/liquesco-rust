@@ -41,6 +41,7 @@ pub struct TUnicode<'a> {
     length_type: LengthType,
 }
 
+/// Specifies what the "length" of the unicode type means.
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum LengthType {
     /// This is the fastest possible way for validation: It just counts the number of bytes

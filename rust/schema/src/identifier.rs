@@ -20,9 +20,14 @@ const SEGMENT_MAX_LEN: usize = 30;
 const MIN_NUMBER_OF_SEGMENTS: usize = 1;
 const MAX_NUMBER_OF_SEGMENTS: usize = 12;
 
+/// A single segment within an identifier.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Segment<'a>(Cow<'a, str>);
 
+/// The identifier is used to identify various parts in the system. It's very simple
+/// and only supports lowercase ASCII characters and numbers (so it's simple to
+/// convert that to identifiers in the target language when generating code from the
+/// schema).
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Identifier<'a>(Vec<Segment<'a>>);
 
@@ -127,7 +132,9 @@ impl BuildsOwnSchema for Identifier<'_> {
     }
 }
 
+/// How to format the identifier.
 pub enum Format {
+    /// Snake case format (e.g. `my_identifier`, `number_of_segments`).
     SnakeCase,
 }
 

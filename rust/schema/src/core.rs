@@ -8,6 +8,7 @@ use liquesco_serialization::core::LqReader;
 
 use serde::{Deserialize, Serialize};
 
+/// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
@@ -43,6 +44,7 @@ pub trait Type: Debug + WithMetadata {
     fn reference(&self, _: usize) -> Option<TypeRef>;
 }
 
+/// Data used for type validation.
 pub trait Context<'a> {
     type Reader: LqReader<'a>;
 
@@ -67,10 +69,18 @@ pub trait Context<'a> {
     fn set_max_used_anchor_index(&mut self, value: Option<u32>);
 }
 
+/// Configuration used for validation.
 #[derive(new)]
 pub struct Config {
+    /// When this is false, structures and enum variants cannot be extended. It's a
+    /// validation error when a structure has more fields than defined in the schema; it's
+    /// a validation error when an enum variant has more values than defined in the schema.
+    ///
+    /// This should be true if you want to accept data that has been constructed for a
+    /// later schema version.
     #[new(value = "false")]
     pub no_extension: bool,
+
     /// When this is true, wrong anchor ordering is ignored. Also unused anchors are allowed. You
     /// usually want this to be false.
     #[new(value = "false")]
@@ -104,6 +114,7 @@ pub trait TypeContainer<'a> {
     // TODO: Why not returning th master type ID here?
 }
 
+/// A schema. Can be used to validate data.
 pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
     fn main_type(&self) -> TypeRef;

@@ -22,23 +22,31 @@ use std::convert::TryFrom;
 
 type Fields<'a> = Vec<Field<'a>>;
 
+/// A structure consists of 0-n fields.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TStruct<'a> {
     meta: Meta<'a>,
     fields: Fields<'a>,
 }
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// A single field in a structure.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct Field<'a> {
-    pub name: Identifier<'a>,
-    pub r#type: TypeRef,
+    name: Identifier<'a>,
+    r#type: TypeRef,
 }
 
 impl<'a> Field<'a> {
+    pub fn new(name: Identifier<'a>, r#type: TypeRef) -> Self {
+        Self { name, r#type }
+    }
+
+    /// The name of the field.
     pub fn name(&self) -> &Identifier<'a> {
         &self.name
     }
 
+    /// The type of the field value.
     pub fn r#type(&self) -> TypeRef {
         self.r#type
     }

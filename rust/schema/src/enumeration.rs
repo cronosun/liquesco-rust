@@ -29,12 +29,14 @@ const MIN_VARIANTS: usize = 1;
 type Variants<'a> = Vec<Variant<'a>>;
 type Values = Vec<TypeRef>;
 
+/// An enumeration contains 1-n variants. Variants can (optionally) carry data.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct TEnum<'a> {
     meta: Meta<'a>,
     variants: Variants<'a>,
 }
 
+/// A single variant of an enumeration.
 #[derive(Clone, Debug, PartialEq, Hash, Serialize, Eq, Deserialize)]
 pub struct Variant<'a> {
     /// Textual identifier of the variant.

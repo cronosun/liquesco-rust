@@ -26,6 +26,8 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
 
+/// Text within the ASCII code range (0 to 127). Can have length restriction and code
+/// range restriction.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAscii<'a> {
     meta: Meta<'a>,

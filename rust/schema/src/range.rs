@@ -25,8 +25,7 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
 
-/// A range. Constraints:
-///  - start <= end (if allow_equal) or start < end (if !allow_equal).
+/// A range.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TRange<'a> {
     meta: Meta<'a>,
@@ -35,7 +34,8 @@ pub struct TRange<'a> {
     allow_empty: bool,
 }
 
-#[derive(new, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// Defines whether start/end is included/excluded in the range.
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Inclusion {
     BothInclusive,
     StartInclusive,

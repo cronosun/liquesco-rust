@@ -13,8 +13,8 @@ use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-/// A reference can be used in combination with `TAnchors`. You can reference
-/// one anchor.
+/// A reference can be used in combination with `TAnchors`. This references one anchor in
+/// the anchors sequence.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TReference<'a> {
     meta: Meta<'a>,

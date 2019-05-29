@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
+/// 64 bit signed integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt<'a> {
     meta: Meta<'a>,

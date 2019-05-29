@@ -15,7 +15,7 @@ pub trait BuildsOwnSchema {
 
 /// A base type (a single type, not the any type) that can build its own schema. Note:
 /// It's always a struct.
-pub trait BaseTypeSchemaBuilder {
+pub(crate) trait BaseTypeSchemaBuilder {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
         B: SchemaBuilder;

@@ -13,6 +13,7 @@ use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
+/// The boolean type (true / false).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TBool<'a> {
     meta: Meta<'a>,

@@ -25,7 +25,9 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::fmt::Debug;
 
+/// A 32-bit floating point number.
 pub type TFloat32<'a> = TFloat<'a, F32Ext>;
+/// A 64-bit floating point number.
 pub type TFloat64<'a> = TFloat<'a, F64Ext>;
 
 const NOT_A_NUMBER_ERR_STR: &str = "Expected a float value that is a number. \

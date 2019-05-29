@@ -20,6 +20,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
+/// A 64-bit unsigned integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUInt<'a> {
     meta: Meta<'a>,

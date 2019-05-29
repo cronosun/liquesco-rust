@@ -17,11 +17,13 @@ use crate::unicode::{LengthType, TUnicode};
 use crate::uuid::TUuid;
 use serde::export::PhantomData;
 
+/// Something that has metadata.
 pub trait WithMetadata {
     /// Metadata for that type.
     fn meta(&self) -> &Meta;
 }
 
+/// Something that supports mutating metadata.
 pub trait MetadataSetter<'m>: WithMetadata {
     fn set_meta(&mut self, meta: Meta<'m>);
 
@@ -34,7 +36,9 @@ pub trait MetadataSetter<'m>: WithMetadata {
     }
 }
 
+/// Minimum length (utf-8 bytes) the documentation of a type must have.
 pub const DOC_MIN_LEN_UTF8_BYTES: usize = 1;
+/// Maximum length (utf-8 bytes) the documentation of a type can have.
 pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
 
 /// The metadata of a type.
@@ -145,6 +149,7 @@ impl<'a> Default for Meta<'a> {
 pub const MIN_IMPLEMENTS_ELEMENTS: usize = 1;
 pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
 
+/// What a type implements.
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct Implements(Vec<Uuid>);
 
@@ -177,7 +182,7 @@ impl Implements {
     }
 }
 
-pub struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
+pub(crate) struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
     _phantom: PhantomData<T>,
 }
 
@@ -238,18 +243,18 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
         }));
 
         let meta_struct = TStruct::default()
-            .add(Field {
-                name: Identifier::try_from("name").unwrap(),
-                r#type: field_name,
-            })
-            .add(Field {
-                name: Identifier::try_from("doc").unwrap(),
-                r#type: field_doc,
-            })
-            .add(Field {
-                name: Identifier::try_from("implements").unwrap(),
-                r#type: field_implements,
-            }).with_meta(NameDescription {
+            .add(Field::new(
+                Identifier::try_from("name").unwrap(),
+                field_name,
+            ))
+            .add(Field::new(
+                Identifier::try_from("doc").unwrap(),
+                 field_doc,
+        ))
+            .add(Field::new(
+                Identifier::try_from("implements").unwrap(),
+                field_implements,
+            )).with_meta(NameDescription {
             name: "meta",
             doc: "Meta information about the type. You can optionally specify a name, a description/\
         documentation and information about implementation/conformance.",
@@ -257,10 +262,7 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
         let meta_ref = builder.add(meta_struct);
 
         let mut inner_struct = T::build_schema(builder);
-        inner_struct.prepend(Field {
-            name: Identifier::try_from("meta").unwrap(),
-            r#type: meta_ref,
-        });
+        inner_struct.prepend(Field::new(Identifier::try_from("meta").unwrap(), meta_ref));
 
         inner_struct
     }

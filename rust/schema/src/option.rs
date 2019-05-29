@@ -17,9 +17,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-/// Data of the option type have two variants:
-///  - Absent
-///  - Present and a value
+/// Data of the option type have two variants: Absent or present and a value.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TOption<'a> {
     meta: Meta<'a>,
