@@ -15,12 +15,9 @@ use std::cmp::Ordering;
 
 /// A reference can be used in combination with `TAnchors`. You can reference
 /// one anchor.
-///
-/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TReference<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
+    meta: Meta<'a>,
 }
 
 impl<'a> Default for TReference<'a> {
@@ -114,7 +111,7 @@ impl BaseTypeSchemaBuilder for TReference<'_> {
         // just an empty struct (but more fields will be added by the system)
         TStruct::default().with_meta(NameDescription {
             name: "reference",
-            description: "A reference references a value in the anchors list. See \
+            doc: "A reference references a value in the anchors list. See \
                           anchors for more details.",
         })
     }

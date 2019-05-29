@@ -52,12 +52,15 @@ fn schema1_64() {
 
 #[test]
 fn schema2_32() {
-    let mut float = TFloat32::new(
-        Range::<F32Ext>::try_new_inclusive(F32Ext::from(-14.5f32), F32Ext::from(19.7f32)).unwrap(),
-    );
-    float.allow_nan = true;
-    float.allow_positive_infinity = true;
-    float.allow_negative_infinity = true;
+    let float = TFloat32::new(
+        Range::<F32Ext>::try_new_inclusive(
+            F32Ext::from(-14.5f32),
+            F32Ext::from(19.7f32)).unwrap(),
+    )
+        .with_allow_nan(true)
+        .with_allow_positive_infinity(true)
+        .with_allow_negative_infinity(true);
+
     let schema = single_schema(float);
 
     // some valid items
@@ -76,12 +79,13 @@ fn schema2_32() {
 
 #[test]
 fn schema2_64() {
-    let mut float = TFloat64::new(
+    let float = TFloat64::new(
         Range::<F64Ext>::try_new_inclusive(F64Ext::from(-14.5f64), F64Ext::from(19.7f64)).unwrap(),
-    );
-    float.allow_nan = true;
-    float.allow_positive_infinity = true;
-    float.allow_negative_infinity = true;
+    )
+        .with_allow_nan(true)
+        .with_allow_positive_infinity(true)
+        .with_allow_negative_infinity(true);
+
     let schema = single_schema(float);
 
     // some valid items
@@ -100,12 +104,12 @@ fn schema2_64() {
 
 #[test]
 fn ordering_64() {
-    let mut schema = TFloat64::new(
+    let schema = TFloat64::new(
         Range::<F64Ext>::try_new_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
-    );
-    schema.allow_nan = true;
-    schema.allow_positive_infinity = true;
-    schema.allow_negative_infinity = true;
+    )
+        .with_allow_nan(true)
+        .with_allow_positive_infinity(true)
+        .with_allow_negative_infinity(true);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
@@ -140,12 +144,12 @@ fn ordering_64() {
 
 #[test]
 fn ordering_32() {
-    let mut schema = TFloat32::new(
+    let schema = TFloat32::new(
         Range::<F32Ext>::try_new_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
-    );
-    schema.allow_nan = true;
-    schema.allow_positive_infinity = true;
-    schema.allow_negative_infinity = true;
+    )
+        .with_allow_nan(true)
+        .with_allow_positive_infinity(true)
+        .with_allow_negative_infinity(true);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);

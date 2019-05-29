@@ -35,28 +35,68 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 
-#[derive(new, Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
+/// A 32- or 64-bit floating point number.
+#[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
 pub struct TFloat<'a, F: Eq + PartialOrd + Debug> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub range: Range<F>,
-    #[new(value = "false")]
-    pub allow_nan: bool,
-    #[new(value = "false")]
-    pub allow_positive_infinity: bool,
-    #[new(value = "false")]
-    pub allow_negative_infinity: bool,
+    meta: Meta<'a>,
+    range: Range<F>,
+    allow_nan: bool,
+    allow_positive_infinity: bool,
+    allow_negative_infinity: bool,
 }
 
 impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
+
+    /// Creates a new float. nan and infinity not allowed.
+    pub fn new(range : Range<F>) -> Self {
+        Self {
+            meta : Meta::empty(),
+            range,
+            allow_nan : false,
+            allow_positive_infinity : false,
+            allow_negative_infinity : false
+        }
+    }
+
     /// creates a new float; range inclusive; nan and infinity not allowed.
     pub fn try_new(min: F, max: F) -> Result<Self, LqError> {
         let range = Range::<F>::try_new_inclusive(min, max)?;
         Ok(Self::new(range))
     }
 
+    /// The range the float must be within.
     pub fn range(&self) -> &Range<F> {
         &self.range
+    }
+
+    pub fn with_allow_nan(mut self, allow : bool) -> Self {
+        self.allow_nan = allow;
+        self
+    }
+
+    pub fn with_allow_positive_infinity(mut self, allow : bool) -> Self {
+        self.allow_positive_infinity = allow;
+        self
+    }
+
+    pub fn with_allow_negative_infinity(mut self, allow : bool) -> Self {
+        self.allow_negative_infinity = allow;
+        self
+    }
+
+    /// True if "not a number" (NaN) is allowed.
+    pub fn allow_nan(&self) -> bool {
+        self.allow_nan
+    }
+
+    /// True if positive infinity is allowed.
+    pub fn allow_positive_infinity(&self) -> bool {
+        self.allow_positive_infinity
+    }
+
+    /// True if negative infinity is allowed.
+    pub fn allow_negative_infinity(&self) -> bool {
+        self.allow_negative_infinity
     }
 
     fn validate(
@@ -207,7 +247,7 @@ where
                 .unwrap()
                 .with_meta(NameDescription {
                     name: "float_32_range_element",
-                    description:
+                    doc:
                         "The start or end of the float range bounds. Note: Whether this is \
                          included or not can be defined.",
                 }),
@@ -218,7 +258,7 @@ where
                 .unwrap()
                 .with_meta(NameDescription {
                     name: "float_64_range_element",
-                    description:
+                    doc:
                         "The start or end of the float range bounds. Note: Whether this is \
                          included or not can be defined.",
                 }),
@@ -226,19 +266,14 @@ where
     };
 
     let range_field = builder.add(
-        TRange {
-            meta: Meta::empty(),
-            element: range_item,
-            inclusion: Inclusion::Supplied,
-            allow_empty: false,
-        }
+        TRange::new(range_item, Inclusion::Supplied, false)
         .with_meta(NameDescription {
             name: if float_32 {
                 "float_32_range"
             } else {
                 "float_64_range"
             },
-            description: "The range the float must be contained within.",
+            doc: "The range the float must be contained within.",
         }),
     );
 
@@ -246,16 +281,16 @@ where
 
     let allow_nan_field = builder.add(TBool::default().with_meta(NameDescription {
         name: "allow_nan",
-        description: "This is true if NaN ('not a number') is allowed. This \
+        doc: "This is true if NaN ('not a number') is allowed. This \
                       should usually be false.",
     }));
     let allow_positive_infinity_field = builder.add(TBool::default().with_meta(NameDescription {
         name: "allow_positive_infinity",
-        description: "This is true if positive infinity is allowed.",
+        doc: "This is true if positive infinity is allowed.",
     }));
     let allow_negative_infinity_field = builder.add(TBool::default().with_meta(NameDescription {
         name: "allow_negative_infinity",
-        description: "This is true if negative infinity is allowed.",
+        doc: "This is true if negative infinity is allowed.",
     }));
 
     // just an empty struct (but more fields will be added by the system)

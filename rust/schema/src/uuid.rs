@@ -14,11 +14,10 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uuid::Uuid;
 use serde::{Deserialize, Serialize};
 
-/// Note: We cannot have a unit struct (since serde complains when flattening is enabled)
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// A 16 byte Uuid (no other validation besides the length of 16 bytes is performed).
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUuid<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
+    meta: Meta<'a>,
 }
 
 impl<'a> Default for TUuid<'a> {
@@ -79,7 +78,7 @@ impl BaseTypeSchemaBuilder for TUuid<'_> {
         // just an empty struct (but more fields will be added by the system)
         TStruct::default().with_meta(NameDescription {
             name: "uuid",
-            description: "16 byte UUID; RFC 4122.",
+            doc: "16 byte UUID; RFC 4122.",
         })
     }
 }

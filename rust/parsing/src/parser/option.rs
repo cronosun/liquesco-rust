@@ -27,7 +27,7 @@ impl<'a> Parser<'a> for POption {
             Result::Ok(())
         } else {
             Presence::serialize(writer, &Presence::Present)?;
-            context.parse(writer, r#type.r#type, value)
+            context.parse(writer, r#type.r#type(), value)
         }
     }
 }

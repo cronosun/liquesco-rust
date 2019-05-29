@@ -38,7 +38,7 @@ impl<'a> BodyWriter<'a> for WRange {
 
         ul.append_child(list_item(
             "Allow empty range",
-            span(if ctx.r#type.allow_empty { "Yes" } else { "No" }),
+            span(if ctx.r#type.allow_empty() { "Yes" } else { "No" }),
         ));
 
         ul

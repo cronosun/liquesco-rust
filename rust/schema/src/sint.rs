@@ -20,14 +20,21 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub range: I64IneRange,
+    meta: Meta<'a>,
+    range: I64IneRange,
 }
 
 impl<'a> TSInt<'a> {
+
+    pub fn new(range: I64IneRange) -> Self {
+        Self {
+            meta : Meta::empty(),
+            range
+        }
+    }
+
     pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
         Result::Ok(TSInt::new(I64IneRange::try_new(
             "Signed integer range",
@@ -97,15 +104,10 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
         );
 
         let field_range = builder.add(
-            TRange {
-                meta: Meta::empty(),
-                element,
-                inclusion: Inclusion::BothInclusive,
-                allow_empty: false,
-            }
+            TRange::new(element, Inclusion::BothInclusive, false)
             .with_meta(NameDescription {
                 name: "sint_range",
-                description: "The range within the integer must be. Both (start and end) \
+                doc: "The range within the integer must be. Both (start and end) \
                               are inclusive.",
             }),
         );
@@ -117,7 +119,7 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
             ))
             .with_meta(NameDescription {
                 name: "sint",
-                description: "Signed integer - maximum 64 bit.",
+                doc: "Signed integer - maximum 64 bit.",
             })
     }
 }

@@ -27,22 +27,23 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// A sequence of 0-n elements where every element is of the same type.
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSeq<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub element: TypeRef,
-    pub length: U32IneRange,
-    pub ordering: Ordering,
-
-    /// Length must be a multiple of this value. Value must be >= 2.
-    #[new(value = "Option::None")]
-    pub multiple_of: Option<u32>,
+    meta: Meta<'a>,
+    element: TypeRef,
+    length: U32IneRange,
+    ordering: Ordering,
+    multiple_of: Option<u32>,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Ordering {
+    /// No special ordering requirements.
     None,
+
+    /// Elements in this sequence have to be sorted (and maybe also unique).
+    ///
     /// Note: We use a dedicated struct (required for serde so the enum variant
     /// only has one value).
     Sorted(Sorted),
@@ -61,6 +62,19 @@ pub struct Sorted {
 }
 
 impl<'a> TSeq<'a> {
+    
+    /// New sequence without ordering.
+    pub fn new(element: TypeRef, length: U32IneRange) -> Self {
+        Self {
+            meta: Default::default(),
+            element,
+            length,
+            ordering: Ordering::None,
+            multiple_of: None
+        }
+    }
+
+    /// New with no ordering.
     pub fn try_new(element: TypeRef, min_len: u32, max_len: u32) -> Result<Self, LqError> {
         Result::Ok(Self {
             meta: Meta::empty(),
@@ -79,12 +93,25 @@ impl<'a> TSeq<'a> {
         &self.length
     }
 
+    /// Ordering requirements.
     pub fn ordering(&self) -> &Ordering {
         &self.ordering
     }
 
+    /// Length must be a multiple of this value. Value must be >= 2.
     pub fn multiple_of(&self) -> Option<u32> {
         self.multiple_of
+    }
+
+    /// With ordering sorted.
+    pub fn with_sorted(mut self, sorted : Sorted) -> Self {
+        self.ordering = Ordering::Sorted(sorted);
+        self
+    }
+
+    pub fn with_multiple_of(mut self, multiple_of : u32) -> Self {
+        self.multiple_of = Some(multiple_of);
+        self
     }
 }
 
@@ -287,7 +314,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
     {
         let element_field = builder.add(TReference::default().with_meta(NameDescription {
             name: "element",
-            description: "The element type of a sequence.",
+            doc: "The element type of a sequence.",
         }));
         let length_element = builder.add(
             TUInt::try_new(0, std::u32::MAX as u64)
@@ -297,15 +324,10 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 }),
         );
         let length_field = builder.add(
-            TRange {
-                meta: Meta::empty(),
-                element: length_element,
-                inclusion: Inclusion::BothInclusive,
-                allow_empty: false,
-            }
+            TRange::new(length_element, Inclusion::BothInclusive, false)
             .with_meta(NameDescription {
                 name: "seq_length",
-                description: "The length of a sequence (number of elements). It's tuple of start \
+                doc: "The length of a sequence (number of elements). It's tuple of start \
                               and end. Both - end and start - are included.",
             }),
         );
@@ -316,14 +338,14 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
                 .with_meta(NameDescription {
                     name: "direction",
-                    description:
+                    doc:
                         "Determines how the elements in the sequence need to be sorted for \
                          the sequence to be valid.",
                 }),
         );
         let unique = builder.add(TBool::default().with_meta(NameDescription {
             name: "unique",
-            description: "When this is true, no duplicate elements are allowed in the sequence. \
+            doc: "When this is true, no duplicate elements are allowed in the sequence. \
                           This automatically implies a sorted sequence.",
         }));
         let sorted_struct = builder.add(
@@ -335,7 +357,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
                 .with_meta(NameDescription {
                     name: "sorting",
-                    description:
+                    doc:
                         "Determines how the sequence needs to be sorted and whether duplicate \
                          elements are allowed.",
                 }),
@@ -348,7 +370,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 ).with_meta(
                 NameDescription {
                     name: "ordering",
-                    description: "Ordering is optional. When there's no ordering it can be irrelevant or \
+                    doc: "Ordering is optional. When there's no ordering it can be irrelevant or \
         ordering has a special meaning. It's also possible to specify a required sorting (in this \
         case it's also possible to disallow duplicates)."
                 }));
@@ -357,7 +379,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
             TUInt::try_new(2, std::u32::MAX as u64).unwrap()
                 .with_meta(NameDescription {
                     name : "multiple_of",
-                    description : "It's possible to specify another requirement on the length of the list \
+                    doc: "It's possible to specify another requirement on the length of the list \
         (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
         ... are allowed."
                 }));
@@ -384,7 +406,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
             ))
             .with_meta(NameDescription {
                 name: "seq",
-                description: "A sequence contains 0-n elements of the same type.",
+                doc: "A sequence contains 0-n elements of the same type.",
             })
     }
 }

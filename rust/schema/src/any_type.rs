@@ -190,7 +190,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_range, "range"))
                 .with_meta(NameDescription {
                     name: "any_type",
-                    description: "The any type is an enumeration of all possible types available \
+                    doc: "The any type is an enumeration of all possible types available \
                                   in the type system.",
                 }),
         )

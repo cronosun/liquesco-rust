@@ -6,16 +6,14 @@ use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::CodeRange;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
-use liquesco_schema::metadata::Meta;
 use liquesco_schema::seq::TSeq;
 
 fn create_identifier_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let ascii = builder.add(AnyType::Ascii(TAscii {
-        meta: Meta::empty(),
-        length: U64IneRange::try_new("", 0, 10).unwrap(),
-        codes: CodeRange::try_new(97, 123).unwrap(),
-    }));
+    let ascii = builder.add(AnyType::Ascii(TAscii::new(
+        U64IneRange::try_new("", 0, 10).unwrap(),
+        CodeRange::try_new(97, 123).unwrap()
+    )));
     let identifier = builder.add(AnyType::Seq(TSeq::try_new(ascii, 1, 8).unwrap()));
     builder.finish(AnyType::Seq(TSeq::try_new(identifier, 1, 100).unwrap()))
 }

@@ -3,7 +3,6 @@ use crate::utils::{assert_err, assert_ok};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
-use liquesco_schema::metadata::Meta;
 use liquesco_schema::range::{Inclusion, TRange};
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::uint::TUInt;
@@ -13,12 +12,11 @@ fn create_schema_given_inclusion() -> impl Schema<'static> {
 
     let range_element = builder.add(AnyType::UInt(TUInt::try_new(5, 150).unwrap()));
 
-    let range_value = TRange {
-        meta: Meta::empty(),
-        element: range_element,
-        inclusion: Inclusion::StartInclusive,
-        allow_empty: false,
-    };
+    let range_value = TRange::new(
+        range_element,
+        Inclusion::StartInclusive,
+         false,
+    );
 
     let range = builder.add(AnyType::Range(range_value.into()));
 
@@ -30,12 +28,11 @@ fn create_schema_supplied_inclusion() -> impl Schema<'static> {
 
     let range_element = builder.add(AnyType::UInt(TUInt::try_new(5, 150).unwrap()));
 
-    let range_value = TRange {
-        meta: Meta::empty(),
-        element: range_element,
-        inclusion: Inclusion::Supplied,
-        allow_empty: false,
-    };
+    let range_value = TRange::new(
+        range_element,
+        Inclusion::Supplied,
+        false,
+    );
 
     let range = builder.add(AnyType::Range(range_value.into()));
 

@@ -60,21 +60,6 @@ impl<'a> Identifier<'a> {
         }
     }
 
-    // TODO: What is this used for, we already have Eq?
-    pub fn is_equal<'b>(&self, other: &Identifier<'b>) -> bool {
-        let len = self.0.len();
-        if len == other.0.len() {
-            for index in 0..len {
-                if !self.0[index].is_equal(&other.0[index]) {
-                    return false;
-                }
-            }
-            true
-        } else {
-            false
-        }
-    }
-
     pub fn append(&mut self, segment: Segment<'a>) -> Result<(), LqError> {
         if self.segments().len() + 1 > MAX_NUMBER_OF_SEGMENTS {
             LqError::err_new(format!(
@@ -104,24 +89,21 @@ impl BuildsOwnSchema for Identifier<'_> {
         let mut code_range = CodeRange::try_new(48, 57 + 1).unwrap();
         code_range.add(97, 122 + 1).unwrap();
         let segment_ref = builder.add(
-            TAscii {
-                meta : Meta::empty(),
-                length: U64IneRange::try_new(
-                    "Segment len",
-                    SEGMENT_MIN_LEN as u64,
-                    SEGMENT_MAX_LEN as u64,
-                )
-                .unwrap(),
-                codes: code_range,
-            }.with_meta(NameDescription {
+            TAscii::new(U64IneRange::try_new(
+                "Segment len",
+                SEGMENT_MIN_LEN as u64,
+                SEGMENT_MAX_LEN as u64,
+            )
+                .unwrap(), code_range)
+            .with_meta(NameDescription {
                 name : "segment",
-                description : "A single segment of an identifier. \
+                doc: "A single segment of an identifier. \
                  An identifier can only contain certain ASCII characters and is limited in length."
             })
         );
         let meta = Meta {
             name: Some(Identifier::try_from("identifier").unwrap()),
-            description: Some(Cow::Owned(format!(
+            doc: Some(Cow::Owned(format!(
                 "An identifier identifies something in the system. An \
                  identifier is composed of {min}-{max} segments. Each segment is composed of ASCII \
                  characters (see segment for details what characters are allowed and about min/max \
@@ -209,11 +191,6 @@ impl<'a> Segment<'a> {
             }
         }
         Result::Ok(())
-    }
-
-    // TODO: WHat is this used for, there's already Eq?
-    pub fn is_equal<'b>(&self, other: &Segment<'b>) -> bool {
-        self.0 == other.0
     }
 
     pub fn into_owned(self) -> Segment<'static> {

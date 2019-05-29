@@ -13,10 +13,9 @@ use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 
-#[derive(new, Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
+#[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
 pub struct TBool<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
+    meta: Meta<'a>,
 }
 
 impl<'a> Default for TBool<'a> {
@@ -75,7 +74,7 @@ impl BaseTypeSchemaBuilder for TBool<'_> {
         // just an empty struct (but more fields will be added by the system)
         TStruct::default().with_meta(NameDescription {
             name: "bool",
-            description: "A boolean: Can either be true or false.",
+            doc: "A boolean: Can either be true or false.",
         })
     }
 }

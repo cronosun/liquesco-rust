@@ -19,19 +19,15 @@ use serde::export::PhantomData;
 
 pub trait WithMetadata {
     /// Metadata for that type.
-    fn meta(&self) -> &Meta {
-        // types usually have no documentation. We use a special wrapper that adds
-        // documentation to a type. See `DocType`.
-        EMPTY_META
-    }
+    fn meta(&self) -> &Meta;
 }
 
 pub trait MetadataSetter<'m>: WithMetadata {
     fn set_meta(&mut self, meta: Meta<'m>);
 
     fn with_meta<M: Into<Meta<'m>>>(mut self, meta: M) -> Self
-    where
-        Self: Sized,
+        where
+            Self: Sized,
     {
         self.set_meta(meta.into());
         self
@@ -45,22 +41,20 @@ pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct Meta<'a> {
     pub name: Option<Identifier<'a>>,
-    pub description: Option<Cow<'a, str>>,
+    pub doc: Option<Cow<'a, str>>,
     pub implements: Option<Implements>,
 }
 
 pub struct NameDescription<'a> {
     pub name: &'a str,
-    pub description: &'a str,
+    pub doc: &'a str,
 }
-
-const EMPTY_META: &Meta = &Meta::empty();
 
 impl<'a> Into<Meta<'a>> for NameDescription<'a> {
     fn into(self) -> Meta<'a> {
         Meta {
             name: Some(Identifier::try_from(self.name).unwrap()),
-            description: Some(Cow::Borrowed(self.description)),
+            doc: Some(Cow::Borrowed(self.doc)),
             implements: None,
         }
     }
@@ -74,7 +68,7 @@ impl<'a> Into<Meta<'a>> for NameOnly<'a> {
     fn into(self) -> Meta<'a> {
         Meta {
             name: Some(Identifier::try_from(self.name).unwrap()),
-            description: None,
+            doc: None,
             implements: None,
         }
     }
@@ -84,7 +78,7 @@ impl<'a> Meta<'a> {
     pub const fn empty() -> Self {
         Self {
             name: None,
-            description: None,
+            doc: None,
             implements: None,
         }
     }
@@ -97,8 +91,8 @@ impl<'a> Meta<'a> {
         }
     }
 
-    pub fn description(&self) -> Option<&str> {
-        if let Some(desc) = &self.description {
+    pub fn doc(&self) -> Option<&str> {
+        if let Some(desc) = &self.doc {
             Some(desc)
         } else {
             None
@@ -114,22 +108,22 @@ impl<'a> Meta<'a> {
     }
 
     pub fn set_name<I>(&mut self, name: I)
-    where
-        I: Into<Identifier<'a>>,
+        where
+            I: Into<Identifier<'a>>,
     {
         self.name = Some(name.into());
     }
 
-    pub fn set_description<D>(&mut self, description: D)
-    where
-        D: Into<Cow<'a, str>>,
+    pub fn set_doc<D>(&mut self, doc: D)
+        where
+            D: Into<Cow<'a, str>>,
     {
-        self.description = Some(description.into());
+        self.doc = Some(doc.into());
     }
 
     pub fn add_implements<U>(&mut self, uuid: U) -> Result<(), LqError>
-    where
-        U: Into<Uuid>,
+        where
+            U: Into<Uuid>,
     {
         if let None = self.implements {
             self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
@@ -189,57 +183,56 @@ pub struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
 
 impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-    where
-        B: SchemaBuilder,
+        where
+            B: SchemaBuilder,
     {
         // Adding fields for the doc
         let identifier_ref = Identifier::build_schema(builder);
         let field_name = builder.add(TOption::new(identifier_ref).with_meta(NameDescription {
             name: "maybe_name",
-            description: "An optional name for the type.",
+            doc: "An optional name for the type.",
         }));
-        let description_ref = builder.add(
+        let doc_ref = builder.add(
             TUnicode::try_new(
                 DOC_MIN_LEN_UTF8_BYTES as u64,
                 DOC_MAX_LEN_UTF8_BYTES as u64,
                 LengthType::Utf8Byte,
             )
-            .unwrap()
-            .with_meta(NameDescription {
-                name: "description",
-                description: "Describes / documents the type. Use human readable text. \
+                .unwrap()
+                .with_meta(NameDescription {
+                    name: "documentation",
+                    doc: "Describes / documents the type. Use human readable text. \
                               No markup is allowed.",
-            }),
+                }),
         );
-        let field_description =
-            builder.add(TOption::new(description_ref).with_meta(NameDescription {
-                name: "maybe_description",
-                description: "Optional type description / documentation.",
+        let field_doc =
+            builder.add(TOption::new(doc_ref).with_meta(NameDescription {
+                name: "maybe_doc",
+                doc: "Optional type description / documentation.",
             }));
         let uuid_ref = builder.add(TUuid::default().with_meta(NameDescription {
             name: "implements_uuid",
-            description: "UUID to describe the conformance / implementation / \
+            doc: "UUID to describe the conformance / implementation / \
                           protocol of this type uniquely.",
         }));
         let uuid_seq = builder.add(
-            TSeq {
-                meta: Meta::empty(),
-                element: uuid_ref,
-                length: U32IneRange::try_new("Doc type implements",
-                                             MIN_IMPLEMENTS_ELEMENTS as u32,
-                                             MAX_IMPLEMENTS_ELEMENTS as u32).unwrap(),
-                ordering: seq::Ordering::Sorted(Sorted {
+            TSeq::new(
+                uuid_ref,
+                U32IneRange::try_new("Doc type implements",
+                                     MIN_IMPLEMENTS_ELEMENTS as u32,
+                                     MAX_IMPLEMENTS_ELEMENTS as u32).unwrap())
+                .with_sorted(Sorted {
                     direction: seq::Direction::Ascending,
                     unique: true,
-                }),
-                multiple_of: None,
-            }.with_meta(NameDescription{
-                name: "implements",
-                description: "A sequence of 'things' this type implements. What can this be used \
+                })
+                .with_meta(NameDescription {
+                    name: "implements",
+                    doc: "A sequence of 'things' this type implements. What can this be used \
         for? Say for example your type is an ASCII type. With that information we can't \
         really say what ASCII is for. Say for example that ASCII has a special meaning in your \
         company: It's a part number. So you can give that ASCII type a UUID to declare 'this \
-        type is a part number'. This makes it possible to find part numbers company wide." }));
+        type is a part number'. This makes it possible to find part numbers company wide.",
+                }));
 
         let field_implements = builder.add(TOption::new(uuid_seq).with_meta(NameOnly {
             name: "maybe_implements",
@@ -251,16 +244,16 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                 r#type: field_name,
             })
             .add(Field {
-                name: Identifier::try_from("description").unwrap(),
-                r#type: field_description,
+                name: Identifier::try_from("doc").unwrap(),
+                r#type: field_doc,
             })
             .add(Field {
                 name: Identifier::try_from("implements").unwrap(),
                 r#type: field_implements,
             }).with_meta(NameDescription {
-            name : "meta",
-        description: "Meta information about the type. You can optionally specify a name, a description/\
-        documentation and information about implementation/conformance."
+            name: "meta",
+            doc: "Meta information about the type. You can optionally specify a name, a description/\
+        documentation and information about implementation/conformance.",
         });
         let meta_ref = builder.add(meta_struct);
 

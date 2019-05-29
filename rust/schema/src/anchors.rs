@@ -23,32 +23,40 @@ use std::convert::TryFrom;
 /// A list containing 1-n anchors. Every anchor (except anchor 0, the master anchor) has to be
 /// referenced (see `TReference`). To make sure data is canonical, anchors have to be
 /// referenced sequentially.
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAnchors<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub master: TypeRef,
-    pub anchor: TypeRef,
+    meta: Meta<'a>,
+    master: TypeRef,
+    anchor: TypeRef,
+    max_anchors: Option<u32>,
+}
+
+impl TAnchors<'_> {
+    /// The master anchor type.
+    pub fn master(&self) -> TypeRef {
+        self.master
+    }
+
+    /// The type of all other anchors.
+    pub fn anchor(&self) -> TypeRef {
+        self.anchor
+    }
 
     /// The maximum number of anchors allowed (inclusive). This does not include the master. So
     /// a value of 0 means that only a master is allowed but no anchor.
     ///
     /// If missing, there's no limit: u32::MAX is the maximum.
-    #[new(value = "Option::None")]
-    pub max_anchors: Option<u32>,
-}
-
-impl TAnchors<'_> {
-    pub fn master(&self) -> TypeRef {
-        self.master
-    }
-
-    pub fn anchor(&self) -> TypeRef {
-        self.anchor
-    }
-
     pub fn max_anchors(&self) -> Option<u32> {
         self.max_anchors
+    }
+
+    pub fn new(master : TypeRef, anchor : TypeRef) -> Self {
+        Self {
+            meta : Meta::empty(),
+            master,
+            anchor,
+            max_anchors : None,
+        }
     }
 }
 
@@ -190,18 +198,18 @@ impl BaseTypeSchemaBuilder for TAnchors<'_> {
     {
         let field_master = builder.add(TReference::default().with_meta(NameDescription {
             name: "anchor_master_type",
-            description: "Anchors have exactly one master (required) and 0-n more \
+            doc: "Anchors have exactly one master (required) and 0-n more \
                           anchors. This defines the master type.",
         }));
         let field_anchor = builder.add(TReference::default().with_meta(NameDescription {
             name: "anchor_type",
-            description: "Defines the type of the anchors. Note: There's also the master \
+            doc: "Defines the type of the anchors. Note: There's also the master \
                           anchor type which can (but usually doesn't) differ from this.",
         }));
         let max_anchors = builder.add(TUInt::try_new(0, std::u32::MAX as u64).unwrap().with_meta(
             NameDescription {
                 name: "max_anchors",
-                description:
+                doc:
                     "This is the maximum number of \
                      anchors allowed. This does not include the master anchor (which is mandatory \
                      anyway).",
@@ -226,7 +234,7 @@ impl BaseTypeSchemaBuilder for TAnchors<'_> {
                 ))
                 .with_meta(NameDescription {
                     name : "anchors",
-                    description : "Anchors (in combination with references) can be used to create \
+                    doc: "Anchors (in combination with references) can be used to create \
              recursive data type. The anchors is basically a sequence of 1-n anchors. Those \
              anchors can be referenced using the reference type. Multiple anchors can be nested; \
              references reference always the anchor in the next anchor sequence in the \

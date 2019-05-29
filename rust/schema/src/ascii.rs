@@ -11,7 +11,6 @@ use crate::range::Inclusion;
 use crate::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::Direction::Ascending;
-use crate::seq::Ordering as SeqOrdering;
 use crate::seq::Sorted;
 use crate::seq::TSeq;
 use crate::structure::Field;
@@ -27,15 +26,11 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TAscii<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    /// Minimum / maximum number of bytes (which is at the same time also number
-    /// of ASCII characters)
-    pub length: U64IneRange,
-    /// Allowed ascii code ranges
-    pub codes: CodeRange,
+    meta: Meta<'a>,
+    length: U64IneRange,
+    codes: CodeRange,
 }
 
 const CODE_RANGE_ELEMENTS_MIN: usize = 2;
@@ -126,6 +121,14 @@ impl Index<usize> for CodeRange {
 }
 
 impl TAscii<'_> {
+    pub fn new(length : U64IneRange, codes : CodeRange) -> Self {
+        Self {
+            meta : Meta::empty(),
+            length,
+            codes
+        }
+    }
+
     pub fn try_new(
         min_length: u64,
         max_length: u64,
@@ -140,11 +143,13 @@ impl TAscii<'_> {
         })
     }
 
-    /// Allowed ascii code range
+    /// Allowed ascii code range(s).
     pub fn codes(&self) -> &CodeRange {
         &self.codes
     }
 
+    /// Minimum / maximum number of bytes (which is at the same time also number
+    /// of ASCII characters).
     pub fn length(&self) -> &U64IneRange {
         &self.length
     }
@@ -222,15 +227,10 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
             },
         ));
         let field_length = builder.add(
-            TRange {
-                meta: Meta::empty(),
-                element: length_element,
-                inclusion: Inclusion::BothInclusive,
-                allow_empty: false,
-            }
+            TRange::new(length_element, Inclusion::BothInclusive, false)
             .with_meta(NameDescription {
                 name: "ascii_length",
-                description: "The length constraint of the ASCII string (also number of bytes). \
+                doc: "The length constraint of the ASCII string (also number of bytes). \
                               Start and end \
                               are both inclusive.",
             }),
@@ -242,23 +242,20 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                 .with_meta(NameOnly { name: "ascii_code" }),
         );
         let field_codes = builder.add(
-            TSeq {
-                meta : Meta::empty(),
-                element: range_element,
-                length: U32IneRange::try_new(
+            TSeq::new(
+                range_element,
+                U32IneRange::try_new(
                     "Code range",
                     CODE_RANGE_ELEMENTS_MIN as u32,
                     CODE_RANGE_ELEMENTS_MAX as u32,
-                )
-                .unwrap(),
-                ordering: SeqOrdering::Sorted(Sorted {
-                    direction: Ascending,
-                    unique: true,
-                }),
-                multiple_of: Some(2),
-            }.with_meta(NameDescription {
+                ).unwrap()
+            ).with_sorted(Sorted {
+                direction: Ascending,
+                unique: true,
+            }).with_multiple_of(2)
+                .with_meta(NameDescription {
                 name: "codes",
-                description: "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
+                doc: "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
                  codes (start, end); start is inclusive, end is exclusive. The ASCII string is \
                  valid if every character of the ASCII string is within one of those ranges." })
         );
@@ -274,7 +271,7 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
             ))
             .with_meta(NameDescription {
                 name: "ascii",
-                description:
+                doc:
                     "The ascii type must not be used to transfer human readable text. It's to be \
                      used to transfer machine readable strings. Only characters withing the ASCII \
                      range are allowed.",

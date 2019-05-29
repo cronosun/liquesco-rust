@@ -84,15 +84,15 @@ where
 {
     element.append_child(list_item(
         "Allow NaN (not a number)",
-        span(yes_no(float.allow_nan)),
+        span(yes_no(float.allow_nan())),
     ));
     element.append_child(list_item(
         "Allow positive infinity",
-        span(yes_no(float.allow_positive_infinity)),
+        span(yes_no(float.allow_positive_infinity())),
     ));
     element.append_child(list_item(
         "Allow negative infinity",
-        span(yes_no(float.allow_negative_infinity)),
+        span(yes_no(float.allow_negative_infinity())),
     ));
 }
 

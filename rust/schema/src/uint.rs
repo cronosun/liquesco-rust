@@ -20,14 +20,21 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUInt<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub range: U64IneRange,
+    meta: Meta<'a>,
+    range: U64IneRange,
 }
 
 impl<'a> TUInt<'a> {
+
+    pub fn new(range: U64IneRange) -> Self {
+        Self {
+            meta : Meta::empty(),
+            range
+        }
+    }
+
     pub fn try_new(min: u64, max: u64) -> Result<Self, LqError> {
         Result::Ok(TUInt::new(U64IneRange::try_new(
             "Unsigned integer range",
@@ -97,15 +104,10 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
         );
 
         let field_range = builder.add(
-            TRange {
-                meta: Meta::empty(),
-                element,
-                inclusion: Inclusion::BothInclusive,
-                allow_empty: false,
-            }
+            TRange::new(element, Inclusion::BothInclusive, false)
             .with_meta(NameDescription {
                 name: "uint_range",
-                description: "The range within the integer must be. Both (start and end) \
+                doc: "The range within the integer must be. Both (start and end) \
                               are inclusive.",
             }),
         );
@@ -117,7 +119,7 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
             ))
             .with_meta(NameDescription {
                 name: "uint",
-                description: "Unsigned integer - maximum 64 bit.",
+                doc: "Unsigned integer - maximum 64 bit.",
             })
     }
 }

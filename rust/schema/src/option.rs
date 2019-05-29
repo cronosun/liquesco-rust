@@ -17,20 +17,33 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+/// Data of the option type have two variants:
+///  - Absent
+///  - Present and a value
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TOption<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    pub r#type: TypeRef,
+    meta: Meta<'a>,
+    r#type: TypeRef,
 }
 
 impl TOption<'_> {
+
+    /// The type of the present value.
     pub fn r#type(&self) -> TypeRef {
         self.r#type
+    }
+
+    /// Creates a new option type.
+    pub fn new(r#type : TypeRef) -> Self {
+        Self {
+            meta : Meta::empty(),
+            r#type
+        }
     }
 }
 
 impl Type for TOption<'_> {
+
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,
@@ -94,7 +107,7 @@ impl BaseTypeSchemaBuilder for TOption<'_> {
     {
         let field_type = builder.add(TReference::default().with_meta(NameDescription {
             name: "present_type",
-            description: "Type of the present value in an option.",
+            doc: "Type of the present value in an option.",
         }));
 
         TStruct::default()
@@ -104,7 +117,7 @@ impl BaseTypeSchemaBuilder for TOption<'_> {
             ))
             .with_meta(NameDescription {
                 name: "option",
-                description: "Can have a value (some; present) or no value (none; empty; absent).",
+                doc: "Can have a value (some; present) or no value (none; empty; absent).",
             })
     }
 }

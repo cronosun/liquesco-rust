@@ -36,7 +36,7 @@ impl<'a> Parser<'a> for PSeq {
         let u32_len = u32::try_from(len)?;
         SeqHeader::serialize(writer, &SeqHeader::new(u32_len))?;
         for item in seq {
-            context.parse(writer, r#type.element, item)?;
+            context.parse(writer, r#type.element(), item)?;
         }
         Ok(())
     }

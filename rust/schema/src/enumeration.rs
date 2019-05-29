@@ -10,7 +10,6 @@ use crate::option::TOption;
 use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::Ordering as SeqOrdering;
 use crate::seq::TSeq;
 use crate::structure::Field;
 use crate::structure::TStruct;
@@ -30,29 +29,35 @@ const MIN_VARIANTS: usize = 1;
 type Variants<'a> = Vec<Variant<'a>>;
 type Values = Vec<TypeRef>;
 
-#[derive(new, Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
+#[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
 pub struct TEnum<'a> {
-    #[new(value = "Meta::empty()")]
     meta: Meta<'a>,
     variants: Variants<'a>,
 }
 
-#[derive(new, Clone, Debug, PartialEq, Hash, Serialize, Eq, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Hash, Serialize, Eq, Deserialize)]
 pub struct Variant<'a> {
     /// Textual identifier of the variant.
-    pub name: Identifier<'a>,
+    name: Identifier<'a>,
 
     /// The values this variant carries: This must contain > 0 items. It should only
     /// contain more then one item when you want to extend an existing schema and the value
     /// at index 0 is something you can't extend (a.g. not a struct).
     ///
     /// For variants without value, this is empty.
-    #[serde(default)]
-    #[new(value = "None")]
     values: Option<Values>,
 }
 
 impl<'a> Variant<'a> {
+    /// Create a new variant without values.
+    pub fn new(name : Identifier<'a>) -> Self {
+        Self {
+            name,
+            values : None
+        }
+    }
+
+    /// Name of the variant.
     pub fn name(&self) -> &Identifier<'a> {
         &self.name
     }
@@ -99,7 +104,7 @@ impl<'a> TEnum<'a> {
         // maybe better use a map for the variants?
         let mut ordinal: u32 = 0;
         for variant in &self.variants {
-            if variant.name.is_equal(id) {
+            if &variant.name==id {
                 return Option::Some((ordinal, variant));
             }
             ordinal = ordinal + 1;
@@ -267,24 +272,22 @@ where
 
     let single_value = builder.add(TReference::default().with_meta(NameDescription {
         name: "value_type",
-        description: "Value type in an enum variant.",
+        doc: "Value type in an enum variant.",
     }));
     let values = builder.add(
-        TSeq {
-            meta : Meta::empty(),
-            element: single_value,
-            length: U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
-            ordering: SeqOrdering::None,
-            multiple_of: None,
-        }.with_meta(NameDescription {
+        TSeq::new(
+            single_value,
+            U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
+        )
+            .with_meta(NameDescription {
             name: "variant_values",
-            description: "Defines the one (or in rare cases more) value the enumeration \
+            doc: "Defines the one (or in rare cases more) value the enumeration \
              variant takes. You should only have two or more values when variant got extended - \
              do not use more than one value in the initial schema design." })
     );
     let field_values = builder.add(TOption::new(values).with_meta(NameDescription {
         name: "maybe_values",
-        description: "Enumeration variants have usually either no value (in this case \
+        doc: "Enumeration variants have usually either no value (in this case \
                       this is absent) or one value.",
     }));
 
@@ -300,7 +303,7 @@ where
             ))
             .with_meta(NameDescription {
                 name: "variant",
-                description: "A single variant in an enumeration.",
+                doc: "A single variant in an enumeration.",
             }),
     )
 }
@@ -312,16 +315,13 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
     {
         let variant = build_variant_schema(builder);
         let field_variants = builder.add(
-            TSeq {
-                meta: Meta::empty(),
-                element: variant,
-                length: U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
-                ordering: SeqOrdering::None,
-                multiple_of: None,
-            }
+            TSeq::new(
+                variant,
+                U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap()
+            )
             .with_meta(NameDescription {
                 name: "variants",
-                description:
+                doc:
                     "Every enumeration has to have one or more variants (just one usually \
                      makes no sense but can be used to allow extension in future).",
             }),
@@ -334,7 +334,7 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
             ))
             .with_meta(NameDescription {
                 name: "enum",
-                description: "An enumeration of variants.",
+                doc: "An enumeration of variants.",
             })
     }
 }

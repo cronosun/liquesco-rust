@@ -33,7 +33,7 @@ impl<'a> Parser<'a> for PAnchors {
         let string_map = C::TConverter::require_string_map(value.as_ref())?;
         let result =
             if let Some(master_anchor) = string_map.get(C::TConverter::master_anchor()) {
-                context.parse(writer, r#type.master, master_anchor)?;
+                context.parse(writer, r#type.master(), master_anchor)?;
                 // add master to the reference map
                 context
                     .present_anchor_info()
@@ -47,7 +47,7 @@ impl<'a> Parser<'a> for PAnchors {
                 for index in 1..number_of_anchors + 1 {
                     if let Some(anchor_name) = context.present_anchor_info().by_index(index) {
                         if let Some(anchor) = string_map.get(anchor_name) {
-                            context.parse(writer, r#type.anchor, anchor)?;
+                            context.parse(writer, r#type.anchor(), anchor)?;
                         } else {
                             return Err(LqError::new(format!(
                                 "Got a reference to anchor named \
@@ -57,7 +57,7 @@ impl<'a> Parser<'a> for PAnchors {
                         }
                     } else {
                         return Err(LqError::new(format!("Not all anchors are referenced \
-                    (there are {:?} anchors; exluding the master) but only {:?} anchors \
+                    (there are {:?} anchors; excluding the master) but only {:?} anchors \
                     are referenced. Remove unused anchors! Currently referenced anchors: {:?}",
                     number_of_anchors,index-1, context.present_anchor_info())));
                     }

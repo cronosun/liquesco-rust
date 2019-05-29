@@ -148,7 +148,7 @@ impl HtmlWriter<'_> {
         header_body = header_body.append(type_info_elem);
 
         // description?
-        if let Some(description) = type_info.any_type.meta().description() {
+        if let Some(description) = type_info.any_type.meta().doc() {
             let mut description_elem = Element::builder("p")
                 .attr("class", "liquesco-description")
                 .build();

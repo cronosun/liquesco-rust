@@ -27,15 +27,12 @@ use std::cmp::Ordering::Equal;
 
 /// A range. Constraints:
 ///  - start <= end (if allow_equal) or start < end (if !allow_equal).
-#[derive(new, Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
+#[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TRange<'a> {
-    #[new(value = "Meta::empty()")]
-    pub meta: Meta<'a>,
-    /// The element in the range.
-    pub element: TypeRef,
-    pub inclusion: Inclusion,
-    /// If this is true, we allow empty ranges. Empty ranges depend on the inclusion.
-    pub allow_empty: bool,
+    meta: Meta<'a>,
+    element: TypeRef,
+    inclusion: Inclusion,
+    allow_empty: bool,
 }
 
 #[derive(new, Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -49,14 +46,26 @@ pub enum Inclusion {
 }
 
 impl TRange<'_> {
+    pub fn new(element : TypeRef, inclusion : Inclusion, allow_empty : bool) -> Self {
+        Self {
+            meta : Meta::empty(),
+            element,
+            inclusion,
+            allow_empty
+        }
+    }
+
+    /// Information about whether start and end are inclusive.
     pub fn inclusion(&self) -> Inclusion {
         self.inclusion
     }
 
+    /// The type of the range element.
     pub fn element(&self) -> TypeRef {
         self.element
     }
 
+    /// True if empty ranges are allowed.
     pub fn allow_empty(&self) -> bool {
         self.allow_empty
     }
@@ -203,7 +212,7 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
     {
         let element_field = builder.add(TReference::default().with_meta(NameDescription {
             name: "range_element",
-            description: "The start and end type of the range.",
+            doc: "The start and end type of the range.",
         }));
 
         let inclusion_field = builder.add(
@@ -221,7 +230,7 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
                 .add(Variant::new(Identifier::try_from("supplied").unwrap()))
                 .with_meta(NameDescription {
                     name: "inclusion",
-                    description:
+                    doc:
                         "Determines whether start and end are inclusive. There's one \
                          special value: 'Supplied'. When you choose this, the data has to contain \
                          the information whether start/end are inclusive or not.",
@@ -231,7 +240,7 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
         let allow_empty_field = builder.add(TBool::default()
             .with_meta(NameDescription {
                 name: "allow_empty",
-                description: "General rule is start < end. When start equals end it's \
+                doc: "General rule is start < end. When start equals end it's \
             possible to construct empty ranges (depending on the inclusion). If this is false \
             it's not allowed to specify a range that's empty. You usually want this to be false." }));
 
@@ -250,7 +259,7 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
             ))
             .with_meta(NameDescription {
                 name: "range",
-                description: "A sequence contains 0-n elements of the same type.",
+                doc: "A sequence contains 0-n elements of the same type.",
             })
     }
 }
