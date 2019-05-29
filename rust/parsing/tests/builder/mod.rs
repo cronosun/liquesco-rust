@@ -36,8 +36,8 @@ impl<'a> TypeContainer<'a> for Container<'a> {
 
 impl<'a> Builder<'a> {
     pub fn add<T: Type>(&mut self, r#type: T) -> TypeRef
-    where
-        AnyType<'a>: std::convert::From<T>,
+        where
+            AnyType<'a>: std::convert::From<T>,
     {
         let reference = TypeRef(self.types.len() as u32);
         self.types.push(AnyType::from(r#type));
@@ -45,8 +45,8 @@ impl<'a> Builder<'a> {
     }
 
     pub fn finish<T: Type>(mut self, r#type: T) -> DefaultSchema<'a, Container<'a>>
-    where
-        AnyType<'a>: std::convert::From<T>,
+        where
+            AnyType<'a>: std::convert::From<T>,
     {
         let reference = self.add(r#type);
         let container = Container { types: self.types };

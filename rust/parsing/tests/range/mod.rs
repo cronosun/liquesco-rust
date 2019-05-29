@@ -1,6 +1,6 @@
-use crate::tests::builder::builder;
-use crate::tests::{assert_err, assert_ok};
-use crate::yaml::parse_from_yaml_str;
+use liquesco_parsing::yaml::parse_from_yaml_str;
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok};
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
 use liquesco_schema::metadata::Meta;
@@ -47,7 +47,7 @@ fn ok_1() {
     let schema = create_schema_given_inclusion();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema6/range_ok.yaml"),
+        include_str!("range_ok.yaml"),
     ))
 }
 
@@ -56,7 +56,7 @@ fn err_equal() {
     let schema = create_schema_given_inclusion();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema6/range_err_equal.yaml"),
+        include_str!("range_err_equal.yaml"),
     ))
 }
 
@@ -65,7 +65,7 @@ fn err_start_end_ord() {
     let schema = create_schema_given_inclusion();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema6/range_err_start_end_ord.yaml"),
+        include_str!("range_err_start_end_ord.yaml"),
     ))
 }
 
@@ -74,6 +74,6 @@ fn ok_2() {
     let schema = create_schema_supplied_inclusion();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema6/range_supplied_inclusion_ok.yaml"),
+        include_str!("range_supplied_inclusion_ok.yaml"),
     ))
 }

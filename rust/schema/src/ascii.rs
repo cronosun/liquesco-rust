@@ -102,6 +102,16 @@ impl CodeRange {
         false
     }
 
+    pub fn contains_chr(&self, chr : char) -> bool {
+        let u32_chr = chr as u32;
+        if u32_chr<=255 {
+            self.contains(u32_chr as u8)
+        } else {
+            // can never contain (since clearly outside ascii range)
+            false
+        }
+    }
+
     pub fn len(&self) -> usize {
         self.0.len()
     }

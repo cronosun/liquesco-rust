@@ -1,0 +1,12 @@
+- this_is_some_text
+- this/looks/like/a/path
+- some:other:example
+- one_at_the_end_
+- _begins_with_one
+# of course it's still valid to write that like this (it's the same)
+- ["this", "is", "some", "text"]
+# maximum
+- ["qwertzuiop", "qwertzuiop", "qwertzuiop", "qwertzuiop", "qwertzuiop", "qwertzuiop", "qwertzuiop", "qwertzuiop"]
+- qwertzuiop_qwertzuiop_qwertzuiop_qwertzuiop_qwertzuiop_qwertzuiop_qwertzuiop_qwertzuiop
+# minimum
+- [""]

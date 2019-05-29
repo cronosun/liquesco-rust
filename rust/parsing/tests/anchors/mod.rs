@@ -1,7 +1,3 @@
-use crate::tests::builder::builder;
-use crate::tests::id;
-use crate::tests::{assert_err, assert_ok};
-use crate::yaml::parse_from_yaml_str;
 use liquesco_schema::anchors::TAnchors;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
@@ -10,6 +6,9 @@ use liquesco_schema::reference::TReference;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
 use liquesco_schema::unicode::{LengthType, TUnicode};
+use liquesco_parsing::yaml::parse_from_yaml_str;
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok, id};
 
 /// anchors and references
 fn create_schema() -> impl Schema<'static> {
@@ -40,7 +39,7 @@ fn ok_1() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema5/working1.yaml"),
+        include_str!("working1.yaml"),
     ))
 }
 
@@ -49,7 +48,7 @@ fn ok_order_does_not_matter() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema5/order_does_not_matter.yaml"),
+        include_str!("order_does_not_matter.yaml"),
     ))
 }
 
@@ -58,7 +57,7 @@ fn err_unused() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema5/unused_item.yaml"),
+        include_str!("unused_item.yaml"),
     ))
 }
 
@@ -67,6 +66,6 @@ fn err_unknown_ref() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema5/unknown_ref.yaml"),
+        include_str!("unknown_ref.yaml"),
     ))
 }

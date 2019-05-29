@@ -1,10 +1,10 @@
-use crate::tests::builder::builder;
-use crate::tests::{assert_err, assert_ok};
-use crate::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
 use liquesco_schema::seq::TSeq;
+use liquesco_parsing::yaml::parse_from_yaml_str;
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok};
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
@@ -17,7 +17,7 @@ fn ok_1() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema1/input1.yaml"),
+        include_str!("input1.yaml"),
     ))
 }
 
@@ -26,7 +26,7 @@ fn ok_maximum() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema1/input2.yaml"),
+        include_str!("input2.yaml"),
     ))
 }
 
@@ -35,7 +35,7 @@ fn err_too_few_elements() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema1/to_few_elements.yaml"),
+        include_str!("to_few_elements.yaml"),
     ))
 }
 
@@ -44,6 +44,6 @@ fn invalid_ascii_code() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema1/invalid_ascii_code.yaml"),
+        include_str!("invalid_ascii_code.yaml"),
     ))
 }

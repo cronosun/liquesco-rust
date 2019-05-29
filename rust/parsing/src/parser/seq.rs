@@ -2,6 +2,7 @@ use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
+use crate::parser::identifier::PIdentifier;
 use liquesco_common::error::LqError;
 use liquesco_schema::seq::TSeq;
 use liquesco_serialization::core::Serializer;
@@ -23,6 +24,12 @@ impl<'a> Parser<'a> for PSeq {
         C: Context<'c>,
     {
         C::TConverter::require_no_name(value)?;
+
+        // Maybe it's a special case (seq -> ascii)
+        let parsed_as_identifier = PIdentifier::maybe_parse(context, writer, value, r#type)?;
+        if parsed_as_identifier {
+            return Ok(())
+        }
 
         let seq = C::TConverter::require_seq(value.as_ref())?;
         let len = seq.len();

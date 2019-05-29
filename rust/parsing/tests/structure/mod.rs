@@ -1,7 +1,6 @@
-use crate::tests::builder::builder;
-use crate::tests::id;
-use crate::tests::{assert_err, assert_ok};
-use crate::yaml::parse_from_yaml_str;
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok, id};
+use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
@@ -44,7 +43,7 @@ fn ok_1() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(
         &schema,
-        include_str!("schema2/working1.yaml"),
+        include_str!("working1.yaml"),
     ))
 }
 
@@ -53,6 +52,6 @@ fn unused_field() {
     let schema = create_schema();
     assert_err(parse_from_yaml_str(
         &schema,
-        include_str!("schema2/unused_field.yaml"),
+        include_str!("unused_field.yaml"),
     ))
 }
