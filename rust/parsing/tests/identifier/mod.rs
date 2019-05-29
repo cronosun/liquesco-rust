@@ -1,13 +1,13 @@
-use liquesco_parsing::yaml::parse_from_yaml_str;
 use crate::builder::builder;
 use crate::utils::{assert_err, assert_ok};
-use liquesco_schema::core::Schema;
 use liquesco_common::ine_range::U64IneRange;
+use liquesco_parsing::yaml::parse_from_yaml_str;
+use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::CodeRange;
 use liquesco_schema::ascii::TAscii;
+use liquesco_schema::core::Schema;
 use liquesco_schema::metadata::Meta;
 use liquesco_schema::seq::TSeq;
-use liquesco_schema::any_type::AnyType;
 
 fn create_identifier_schema() -> impl Schema<'static> {
     let mut builder = builder();

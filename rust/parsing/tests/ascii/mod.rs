@@ -1,10 +1,10 @@
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok};
+use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::Schema;
 use liquesco_schema::seq::TSeq;
-use liquesco_parsing::yaml::parse_from_yaml_str;
-use crate::builder::builder;
-use crate::utils::{assert_err, assert_ok};
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
@@ -15,19 +15,13 @@ fn create_schema() -> impl Schema<'static> {
 #[test]
 fn ok_1() {
     let schema = create_schema();
-    assert_ok(parse_from_yaml_str(
-        &schema,
-        include_str!("input1.yaml"),
-    ))
+    assert_ok(parse_from_yaml_str(&schema, include_str!("input1.yaml")))
 }
 
 #[test]
 fn ok_maximum() {
     let schema = create_schema();
-    assert_ok(parse_from_yaml_str(
-        &schema,
-        include_str!("input2.yaml"),
-    ))
+    assert_ok(parse_from_yaml_str(&schema, include_str!("input2.yaml")))
 }
 
 #[test]

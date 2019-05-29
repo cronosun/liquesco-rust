@@ -41,10 +41,7 @@ fn create_schema() -> impl Schema<'static> {
 #[test]
 fn ok_1() {
     let schema = create_schema();
-    assert_ok(parse_from_yaml_str(
-        &schema,
-        include_str!("working1.yaml"),
-    ))
+    assert_ok(parse_from_yaml_str(&schema, include_str!("working1.yaml")))
 }
 
 #[test]

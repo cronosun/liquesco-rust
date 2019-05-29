@@ -1,3 +1,6 @@
+use crate::builder::builder;
+use crate::utils::{assert_err, assert_ok, id};
+use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
 use liquesco_schema::float::TFloat32;
@@ -5,9 +8,6 @@ use liquesco_schema::float::TFloat64;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
-use liquesco_parsing::yaml::parse_from_yaml_str;
-use crate::builder::builder;
-use crate::utils::{assert_err, assert_ok, id};
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
@@ -32,10 +32,7 @@ fn create_schema() -> impl Schema<'static> {
 #[test]
 fn ok_1() {
     let schema = create_schema();
-    assert_ok(parse_from_yaml_str(
-        &schema,
-        include_str!("working1.yaml"),
-    ))
+    assert_ok(parse_from_yaml_str(&schema, include_str!("working1.yaml")))
 }
 
 #[test]
