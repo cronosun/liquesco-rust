@@ -46,12 +46,12 @@ pub enum Inclusion {
 }
 
 impl TRange<'_> {
-    pub fn new(element : TypeRef, inclusion : Inclusion, allow_empty : bool) -> Self {
+    pub fn new(element: TypeRef, inclusion: Inclusion, allow_empty: bool) -> Self {
         Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             element,
             inclusion,
-            allow_empty
+            allow_empty,
         }
     }
 
@@ -230,10 +230,9 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
                 .add(Variant::new(Identifier::try_from("supplied").unwrap()))
                 .with_meta(NameDescription {
                     name: "inclusion",
-                    doc:
-                        "Determines whether start and end are inclusive. There's one \
-                         special value: 'Supplied'. When you choose this, the data has to contain \
-                         the information whether start/end are inclusive or not.",
+                    doc: "Determines whether start and end are inclusive. There's one \
+                          special value: 'Supplied'. When you choose this, the data has to contain \
+                          the information whether start/end are inclusive or not.",
                 }),
         );
 

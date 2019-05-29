@@ -62,7 +62,6 @@ pub struct Sorted {
 }
 
 impl<'a> TSeq<'a> {
-    
     /// New sequence without ordering.
     pub fn new(element: TypeRef, length: U32IneRange) -> Self {
         Self {
@@ -70,7 +69,7 @@ impl<'a> TSeq<'a> {
             element,
             length,
             ordering: Ordering::None,
-            multiple_of: None
+            multiple_of: None,
         }
     }
 
@@ -104,12 +103,12 @@ impl<'a> TSeq<'a> {
     }
 
     /// With ordering sorted.
-    pub fn with_sorted(mut self, sorted : Sorted) -> Self {
+    pub fn with_sorted(mut self, sorted: Sorted) -> Self {
         self.ordering = Ordering::Sorted(sorted);
         self
     }
 
-    pub fn with_multiple_of(mut self, multiple_of : u32) -> Self {
+    pub fn with_multiple_of(mut self, multiple_of: u32) -> Self {
         self.multiple_of = Some(multiple_of);
         self
     }
@@ -324,12 +323,13 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 }),
         );
         let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false)
-            .with_meta(NameDescription {
-                name: "seq_length",
-                doc: "The length of a sequence (number of elements). It's tuple of start \
-                              and end. Both - end and start - are included.",
-            }),
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
+                NameDescription {
+                    name: "seq_length",
+                    doc: "The length of a sequence (number of elements). It's tuple of start \
+                          and end. Both - end and start - are included.",
+                },
+            ),
         );
 
         let directed_enum = builder.add(
@@ -338,15 +338,14 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
                 .with_meta(NameDescription {
                     name: "direction",
-                    doc:
-                        "Determines how the elements in the sequence need to be sorted for \
-                         the sequence to be valid.",
+                    doc: "Determines how the elements in the sequence need to be sorted for \
+                          the sequence to be valid.",
                 }),
         );
         let unique = builder.add(TBool::default().with_meta(NameDescription {
             name: "unique",
             doc: "When this is true, no duplicate elements are allowed in the sequence. \
-                          This automatically implies a sorted sequence.",
+                  This automatically implies a sorted sequence.",
         }));
         let sorted_struct = builder.add(
             TStruct::default()
@@ -357,9 +356,8 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
                 .with_meta(NameDescription {
                     name: "sorting",
-                    doc:
-                        "Determines how the sequence needs to be sorted and whether duplicate \
-                         elements are allowed.",
+                    doc: "Determines how the sequence needs to be sorted and whether duplicate \
+                          elements are allowed.",
                 }),
         );
         let ordering_field = builder.add(

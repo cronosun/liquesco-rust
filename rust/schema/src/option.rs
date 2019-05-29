@@ -27,23 +27,21 @@ pub struct TOption<'a> {
 }
 
 impl TOption<'_> {
-
     /// The type of the present value.
     pub fn r#type(&self) -> TypeRef {
         self.r#type
     }
 
     /// Creates a new option type.
-    pub fn new(r#type : TypeRef) -> Self {
+    pub fn new(r#type: TypeRef) -> Self {
         Self {
-            meta : Meta::empty(),
-            r#type
+            meta: Meta::empty(),
+            r#type,
         }
     }
 }
 
 impl Type for TOption<'_> {
-
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: Context<'c>,

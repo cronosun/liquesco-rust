@@ -52,10 +52,9 @@ pub fn ord_schema<FElement: FnOnce(&mut Builder<'static>) -> TypeRef>(
     let mut builder = builder();
     let element_ref = element(&mut builder);
 
-    let seq = TSeq::try_new(
-        element_ref, 0, std::u32::MAX).unwrap().with_sorted(
-        Sorted { direction, unique }
-    );
+    let seq = TSeq::try_new(element_ref, 0, std::u32::MAX)
+        .unwrap()
+        .with_sorted(Sorted { direction, unique });
 
     builder.finish(seq)
 }

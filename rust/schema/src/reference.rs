@@ -112,7 +112,7 @@ impl BaseTypeSchemaBuilder for TReference<'_> {
         TStruct::default().with_meta(NameDescription {
             name: "reference",
             doc: "A reference references a value in the anchors list. See \
-                          anchors for more details.",
+                  anchors for more details.",
         })
     }
 }

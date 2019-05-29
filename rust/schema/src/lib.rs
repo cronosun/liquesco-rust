@@ -3,8 +3,8 @@ extern crate derive_new;
 
 pub mod any_type;
 pub mod core;
-pub mod metadata;
 pub mod identifier;
+pub mod metadata;
 pub mod schema;
 pub mod schema_anchors;
 pub mod schema_builder;

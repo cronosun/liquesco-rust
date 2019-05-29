@@ -121,11 +121,11 @@ impl Index<usize> for CodeRange {
 }
 
 impl TAscii<'_> {
-    pub fn new(length : U64IneRange, codes : CodeRange) -> Self {
+    pub fn new(length: U64IneRange, codes: CodeRange) -> Self {
         Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             length,
-            codes
+            codes,
         }
     }
 
@@ -227,13 +227,14 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
             },
         ));
         let field_length = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false)
-            .with_meta(NameDescription {
-                name: "ascii_length",
-                doc: "The length constraint of the ASCII string (also number of bytes). \
-                              Start and end \
-                              are both inclusive.",
-            }),
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
+                NameDescription {
+                    name: "ascii_length",
+                    doc: "The length constraint of the ASCII string (also number of bytes). \
+                          Start and end \
+                          are both inclusive.",
+                },
+            ),
         );
 
         let range_element = builder.add(
@@ -271,10 +272,9 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
             ))
             .with_meta(NameDescription {
                 name: "ascii",
-                doc:
-                    "The ascii type must not be used to transfer human readable text. It's to be \
-                     used to transfer machine readable strings. Only characters withing the ASCII \
-                     range are allowed.",
+                doc: "The ascii type must not be used to transfer human readable text. It's to be \
+                      used to transfer machine readable strings. Only characters withing the ASCII \
+                      range are allowed.",
             })
     }
 }

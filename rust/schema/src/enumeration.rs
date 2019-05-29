@@ -50,11 +50,8 @@ pub struct Variant<'a> {
 
 impl<'a> Variant<'a> {
     /// Create a new variant without values.
-    pub fn new(name : Identifier<'a>) -> Self {
-        Self {
-            name,
-            values : None
-        }
+    pub fn new(name: Identifier<'a>) -> Self {
+        Self { name, values: None }
     }
 
     /// Name of the variant.
@@ -104,7 +101,7 @@ impl<'a> TEnum<'a> {
         // maybe better use a map for the variants?
         let mut ordinal: u32 = 0;
         for variant in &self.variants {
-            if &variant.name==id {
+            if &variant.name == id {
                 return Option::Some((ordinal, variant));
             }
             ordinal = ordinal + 1;
@@ -288,7 +285,7 @@ where
     let field_values = builder.add(TOption::new(values).with_meta(NameDescription {
         name: "maybe_values",
         doc: "Enumeration variants have usually either no value (in this case \
-                      this is absent) or one value.",
+              this is absent) or one value.",
     }));
 
     builder.add(
@@ -317,13 +314,12 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
         let field_variants = builder.add(
             TSeq::new(
                 variant,
-                U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap()
+                U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
             )
             .with_meta(NameDescription {
                 name: "variants",
-                doc:
-                    "Every enumeration has to have one or more variants (just one usually \
-                     makes no sense but can be used to allow extension in future).",
+                doc: "Every enumeration has to have one or more variants (just one usually \
+                      makes no sense but can be used to allow extension in future).",
             }),
         );
 

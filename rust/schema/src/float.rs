@@ -46,15 +46,14 @@ pub struct TFloat<'a, F: Eq + PartialOrd + Debug> {
 }
 
 impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
-
     /// Creates a new float. nan and infinity not allowed.
-    pub fn new(range : Range<F>) -> Self {
+    pub fn new(range: Range<F>) -> Self {
         Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             range,
-            allow_nan : false,
-            allow_positive_infinity : false,
-            allow_negative_infinity : false
+            allow_nan: false,
+            allow_positive_infinity: false,
+            allow_negative_infinity: false,
         }
     }
 
@@ -69,17 +68,17 @@ impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
         &self.range
     }
 
-    pub fn with_allow_nan(mut self, allow : bool) -> Self {
+    pub fn with_allow_nan(mut self, allow: bool) -> Self {
         self.allow_nan = allow;
         self
     }
 
-    pub fn with_allow_positive_infinity(mut self, allow : bool) -> Self {
+    pub fn with_allow_positive_infinity(mut self, allow: bool) -> Self {
         self.allow_positive_infinity = allow;
         self
     }
 
-    pub fn with_allow_negative_infinity(mut self, allow : bool) -> Self {
+    pub fn with_allow_negative_infinity(mut self, allow: bool) -> Self {
         self.allow_negative_infinity = allow;
         self
     }
@@ -247,9 +246,8 @@ where
                 .unwrap()
                 .with_meta(NameDescription {
                     name: "float_32_range_element",
-                    doc:
-                        "The start or end of the float range bounds. Note: Whether this is \
-                         included or not can be defined.",
+                    doc: "The start or end of the float range bounds. Note: Whether this is \
+                          included or not can be defined.",
                 }),
         )
     } else {
@@ -258,16 +256,14 @@ where
                 .unwrap()
                 .with_meta(NameDescription {
                     name: "float_64_range_element",
-                    doc:
-                        "The start or end of the float range bounds. Note: Whether this is \
-                         included or not can be defined.",
+                    doc: "The start or end of the float range bounds. Note: Whether this is \
+                          included or not can be defined.",
                 }),
         )
     };
 
     let range_field = builder.add(
-        TRange::new(range_item, Inclusion::Supplied, false)
-        .with_meta(NameDescription {
+        TRange::new(range_item, Inclusion::Supplied, false).with_meta(NameDescription {
             name: if float_32 {
                 "float_32_range"
             } else {
@@ -282,7 +278,7 @@ where
     let allow_nan_field = builder.add(TBool::default().with_meta(NameDescription {
         name: "allow_nan",
         doc: "This is true if NaN ('not a number') is allowed. This \
-                      should usually be false.",
+              should usually be false.",
     }));
     let allow_positive_infinity_field = builder.add(TBool::default().with_meta(NameDescription {
         name: "allow_positive_infinity",

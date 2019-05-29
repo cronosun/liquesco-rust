@@ -60,10 +60,9 @@ impl BuildsOwnSchema for SchemaAnchors<'_> {
         builder.add(
             TAnchors::new(any_type, any_type).with_meta(NameDescription {
                 name: "schema_anchors",
-                doc:
-                    "This anchors is the base of any liquesco schema. It \
-                     contains at least one type. It can contain more types that can be referenced \
-                     to create recursive types.",
+                doc: "This anchors is the base of any liquesco schema. It \
+                      contains at least one type. It can contain more types that can be referenced \
+                      to create recursive types.",
             }),
         )
     }

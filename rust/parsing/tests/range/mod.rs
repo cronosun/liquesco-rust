@@ -12,11 +12,7 @@ fn create_schema_given_inclusion() -> impl Schema<'static> {
 
     let range_element = builder.add(AnyType::UInt(TUInt::try_new(5, 150).unwrap()));
 
-    let range_value = TRange::new(
-        range_element,
-        Inclusion::StartInclusive,
-         false,
-    );
+    let range_value = TRange::new(range_element, Inclusion::StartInclusive, false);
 
     let range = builder.add(AnyType::Range(range_value.into()));
 
@@ -28,11 +24,7 @@ fn create_schema_supplied_inclusion() -> impl Schema<'static> {
 
     let range_element = builder.add(AnyType::UInt(TUInt::try_new(5, 150).unwrap()));
 
-    let range_value = TRange::new(
-        range_element,
-        Inclusion::Supplied,
-        false,
-    );
+    let range_value = TRange::new(range_element, Inclusion::Supplied, false);
 
     let range = builder.add(AnyType::Range(range_value.into()));
 

@@ -53,13 +53,11 @@ fn schema1_64() {
 #[test]
 fn schema2_32() {
     let float = TFloat32::new(
-        Range::<F32Ext>::try_new_inclusive(
-            F32Ext::from(-14.5f32),
-            F32Ext::from(19.7f32)).unwrap(),
+        Range::<F32Ext>::try_new_inclusive(F32Ext::from(-14.5f32), F32Ext::from(19.7f32)).unwrap(),
     )
-        .with_allow_nan(true)
-        .with_allow_positive_infinity(true)
-        .with_allow_negative_infinity(true);
+    .with_allow_nan(true)
+    .with_allow_positive_infinity(true)
+    .with_allow_negative_infinity(true);
 
     let schema = single_schema(float);
 
@@ -82,9 +80,9 @@ fn schema2_64() {
     let float = TFloat64::new(
         Range::<F64Ext>::try_new_inclusive(F64Ext::from(-14.5f64), F64Ext::from(19.7f64)).unwrap(),
     )
-        .with_allow_nan(true)
-        .with_allow_positive_infinity(true)
-        .with_allow_negative_infinity(true);
+    .with_allow_nan(true)
+    .with_allow_positive_infinity(true)
+    .with_allow_negative_infinity(true);
 
     let schema = single_schema(float);
 
@@ -107,9 +105,9 @@ fn ordering_64() {
     let schema = TFloat64::new(
         Range::<F64Ext>::try_new_inclusive(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
     )
-        .with_allow_nan(true)
-        .with_allow_positive_infinity(true)
-        .with_allow_negative_infinity(true);
+    .with_allow_nan(true)
+    .with_allow_positive_infinity(true)
+    .with_allow_negative_infinity(true);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f64::NAN, std::f64::NAN);
@@ -147,9 +145,9 @@ fn ordering_32() {
     let schema = TFloat32::new(
         Range::<F32Ext>::try_new_inclusive(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
     )
-        .with_allow_nan(true)
-        .with_allow_positive_infinity(true)
-        .with_allow_negative_infinity(true);
+    .with_allow_nan(true)
+    .with_allow_positive_infinity(true)
+    .with_allow_negative_infinity(true);
 
     // nan is equal to itself
     ord_assert_equal(schema.clone(), std::f32::NAN, std::f32::NAN);

@@ -27,11 +27,10 @@ pub struct TUInt<'a> {
 }
 
 impl<'a> TUInt<'a> {
-
     pub fn new(range: U64IneRange) -> Self {
         Self {
-            meta : Meta::empty(),
-            range
+            meta: Meta::empty(),
+            range,
         }
     }
 
@@ -104,11 +103,10 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
         );
 
         let field_range = builder.add(
-            TRange::new(element, Inclusion::BothInclusive, false)
-            .with_meta(NameDescription {
+            TRange::new(element, Inclusion::BothInclusive, false).with_meta(NameDescription {
                 name: "uint_range",
                 doc: "The range within the integer must be. Both (start and end) \
-                              are inclusive.",
+                      are inclusive.",
             }),
         );
 

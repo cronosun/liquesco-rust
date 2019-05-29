@@ -12,7 +12,7 @@ fn create_identifier_schema() -> impl Schema<'static> {
     let mut builder = builder();
     let ascii = builder.add(AnyType::Ascii(TAscii::new(
         U64IneRange::try_new("", 0, 10).unwrap(),
-        CodeRange::try_new(97, 123).unwrap()
+        CodeRange::try_new(97, 123).unwrap(),
     )));
     let identifier = builder.add(AnyType::Seq(TSeq::try_new(ascii, 1, 8).unwrap()));
     builder.finish(AnyType::Seq(TSeq::try_new(identifier, 1, 100).unwrap()))

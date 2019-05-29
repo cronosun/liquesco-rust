@@ -27,11 +27,10 @@ pub struct TSInt<'a> {
 }
 
 impl<'a> TSInt<'a> {
-
     pub fn new(range: I64IneRange) -> Self {
         Self {
-            meta : Meta::empty(),
-            range
+            meta: Meta::empty(),
+            range,
         }
     }
 
@@ -104,11 +103,10 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
         );
 
         let field_range = builder.add(
-            TRange::new(element, Inclusion::BothInclusive, false)
-            .with_meta(NameDescription {
+            TRange::new(element, Inclusion::BothInclusive, false).with_meta(NameDescription {
                 name: "sint_range",
                 doc: "The range within the integer must be. Both (start and end) \
-                              are inclusive.",
+                      are inclusive.",
             }),
         );
 

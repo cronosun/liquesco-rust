@@ -50,12 +50,12 @@ impl TAnchors<'_> {
         self.max_anchors
     }
 
-    pub fn new(master : TypeRef, anchor : TypeRef) -> Self {
+    pub fn new(master: TypeRef, anchor: TypeRef) -> Self {
         Self {
-            meta : Meta::empty(),
+            meta: Meta::empty(),
             master,
             anchor,
-            max_anchors : None,
+            max_anchors: None,
         }
     }
 }
@@ -199,20 +199,19 @@ impl BaseTypeSchemaBuilder for TAnchors<'_> {
         let field_master = builder.add(TReference::default().with_meta(NameDescription {
             name: "anchor_master_type",
             doc: "Anchors have exactly one master (required) and 0-n more \
-                          anchors. This defines the master type.",
+                  anchors. This defines the master type.",
         }));
         let field_anchor = builder.add(TReference::default().with_meta(NameDescription {
             name: "anchor_type",
             doc: "Defines the type of the anchors. Note: There's also the master \
-                          anchor type which can (but usually doesn't) differ from this.",
+                  anchor type which can (but usually doesn't) differ from this.",
         }));
         let max_anchors = builder.add(TUInt::try_new(0, std::u32::MAX as u64).unwrap().with_meta(
             NameDescription {
                 name: "max_anchors",
-                doc:
-                    "This is the maximum number of \
-                     anchors allowed. This does not include the master anchor (which is mandatory \
-                     anyway).",
+                doc: "This is the maximum number of \
+                      anchors allowed. This does not include the master anchor (which is mandatory \
+                      anyway).",
             },
         ));
         let field_max_anchors = builder.add(TOption::new(max_anchors).with_meta(NameOnly {

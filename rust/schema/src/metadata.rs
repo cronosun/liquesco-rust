@@ -26,8 +26,8 @@ pub trait MetadataSetter<'m>: WithMetadata {
     fn set_meta(&mut self, meta: Meta<'m>);
 
     fn with_meta<M: Into<Meta<'m>>>(mut self, meta: M) -> Self
-        where
-            Self: Sized,
+    where
+        Self: Sized,
     {
         self.set_meta(meta.into());
         self
@@ -108,22 +108,22 @@ impl<'a> Meta<'a> {
     }
 
     pub fn set_name<I>(&mut self, name: I)
-        where
-            I: Into<Identifier<'a>>,
+    where
+        I: Into<Identifier<'a>>,
     {
         self.name = Some(name.into());
     }
 
     pub fn set_doc<D>(&mut self, doc: D)
-        where
-            D: Into<Cow<'a, str>>,
+    where
+        D: Into<Cow<'a, str>>,
     {
         self.doc = Some(doc.into());
     }
 
     pub fn add_implements<U>(&mut self, uuid: U) -> Result<(), LqError>
-        where
-            U: Into<Uuid>,
+    where
+        U: Into<Uuid>,
     {
         if let None = self.implements {
             self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
@@ -183,8 +183,8 @@ pub struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
 
 impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
         // Adding fields for the doc
         let identifier_ref = Identifier::build_schema(builder);
@@ -198,22 +198,21 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                 DOC_MAX_LEN_UTF8_BYTES as u64,
                 LengthType::Utf8Byte,
             )
-                .unwrap()
-                .with_meta(NameDescription {
-                    name: "documentation",
-                    doc: "Describes / documents the type. Use human readable text. \
-                              No markup is allowed.",
-                }),
+            .unwrap()
+            .with_meta(NameDescription {
+                name: "documentation",
+                doc: "Describes / documents the type. Use human readable text. \
+                      No markup is allowed.",
+            }),
         );
-        let field_doc =
-            builder.add(TOption::new(doc_ref).with_meta(NameDescription {
-                name: "maybe_doc",
-                doc: "Optional type description / documentation.",
-            }));
+        let field_doc = builder.add(TOption::new(doc_ref).with_meta(NameDescription {
+            name: "maybe_doc",
+            doc: "Optional type description / documentation.",
+        }));
         let uuid_ref = builder.add(TUuid::default().with_meta(NameDescription {
             name: "implements_uuid",
             doc: "UUID to describe the conformance / implementation / \
-                          protocol of this type uniquely.",
+                  protocol of this type uniquely.",
         }));
         let uuid_seq = builder.add(
             TSeq::new(

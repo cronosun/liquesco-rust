@@ -191,14 +191,14 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
                 .with_meta(NameDescription {
                     name: "field",
                     doc: "A single field in a structure. A field contains a name \
-                                  and a type.",
+                          and a type.",
                 }),
         );
 
         let fields_field = builder.add(
             TSeq::new(
                 field_struct,
-                U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap()
+                U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
             )
             .with_meta(NameDescription {
                 name: "fields",
@@ -214,7 +214,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
             .with_meta(NameDescription {
                 name: "struct",
                 doc: "A structure is similar to a sequence but has a defined length and \
-                              can contain fields of different types.",
+                      can contain fields of different types.",
             })
     }
 }

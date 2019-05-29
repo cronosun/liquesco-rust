@@ -62,12 +62,11 @@ pub enum LengthType {
 }
 
 impl<'a> TUnicode<'a> {
-    
     pub fn new(length: U64IneRange, length_type: LengthType) -> Self {
         Self {
             meta: Default::default(),
             length,
-            length_type
+            length_type,
         }
     }
 
@@ -165,8 +164,7 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
                 }),
         );
         let field_length = builder.add(
-            TRange::new(range_element, Inclusion::BothInclusive, false)
-            .with_meta(NameOnly {
+            TRange::new(range_element, Inclusion::BothInclusive, false).with_meta(NameOnly {
                 name: "unicode_length",
             }),
         );

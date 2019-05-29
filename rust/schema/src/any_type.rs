@@ -191,7 +191,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .with_meta(NameDescription {
                     name: "any_type",
                     doc: "The any type is an enumeration of all possible types available \
-                                  in the type system.",
+                          in the type system.",
                 }),
         )
     }
