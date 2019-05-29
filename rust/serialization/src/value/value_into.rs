@@ -1,6 +1,6 @@
 use crate::float::Float;
 use crate::uuid::Uuid;
-use crate::value::EnumValue;
+use crate::value::ValueVariant;
 use crate::value::Value;
 use crate::value::ValueRef;
 use crate::value::ValueSeq;
@@ -100,8 +100,8 @@ impl<'a, T: Into<Value<'a>>> From<Vec<T>> for Value<'a> {
     }
 }
 
-impl<'a> From<EnumValue<'a>> for Value<'a> {
-    fn from(value: EnumValue<'a>) -> Self {
+impl<'a> From<ValueVariant<'a>> for Value<'a> {
+    fn from(value: ValueVariant<'a>) -> Self {
         Value::Enum(value)
     }
 }
@@ -184,7 +184,7 @@ impl<'a> TryFrom<&'a Value<'a>> for &'a [Value<'a>] {
     }
 }
 
-impl<'a> TryFrom<&'a Value<'a>> for &'a EnumValue<'a> {
+impl<'a> TryFrom<&'a Value<'a>> for &'a ValueVariant<'a> {
     type Error = LqError;
 
     fn try_from(value: &'a Value<'a>) -> Result<Self, Self::Error> {

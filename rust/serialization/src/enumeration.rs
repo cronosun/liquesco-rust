@@ -12,6 +12,9 @@ use crate::core::Serializer;
 use liquesco_common::error::LqError;
 
 /// An enum (aka tagged union). Can have 0-n embedded values.
+///
+/// Note: This only de-/serializes the enum header. You need to de-/serialize the embedded
+/// variant values manually.
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {
     ordinal: u32,

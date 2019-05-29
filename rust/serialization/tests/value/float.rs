@@ -2,6 +2,7 @@ use crate::value::check_value;
 use crate::value::serialize_de_serialize;
 use liquesco_serialization::float::Float;
 use liquesco_serialization::value::Value;
+use std::convert::TryFrom;
 
 #[test]
 fn test_some_floats_f32() {
@@ -14,7 +15,7 @@ fn test_some_floats_f32() {
     // special check for NaN
     serialize_de_serialize(&Float::from(std::f32::NAN).into(), |result| match result {
         Value::Float(float) => {
-            let v_float: f32 = float.try_into_f32().unwrap();
+            let v_float: f32 = f32::try_from(float).unwrap();
             assert!(v_float.is_nan());
         }
         _ => panic!("Expected a float!"),
@@ -32,7 +33,7 @@ fn test_some_floats_f64() {
     // special check for NaN
     serialize_de_serialize(&Float::from(std::f64::NAN).into(), |result| match result {
         Value::Float(float) => {
-            let v_float: f64 = float.try_into_f64().unwrap();
+            let v_float: f64 = f64::try_from(float).unwrap();
             assert!(v_float.is_nan());
         }
         _ => panic!("Expected a float!"),

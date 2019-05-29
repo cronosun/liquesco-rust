@@ -1,6 +1,4 @@
 use liquesco_serialization::serde::{serialize_to_vec, de_serialize_from_slice};
-use liquesco_serialization::slice_reader::SliceReader;
-use liquesco_serialization::vec_writer::VecWriter;
 use std::fmt::Debug;
 
 pub mod enum_extensible;

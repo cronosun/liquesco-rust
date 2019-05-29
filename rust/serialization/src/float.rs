@@ -30,9 +30,9 @@ impl From<f64> for Float {
 }
 
 impl Float {
-    pub fn try_into_f32(self) -> Result<f32, LqError> {
+    fn try_into_f32(&self) -> Result<f32, LqError> {
         if let Float::F32(f32_value) = self {
-            Result::Ok(f32_value)
+            Result::Ok(*f32_value)
         } else {
             LqError::err_new(format!(
                 "Given value is a float 64 - want a float 32; \
@@ -42,9 +42,9 @@ impl Float {
         }
     }
 
-    pub fn try_into_f64(self) -> Result<f64, LqError> {
+    fn try_into_f64(&self) -> Result<f64, LqError> {
         if let Float::F64(f64_value) = self {
-            Result::Ok(f64_value)
+            Result::Ok(*f64_value)
         } else {
             LqError::err_new(format!(
                 "Given value is a float 32 - want a float 64; \
@@ -55,18 +55,16 @@ impl Float {
     }
 }
 
-/// Note: Does not seem to work - don't know why, Rust does not find that implementation.
-impl TryFrom<Float> for f32 {
+impl TryFrom<&Float> for f32 {
     type Error = LqError;
-    fn try_from(value: Float) -> Result<Self, Self::Error> {
+    fn try_from(value: &Float) -> Result<Self, Self::Error> {
         value.try_into_f32()
     }
 }
 
-/// Note: Does not seem to work - don't know why, Rust does not find that implementation.
-impl TryFrom<Float> for f64 {
+impl TryFrom<&Float> for f64 {
     type Error = LqError;
-    fn try_from(value: Float) -> Result<Self, Self::Error> {
+    fn try_from(value: &Float) -> Result<Self, Self::Error> {
         value.try_into_f64()
     }
 }

@@ -33,14 +33,6 @@ impl<'de, R: LqReader<'de>> Deserializer<'de, R> {
     }
 }
 
-/* TODO: Remove
-impl<'de, R : LqReader<'de>> From<R> for Deserializer<'de, R> {
-    fn from(reader: R) -> Self {
-        Self::new(reader)
-    }
-}
-*/
-
 type Result<Ok> = std::result::Result<Ok, SLqError>;
 
 impl<'de, 'a, R> serde::Deserializer<'de> for &'a mut Deserializer<'de, R>

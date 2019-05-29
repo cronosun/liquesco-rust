@@ -10,6 +10,9 @@ use std::convert::TryFrom;
 
 /// A sequence has n embedded items. It's not required that the embedded items are of the same
 /// type: So it's also possible to use the sequence for structs and tuples.
+///
+/// Note: This only de-/serializes the header of the sequence. You need to manually de-/serialize
+/// the elements of the sequence.
 pub struct SeqHeader {
     length: u32,
 }

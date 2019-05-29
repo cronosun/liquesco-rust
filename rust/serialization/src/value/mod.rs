@@ -1,5 +1,5 @@
-pub mod value_fmt;
-pub mod value_into;
+mod value_fmt;
+mod value_into;
 
 use crate::binary::Binary;
 use crate::boolean::Bool;
@@ -34,6 +34,11 @@ use std::ops::Deref;
 
 use std::borrow::Cow;
 
+/// All values this serialization format knows.
+///
+/// When to use this: Only use this for things that are not performance critical. E.g. for
+/// formatting the binary data; for tests or when you need to construct data dynamically. Whenever
+/// possible (static data) use serde for value serialization and de-serialization.
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub enum Value<'a> {
     Bool(bool),
@@ -41,18 +46,20 @@ pub enum Value<'a> {
     Binary(Cow<'a, [u8]>),
     Option(Option<ValueRef<'a>>),
     Seq(ValueSeq<'a>),
-    Enum(EnumValue<'a>),
+    Enum(ValueVariant<'a>),
     UInt(u64),
     SInt(i64),
     Float(Float),
 }
 
+/// References `Value`, either boxed or referenced.
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub enum ValueRef<'a> {
     Borrowed(&'a Value<'a>),
     Boxed(Box<Value<'a>>),
 }
 
+/// A sequence of values.
 #[derive(Clone, Debug, PartialEq, Hash)]
 pub enum ValueSeq<'a> {
     Owned(Vec<Value<'a>>),
@@ -60,37 +67,41 @@ pub enum ValueSeq<'a> {
     Empty,
 }
 
-const EMPTY_VALUE_VEC: &[Value<'static>] = &[];
-
+/// An enum variant. Has at least an ordinal any maybe some values.
 #[derive(Clone, Debug, PartialEq, Hash)]
-pub struct EnumValue<'a> {
+pub struct ValueVariant<'a> {
     ordinal: u32,
     values: ValueSeq<'a>,
 }
 
-impl<'a> EnumValue<'a> {
-    pub fn new_no_value(ordinal: u32) -> EnumValue<'static> {
-        EnumValue {
+impl<'a> ValueVariant<'a> {
+    /// New variant with no values.
+    pub fn new_no_value(ordinal: u32) -> ValueVariant<'static> {
+        ValueVariant {
             ordinal,
             values: ValueSeq::Empty,
         }
     }
 
-    pub fn new(ordinal: u32, value: Value) -> EnumValue {
-        EnumValue {
+    /// A new variant with one single value.
+    pub fn new(ordinal: u32, value: Value) -> ValueVariant {
+        ValueVariant {
             ordinal,
             values: ValueSeq::Owned(vec![value]),
         }
     }
 
-    pub fn new_values(ordinal: u32, values: ValueSeq) -> EnumValue {
-        EnumValue { ordinal, values }
+    /// A new variant with 0-n values.
+    pub fn new_values(ordinal: u32, values: ValueSeq) -> ValueVariant {
+        ValueVariant { ordinal, values }
     }
 
+    /// The ordinal value of this enum variant.
     pub fn ordinal(&self) -> u32 {
         self.ordinal
     }
 
+    /// 0-n values of this variant.
     pub fn values(&self) -> &ValueSeq<'a> {
         &self.values
     }
@@ -99,6 +110,12 @@ impl<'a> EnumValue<'a> {
 impl<'a> From<Value<'a>> for ValueRef<'a> {
     fn from(value: Value<'a>) -> Self {
         ValueRef::Boxed(Box::new(value))
+    }
+}
+
+impl<'a> From<Box<Value<'a>>> for ValueRef<'a> {
+    fn from(value: Box<Value<'a>>) -> Self {
+        ValueRef::Boxed(value)
     }
 }
 
@@ -179,12 +196,12 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                     for _ in 0..number_of_values {
                         values.push(Value::de_serialize(reader)?);
                     }
-                    Value::Enum(EnumValue {
+                    Value::Enum(ValueVariant {
                         ordinal: enum_header.ordinal(),
                         values: ValueSeq::Owned(values),
                     })
                 } else {
-                    Value::Enum(EnumValue {
+                    Value::Enum(ValueVariant {
                         ordinal: enum_header.ordinal(),
                         values: ValueSeq::Empty,
                     })
@@ -255,3 +272,5 @@ impl<'a> Serializer for Value<'a> {
         }
     }
 }
+
+const EMPTY_VALUE_VEC: &[Value<'static>] = &[];
