@@ -7,6 +7,7 @@ use crate::core::Serializer;
 use crate::major_types::TYPE_BINARY;
 use liquesco_common::error::LqError;
 
+/// Arbitrary binary data.
 pub struct Binary;
 
 impl<'a> DeSerializer<'a> for Binary {

@@ -7,6 +7,7 @@ use crate::major_types::TYPE_BOOL_FALSE;
 use crate::major_types::TYPE_BOOL_TRUE;
 use liquesco_common::error::LqError;
 
+/// Boolean
 pub struct Bool;
 
 impl<'a> DeSerializer<'a> for Bool {

@@ -8,6 +8,8 @@ use crate::core::Serializer;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
+/// A sequence has n embedded items. It's not required that the embedded items are of the same
+/// type: So it's also possible to use the sequence for structs and tuples.
 pub struct SeqHeader {
     length: u32,
 }
@@ -66,7 +68,7 @@ impl<'a> DeSerializer<'a> for SeqHeader {
     type Item = Self;
 
     fn de_serialize<Reader: LqReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let type_header = reader.read_type_header()?;
+        let type_header = reader.read_header_byte()?;
         if type_header.major_type() != TYPE_SEQ {
             return LqError::err_new(format!(
                 "Got something that's not a sequence (major type \
@@ -75,7 +77,7 @@ impl<'a> DeSerializer<'a> for SeqHeader {
                 type_header.major_type()
             ));
         }
-        let content_description = reader.read_content_description_given_type_header(type_header)?;
+        let content_description = reader.read_content_description_given_header_byte(type_header)?;
         if content_description.self_length() != 0 {
             return LqError::err_new(format!(
                 "Lists always have a self length of 0. This 'list' has a self 
@@ -84,7 +86,7 @@ impl<'a> DeSerializer<'a> for SeqHeader {
             ));
         }
         Result::Ok(Self {
-            length: content_description.number_of_embedded_values(),
+            length: content_description.number_of_embedded_items(),
         })
     }
 }

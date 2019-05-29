@@ -8,6 +8,7 @@ use crate::major_types::TYPE_UNICODE;
 use liquesco_common::error::LqError;
 use std::str::from_utf8;
 
+/// Unicode (UTF-8) text.
 pub struct Unicode;
 
 impl<'a> DeSerializer<'a> for Unicode {
@@ -35,6 +36,8 @@ impl Serializer for Unicode {
     }
 }
 
+/// Use this to ready unicode text without check for UTF-8 validity. This is for example used
+/// to read ASCII text (in the case of ASCII text the schema will perform validity check).
 pub struct UncheckedUnicode;
 
 impl<'a> DeSerializer<'a> for UncheckedUnicode {

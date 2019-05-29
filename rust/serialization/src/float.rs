@@ -165,13 +165,13 @@ impl Serializer for Float64 {
 
 #[inline]
 fn begin_de_serialize<'a, R: LqReader<'a>>(reader: &mut R) -> Result<Type, LqError> {
-    let type_header = reader.read_type_header()?;
-    let content_description = reader.read_content_description_given_type_header(type_header)?;
+    let type_header = reader.read_header_byte()?;
+    let content_description = reader.read_content_description_given_header_byte(type_header)?;
 
     if type_header.major_type() != TYPE_FLOAT {
         return LqError::err_static("Given type is not a float type");
     }
-    if content_description.number_of_embedded_values() != 0 {
+    if content_description.number_of_embedded_items() != 0 {
         return LqError::err_static("Float types must not contain embedded values.");
     }
 

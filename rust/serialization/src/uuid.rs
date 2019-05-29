@@ -6,6 +6,8 @@ use crate::core::Serializer;
 use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 
+/// 16 byte Universally Unique Identifier (UUID) according to RFC 4122. Does not specify which
+/// variant is allowed. Does not validate: Any 16 byte binary is allowed.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
 pub struct Uuid([u8; 16]);
 

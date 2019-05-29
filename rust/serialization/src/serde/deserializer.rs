@@ -18,17 +18,28 @@ use std::marker::PhantomData;
 
 use crate::core::LqReader;
 
-pub struct Deserializer<'de, R: LqReader<'de>> {
+pub(crate) struct Deserializer<'de, R: LqReader<'de>> {
     reader: R,
     _phantom: &'de PhantomData<()>,
 }
 
-pub fn new_deserializer<'de, R: LqReader<'de>>(reader: R) -> Deserializer<'de, R> {
-    Deserializer {
-        reader,
-        _phantom: &PhantomData,
+impl<'de, R: LqReader<'de>> Deserializer<'de, R> {
+    /// Creates a new serde deserializer.
+    pub fn new(reader: R) -> Self {
+        Self {
+            reader,
+            _phantom: &PhantomData,
+        }
     }
 }
+
+/* TODO: Remove
+impl<'de, R : LqReader<'de>> From<R> for Deserializer<'de, R> {
+    fn from(reader: R) -> Self {
+        Self::new(reader)
+    }
+}
+*/
 
 type Result<Ok> = std::result::Result<Ok, SLqError>;
 

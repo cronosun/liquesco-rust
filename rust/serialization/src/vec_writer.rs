@@ -1,6 +1,7 @@
 use crate::core::LqWriter;
 use liquesco_common::error::LqError;
 
+/// Implements the `LqWriter` that writes into a `Vec<u8>`.
 pub struct VecWriter {
     data: Vec<u8>,
 }
@@ -35,6 +36,7 @@ impl LqWriter for VecWriter {
 }
 
 impl VecWriter {
+    /// Finishes the writer and returns the written data as `Vec<u8>`.
     pub fn finish(self) -> Vec<u8> {
         self.data
     }

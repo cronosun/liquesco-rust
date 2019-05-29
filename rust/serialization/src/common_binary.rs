@@ -6,7 +6,7 @@ use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
 #[inline]
-pub fn binary_write<W: LqWriter>(
+pub(crate) fn binary_write<W: LqWriter>(
     data: &[u8],
     writer: &mut W,
     major_type: MajorType,
@@ -21,16 +21,16 @@ pub fn binary_write<W: LqWriter>(
 }
 
 #[inline]
-pub fn binary_read<'a, R: LqReader<'a>>(reader: &mut R) -> Result<(MajorType, &'a [u8]), LqError> {
-    let header = reader.read_type_header()?;
-    let content_description = reader.read_content_description_given_type_header(header)?;
+pub(crate) fn binary_read<'a, R: LqReader<'a>>(reader: &mut R) -> Result<(MajorType, &'a [u8]), LqError> {
+    let header = reader.read_header_byte()?;
+    let content_description = reader.read_content_description_given_header_byte(header)?;
     let len = content_description.self_length();
     // binaries can never contain embedded values
-    if content_description.number_of_embedded_values() != 0 {
+    if content_description.number_of_embedded_items() != 0 {
         return LqError::err_new(format!(
             "Binary types can never contain embedded values. Got {:?} \
              embedded values. Major type {:?}.",
-            content_description.number_of_embedded_values(),
+            content_description.number_of_embedded_items(),
             header.major_type()
         ));
     }

@@ -135,7 +135,7 @@ impl<'a> DeSerializer<'a> for Value<'a> {
     type Item = Self;
 
     fn de_serialize<Reader: LqReader<'a>>(reader: &mut Reader) -> Result<Self::Item, LqError> {
-        let major_type = reader.peek_header()?.major_type();
+        let major_type = reader.peek_header_byte()?.major_type();
         let value = match major_type {
             TYPE_BOOL_FALSE | TYPE_BOOL_TRUE => Value::Bool(Bool::de_serialize(reader)?),
             TYPE_OPTION => {

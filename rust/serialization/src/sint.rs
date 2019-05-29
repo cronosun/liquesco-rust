@@ -7,14 +7,15 @@ use crate::major_types::TYPE_SINT;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
+/// A 64 bit signed integer.
 pub struct SInt64;
 
 impl<'a> DeSerializer<'a> for SInt64 {
     type Item = i64;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let type_header = reader.read_type_header()?;
-        let content_description = reader.read_content_description_given_type_header(type_header)?;
+        let type_header = reader.read_header_byte()?;
+        let content_description = reader.read_content_description_given_header_byte(type_header)?;
 
         if type_header.major_type() != TYPE_SINT {
             return LqError::err_new(format!(
@@ -23,7 +24,7 @@ impl<'a> DeSerializer<'a> for SInt64 {
                 type_header.major_type()
             ));
         }
-        if content_description.number_of_embedded_values() != 0 {
+        if content_description.number_of_embedded_items() != 0 {
             return LqError::err_static("Integer types must not contain embedded values.");
         }
 

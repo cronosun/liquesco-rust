@@ -11,6 +11,7 @@ use crate::core::LqWriter;
 use crate::core::Serializer;
 use liquesco_common::error::LqError;
 
+/// An enum (aka tagged union). Can have 0-n embedded values.
 #[derive(Clone, Debug, Eq, PartialEq, Hash)]
 pub struct EnumHeader {
     ordinal: u32,
@@ -31,6 +32,7 @@ impl EnumHeader {
         self.number_of_values
     }
 
+    /// The enum variant ordinal.
     pub fn ordinal(&self) -> u32 {
         self.ordinal
     }
@@ -40,8 +42,8 @@ impl<'a> DeSerializer<'a> for EnumHeader {
     type Item = Self;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let type_header = reader.read_type_header()?;
-        let content_description = reader.read_content_description_given_type_header(type_header)?;
+        let type_header = reader.read_header_byte()?;
+        let content_description = reader.read_content_description_given_header_byte(type_header)?;
         let major_type = type_header.major_type();
         let self_length = content_description.self_length();
 
@@ -81,7 +83,7 @@ impl<'a> DeSerializer<'a> for EnumHeader {
 
         Result::Ok(Self {
             ordinal,
-            number_of_values: content_description.number_of_embedded_values(),
+            number_of_values: content_description.number_of_embedded_items(),
         })
     }
 }
@@ -112,7 +114,7 @@ impl<'a> Serializer for EnumHeader {
         // write header
         let mut content_description = ContentDescription::default();
         content_description.set_self_length(self_len);
-        content_description.set_number_of_embedded_values(item.number_of_values);
+        content_description.set_number_of_embedded_items(item.number_of_values);
         writer.write_content_description(major_type, &content_description)?;
 
         // depending on the ordinal we also have to write the ordinal

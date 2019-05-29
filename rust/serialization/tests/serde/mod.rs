@@ -1,5 +1,4 @@
-use liquesco_serialization::serde::new_deserializer;
-use liquesco_serialization::serde::serialize;
+use liquesco_serialization::serde::{serialize_to_vec, de_serialize_from_slice};
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
 use std::fmt::Debug;
@@ -17,14 +16,12 @@ pub fn assert_serde<S>(item: S)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
-    let mut writer = VecWriter::default();
-    serialize(&mut writer, &item).expect("Unable to serialize value");
-    let serialized_data = writer.finish();
+    let serialized_data = serialize_to_vec(&item)
+        .expect("Unable to serialize value");
 
     // now de-serialize the data
-    let reader: SliceReader = (&serialized_data).into();
-    let mut de = new_deserializer(reader);
-    let value = S::deserialize(&mut de).expect("Unable to de-serialize");
+    let value = de_serialize_from_slice::<S>(&serialized_data)
+        .expect("Unable to de-serialize");
 
     // make sure we got the same values
     assert_eq!(item, value);
@@ -36,14 +33,11 @@ where
     S2: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // item 1
-    let mut writer1 = VecWriter::default();
-    serialize(&mut writer1, &item1).expect("Unable to serialize value 1");
-    let serialized_data1 = writer1.finish();
-
+    let serialized_data1 = serialize_to_vec(&item1)
+        .expect("Unable to serialize value 1");
     // item 2
-    let mut writer2 = VecWriter::default();
-    serialize(&mut writer2, &item2).expect("Unable to serialize value 1");
-    let serialized_data2 = writer2.finish();
+    let serialized_data2 = serialize_to_vec(&item2)
+        .expect("Unable to serialize value 2");
 
     assert_eq!(serialized_data1, serialized_data2);
 
@@ -58,14 +52,12 @@ where
     Destination: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
 {
     // serialize source
-    let mut writer = VecWriter::default();
-    serialize(&mut writer, &source).expect("Unable to serialize value");
-    let serialized_data = writer.finish();
+    let serialized_data = serialize_to_vec(&source)
+        .expect("Unable to serialize value");
 
     // now de-serialize destination
-    let reader: SliceReader = (&serialized_data).into();
-    let mut de = new_deserializer(reader);
-    let value = Destination::deserialize(&mut de).expect("Unable to de-serialize");
+    let value = de_serialize_from_slice::<Destination>(&serialized_data)
+        .expect("Unable to de-serialize");
 
     assert_eq!(destination, value);
 

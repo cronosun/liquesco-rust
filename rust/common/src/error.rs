@@ -32,6 +32,12 @@ impl Display for LqError {
     }
 }
 
+impl Category {
+    pub const fn new(string : &'static str) -> Self {
+        Self(string)
+    }
+}
+
 impl LqError {
     // TODO: Can be removed?
     pub fn err_static<Ok>(string: &'static str) -> Result<Ok, LqError> {
@@ -63,6 +69,11 @@ impl LqError {
 
     pub fn msg(&self) -> &str {
         &self.msg
+    }
+
+    pub fn with_category(mut self, category : Category) -> Self {
+        self.category = category;
+        self
     }
 }
 

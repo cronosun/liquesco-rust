@@ -3,6 +3,9 @@ use liquesco_common::error::LqError;
 use std::io::Read;
 use std::io::Write;
 
+/// Can be used to get a `LqReader` from a slice of `u8`. It contains the slice and an
+/// offset (cursor). It's cheap to clone, since embedded data won't be cloned, only the
+/// offset (cursor) will be cloned.
 pub struct SliceReader<'a> {
     data: &'a [u8],
     offset: usize,
@@ -28,7 +31,7 @@ impl<'a> SliceReader<'a> {
     pub fn finish(&self) -> Result<(), LqError> {
         if self.offset != self.data.len() {
             LqError::err_static(
-                "There's addtional data not read from any. The any data must have been comsumed 
+                "There's additional data not read from any. The any data must have been consumed
             entirely (for security reasons).",
             )
         } else {
@@ -38,10 +41,14 @@ impl<'a> SliceReader<'a> {
 }
 
 impl<'a> LqReader<'a> for SliceReader<'a> {
-    fn clone(&self) -> Self {
-        Self {
-            data: self.data,
-            offset: self.offset,
+    #[inline]
+    fn peek_u8(&self) -> Result<u8, LqError> {
+        let len = self.data.len();
+        if self.offset >= len {
+            LqError::err_static("End of reader")
+        } else {
+            let value = self.data[self.offset];
+            Result::Ok(value)
         }
     }
 
@@ -58,17 +65,6 @@ impl<'a> LqReader<'a> for SliceReader<'a> {
     }
 
     #[inline]
-    fn peek_u8(&self) -> Result<u8, LqError> {
-        let len = self.data.len();
-        if self.offset >= len {
-            LqError::err_static("End of reader")
-        } else {
-            let value = self.data[self.offset];
-            Result::Ok(value)
-        }
-    }
-
-    #[inline]
     fn read_slice(&mut self, len: usize) -> Result<&'a [u8], LqError> {
         let data_len = self.data.len();
         if self.offset + len > data_len {
@@ -79,6 +75,14 @@ impl<'a> LqReader<'a> for SliceReader<'a> {
             let value = &data[self.offset..end_index];
             self.offset += len;
             Result::Ok(value)
+        }
+    }
+
+    /// Note: This is a cheap operation since the binary data won't be cloned, only the offset.
+    fn clone(&self) -> Self {
+        Self {
+            data: self.data,
+            offset: self.offset,
         }
     }
 }

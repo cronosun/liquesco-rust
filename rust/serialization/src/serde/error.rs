@@ -3,15 +3,17 @@ use serde::ser;
 use std::fmt::Display;
 use std::num::TryFromIntError;
 
-use liquesco_common::error::LqError;
+use liquesco_common::error::{LqError, Category};
 
-// TODO: Use LqError with additional information!
+/// Errors resulting from serde problems.
+pub(crate) const CATEGORY : Category = Category::new("liquesco_serde");
+
 #[derive(Debug)]
-pub struct SLqError(LqError);
+pub(crate) struct SLqError(LqError);
 
 impl Display for SLqError {
     fn fmt(&self, f: &mut std::fmt::Formatter) -> std::fmt::Result {
-        write!(f, "SLqError({:?})", self.0.msg)
+        self.0.fmt(f)
     }
 }
 
@@ -44,6 +46,6 @@ impl From<SLqError> for LqError {
 
 impl From<LqError> for SLqError {
     fn from(value: LqError) -> Self {
-        Self(value)
+        Self(value.with_category(CATEGORY))
     }
 }

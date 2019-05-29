@@ -16,17 +16,16 @@ use std::convert::TryFrom;
 
 use serde::ser;
 
-#[inline]
-pub fn serialize<W: LqWriter, S: ser::Serialize>(
-    writer: &mut W,
-    value: S,
-) -> std::result::Result<(), LqError> {
-    let mut serializer = Serializer { writer };
-    value.serialize(&mut serializer).map_err(|err| err.into())
+pub(crate) struct Serializer<'a, W: LqWriter> {
+    writer: &'a mut W,
 }
 
-pub struct Serializer<'a, W: LqWriter> {
-    writer: &'a mut W,
+impl<'a, W: LqWriter>  Serializer<'a, W> {
+    pub(crate) fn new(writer : &'a mut W) -> Self {
+        Self {
+            writer
+        }
+    }
 }
 
 type Result<Ok> = std::result::Result<Ok, SLqError>;
