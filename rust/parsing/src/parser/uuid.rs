@@ -20,7 +20,6 @@ impl<'a> Parser<'a> for PUuid {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         let text = C::TConverter::require_text(&value.value)?;
         let uuid = uuid::Uuid::parse_str(text);
         match uuid {

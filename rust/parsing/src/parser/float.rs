@@ -22,7 +22,6 @@ impl<'a> Parser<'a> for PFloat32 {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         let value = C::TConverter::require_f32(value.as_ref())?;
         Float::serialize(writer, &Float::F32(value))?;
         Result::Ok(())
@@ -43,7 +42,6 @@ impl<'a> Parser<'a> for PFloat64 {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         let value = C::TConverter::require_f64(value.as_ref())?;
         Float::serialize(writer, &Float::F64(value))?;
         Result::Ok(())

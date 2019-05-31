@@ -2,9 +2,12 @@ use crate::parser::value::Seq;
 use crate::parser::value::Text;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
+use data_encoding::BASE64_NOPAD;
+use data_encoding::HEXLOWER_PERMISSIVE;
 use liquesco_common::error::LqError;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::identifier::Identifier;
+use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
 
@@ -49,6 +52,7 @@ pub trait Converter {
                 }
             }
             // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
+            // TODO: Also accept hex encoding...
             Value::Text(text) => text.parse::<u64>().ok(),
             _ => Option::None,
         }
@@ -56,7 +60,7 @@ pub trait Converter {
 
     fn require_u64(value: &Value) -> Result<u64, LqError> {
         require(Self::to_u64(value), || {
-            format!("Expecting an unsiged integer, got {:?}", value)
+            format!("Expecting an unsigned integer, got {:?}", value)
         })
     }
 
@@ -91,6 +95,8 @@ pub trait Converter {
                     Option::None
                 }
             }
+            // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
+            // TODO: Also accept hex encoding...
             Value::Text(text) => text.parse::<i64>().ok(),
             _ => Option::None,
         }
@@ -185,19 +191,6 @@ pub trait Converter {
         })
     }
 
-    // TODO: can be removed
-    fn require_no_name(value: &TextValue) -> Result<(), LqError> {
-        if let Some(name) = &value.name {
-            Result::Err(LqError::new(format!(
-                "The given value has a name (name \
-                 is {:?}). This name is unused and must be removed. Value is {:?}.",
-                name, value
-            )))
-        } else {
-            Result::Ok(())
-        }
-    }
-
     fn to_seq<'a>(value: &'a Value<'a>) -> Option<&'a Seq<'a>> {
         if let Value::Seq(value) = value {
             Some(value)
@@ -210,6 +203,53 @@ pub trait Converter {
         require(Self::to_seq(value), || {
             format!(
                 "Expecting to have a sequence (aka. list or vector). got {:?}",
+                value
+            )
+        })
+    }
+
+    fn to_binary<'a>(value: &'a Value<'a>) -> Option<Cow<'a, [u8]>> {
+        let maybe_vec = if let Some(cow) = Self::to_text(value) {
+            let text: &str = &cow;
+            let utf8_text: &[u8] = text.as_bytes();
+            if text.starts_with("hex:") {
+                // try to decode as hex (don't cate about case)
+                HEXLOWER_PERMISSIVE.decode(&utf8_text[4..]).ok()
+            } else {
+                // try to decode that as base64
+                BASE64_NOPAD.decode(utf8_text).ok()
+            }
+        } else {
+            // sequence of bytes
+            if let Some(seq) = Self::to_seq(value) {
+                let number_of_elements = seq.len();
+                let mut result = Vec::with_capacity(number_of_elements);
+                for element in seq {
+                    if let Some(element_as_number) = Self::to_u64(&element.value) {
+                        if element_as_number <= std::u8::MAX as u64 {
+                            result.push(element_as_number as u8);
+                        } else {
+                            return None;
+                        }
+                    } else {
+                        return None;
+                    }
+                }
+                Some(result)
+            } else {
+                None
+            }
+        };
+        maybe_vec.map(|vec| Cow::Owned(vec))
+    }
+
+    fn require_binary<'a>(value: &'a Value<'a>) -> Result<Cow<'a, [u8]>, LqError> {
+        require(Self::to_binary(value), || {
+            format!(
+                "Expecting to have binary data. Valid binary data is either base64 (string; \
+                 no padding) or hex encoding (a string starting with 'hex:') or a sequence of \
+                 numbers (0-255). Example (base 64): 'aGVsbG8'; Example (hex encoding): \
+                 'hex:68656C6C6F'; Example (seq): [104, 101, 108, 108, 111]. got {:?}",
                 value
             )
         })

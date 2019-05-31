@@ -21,7 +21,6 @@ impl<'a> Parser<'a> for PSInt {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         let value = C::TConverter::require_i64(value.as_ref())?;
         SInt64::serialize(writer, &value)?;
         Result::Ok(())

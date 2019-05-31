@@ -21,8 +21,6 @@ impl<'a> Parser<'a> for PAscii {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         let text = C::TConverter::require_text(value.as_ref())?;
         Ok(Unicode::serialize(writer, text)?)
     }

@@ -26,8 +26,6 @@ impl<'a> Parser<'a> for PEnum {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         let maybe_variant_id = extract_variant_identifier::<C::TConverter>(value.as_ref())?;
         if let Some(variant_id) = maybe_variant_id {
             let maybe_variant = r#type.variant_by_id(&variant_id);

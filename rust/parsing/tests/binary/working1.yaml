@@ -1,0 +1,14 @@
+# It's always "hello"
+- "aGVsbG8"
+- "hex:68656C6C6F"
+- [104, 101, 108, 108, 111]
+# Maximum length of 20
+- "hex:68656C6C6F363738394168656C6C6F3637383941"
+- "aGVsbG82Nzg5QWhlbGxvNjc4OUE"
+- [104, 101, 108, 108, 111, 104, 101, 108, 108, 111, 104, 101, 108, 108, 111, 104, 101, 108, 108, 111]
+# Minimum length (0)
+- "hex:"
+- ""
+- []
+# Hex is case insensitive
+- "hex:68656c6C6f"

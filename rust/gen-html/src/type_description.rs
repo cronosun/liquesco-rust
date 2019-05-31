@@ -3,6 +3,7 @@ use liquesco_schema::any_type::AnyType;
 pub(crate) fn type_description(any_type: &AnyType) -> (&'static str, &'static str) {
     match any_type {
             AnyType::Struct(_) => ("structure", "A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type."),
+            AnyType::Binary(_) => ("binary", "Arbitrary binary data."),
             AnyType::UInt(_) => ("unsigned integer", "Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range)."),
             AnyType::SInt(_) => ("signed integer", "Data of signed integer (aka sint or signed int) holds a single (positive or negative) integer value (within a defined range)."),
             AnyType::Ascii(_) => ("ascii", "Ascii (aka ascii text) is a sequence of characters where each of them is within the ascii range (0-127 inclusive). It can be used to transfer technical text (aka string); it's not to be used to transfer human readable text (use unicode for this case)."),

@@ -3,6 +3,7 @@ mod utils;
 
 pub mod anchors;
 pub mod ascii;
+pub mod binary;
 pub mod enumeration;
 pub mod float_num;
 pub mod identifier;

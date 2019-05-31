@@ -3,6 +3,7 @@ use crate::body_writer::Context;
 use crate::types::wanchor::WAnchors;
 use crate::types::wanchor::WReference;
 use crate::types::wascii::WAscii;
+use crate::types::wbinary::WBinary;
 use crate::types::wbool::WBool;
 use crate::types::wenum::WEnum;
 use crate::types::wfloat::WFloat32;
@@ -25,6 +26,7 @@ use minidom::Element;
 
 pub mod wanchor;
 pub mod wascii;
+pub mod wbinary;
 pub mod wbool;
 pub mod wenum;
 pub mod wfloat;
@@ -42,6 +44,7 @@ pub fn write_body(ctx: BodyWriteContext) -> Element {
     match any_type {
         AnyType::Struct(value) => WStruct::write(&mut ctx.into(value)),
         AnyType::Seq(value) => WSeq::write(&mut ctx.into(value)),
+        AnyType::Binary(value) => WBinary::write(&mut ctx.into(value)),
         AnyType::Enum(value) => WEnum::write(&mut ctx.into(value)),
         AnyType::Anchors(value) => WAnchors::write(&mut ctx.into(value)),
         AnyType::Reference(value) => WReference::write(&mut ctx.into(value)),

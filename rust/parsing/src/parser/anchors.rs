@@ -22,8 +22,6 @@ impl<'a> Parser<'a> for PAnchors {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         // save anchor info (this is required with nested anchors)
         let preserved_anchor_info = context.take_anchor_info();
 

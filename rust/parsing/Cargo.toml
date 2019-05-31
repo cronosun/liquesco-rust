@@ -12,3 +12,4 @@ serde = {version = "1.0.91", features = ["derive"]}
 serde_yaml = "0.8.9"
 yaml-rust = "0.4"
 uuid = { version = "0.7.4", features = ["v4"] }
+data-encoding = "2.1.2"

@@ -24,8 +24,6 @@ impl<'a> Parser<'a> for PStruct {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         // for structures the input must be a map
         let mut value = C::TConverter::require_string_map(value.as_ref())?;
 

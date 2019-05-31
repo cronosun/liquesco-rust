@@ -1,5 +1,6 @@
 use crate::anchors::TAnchors;
 use crate::ascii::TAscii;
+use crate::binary::TBinary;
 use crate::boolean::TBool;
 use crate::core::Type;
 use crate::core::{Context, TypeRef};
@@ -37,7 +38,7 @@ pub enum AnyType<'a> {
     Bool(TBool<'a>),
     Option(TOption<'a>),
     Seq(TSeq<'a>),
-    // TODO: Binary
+    Binary(TBinary<'a>),
     Unicode(TUnicode<'a>),
     UInt(TUInt<'a>),
     SInt(TSInt<'a>),
@@ -65,6 +66,7 @@ impl<'a> WithMetadata for AnyType<'a> {
             AnyType::Anchors(value) => value.meta(),
             AnyType::Reference(value) => value.meta(),
             AnyType::Seq(value) => value.meta(),
+            AnyType::Binary(value) => value.meta(),
             AnyType::Float32(value) => value.meta(),
             AnyType::Float64(value) => value.meta(),
             AnyType::Option(value) => value.meta(),
@@ -91,6 +93,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Anchors(value) => value.validate(context),
             AnyType::Reference(value) => value.validate(context),
             AnyType::Seq(value) => value.validate(context),
+            AnyType::Binary(value) => value.validate(context),
             AnyType::Float32(value) => value.validate(context),
             AnyType::Float64(value) => value.validate(context),
             AnyType::Option(value) => value.validate(context),
@@ -120,6 +123,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Anchors(value) => value.compare(context, r1, r2),
             AnyType::Reference(value) => value.compare(context, r1, r2),
             AnyType::Seq(value) => value.compare(context, r1, r2),
+            AnyType::Binary(value) => value.compare(context, r1, r2),
             AnyType::Float32(value) => value.compare(context, r1, r2),
             AnyType::Float64(value) => value.compare(context, r1, r2),
             AnyType::Option(value) => value.compare(context, r1, r2),
@@ -140,6 +144,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Anchors(value) => value.reference(index),
             AnyType::Reference(value) => value.reference(index),
             AnyType::Seq(value) => value.reference(index),
+            AnyType::Binary(value) => value.reference(index),
             AnyType::Float32(value) => value.reference(index),
             AnyType::Float64(value) => value.reference(index),
             AnyType::Option(value) => value.reference(index),
@@ -158,6 +163,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_bool = doc_type_ref::<TBool, B>(builder);
         let ref_option = doc_type_ref::<TOption, B>(builder);
         let ref_seq = doc_type_ref::<TSeq, B>(builder);
+        let ref_binary = doc_type_ref::<TBinary, B>(builder);
         let ref_unicode = doc_type_ref::<TUnicode, B>(builder);
         let ref_uint = doc_type_ref::<TUInt, B>(builder);
         let ref_sint = doc_type_ref::<TSInt, B>(builder);
@@ -176,6 +182,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_bool, "bool"))
                 .add(variant(ref_option, "option"))
                 .add(variant(ref_seq, "seq"))
+                .add(variant(ref_binary, "binary"))
                 .add(variant(ref_unicode, "unicode"))
                 .add(variant(ref_uint, "uint"))
                 .add(variant(ref_sint, "sint"))

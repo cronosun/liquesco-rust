@@ -1,5 +1,6 @@
 use crate::parser::anchors::PAnchors;
 use crate::parser::ascii::PAscii;
+use crate::parser::binary::PBinary;
 use crate::parser::boolean::PBool;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
@@ -34,6 +35,7 @@ where
         AnyType::SInt(value) => PSInt::parse(context, writer, text_value, value),
         AnyType::Struct(value) => PStruct::parse(context, writer, text_value, value),
         AnyType::Seq(value) => PSeq::parse(context, writer, text_value, value),
+        AnyType::Binary(value) => PBinary::parse(context, writer, text_value, value),
         AnyType::Ascii(value) => PAscii::parse(context, writer, text_value, value),
         AnyType::Enum(value) => PEnum::parse(context, writer, text_value, value),
         AnyType::Bool(value) => PBool::parse(context, writer, text_value, value),

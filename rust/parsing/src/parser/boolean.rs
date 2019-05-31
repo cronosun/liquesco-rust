@@ -21,7 +21,6 @@ impl<'a> Parser<'a> for PBool {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         let value = C::TConverter::require_bool(value.as_ref())?;
         Bool::serialize(writer, &value)?;
         Result::Ok(())

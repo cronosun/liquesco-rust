@@ -1,4 +1,3 @@
-use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
@@ -21,7 +20,6 @@ impl<'a> Parser<'a> for POption {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
         if value.as_ref().is_nothing() {
             Presence::serialize(writer, &Presence::Absent)?;
             Result::Ok(())

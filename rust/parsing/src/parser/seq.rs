@@ -23,8 +23,6 @@ impl<'a> Parser<'a> for PSeq {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         // Maybe it's a special case (seq -> ascii)
         let parsed_as_identifier = PIdentifier::maybe_parse(context, writer, value, r#type)?;
         if parsed_as_identifier {

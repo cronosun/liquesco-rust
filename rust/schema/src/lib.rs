@@ -11,6 +11,7 @@ pub mod schema_builder;
 
 pub mod anchors;
 pub mod ascii;
+pub mod binary;
 pub mod boolean;
 pub mod enumeration;
 pub mod float;

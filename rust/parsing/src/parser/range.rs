@@ -23,8 +23,6 @@ impl<'a> Parser<'a> for PRange {
     where
         C: Context<'c>,
     {
-        C::TConverter::require_no_name(value)?;
-
         let sequence = C::TConverter::require_seq(&value.value)?;
         let supplied_inclusion = r#type.inclusion() == Inclusion::Supplied;
         let number_of_fields = if supplied_inclusion { 4 } else { 2 };
