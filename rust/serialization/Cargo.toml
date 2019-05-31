@@ -16,5 +16,8 @@ serde = {version = "1.0.91", features = ["derive"]}
 maplit = "1.0.1"
 from_variants = "0.4.0"
 
+[dev-dependencies]
+serde_bytes = "0.11"
+
 
 

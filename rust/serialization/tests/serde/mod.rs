@@ -9,6 +9,7 @@ pub mod simple_scalars;
 pub mod simple_sequences;
 pub mod struct_defaults;
 pub mod struct_demo;
+pub mod uuid;
 
 pub fn assert_serde<S>(item: S)
 where

@@ -31,7 +31,8 @@ pub(crate) fn binary_read<'a, R: LqReader<'a>>(
     if content_description.number_of_embedded_items() != 0 {
         return LqError::err_new(format!(
             "Binary types can never contain embedded values. Got {:?} \
-             embedded values. Major type {:?}.",
+             embedded values. Major type {:?} (is this the correct major type?); Also make sure \
+             you don't serde binaries as sequence of u8 (see serde documentation).",
             content_description.number_of_embedded_items(),
             header.major_type()
         ));

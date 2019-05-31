@@ -5,7 +5,7 @@ use varuint::*;
 use liquesco_common::error::LqError;
 
 /// The major type can be within 0-24 (inclusive).
-#[derive(Debug, Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
+#[derive(Copy, Clone, Eq, PartialEq, PartialOrd, Ord)]
 pub struct MajorType(u8);
 
 /// Combines the `MajorType` and the `ContentInfo`.

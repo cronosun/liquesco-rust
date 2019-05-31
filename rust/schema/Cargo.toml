@@ -11,3 +11,4 @@ serde = {version = "1.0.91", features = ["derive"]}
 derive_more = "0.13.0"
 derive-new = "0.5"
 from_variants = "0.4.0"
+serde_bytes = "0.11.1"
