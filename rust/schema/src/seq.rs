@@ -1,5 +1,5 @@
 use crate::boolean::TBool;
-use crate::core::Context;
+use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::enumeration::TEnum;

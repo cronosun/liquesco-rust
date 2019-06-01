@@ -7,7 +7,7 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 
 use crate::boolean::TBool;
-use crate::core::Context;
+use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::enumeration::TEnum;

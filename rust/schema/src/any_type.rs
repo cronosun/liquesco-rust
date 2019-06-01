@@ -3,11 +3,13 @@ use crate::ascii::TAscii;
 use crate::binary::TBinary;
 use crate::boolean::TBool;
 use crate::core::Type;
-use crate::core::{Context, TypeRef};
+use crate::core::{TypeRef};
+use crate::context::Context;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::float::TFloat32;
 use crate::float::TFloat64;
+use crate::key_ref::TKeyRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::NameDescription;
@@ -49,6 +51,7 @@ pub enum AnyType<'a> {
 
     Struct(TStruct<'a>),
     Map(TMap<'a>),
+    KeyRef(TKeyRef<'a>),
     Ascii(TAscii<'a>),
     Anchors(TAnchors<'a>),
     Reference(TReference<'a>),
@@ -61,6 +64,7 @@ impl<'a> WithMetadata for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.meta(),
             AnyType::Map(value) => value.meta(),
+            AnyType::KeyRef(value) => value.meta(),
             AnyType::UInt(value) => value.meta(),
             AnyType::SInt(value) => value.meta(),
             AnyType::Ascii(value) => value.meta(),
@@ -89,6 +93,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.validate(context),
             AnyType::Map(value) => value.validate(context),
+            AnyType::KeyRef(value) => value.validate(context),
             AnyType::UInt(value) => value.validate(context),
             AnyType::SInt(value) => value.validate(context),
             AnyType::Ascii(value) => value.validate(context),
@@ -120,6 +125,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.compare(context, r1, r2),
             AnyType::Map(value) => value.compare(context, r1, r2),
+            AnyType::KeyRef(value) => value.compare(context, r1, r2),
             AnyType::UInt(value) => value.compare(context, r1, r2),
             AnyType::SInt(value) => value.compare(context, r1, r2),
             AnyType::Ascii(value) => value.compare(context, r1, r2),
@@ -142,6 +148,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.reference(index),
             AnyType::Map(value) => value.reference(index),
+            AnyType::KeyRef(value) => value.reference(index),
             AnyType::UInt(value) => value.reference(index),
             AnyType::SInt(value) => value.reference(index),
             AnyType::Ascii(value) => value.reference(index),
@@ -178,6 +185,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_enum = doc_type_ref::<TEnum, B>(builder);
         let ref_struct = doc_type_ref::<TStruct, B>(builder);
         let ref_map = doc_type_ref::<TMap, B>(builder);
+        let ref_key_ref = doc_type_ref::<TKeyRef, B>(builder);
         let ref_ascii = doc_type_ref::<TAscii, B>(builder);
         let ref_anchors = doc_type_ref::<TAnchors, B>(builder);
         let ref_reference = doc_type_ref::<TReference, B>(builder);
@@ -198,6 +206,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_enum, "enum"))
                 .add(variant(ref_struct, "struct"))
                 .add(variant(ref_map, "map"))
+                .add(variant(ref_key_ref, "key_ref"))
                 .add(variant(ref_ascii, "ascii"))
                 .add(variant(ref_anchors, "anchors"))
                 .add(variant(ref_reference, "reference"))

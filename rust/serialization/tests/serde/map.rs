@@ -1,6 +1,4 @@
 use crate::serde::assert_serde;
-use crate::serde::serialize_to_same;
-use serde::{Deserialize, Serialize};
 use std::collections::HashMap;
 
 #[test]

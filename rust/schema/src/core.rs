@@ -3,6 +3,7 @@ use std::cmp::Ordering;
 use std::fmt::Debug;
 
 use crate::any_type::AnyType;
+use crate::context::Context;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
@@ -42,31 +43,6 @@ pub trait Type: Debug + WithMetadata {
     /// This is mostly used internally; usually you get embedded references
     /// by the appropriate methods.
     fn reference(&self, _: usize) -> Option<TypeRef>;
-}
-
-/// Data used for type validation.
-pub trait Context<'a> {
-    type Reader: LqReader<'a>;
-
-    fn validate(&mut self, reference: TypeRef) -> Result<(), LqError>;
-
-    /// See `Type::compare`.
-    fn compare(
-        &self,
-        reference: TypeRef,
-        r1: &mut Self::Reader,
-        r2: &mut Self::Reader,
-    ) -> Result<Ordering, LqError>;
-
-    fn reader(&mut self) -> &mut Self::Reader;
-
-    fn config(&self) -> &Config;
-
-    fn anchor_index(&self) -> Option<u32>;
-    fn set_anchor_index(&mut self, value: Option<u32>);
-
-    fn max_used_anchor_index(&self) -> Option<u32>;
-    fn set_max_used_anchor_index(&mut self, value: Option<u32>);
 }
 
 /// Configuration used for validation.

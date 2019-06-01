@@ -1,4 +1,4 @@
-use crate::core::Context;
+use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::metadata::Meta;
@@ -12,13 +12,13 @@ use crate::structure::Field;
 use crate::reference::TReference;
 use crate::uint::TUInt;
 use crate::range::TRange;
+use crate::boolean::TBool;
 use crate::range::Inclusion;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::{Ordering, min};
 use liquesco_serialization::seq::SeqHeader;
@@ -28,7 +28,8 @@ use liquesco_common::range::NewFull;
 use liquesco_serialization::core::LqReader;
 use std::convert::TryFrom;
 
-/// A map. Keys have to be unique. Has to be sorted by keys.
+/// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
+/// to create recursive data structures.
 ///
 /// Technical details: Internally a map looks like this:
 /// `[[key1, value1], [key2, value2], ...]`.
@@ -39,6 +40,7 @@ pub struct TMap<'a> {
     value : TypeRef,
     length : U32IneRange,
     sorting : Sorting,
+    anchors : bool,
 }
 
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -49,15 +51,21 @@ pub enum Sorting {
 
 impl TMap<'_> {
 
-    /// A new map; infinite length; Sorting: Ascending.
+    /// A new map; infinite length; Sorting: Ascending. No anchors.
     pub fn new(key : TypeRef, value : TypeRef) -> Self {
         Self {
             meta : Meta::default(),
             key,
             value,
             length : U32IneRange::full(),
-            sorting : Sorting::Ascending
+            sorting : Sorting::Ascending,
+            anchors : false,
         }
+    }
+
+    pub fn with_anchors(mut self, anchors : bool) -> Self {
+        self.anchors = anchors;
+        self
     }
 }
 
@@ -79,6 +87,16 @@ impl Type for TMap<'_> {
             Sorting::Descending => Ordering::Less,
         };
 
+
+        // persist ref info (when we have nested maps)
+        let persisted_ref_info = if self.anchors {
+            let persisted = context.key_ref_info().clone();
+            context.key_ref_info().set_map_len(Some(length));
+            Some(persisted)
+        } else {
+            None
+        };
+
         let mut previous_key_reader : Option<C::Reader> = None;
         for index in 0..length {
             let entry_header = SeqHeader::de_serialize(context.reader())?;
@@ -91,7 +109,7 @@ impl Type for TMap<'_> {
 
             // Create two copies (required for next iteration and for compare)
             let mut current_key_reader = context.reader().clone();
-            let mut current_key_reader_for_next_iteration = context.reader().clone();
+            let current_key_reader_for_next_iteration = context.reader().clone();
             context.validate(self.key)?;
             context.validate(self.value)?;
 
@@ -110,6 +128,12 @@ impl Type for TMap<'_> {
 
             previous_key_reader = Some(current_key_reader_for_next_iteration);
         }
+
+        // maybe restore key ref info (if we have nested maps)
+        if let Some(persisted) = persisted_ref_info {
+            context.key_ref_info().restore_from(persisted);
+        }
+
         Ok(())
     }
 
@@ -175,11 +199,13 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
         where
             B: SchemaBuilder,
     {
-        let field_key = builder.add(TReference::default().with_meta(NameDescription {
+        let field_key = builder.add(TReference::default()
+            .with_meta(NameDescription {
             name: "key",
             doc: "Type of keys in this map.",
         }));
-        let field_value = builder.add(TReference::default().with_meta(NameDescription {
+        let field_value = builder.add(TReference::default()
+            .with_meta(NameDescription {
             name: "value",
             doc: "Type of values in this map.",
         }));
@@ -191,7 +217,8 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                 }),
         );
         let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
+            TRange::new(length_element, Inclusion::BothInclusive, false)
+                .with_meta(
                 NameDescription {
                     name: "map_length",
                     doc: "The length of a map (number of elements). Both - end and start - \
@@ -209,6 +236,12 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                     use 'ascending' if not sure.",
                 }),
         );
+        let anchors_field = builder.add(TBool::default().with_meta(
+            NameDescription {
+                name: "anchors",
+                doc: "If this is true, the keys in this map can be referenced using key refs.",
+            }
+        ));
 
         TStruct::default()
             .add(Field::new(
@@ -227,9 +260,14 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                 Identifier::try_from("sorting").unwrap(),
                 sorting_field,
             ))
+            .add(Field::new(
+                Identifier::try_from("anchors").unwrap(),
+                anchors_field,
+            ))
             .with_meta(NameDescription {
                 name: "map",
-                doc: "A sequence of key-value entries. Duplicate keys are not allowed.",
+                doc: "A sequence of key-value entries. Duplicate keys are not allowed. The keys \
+                can optionally be referenced to create recursive data structures.",
             })
     }
 }

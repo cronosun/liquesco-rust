@@ -1,17 +1,11 @@
 mod common;
 
 use common::builder::builder;
-use common::ordering::ord_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
-use liquesco_schema::seq::Direction;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::uint::TUInt;
 
-use serde::{Deserialize, Serialize};
 use liquesco_schema::map::TMap;
-use liquesco_schema::ascii::TAscii;
 use liquesco_schema::unicode::TUnicode;
 use liquesco_schema::unicode::LengthType;
 use liquesco_schema::sint::TSInt;

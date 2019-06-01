@@ -1,5 +1,6 @@
 use crate::any_type::AnyType;
-use crate::core::Context;
+use crate::context::Context;
+use crate::context::KeyRefInfo;
 use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
@@ -61,6 +62,7 @@ impl<'a, C: TypeContainer<'a>> DefaultSchema<'a, C> {
             anchor_index: Option::None,
             max_used_anchor_index: Option::None,
             extended_diagnostics: self.extended_diagnostics,
+            key_ref_info: KeyRefInfo::default(),
             _phantom1: &PhantomData,
             _phantom2: &PhantomData,
         };
@@ -75,6 +77,7 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> {
     anchor_index: Option<u32>,
     max_used_anchor_index: Option<u32>,
     extended_diagnostics: bool,
+    key_ref_info : KeyRefInfo,
     _phantom1: &'c PhantomData<()>,
     _phantom2: &'r PhantomData<()>,
 }
@@ -145,6 +148,10 @@ impl<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> Context<'r>
 
     fn set_max_used_anchor_index(&mut self, value: Option<u32>) {
         self.max_used_anchor_index = value;
+    }
+
+    fn key_ref_info(&mut self) -> &mut KeyRefInfo {
+        &mut self.key_ref_info
     }
 }
 
