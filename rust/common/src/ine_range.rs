@@ -73,3 +73,9 @@ impl NewFull for F64IneRange {
         Self::try_new("Full range", std::f64::MIN, std::f64::MAX).unwrap()
     }
 }
+
+impl NewFull for U32IneRange {
+    fn full() -> Self {
+        Self::try_new("Full range", std::u32::MIN, std::u32::MAX).unwrap()
+    }
+}

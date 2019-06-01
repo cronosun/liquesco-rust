@@ -24,6 +24,7 @@ use crate::structure::TStruct;
 use crate::uint::TUInt;
 use crate::unicode::TUnicode;
 use crate::uuid::TUuid;
+use crate::map::TMap;
 use from_variants::FromVariants;
 use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
@@ -47,6 +48,7 @@ pub enum AnyType<'a> {
     Enum(TEnum<'a>),
 
     Struct(TStruct<'a>),
+    Map(TMap<'a>),
     Ascii(TAscii<'a>),
     Anchors(TAnchors<'a>),
     Reference(TReference<'a>),
@@ -58,6 +60,7 @@ impl<'a> WithMetadata for AnyType<'a> {
     fn meta(&self) -> &Meta {
         match self {
             AnyType::Struct(value) => value.meta(),
+            AnyType::Map(value) => value.meta(),
             AnyType::UInt(value) => value.meta(),
             AnyType::SInt(value) => value.meta(),
             AnyType::Ascii(value) => value.meta(),
@@ -85,6 +88,7 @@ impl<'a> Type for AnyType<'a> {
         // is there no macro for this?
         match self {
             AnyType::Struct(value) => value.validate(context),
+            AnyType::Map(value) => value.validate(context),
             AnyType::UInt(value) => value.validate(context),
             AnyType::SInt(value) => value.validate(context),
             AnyType::Ascii(value) => value.validate(context),
@@ -115,6 +119,7 @@ impl<'a> Type for AnyType<'a> {
         // is there no macro for this?
         match self {
             AnyType::Struct(value) => value.compare(context, r1, r2),
+            AnyType::Map(value) => value.compare(context, r1, r2),
             AnyType::UInt(value) => value.compare(context, r1, r2),
             AnyType::SInt(value) => value.compare(context, r1, r2),
             AnyType::Ascii(value) => value.compare(context, r1, r2),
@@ -136,6 +141,7 @@ impl<'a> Type for AnyType<'a> {
     fn reference(&self, index: usize) -> Option<TypeRef> {
         match self {
             AnyType::Struct(value) => value.reference(index),
+            AnyType::Map(value) => value.reference(index),
             AnyType::UInt(value) => value.reference(index),
             AnyType::SInt(value) => value.reference(index),
             AnyType::Ascii(value) => value.reference(index),
@@ -171,6 +177,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_float_64 = doc_type_ref::<TFloat64, B>(builder);
         let ref_enum = doc_type_ref::<TEnum, B>(builder);
         let ref_struct = doc_type_ref::<TStruct, B>(builder);
+        let ref_map = doc_type_ref::<TMap, B>(builder);
         let ref_ascii = doc_type_ref::<TAscii, B>(builder);
         let ref_anchors = doc_type_ref::<TAnchors, B>(builder);
         let ref_reference = doc_type_ref::<TReference, B>(builder);
@@ -190,6 +197,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_float_64, "f64"))
                 .add(variant(ref_enum, "enum"))
                 .add(variant(ref_struct, "struct"))
+                .add(variant(ref_map, "map"))
                 .add(variant(ref_ascii, "ascii"))
                 .add(variant(ref_anchors, "anchors"))
                 .add(variant(ref_reference, "reference"))

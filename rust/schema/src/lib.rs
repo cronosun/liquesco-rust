@@ -19,6 +19,7 @@ pub mod option;
 pub mod range;
 pub mod reference;
 pub mod seq;
+pub mod map;
 pub mod sint;
 pub mod structure;
 pub mod uint;
