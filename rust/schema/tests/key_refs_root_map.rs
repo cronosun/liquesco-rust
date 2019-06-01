@@ -16,12 +16,15 @@ use liquesco_schema::key_ref::TKeyRef;
 use liquesco_schema::structure::TStruct;
 use liquesco_schema::structure::Field;
 use liquesco_schema::identifier::Identifier;
+use liquesco_schema::root_map::TRootMap;
 
 #[test]
 fn ok_empty() {
     let schema = create_schema1();
     let map : BTreeMap<String, Value> = BTreeMap::new();
-    assert_valid_strict(map, &schema);
+    assert_valid_strict((map, RootValue{
+        refs: vec![]
+    }), &schema);
 }
 
 #[test]
@@ -36,7 +39,7 @@ fn ok_no_references() {
         text : "Some other text".to_string(),
         refs : vec![],
     });
-    assert_valid_strict(map, &schema);
+    assert_valid_strict((map, RootValue{ refs: vec![] }), &schema);
 }
 
 #[test]
@@ -55,7 +58,8 @@ fn ok_with_references() {
         text : "Some other text".to_string(),
         refs : vec![1],
     });
-    assert_valid_strict(map, &schema);
+    // root references everything
+    assert_valid_strict((map, RootValue{ refs: vec![0, 2, 1] }), &schema);
 }
 
 #[test]
@@ -68,33 +72,14 @@ fn err_out_of_index() {
     });
     map.insert("item_b".to_string(), Value {
         text : "Some other text".to_string(),
-        // this "3" is ouf of index
-        refs : vec![2, 2, 2, 3],
+        refs : vec![2, 2, 2],
     });
     map.insert("item_c".to_string(), Value {
         text : "Some other text".to_string(),
         refs : vec![1],
     });
-    assert_invalid_strict(map, &schema);
-}
-
-#[test]
-fn err_map_provides_no_anchors() {
-    let schema = create_schema_no_anchors();
-    let mut map : BTreeMap<String, Value> = BTreeMap::new();
-    map.insert("item_a".to_string(), Value {
-        text : "Some text".to_string(),
-        refs : vec![0, 0, 0, 2],
-    });
-    map.insert("item_b".to_string(), Value {
-        text : "Some other text".to_string(),
-        refs : vec![2, 2, 2 ],
-    });
-    map.insert("item_c".to_string(), Value {
-        text : "Some other text".to_string(),
-        refs : vec![1],
-    });
-    assert_invalid_strict(map, &schema);
+    // note: "3" is out of bounds
+    assert_invalid_strict((map, RootValue{ refs: vec![3] }), &schema);
 }
 
 fn create_schema1() -> impl Schema<'static> {
@@ -110,28 +95,20 @@ fn create_schema1() -> impl Schema<'static> {
         Field::new(Identifier::try_from("refs").unwrap(), field_refs)
     ));
 
-    builder.finish(TMap::new(key, value).with_anchors(true))
-}
-
-fn create_schema_no_anchors() -> impl Schema<'static> {
-    let mut builder = builder();
-    let key = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-
-    let field_text = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add(TKeyRef::default());
-    let field_refs = builder.add(TSeq::try_new(single_ref, 0, 100).unwrap());
-    let value = builder.add(TStruct::default().add(
-        Field::new(Identifier::try_from("text").unwrap(), field_text)
-    ).add(
+    let root = builder.add(TStruct::default().add(
         Field::new(Identifier::try_from("refs").unwrap(), field_refs)
     ));
 
-    // note: anchors is set to 'false'
-    builder.finish(TMap::new(key, value).with_anchors(false))
+    builder.finish(TRootMap::new(root, key, value))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
 struct Value {
     text : String,
+    refs : Vec<u32>
+}
+
+#[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
+struct RootValue {
     refs : Vec<u32>
 }

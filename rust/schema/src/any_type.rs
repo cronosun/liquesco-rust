@@ -17,6 +17,7 @@ use crate::metadata::WithMetaSchemaBuilder;
 use crate::metadata::{MetadataSetter, WithMetadata};
 use crate::option::TOption;
 use crate::range::TRange;
+use crate::root_map::TRootMap;
 use crate::reference::TReference;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
@@ -51,6 +52,7 @@ pub enum AnyType<'a> {
 
     Struct(TStruct<'a>),
     Map(TMap<'a>),
+    RootMap(TRootMap<'a>),
     KeyRef(TKeyRef<'a>),
     Ascii(TAscii<'a>),
     Anchors(TAnchors<'a>),
@@ -64,6 +66,7 @@ impl<'a> WithMetadata for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.meta(),
             AnyType::Map(value) => value.meta(),
+            AnyType::RootMap(value) => value.meta(),
             AnyType::KeyRef(value) => value.meta(),
             AnyType::UInt(value) => value.meta(),
             AnyType::SInt(value) => value.meta(),
@@ -93,6 +96,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.validate(context),
             AnyType::Map(value) => value.validate(context),
+            AnyType::RootMap(value) => value.validate(context),
             AnyType::KeyRef(value) => value.validate(context),
             AnyType::UInt(value) => value.validate(context),
             AnyType::SInt(value) => value.validate(context),
@@ -125,6 +129,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.compare(context, r1, r2),
             AnyType::Map(value) => value.compare(context, r1, r2),
+            AnyType::RootMap(value) => value.compare(context, r1, r2),
             AnyType::KeyRef(value) => value.compare(context, r1, r2),
             AnyType::UInt(value) => value.compare(context, r1, r2),
             AnyType::SInt(value) => value.compare(context, r1, r2),
@@ -148,6 +153,7 @@ impl<'a> Type for AnyType<'a> {
         match self {
             AnyType::Struct(value) => value.reference(index),
             AnyType::Map(value) => value.reference(index),
+            AnyType::RootMap(value) => value.reference(index),
             AnyType::KeyRef(value) => value.reference(index),
             AnyType::UInt(value) => value.reference(index),
             AnyType::SInt(value) => value.reference(index),
@@ -185,6 +191,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_enum = doc_type_ref::<TEnum, B>(builder);
         let ref_struct = doc_type_ref::<TStruct, B>(builder);
         let ref_map = doc_type_ref::<TMap, B>(builder);
+        let ref_root_map = doc_type_ref::<TRootMap, B>(builder);
         let ref_key_ref = doc_type_ref::<TKeyRef, B>(builder);
         let ref_ascii = doc_type_ref::<TAscii, B>(builder);
         let ref_anchors = doc_type_ref::<TAnchors, B>(builder);
@@ -206,6 +213,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_enum, "enum"))
                 .add(variant(ref_struct, "struct"))
                 .add(variant(ref_map, "map"))
+                .add(variant(ref_root_map, "root_map"))
                 .add(variant(ref_key_ref, "key_ref"))
                 .add(variant(ref_ascii, "ascii"))
                 .add(variant(ref_anchors, "anchors"))
