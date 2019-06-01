@@ -85,7 +85,7 @@ pub struct TypeRef(u32);
 impl TypeRef {
     /// Constructs a new type reference. This should usually never be used by user code,
     /// it's only to be used by `TypeContainer` implementations.
-    pub fn new(id : u32) -> Self {
+    pub fn new(id: u32) -> Self {
         Self(id)
     }
 
@@ -108,4 +108,3 @@ pub trait Schema<'a>: TypeContainer<'a> {
     /// Returns the root type reference.
     fn root_type(&self) -> TypeRef;
 }
-

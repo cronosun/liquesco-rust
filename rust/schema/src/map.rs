@@ -1,32 +1,32 @@
+use crate::boolean::TBool;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::schema_builder::BuildsOwnSchema;
-use crate::metadata::Meta;
-use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::WithMetadata;
-use crate::metadata::NameOnly;
-use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::TStruct;
-use crate::structure::Field;
-use crate::reference::TReference;
-use crate::uint::TUInt;
-use crate::range::TRange;
-use crate::boolean::TBool;
-use crate::range::Inclusion;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::MetadataSetter;
+use crate::metadata::NameDescription;
+use crate::metadata::NameOnly;
+use crate::metadata::WithMetadata;
+use crate::range::Inclusion;
+use crate::range::TRange;
+use crate::reference::TReference;
+use crate::schema_builder::BuildsOwnSchema;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::structure::Field;
+use crate::structure::TStruct;
+use crate::uint::TUInt;
 use liquesco_common::error::LqError;
-use liquesco_serialization::core::DeSerializer;
-use serde::{Deserialize, Serialize};
-use std::cmp::{Ordering, min};
-use liquesco_serialization::seq::SeqHeader;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_common::range::NewFull;
+use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
+use liquesco_serialization::seq::SeqHeader;
+use serde::{Deserialize, Serialize};
+use std::cmp::{min, Ordering};
 use std::convert::TryFrom;
 
 /// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
@@ -37,44 +37,42 @@ use std::convert::TryFrom;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TMap<'a> {
     meta: Meta<'a>,
-    key : TypeRef,
-    value : TypeRef,
-    length : U32IneRange,
-    sorting : Sorting,
-    anchors : bool,
+    key: TypeRef,
+    value: TypeRef,
+    length: U32IneRange,
+    sorting: Sorting,
+    anchors: bool,
 }
 
 #[derive(Clone, Copy, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub enum Sorting {
     Ascending,
-    Descending
+    Descending,
 }
 
 impl TMap<'_> {
-
     /// A new map; infinite length; Sorting: Ascending. No anchors.
-    pub fn new(key : TypeRef, value : TypeRef) -> Self {
+    pub fn new(key: TypeRef, value: TypeRef) -> Self {
         Self {
-            meta : Meta::default(),
+            meta: Meta::default(),
             key,
             value,
-            length : U32IneRange::full(),
-            sorting : Sorting::Ascending,
-            anchors : false,
+            length: U32IneRange::full(),
+            sorting: Sorting::Ascending,
+            anchors: false,
         }
     }
 
-    pub fn with_anchors(mut self, anchors : bool) -> Self {
+    pub fn with_anchors(mut self, anchors: bool) -> Self {
         self.anchors = anchors;
         self
     }
 }
 
-
 impl Type for TMap<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         let entries = SeqHeader::de_serialize(context.reader())?;
         let length = entries.length();
@@ -88,7 +86,14 @@ impl Type for TMap<'_> {
             None
         };
 
-        validate_map(context, &self.length, length, self.key, self.value, self.sorting)?;
+        validate_map(
+            context,
+            &self.length,
+            length,
+            self.key,
+            self.value,
+            self.sorting,
+        )?;
 
         // maybe restore key ref info (if we have nested maps)
         if let Some(persisted) = persisted_ref_info {
@@ -104,8 +109,8 @@ impl Type for TMap<'_> {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         compare_map(context, r1, r2, self.key, self.value)
     }
@@ -114,7 +119,7 @@ impl Type for TMap<'_> {
         match index {
             0 => Some(self.key),
             1 => Some(self.value),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -133,16 +138,14 @@ impl<'a> MetadataSetter<'a> for TMap<'a> {
 
 impl BaseTypeSchemaBuilder for TMap<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
-        let field_key = builder.add(TReference::default()
-            .with_meta(NameDescription {
+        let field_key = builder.add(TReference::default().with_meta(NameDescription {
             name: "key",
             doc: "Type of keys in this map.",
         }));
-        let field_value = builder.add(TReference::default()
-            .with_meta(NameDescription {
+        let field_value = builder.add(TReference::default().with_meta(NameDescription {
             name: "value",
             doc: "Type of values in this map.",
         }));
@@ -154,28 +157,22 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                 }),
         );
         let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false)
-                .with_meta(
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
                 NameDescription {
                     name: "map_length",
                     doc: "The length of a map (number of elements). Both - end and start - \
-                    are included.",
+                          are included.",
                 },
             ),
         );
         let sorting_field = Sorting::build_schema(builder);
-        let anchors_field = builder.add(TBool::default().with_meta(
-            NameDescription {
-                name: "anchors",
-                doc: "If this is true, the keys in this map can be referenced using key refs.",
-            }
-        ));
+        let anchors_field = builder.add(TBool::default().with_meta(NameDescription {
+            name: "anchors",
+            doc: "If this is true, the keys in this map can be referenced using key refs.",
+        }));
 
         TStruct::default()
-            .add(Field::new(
-                Identifier::try_from("key").unwrap(),
-                field_key,
-            ))
+            .add(Field::new(Identifier::try_from("key").unwrap(), field_key))
             .add(Field::new(
                 Identifier::try_from("value").unwrap(),
                 field_value,
@@ -195,37 +192,45 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
             .with_meta(NameDescription {
                 name: "map",
                 doc: "A sequence of key-value entries. Duplicate keys are not allowed. The keys \
-                can optionally be referenced to create recursive data structures.",
+                      can optionally be referenced to create recursive data structures.",
             })
     }
 }
 
 pub(crate) fn validate_map<'c, C>(
     context: &mut C,
-    length_range : &U32IneRange,
-    length : u32,
-    key : TypeRef,
-    value : TypeRef,
-    sorting : Sorting) -> Result<(), LqError>
-    where
-        C: Context<'c>{
+    length_range: &U32IneRange,
+    length: u32,
+    key: TypeRef,
+    value: TypeRef,
+    sorting: Sorting,
+) -> Result<(), LqError>
+where
+    C: Context<'c>,
+{
     // length OK?
-    length_range.require_within("Given length of map is outside bounds defined \
-        in schema.", &length)?;
+    length_range.require_within(
+        "Given length of map is outside bounds defined \
+         in schema.",
+        &length,
+    )?;
 
     let wanted_ordering = match sorting {
         Sorting::Ascending => Ordering::Greater,
         Sorting::Descending => Ordering::Less,
     };
 
-    let mut previous_key_reader : Option<C::Reader> = None;
+    let mut previous_key_reader: Option<C::Reader> = None;
     for index in 0..length {
         let entry_header = SeqHeader::de_serialize(context.reader())?;
-        if entry_header.length()!=2 {
-            return LqError::err_new(format!("A map has to look like this: [[key1, \
-                value1], [key2, value2], ...]. So every key/value entry must be a sequence with \
-                two elements. The entry at index {} has {} elements.",
-                                            index, entry_header.length()));
+        if entry_header.length() != 2 {
+            return LqError::err_new(format!(
+                "A map has to look like this: [[key1, \
+                 value1], [key2, value2], ...]. So every key/value entry must be a sequence with \
+                 two elements. The entry at index {} has {} elements.",
+                index,
+                entry_header.length()
+            ));
         }
 
         // Create two copies (required for next iteration and for compare)
@@ -237,13 +242,17 @@ pub(crate) fn validate_map<'c, C>(
         // Compare this key and the previous key to make sure keys have correct sorting
         // and there are no duplicates.
         if let Some(mut previous_reader) = previous_key_reader.take() {
-            let key_cmp = context.compare(
-                key, &mut current_key_reader, &mut previous_reader)?;
-            if key_cmp!=wanted_ordering {
-                return LqError::err_new(format!("There's an ordering problem in the map. \
-                    Keys have to be sorted according to the schema - and no duplicates are \
-                    allowed. Compare result key at index {} to {}: {:?}; wanted {:?}.",
-                                                index-1, index, key_cmp, wanted_ordering));
+            let key_cmp = context.compare(key, &mut current_key_reader, &mut previous_reader)?;
+            if key_cmp != wanted_ordering {
+                return LqError::err_new(format!(
+                    "There's an ordering problem in the map. \
+                     Keys have to be sorted according to the schema - and no duplicates are \
+                     allowed. Compare result key at index {} to {}: {:?}; wanted {:?}.",
+                    index - 1,
+                    index,
+                    key_cmp,
+                    wanted_ordering
+                ));
             }
         }
 
@@ -255,11 +264,14 @@ pub(crate) fn validate_map<'c, C>(
 
 pub(crate) fn compare_map<'c, C>(
     context: &C,
-                                 r1: &mut C::Reader,
-                                 r2: &mut C::Reader,
-                                 key : TypeRef,
-                                 value : TypeRef) -> Result<Ordering, LqError>
-where C : Context<'c> {
+    r1: &mut C::Reader,
+    r2: &mut C::Reader,
+    key: TypeRef,
+    value: TypeRef,
+) -> Result<Ordering, LqError>
+where
+    C: Context<'c>,
+{
     let entries1 = SeqHeader::de_serialize(r1)?;
     let entries2 = SeqHeader::de_serialize(r2)?;
 
@@ -272,13 +284,13 @@ where C : Context<'c> {
 
         // compare keys
         let cmp_result = context.compare(key, r1, r2)?;
-        if cmp_result!=Ordering::Equal {
+        if cmp_result != Ordering::Equal {
             return Ok(cmp_result);
         }
 
         // compare values
         let cmp_result = context.compare(value, r1, r2)?;
-        if cmp_result!=Ordering::Equal {
+        if cmp_result != Ordering::Equal {
             return Ok(cmp_result);
         }
     }
@@ -288,8 +300,10 @@ where C : Context<'c> {
 }
 
 impl BuildsOwnSchema for Sorting {
-    fn build_schema<B>(builder: &mut B) -> TypeRef where
-        B: SchemaBuilder {
+    fn build_schema<B>(builder: &mut B) -> TypeRef
+    where
+        B: SchemaBuilder,
+    {
         builder.add(
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
@@ -297,7 +311,7 @@ impl BuildsOwnSchema for Sorting {
                 .with_meta(NameDescription {
                     name: "sorting",
                     doc: "Determines the sort order of the keys in this map. You should usually \
-                    use 'ascending' if not sure.",
+                          use 'ascending' if not sure.",
                 }),
         )
     }

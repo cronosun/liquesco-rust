@@ -1,5 +1,5 @@
 use crate::core::MajorType;
-use std::fmt::{Debug, Formatter, Error};
+use std::fmt::{Debug, Error, Formatter};
 
 // Minimum type ID is 0, maximum is 20 (inclusive) - so there's
 // enough for 20 major types.
@@ -39,7 +39,7 @@ pub(crate) const TYPE_ENUM_N: MajorType = MajorType::new(13);
 
 impl Debug for MajorType {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        let name : &str = match self {
+        let name: &str = match self {
             &TYPE_BOOL_FALSE => "TYPE_BOOL_FALSE",
             &TYPE_BOOL_TRUE => "TYPE_BOOL_TRUE",
             &TYPE_OPTION => "TYPE_OPTION",
@@ -54,7 +54,7 @@ impl Debug for MajorType {
             &TYPE_ENUM_2 => "TYPE_ENUM_2",
             &TYPE_ENUM_3 => "TYPE_ENUM_3",
             &TYPE_ENUM_N => "TYPE_ENUM_N",
-            _ => "Unknown"
+            _ => "Unknown",
         };
         write!(f, "MajorType({}; {})", self.id(), name)
     }

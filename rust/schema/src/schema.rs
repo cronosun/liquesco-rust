@@ -77,7 +77,7 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> {
     anchor_index: Option<u32>,
     max_used_anchor_index: Option<u32>,
     extended_diagnostics: bool,
-    key_ref_info : KeyRefInfo,
+    key_ref_info: KeyRefInfo,
     _phantom1: &'c PhantomData<()>,
     _phantom2: &'r PhantomData<()>,
 }

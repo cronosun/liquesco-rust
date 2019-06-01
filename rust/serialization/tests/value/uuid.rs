@@ -7,4 +7,3 @@ fn test_uuids() {
         check_value(&(Uuid::new_v4()).into());
     }
 }
-

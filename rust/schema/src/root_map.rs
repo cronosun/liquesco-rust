@@ -1,31 +1,31 @@
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
+use crate::identifier::Identifier;
+use crate::map::compare_map;
+use crate::map::validate_map;
+use crate::map::Sorting;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::NameDescription;
-use crate::metadata::WithMetadata;
 use crate::metadata::NameOnly;
-use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::TStruct;
-use crate::structure::Field;
-use crate::reference::TReference;
-use crate::uint::TUInt;
-use crate::range::TRange;
+use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
-use crate::map::Sorting;
-use crate::map::validate_map;
-use crate::map::compare_map;
-use crate::identifier::Identifier;
+use crate::range::TRange;
+use crate::reference::TReference;
+use crate::schema_builder::BuildsOwnSchema;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::structure::Field;
+use crate::structure::TStruct;
+use crate::uint::TUInt;
 use liquesco_common::error::LqError;
-use liquesco_serialization::core::DeSerializer;
-use serde::{Deserialize, Serialize};
-use std::cmp::{Ordering};
-use liquesco_serialization::seq::SeqHeader;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_common::range::NewFull;
+use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::seq::SeqHeader;
+use serde::{Deserialize, Serialize};
+use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::schema_builder::BuildsOwnSchema;
 
 /// A map with a root. Keys have to be unique. The keys can be referenced. The root cannot be
 /// referenced. The root can reference keys.
@@ -35,39 +35,40 @@ use crate::schema_builder::BuildsOwnSchema;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TRootMap<'a> {
     meta: Meta<'a>,
-    root : TypeRef,
-    key : TypeRef,
-    value : TypeRef,
-    length : U32IneRange,
-    sorting : Sorting,
+    root: TypeRef,
+    key: TypeRef,
+    value: TypeRef,
+    length: U32IneRange,
+    sorting: Sorting,
 }
 
 impl TRootMap<'_> {
-
     /// A new map; infinite length; Sorting: Ascending.
-    pub fn new(root : TypeRef, key : TypeRef, value : TypeRef) -> Self {
+    pub fn new(root: TypeRef, key: TypeRef, value: TypeRef) -> Self {
         Self {
-            meta : Meta::default(),
+            meta: Meta::default(),
             root,
             key,
             value,
-            length : U32IneRange::full(),
-            sorting : Sorting::Ascending,
+            length: U32IneRange::full(),
+            sorting: Sorting::Ascending,
         }
     }
 }
 
 impl Type for TRootMap<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         let outer_seq = SeqHeader::de_serialize(context.reader())?;
-        if outer_seq.length()!=2 {
-            return LqError::err_new(format!("A root map has to look like this: [[[key1, \
-                value1], [key2, value2], ...], root]]. So the outer sequence has to have \
-                exactly 2 elements. Have {} elements.",
-                                            outer_seq.length()));
+        if outer_seq.length() != 2 {
+            return LqError::err_new(format!(
+                "A root map has to look like this: [[[key1, \
+                 value1], [key2, value2], ...], root]]. So the outer sequence has to have \
+                 exactly 2 elements. Have {} elements.",
+                outer_seq.length()
+            ));
         }
 
         let entries = SeqHeader::de_serialize(context.reader())?;
@@ -77,7 +78,14 @@ impl Type for TRootMap<'_> {
         let persisted_ref_info = context.key_ref_info().clone();
         context.key_ref_info().set_map_len(Some(length));
 
-        validate_map(context, &self.length, length, self.key, self.value, self.sorting)?;
+        validate_map(
+            context,
+            &self.length,
+            length,
+            self.key,
+            self.value,
+            self.sorting,
+        )?;
 
         // now validate the root
         context.validate(self.root)?;
@@ -94,15 +102,15 @@ impl Type for TRootMap<'_> {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         // the outer sequence
         SeqHeader::de_serialize(r1)?;
         SeqHeader::de_serialize(r2)?;
 
         let cmp_result = compare_map(context, r1, r2, self.key, self.value)?;
-        if cmp_result==Ordering::Equal {
+        if cmp_result == Ordering::Equal {
             // continue... also compare root
             context.compare(self.root, r1, r2)
         } else {
@@ -115,7 +123,7 @@ impl Type for TRootMap<'_> {
             0 => Some(self.root),
             1 => Some(self.key),
             2 => Some(self.value),
-            _ => None
+            _ => None,
         }
     }
 }
@@ -134,21 +142,18 @@ impl<'a> MetadataSetter<'a> for TRootMap<'a> {
 
 impl BaseTypeSchemaBuilder for TRootMap<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder,
+    where
+        B: SchemaBuilder,
     {
-        let field_root = builder.add(TReference::default()
-            .with_meta(NameDescription {
-                name: "root",
-                doc: "The root type in this map.",
-            }));
-        let field_key = builder.add(TReference::default()
-            .with_meta(NameDescription {
+        let field_root = builder.add(TReference::default().with_meta(NameDescription {
+            name: "root",
+            doc: "The root type in this map.",
+        }));
+        let field_key = builder.add(TReference::default().with_meta(NameDescription {
             name: "key",
             doc: "Type of keys in this map.",
         }));
-        let field_value = builder.add(TReference::default()
-            .with_meta(NameDescription {
+        let field_value = builder.add(TReference::default().with_meta(NameDescription {
             name: "value",
             doc: "Type of values in this map.",
         }));
@@ -160,12 +165,11 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
                 }),
         );
         let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false)
-                .with_meta(
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
                 NameDescription {
                     name: "map_length",
                     doc: "The length of a map (number of elements). Both - end and start - \
-                    are included.",
+                          are included.",
                 },
             ),
         );
@@ -176,10 +180,7 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
                 Identifier::try_from("root").unwrap(),
                 field_root,
             ))
-            .add(Field::new(
-                Identifier::try_from("key").unwrap(),
-                field_key,
-            ))
+            .add(Field::new(Identifier::try_from("key").unwrap(), field_key))
             .add(Field::new(
                 Identifier::try_from("value").unwrap(),
                 field_value,
@@ -195,7 +196,7 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
             .with_meta(NameDescription {
                 name: "root_map",
                 doc: "A map with a root. Keys have to be unique. The keys can be referenced. \
-                The root cannot be referenced. The root can reference keys.",
+                      The root cannot be referenced. The root can reference keys.",
             })
     }
 }

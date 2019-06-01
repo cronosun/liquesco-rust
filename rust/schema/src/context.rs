@@ -1,8 +1,8 @@
-use liquesco_serialization::core::LqReader;
-use liquesco_common::error::LqError;
 use crate::core::Config;
-use std::cmp::Ordering;
 use crate::core::TypeRef;
+use liquesco_common::error::LqError;
+use liquesco_serialization::core::LqReader;
+use std::cmp::Ordering;
 
 /// Data used for type validation.
 pub trait Context<'a> {
@@ -38,19 +38,17 @@ pub trait Context<'a> {
 /// Information used for key ref validation.
 #[derive(Clone)]
 pub struct KeyRefInfo {
-    map_len : Option<u32>
+    map_len: Option<u32>,
 }
 
 impl Default for KeyRefInfo {
     fn default() -> Self {
-        Self {
-            map_len : None
-        }
+        Self { map_len: None }
     }
 }
 
 impl KeyRefInfo {
-    pub fn set_map_len(&mut self, map_len : Option<u32>) {
+    pub fn set_map_len(&mut self, map_len: Option<u32>) {
         self.map_len = map_len;
     }
 
@@ -60,7 +58,7 @@ impl KeyRefInfo {
         self.map_len
     }
 
-    pub fn restore_from(&mut self, from : KeyRefInfo) {
+    pub fn restore_from(&mut self, from: KeyRefInfo) {
         self.map_len = from.map_len
     }
 }

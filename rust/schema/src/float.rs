@@ -1,7 +1,7 @@
 use crate::boolean::TBool;
-use crate::core::TypeRef;
-use crate::core::{Type};
 use crate::context::Context;
+use crate::core::Type;
+use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;

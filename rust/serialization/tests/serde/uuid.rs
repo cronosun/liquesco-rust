@@ -15,4 +15,3 @@ fn uuid_encodes_compact() {
     let uuid_as_bytes = serde_bytes::ByteBuf::from(uuid.as_slice().to_vec());
     serialize_to_same(uuid, uuid_as_bytes);
 }
-

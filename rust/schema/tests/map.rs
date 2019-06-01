@@ -6,9 +6,9 @@ use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
 
 use liquesco_schema::map::TMap;
-use liquesco_schema::unicode::TUnicode;
-use liquesco_schema::unicode::LengthType;
 use liquesco_schema::sint::TSInt;
+use liquesco_schema::unicode::LengthType;
+use liquesco_schema::unicode::TUnicode;
 use std::collections::BTreeMap;
 
 #[test]
@@ -32,13 +32,7 @@ fn ok_map() {
 #[test]
 fn ok_map_numbers() {
     let schema = create_schema_numbers();
-    let map: Vec<(isize, isize)> = vec![
-        (10, 30),
-        (20, 20),
-        (30, 10),
-        (70, 50),
-        (71, 50)
-    ];
+    let map: Vec<(isize, isize)> = vec![(10, 30), (20, 20), (30, 10), (70, 50), (71, 50)];
     assert_valid_strict(map, &schema);
 }
 
@@ -48,7 +42,7 @@ fn err_wrong_ordering_string() {
     let map: Vec<(String, String)> = vec![
         ("bbb".to_string(), "C Some Value".to_string()),
         ("ccc".to_string(), "A Some Value".to_string()),
-        ("aaa".to_string(), "B Some Value".to_string())
+        ("aaa".to_string(), "B Some Value".to_string()),
     ];
     assert_invalid_strict(map, &schema);
 }
@@ -56,18 +50,14 @@ fn err_wrong_ordering_string() {
 #[test]
 fn err_wrong_key_ordering() {
     let schema = create_schema_numbers();
-    let map: Vec<(isize, isize)> = vec![
-        (10, 30),
-        (11, 30),
-        (9, 20)
-    ];
+    let map: Vec<(isize, isize)> = vec![(10, 30), (11, 30), (9, 20)];
     assert_invalid_strict(map, &schema);
 }
 
 /// When using BTreeMap we get correct key ordering automatically
 #[test]
 fn ok_with_btree() {
-    let mut my_map : BTreeMap<isize, isize> = BTreeMap::new();
+    let mut my_map: BTreeMap<isize, isize> = BTreeMap::new();
     for index in 0..300 {
         let key = index % 31;
         let value = index % 7;

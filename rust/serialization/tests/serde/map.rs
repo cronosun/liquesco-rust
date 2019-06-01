@@ -3,13 +3,13 @@ use std::collections::HashMap;
 
 #[test]
 fn empty_map() {
-    let map : HashMap<String, bool> = HashMap::new();
+    let map: HashMap<String, bool> = HashMap::new();
     assert_serde(map);
 }
 
 #[test]
 fn simple_map() {
-    let mut map : HashMap<String, String> = HashMap::new();
+    let mut map: HashMap<String, String> = HashMap::new();
     map.insert("entry1".to_string(), "value1".to_string());
     map.insert("entry2".to_string(), "value2".to_string());
 

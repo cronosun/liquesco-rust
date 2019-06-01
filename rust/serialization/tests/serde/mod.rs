@@ -2,6 +2,7 @@ use liquesco_serialization::serde::{de_serialize_from_slice, serialize_to_vec};
 use std::fmt::Debug;
 
 pub mod enum_extensible;
+pub mod map;
 pub mod seq_extensible;
 pub mod simple_enum;
 pub mod simple_map;
@@ -10,7 +11,6 @@ pub mod simple_sequences;
 pub mod struct_defaults;
 pub mod struct_demo;
 pub mod uuid;
-pub mod map;
 
 pub fn assert_serde<S>(item: S)
 where
