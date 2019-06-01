@@ -97,7 +97,7 @@ pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     into_any_type: T,
 ) -> DefaultSchema<'a, SingleContainer<'a>> {
     let any_type = into_any_type.into();
-    DefaultSchema::new(SingleContainer { any_type }, TypeRef(0))
+    DefaultSchema::new(SingleContainer { any_type }, TypeRef::new(0))
 }
 
 pub struct SingleContainer<'a> {
@@ -106,7 +106,7 @@ pub struct SingleContainer<'a> {
 
 impl<'a> TypeContainer<'a> for SingleContainer<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
-        if reference.0 == 0 {
+        if reference.id() == 0 {
             Option::Some(&self.any_type)
         } else {
             Option::None

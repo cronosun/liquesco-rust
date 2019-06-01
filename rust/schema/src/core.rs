@@ -104,18 +104,32 @@ impl Config {
 
 /// References a single type within a schema.
 #[derive(Copy, Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
-pub struct TypeRef(pub u32);
+pub struct TypeRef(u32);
+
+impl TypeRef {
+    /// Constructs a new type reference. This should usually never be used by user code,
+    /// it's only to be used by `TypeContainer` implementations.
+    pub fn new(id : u32) -> Self {
+        Self(id)
+    }
+
+    /// The type id. Should usually never be used by user code.
+    pub fn id(&self) -> u32 {
+        self.0
+    }
+}
 
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
     /// Returns a `Type` if contained within this container.
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
-
-    // TODO: Why not returning th master type ID here?
 }
 
 /// A schema. Can be used to validate data.
 pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
-    fn main_type(&self) -> TypeRef;
+
+    /// Returns the root type reference.
+    fn root_type(&self) -> TypeRef;
 }
+

@@ -27,7 +27,7 @@ pub struct Container<'a> {
 impl<'a> TypeContainer<'a> for Container<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
         let len = self.types.len();
-        let ref_usize = reference.0 as usize;
+        let ref_usize = reference.id() as usize;
         if ref_usize >= len {
             Option::None
         } else {
@@ -41,7 +41,7 @@ impl<'a> Builder<'a> {
     where
         AnyType<'a>: std::convert::From<T>,
     {
-        let reference = TypeRef(self.types.len() as u32);
+        let reference = TypeRef::new(self.types.len() as u32);
         self.types.push(AnyType::from(r#type));
         reference
     }

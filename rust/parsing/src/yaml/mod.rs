@@ -32,7 +32,7 @@ where
     };
 
     let mut writer = VecWriter::default();
-    context.parse(&mut writer, schema.main_type(), &value)?;
+    context.parse(&mut writer, schema.root_type(), &value)?;
     let data = writer.finish();
 
     // Now validate the result

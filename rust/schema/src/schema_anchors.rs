@@ -23,13 +23,13 @@ pub struct SchemaAnchors<'a> {
 
 impl SchemaAnchors<'_> {
     pub fn main_type(&self) -> TypeRef {
-        TypeRef(u32::try_from(self.types.len()).unwrap())
+        TypeRef::new(u32::try_from(self.types.len()).unwrap())
     }
 }
 
 impl<'a> TypeContainer<'a> for SchemaAnchors<'a> {
     fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
-        let ref_num = reference.0;
+        let ref_num = reference.id();
         if let Ok(number_of_types_u32) = u32::try_from(self.types.len()) {
             if ref_num == number_of_types_u32 {
                 Some(&self.r#type)
@@ -89,7 +89,7 @@ impl<'a> SchemaBuilder for SchemaAnchorsBuilder<'a> {
         } else {
             // create a new one
             let len = self.type_to_ref.len();
-            let reference = TypeRef(u32::try_from(len).unwrap());
+            let reference = TypeRef::new(u32::try_from(len).unwrap());
             self.type_to_ref.insert(any_type, reference);
             reference
         }
@@ -108,7 +108,7 @@ impl<'a> TryFrom<SchemaAnchorsBuilder<'a>> for SchemaAnchors<'a> {
             );
         }
         let len_without_main = len - 1;
-        let main_ref = TypeRef(u32::try_from(len_without_main)?);
+        let main_ref = TypeRef::new(u32::try_from(len_without_main)?);
 
         let mut main: Option<AnyType<'a>> = None;
         let mut vec: Vec<Option<AnyType<'a>>> = Vec::with_capacity(len_without_main);
@@ -119,7 +119,7 @@ impl<'a> TryFrom<SchemaAnchorsBuilder<'a>> for SchemaAnchors<'a> {
             if entry.1 == main_ref {
                 main = Some(entry.0);
             } else {
-                let index = usize::try_from((entry.1).0)?;
+                let index = usize::try_from((entry.1).id())?;
                 vec.remove(index);
                 vec.insert(index, Some(entry.0));
             }

@@ -23,7 +23,7 @@ impl<'a, C: TypeContainer<'a>> Schema<'a> for DefaultSchema<'a, C> {
         self.validate_internal(config, reader)
     }
 
-    fn main_type(&self) -> TypeRef {
+    fn root_type(&self) -> TypeRef {
         self.main_reference
     }
 }

@@ -39,7 +39,7 @@ impl SchemaBuilder for SchemaBuilderReader {
             *reference
         } else {
             // not yet in map / no duplicate
-            let new_reference = TypeRef(self.type_to_ref.len() as u32);
+            let new_reference = TypeRef::new(self.type_to_ref.len() as u32);
             // TODO: Prevent cloning
             self.reference_to_type.insert(new_reference, any.clone());
             self.type_to_ref.insert(any, new_reference);
@@ -50,7 +50,7 @@ impl SchemaBuilder for SchemaBuilderReader {
 
 impl SchemaReader for SchemaBuilderReader {
     fn master_ref(&self) -> TypeRef {
-        TypeRef(self.type_to_ref.len() as u32)
+        TypeRef::new(self.type_to_ref.len() as u32)
     }
 
     fn require(&self, reference: TypeRef) -> &AnyType {
