@@ -4,10 +4,7 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
-use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::TSeq;
@@ -19,6 +16,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::key_ref::TKeyRef;
 
 type Fields<'a> = Vec<Field<'a>>;
 
@@ -47,8 +45,8 @@ impl<'a> Field<'a> {
     }
 
     /// The type of the field value.
-    pub fn r#type(&self) -> TypeRef {
-        self.r#type
+    pub fn r#type(&self) -> &TypeRef {
+        &self.r#type
     }
 }
 
@@ -100,7 +98,7 @@ impl<'a> Type for TStruct<'a> {
         let schema_number_of_fields_usize = usize::try_from(schema_number_of_fields)?;
         for index in 0..schema_number_of_fields_usize {
             let field = &self.fields()[index];
-            context.validate(field.r#type)?;
+            context.validate(&field.r#type)?;
         }
         // skip the rest of the fields
         let to_skip = number_of_items - schema_number_of_fields;
@@ -127,7 +125,7 @@ impl<'a> Type for TStruct<'a> {
 
         let mut num_read: u32 = 0;
         for field in self.fields() {
-            let cmp = context.compare(field.r#type, r1, r2)?;
+            let cmp = context.compare(&field.r#type, r1, r2)?;
             num_read = num_read + 1;
             if cmp != Ordering::Equal {
                 // no need to finish to the end (see contract)
@@ -154,12 +152,12 @@ impl<'a> Type for TStruct<'a> {
         Result::Ok(Ordering::Equal)
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         let number_of_fields = self.fields().len();
         if index >= number_of_fields {
             None
         } else {
-            Some(self.fields()[index].r#type)
+            Some(&self.fields()[index].r#type)
         }
     }
 }
@@ -185,33 +183,29 @@ impl<'a> TStruct<'a> {
 impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type = builder.add(TReference::default().with_meta(NameOnly { name: "field_type" }));
-        let field_struct = builder.add(
+        let r#type = builder.add_unwrap("field_type",TKeyRef::default());
+        let field_struct = builder.add_unwrap(
+            "field",
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("name").unwrap(),
                     identifier,
                 ))
                 .add(Field::new(Identifier::try_from("type").unwrap(), r#type))
-                .with_meta(NameDescription {
-                    name: "field",
-                    doc: "A single field in a structure. A field contains a name \
-                          and a type.",
-                }),
+                .with_doc( "A single field in a structure. A field contains a name \
+                          and a type."),
         );
 
-        let fields_field = builder.add(
+        let fields_field = builder.add_unwrap(
+            "fields",
             TSeq::new(
                 field_struct,
                 U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
             )
-            .with_meta(NameDescription {
-                name: "fields",
-                doc: "A sequence of fields in a structure.",
-            }),
+            .with_doc( "A sequence of fields in a structure."),
         );
 
         TStruct::default()
@@ -219,10 +213,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
                 Identifier::try_from("fields").unwrap(),
                 fields_field,
             ))
-            .with_meta(NameDescription {
-                name: "struct",
-                doc: "A structure is similar to a sequence but has a defined length and \
-                      can contain fields of different types.",
-            })
+            .with_doc( "A structure is similar to a sequence but has a defined length and \
+                      can contain fields of different types.")
     }
 }

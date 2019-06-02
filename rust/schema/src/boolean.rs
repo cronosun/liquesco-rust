@@ -3,7 +3,6 @@ use crate::core::Type;
 use crate::core::TypeRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
@@ -50,7 +49,7 @@ impl Type for TBool<'_> {
         Result::Ok(bool1.cmp(&bool2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -70,12 +69,9 @@ impl<'a> MetadataSetter<'a> for TBool<'a> {
 impl BaseTypeSchemaBuilder for TBool<'_> {
     fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         // just an empty struct (but more fields will be added by the system)
-        TStruct::default().with_meta(NameDescription {
-            name: "bool",
-            doc: "A boolean: Can either be true or false.",
-        })
+        TStruct::default().with_doc( "A boolean: Can either be true or false.")
     }
 }

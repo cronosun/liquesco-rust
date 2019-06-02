@@ -7,17 +7,15 @@ use crate::map::validate_map;
 use crate::map::Sorting;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
 use crate::range::TRange;
-use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use crate::uint::TUInt;
+use crate::key_ref::TKeyRef;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_common::range::NewFull;
@@ -42,7 +40,7 @@ pub struct TRootMap<'a> {
     sorting: Sorting,
 }
 
-impl TRootMap<'_> {
+impl<'a> TRootMap<'a> {
     /// A new map; infinite length; Sorting: Ascending.
     pub fn new(root: TypeRef, key: TypeRef, value: TypeRef) -> Self {
         Self {
@@ -82,13 +80,13 @@ impl Type for TRootMap<'_> {
             context,
             &self.length,
             length,
-            self.key,
-            self.value,
+            &self.key,
+            &self.value,
             self.sorting,
         )?;
 
         // now validate the root
-        context.validate(self.root)?;
+        context.validate(&self.root)?;
 
         // maybe restore key ref info (if we have nested maps)
         context.key_ref_info().restore_from(persisted_ref_info);
@@ -109,20 +107,20 @@ impl Type for TRootMap<'_> {
         SeqHeader::de_serialize(r1)?;
         SeqHeader::de_serialize(r2)?;
 
-        let cmp_result = compare_map(context, r1, r2, self.key, self.value)?;
+        let cmp_result = compare_map(context, r1, r2, &self.key, &self.value)?;
         if cmp_result == Ordering::Equal {
             // continue... also compare root
-            context.compare(self.root, r1, r2)
+            context.compare(&self.root, r1, r2)
         } else {
             Ok(cmp_result)
         }
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         match index {
-            0 => Some(self.root),
-            1 => Some(self.key),
-            2 => Some(self.value),
+            0 => Some(&self.root),
+            1 => Some(&self.key),
+            2 => Some(&self.value),
             _ => None,
         }
     }
@@ -143,34 +141,27 @@ impl<'a> MetadataSetter<'a> for TRootMap<'a> {
 impl BaseTypeSchemaBuilder for TRootMap<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let field_root = builder.add(TReference::default().with_meta(NameDescription {
-            name: "root",
-            doc: "The root type in this map.",
-        }));
-        let field_key = builder.add(TReference::default().with_meta(NameDescription {
-            name: "key",
-            doc: "Type of keys in this map.",
-        }));
-        let field_value = builder.add(TReference::default().with_meta(NameDescription {
-            name: "value",
-            doc: "Type of values in this map.",
-        }));
-        let length_element = builder.add(
+        let field_root = builder.add_unwrap(
+            "root",
+            TKeyRef::default().with_doc("The root type in this map."));
+        let field_key = builder.add_unwrap(
+            "key",
+            TKeyRef::default().with_doc("Type of keys in this map."));
+        let field_value = builder.add_unwrap(
+            "value",
+            TKeyRef::default().with_doc( "Type of values in this map."));
+        let length_element = builder.add_unwrap(
+            "map_length_element",
             TUInt::try_new(0, std::u32::MAX as u64)
-                .unwrap()
-                .with_meta(NameOnly {
-                    name: "map_length_element",
-                }),
+                .unwrap(),
         );
-        let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
-                NameDescription {
-                    name: "map_length",
-                    doc: "The length of a map (number of elements). Both - end and start - \
-                          are included.",
-                },
+        let length_field = builder.add_unwrap(
+            "map_length",
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
+                "The length of a map (number of elements). Both - end and start - \
+                          are included."
             ),
         );
         let sorting_field = Sorting::build_schema(builder);
@@ -193,10 +184,7 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
                 Identifier::try_from("sorting").unwrap(),
                 sorting_field,
             ))
-            .with_meta(NameDescription {
-                name: "root_map",
-                doc: "A map with a root. Keys have to be unique. The keys can be referenced. \
-                      The root cannot be referenced. The root can reference keys.",
-            })
+            .with_doc("A map with a root. Keys have to be unique. The keys can be referenced. \
+                      The root cannot be referenced. The root can reference keys.")
     }
 }

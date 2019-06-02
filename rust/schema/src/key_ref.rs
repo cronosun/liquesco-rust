@@ -3,7 +3,6 @@ use crate::core::Type;
 use crate::core::TypeRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::SchemaBuilder;
@@ -73,7 +72,7 @@ impl Type for TKeyRef<'_> {
         Result::Ok(int1.cmp(&int2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -93,12 +92,9 @@ impl<'a> MetadataSetter<'a> for TKeyRef<'a> {
 impl BaseTypeSchemaBuilder for TKeyRef<'_> {
     fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        TStruct::default().with_meta(NameDescription {
-            name: "key_ref",
-            doc: "Key references can reference keys from outer types that supports references \
-                  (provide anchors that can be referenced): Maps and RootMaps.",
-        })
+        TStruct::default().with_doc( "Key references can reference keys from outer types that supports references \
+                  (provide anchors that can be referenced): Maps and RootMaps.")
     }
 }

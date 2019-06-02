@@ -5,8 +5,6 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
 use crate::range::TRange;
@@ -170,7 +168,7 @@ impl Type for TFloat32<'_> {
         Result::Ok(F32Ext::from(float1).cmp(&F32Ext::from(float2)))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -221,7 +219,7 @@ impl Type for TFloat64<'_> {
         Result::Ok(F64Ext::from(float1).cmp(&F64Ext::from(float2)))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -240,57 +238,50 @@ impl<'a> MetadataSetter<'a> for TFloat64<'a> {
 
 fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
 where
-    B: SchemaBuilder,
+    B: SchemaBuilder<'static>,
 {
     // range
     let range_item = if float_32 {
-        builder.add(
+        builder.add_unwrap(
+            "float_32_range_element",
             TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into())
                 .unwrap()
-                .with_meta(NameDescription {
-                    name: "float_32_range_element",
-                    doc: "The start or end of the float range bounds. Note: Whether this is \
-                          included or not can be defined.",
-                }),
+                .with_doc("The start or end of the float range bounds. Note: Whether this is \
+                          included or not can be defined."),
         )
     } else {
-        builder.add(
+        builder.add_unwrap(
+            "float_64_range_element",
             TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into())
                 .unwrap()
-                .with_meta(NameDescription {
-                    name: "float_64_range_element",
-                    doc: "The start or end of the float range bounds. Note: Whether this is \
-                          included or not can be defined.",
-                }),
+                .with_doc("The start or end of the float range bounds. Note: Whether this is \
+                          included or not can be defined."),
         )
     };
 
-    let range_field = builder.add(
-        TRange::new(range_item, Inclusion::Supplied, false).with_meta(NameDescription {
-            name: if float_32 {
-                "float_32_range"
-            } else {
-                "float_64_range"
-            },
-            doc: "The range the float must be contained within.",
-        }),
+    let range_field = builder.add_unwrap(
+        if float_32 {
+            "float_32_range"
+        } else {
+            "float_64_range"
+        },
+        TRange::new(range_item, Inclusion::Supplied, false)
+            .with_doc( "The range the float must be contained within."),
     );
 
     // other config
 
-    let allow_nan_field = builder.add(TBool::default().with_meta(NameDescription {
-        name: "allow_nan",
-        doc: "This is true if NaN ('not a number') is allowed. This \
-              should usually be false.",
-    }));
-    let allow_positive_infinity_field = builder.add(TBool::default().with_meta(NameDescription {
-        name: "allow_positive_infinity",
-        doc: "This is true if positive infinity is allowed.",
-    }));
-    let allow_negative_infinity_field = builder.add(TBool::default().with_meta(NameDescription {
-        name: "allow_negative_infinity",
-        doc: "This is true if negative infinity is allowed.",
-    }));
+    let allow_nan_field = builder.add_unwrap(
+        "allow_nan",
+        TBool::default()
+        .with_doc( "This is true if NaN ('not a number') is allowed. This \
+              should usually be false."));
+    let allow_positive_infinity_field = builder.add_unwrap(
+        "allow_positive_infinity",
+        TBool::default().with_doc("This is true if positive infinity is allowed."));
+    let allow_negative_infinity_field = builder.add_unwrap(
+        "allow_negative_infinity",
+        TBool::default().with_doc("This is true if negative infinity is allowed."));
 
     // just an empty struct (but more fields will be added by the system)
     TStruct::default()
@@ -310,15 +301,12 @@ where
             Identifier::try_from("allow_negative_infinity").unwrap(),
             allow_negative_infinity_field,
         ))
-        .with_meta(NameOnly {
-            name: if float_32 { "float_32" } else { "float_64" },
-        })
 }
 
 impl BaseTypeSchemaBuilder for Float32 {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, true)
     }
@@ -327,7 +315,7 @@ impl BaseTypeSchemaBuilder for Float32 {
 impl BaseTypeSchemaBuilder for TFloat<'_, F32Ext> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, true)
     }
@@ -336,7 +324,7 @@ impl BaseTypeSchemaBuilder for TFloat<'_, F32Ext> {
 impl BaseTypeSchemaBuilder for Float64 {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, false)
     }
@@ -345,7 +333,7 @@ impl BaseTypeSchemaBuilder for Float64 {
 impl BaseTypeSchemaBuilder for TFloat<'_, F64Ext> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, false)
     }

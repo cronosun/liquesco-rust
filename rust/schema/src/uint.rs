@@ -4,8 +4,6 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -73,7 +71,7 @@ impl Type for TUInt<'_> {
         Result::Ok(int1.cmp(&int2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -93,22 +91,20 @@ impl<'a> MetadataSetter<'a> for TUInt<'a> {
 impl BaseTypeSchemaBuilder for TUInt<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let element = builder.add(
+        let element = builder.add_unwrap(
+            "uint_range_element",
             TUInt::try_new(std::u64::MIN, std::u64::MAX)
                 .unwrap()
-                .with_meta(NameOnly {
-                    name: "uint_range_element",
-                }),
         );
 
-        let field_range = builder.add(
-            TRange::new(element, Inclusion::BothInclusive, false).with_meta(NameDescription {
-                name: "uint_range",
-                doc: "The range within the integer must be. Both (start and end) \
-                      are inclusive.",
-            }),
+        let field_range = builder.add_unwrap(
+            "uint_range",
+            TRange::new(element, Inclusion::BothInclusive, false)
+                .with_doc(
+                    "The range within the integer must be. Both (start and end) \
+                      are inclusive."),
         );
 
         TStruct::default()
@@ -116,9 +112,7 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
                 Identifier::try_from("range").unwrap(),
                 field_range,
             ))
-            .with_meta(NameDescription {
-                name: "uint",
-                doc: "Unsigned integer - maximum 64 bit.",
-            })
+            .with_doc(
+                "Unsigned integer - maximum 64 bit.")
     }
 }

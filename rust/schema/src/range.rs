@@ -15,15 +15,14 @@ use crate::enumeration::Variant;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
-use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
+use crate::key_ref::TKeyRef;
 
 /// A range.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -45,7 +44,7 @@ pub enum Inclusion {
     Supplied,
 }
 
-impl TRange<'_> {
+impl<'a> TRange<'a> {
     pub fn new(element: TypeRef, inclusion: Inclusion, allow_empty: bool) -> Self {
         Self {
             meta: Meta::empty(),
@@ -61,8 +60,8 @@ impl TRange<'_> {
     }
 
     /// The type of the range element.
-    pub fn element(&self) -> TypeRef {
-        self.element
+    pub fn element(&self) -> &TypeRef {
+        &self.element
     }
 
     /// True if empty ranges are allowed.
@@ -96,10 +95,10 @@ impl Type for TRange<'_> {
 
         // start
         let mut start_reader = context.reader().clone();
-        context.validate(self.element)?;
+        context.validate(&self.element)?;
         // end
         let mut end_reader = context.reader().clone();
-        context.validate(self.element)?;
+        context.validate(&self.element)?;
 
         let inclusive: (bool, bool) = match self.inclusion {
             Inclusion::Supplied => (
@@ -113,7 +112,7 @@ impl Type for TRange<'_> {
         };
 
         // Now compare start and end
-        let cmp = context.compare(self.element, &mut start_reader, &mut end_reader)?;
+        let cmp = context.compare(&self.element, &mut start_reader, &mut end_reader)?;
         match cmp {
             Ordering::Greater => LqError::err_new(
                 "The given start (first element) is greater then \
@@ -162,11 +161,11 @@ impl Type for TRange<'_> {
 
         let with_inclusion = header1.length() == 4;
 
-        let cmp1 = context.compare(self.element, r1, r2)?;
+        let cmp1 = context.compare(&self.element, r1, r2)?;
         Ok(if cmp1 != Equal {
             cmp1
         } else {
-            let cmp2 = context.compare(self.element, r1, r2)?;
+            let cmp2 = context.compare(&self.element, r1, r2)?;
             if cmp2 != Equal {
                 cmp2
             } else {
@@ -184,9 +183,9 @@ impl Type for TRange<'_> {
         })
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         if index == 0 {
-            Some(self.element)
+            Some(&self.element)
         } else {
             None
         }
@@ -208,14 +207,14 @@ impl<'a> MetadataSetter<'a> for TRange<'a> {
 impl BaseTypeSchemaBuilder for TRange<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let element_field = builder.add(TReference::default().with_meta(NameDescription {
-            name: "range_element",
-            doc: "The start and end type of the range.",
-        }));
+        let element_field = builder.add_unwrap(
+            "range_element",
+                                               TKeyRef::default().with_doc( "The start and end type of the range."));
 
-        let inclusion_field = builder.add(
+        let inclusion_field = builder.add_unwrap(
+            "inclusion",
             TEnum::default()
                 .add(Variant::new(
                     Identifier::try_from("both_inclusive").unwrap(),
@@ -228,20 +227,17 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
                 ))
                 .add(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
                 .add(Variant::new(Identifier::try_from("supplied").unwrap()))
-                .with_meta(NameDescription {
-                    name: "inclusion",
-                    doc: "Determines whether start and end are inclusive. There's one \
+                .with_doc("Determines whether start and end are inclusive. There's one \
                           special value: 'Supplied'. When you choose this, the data has to contain \
-                          the information whether start/end are inclusive or not.",
-                }),
+                          the information whether start/end are inclusive or not."),
         );
 
-        let allow_empty_field = builder.add(TBool::default()
-            .with_meta(NameDescription {
-                name: "allow_empty",
-                doc: "General rule is start < end. When start equals end it's \
+        let allow_empty_field = builder.add_unwrap(
+            "allow_empty",
+            TBool::default()
+            .with_doc("General rule is start < end. When start equals end it's \
             possible to construct empty ranges (depending on the inclusion). If this is false \
-            it's not allowed to specify a range that's empty. You usually want this to be false." }));
+            it's not allowed to specify a range that's empty. You usually want this to be false."));
 
         TStruct::default()
             .add(Field::new(
@@ -256,9 +252,6 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
                 Identifier::try_from("allow_empty").unwrap(),
                 allow_empty_field,
             ))
-            .with_meta(NameDescription {
-                name: "range",
-                doc: "A sequence contains 0-n elements of the same type.",
-            })
+            .with_doc("A sequence contains 0-n elements of the same type.")
     }
 }

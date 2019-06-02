@@ -4,8 +4,6 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
 use crate::range::TRange;
@@ -78,7 +76,7 @@ impl Type for TBinary<'_> {
         Result::Ok(bytes1.cmp(&bytes2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -98,19 +96,16 @@ impl<'a> MetadataSetter<'a> for TBinary<'a> {
 impl BaseTypeSchemaBuilder for TBinary<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let range_element = builder.add(
+        let range_element = builder.add_unwrap(
+            "binary_length_element",
             TUInt::try_new(std::u64::MIN, std::u64::MAX)
                 .unwrap()
-                .with_meta(NameOnly {
-                    name: "binary_length_element",
-                }),
         );
-        let field_length = builder.add(
-            TRange::new(range_element, Inclusion::BothInclusive, false).with_meta(NameOnly {
-                name: "binary_length",
-            }),
+        let field_length = builder.add_unwrap(
+            "binary_length",
+            TRange::new(range_element, Inclusion::BothInclusive, false)
         );
 
         TStruct::default()
@@ -118,9 +113,6 @@ impl BaseTypeSchemaBuilder for TBinary<'_> {
                 Identifier::try_from("length").unwrap(),
                 field_length,
             ))
-            .with_meta(NameDescription {
-                name: "binary",
-                doc: "Arbitrary binary.",
-            })
+            .with_doc("Arbitrary binary.")
     }
 }

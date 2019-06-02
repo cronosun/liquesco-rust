@@ -7,13 +7,10 @@ use crate::enumeration::Variant;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::option::TOption;
 use crate::range::Inclusion;
 use crate::range::TRange;
-use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
@@ -26,6 +23,7 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use crate::key_ref::TKeyRef;
 
 /// A sequence of 0-n elements where every element is of the same type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -88,8 +86,8 @@ impl<'a> TSeq<'a> {
         })
     }
 
-    pub fn element(&self) -> TypeRef {
-        self.element
+    pub fn element(&self) -> &TypeRef {
+        &self.element
     }
 
     pub fn length(&self) -> &U32IneRange {
@@ -147,7 +145,7 @@ impl Type for TSeq<'_> {
             Ordering::None => {
                 // validate each element
                 for _ in 0..number_of_items {
-                    context.validate(self.element)?;
+                    context.validate(&self.element)?;
                 }
             }
             Ordering::Sorted(value) => {
@@ -173,10 +171,10 @@ impl Type for TSeq<'_> {
     where
         C: Context<'c>,
     {
-        seq_compare(|_| self.element, context, r1, r2)
+        seq_compare(&self.element, context, r1, r2)
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         if index == 0 {
             Some(self.element())
         } else {
@@ -198,8 +196,8 @@ impl<'a> MetadataSetter<'a> for TSeq<'a> {
 }
 
 #[inline]
-pub(crate) fn seq_compare<'c, C, FGetType: Fn(u32) -> TypeRef>(
-    type_for_index: FGetType,
+pub(crate) fn seq_compare<'c, C>(
+    element: &TypeRef,
     context: &C,
     r1: &mut C::Reader,
     r2: &mut C::Reader,
@@ -225,8 +223,7 @@ where
     // lex compare: first compare each element (even if their length is not equal)
     let min_to_read = header1.length().min(header2.length());
     for index in 0..min_to_read {
-        let r#type = type_for_index(index);
-        let cmp = context.compare(r#type, r1, r2)?;
+        let cmp = context.compare(&element, r1, r2)?;
         if cmp != std::cmp::Ordering::Equal {
             // no need to finish to the end (see contract)
             return Result::Ok(cmp);
@@ -261,10 +258,10 @@ where
         // we need 3 readers (one for validation, one for this cmp and one for next cmp)
         let mut saved_reader1 = context.reader().clone();
         let saved_reader2 = context.reader().clone();
-        context.validate(this.element)?;
+        context.validate(&this.element)?;
 
         if let Some(mut previous) = previous.take() {
-            let equality = context.compare(this.element, &mut previous, &mut saved_reader1)?;
+            let equality = context.compare(&this.element, &mut previous, &mut saved_reader1)?;
             match equality {
                 std::cmp::Ordering::Greater => {
                     // previous is greater: this is OK for descending lists
@@ -313,81 +310,67 @@ where
 impl BaseTypeSchemaBuilder for TSeq<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let element_field = builder.add(TReference::default().with_meta(NameDescription {
-            name: "element",
-            doc: "The element type of a sequence.",
-        }));
-        let length_element = builder.add(
+        let element_field = builder.add_unwrap(
+            "element",
+            TKeyRef::default().with_doc( "The element type of a sequence."));
+        let length_element = builder.add_unwrap(
+            "seq_length_element",
             TUInt::try_new(0, std::u32::MAX as u64)
                 .unwrap()
-                .with_meta(NameOnly {
-                    name: "seq_length_element",
-                }),
         );
-        let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
-                NameDescription {
-                    name: "seq_length",
-                    doc: "The length of a sequence (number of elements). It's tuple of start \
-                          and end. Both - end and start - are included.",
-                },
-            ),
+        let length_field = builder.add_unwrap(
+            "seq_length",
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
+                 "The length of a sequence (number of elements). It's tuple of start \
+                          and end. Both - end and start - are included."            ),
         );
 
-        let directed_enum = builder.add(
+        let directed_enum = builder.add_unwrap(
+            "direction",
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
-                .with_meta(NameDescription {
-                    name: "direction",
-                    doc: "Determines how the elements in the sequence need to be sorted for \
-                          the sequence to be valid.",
-                }),
+                .with_doc( "Determines how the elements in the sequence need to be sorted for \
+                          the sequence to be valid.")
         );
-        let unique = builder.add(TBool::default().with_meta(NameDescription {
-            name: "unique",
-            doc: "When this is true, no duplicate elements are allowed in the sequence. \
-                  This automatically implies a sorted sequence.",
-        }));
-        let sorted_struct = builder.add(
+        let unique = builder.add_unwrap(
+            "unique",
+            TBool::default().with_doc(
+                "When this is true, no duplicate elements are allowed in the sequence. \
+                  This automatically implies a sorted sequence."));
+        let sorted_struct = builder.add_unwrap(
+            "sorting",
             TStruct::default()
                 .add(Field::new(
                     Identifier::try_from("direction").unwrap(),
                     directed_enum,
                 ))
                 .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
-                .with_meta(NameDescription {
-                    name: "sorting",
-                    doc: "Determines how the sequence needs to be sorted and whether duplicate \
-                          elements are allowed.",
-                }),
+                .with_doc( "Determines how the sequence needs to be sorted and whether duplicate \
+                          elements are allowed."),
         );
-        let ordering_field = builder.add(
+        let ordering_field = builder.add_unwrap(
+            "ordering",
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("none").unwrap()))
                 .add(
                     Variant::new(Identifier::try_from("sorted").unwrap()).add_value(sorted_struct),
-                ).with_meta(
-                NameDescription {
-                    name: "ordering",
-                    doc: "Ordering is optional. When there's no ordering it can be irrelevant or \
+                ).with_doc(
+                 "Ordering is optional. When there's no ordering it can be irrelevant or \
         ordering has a special meaning. It's also possible to specify a required sorting (in this \
-        case it's also possible to disallow duplicates)."
-                }));
+        case it's also possible to disallow duplicates)."));
 
-        let multiple_of = builder.add(
+        let multiple_of = builder.add_unwrap(
+            "multiple_of",
             TUInt::try_new(2, std::u32::MAX as u64).unwrap()
-                .with_meta(NameDescription {
-                    name : "multiple_of",
-                    doc: "It's possible to specify another requirement on the length of the list \
+                .with_doc( "It's possible to specify another requirement on the length of the list \
         (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
-        ... are allowed."
-                }));
-        let multiple_of_field = builder.add(TOption::new(multiple_of).with_meta(NameOnly {
-            name: "maybe_multiple_of",
-        }));
+        ... are allowed."));
+        let multiple_of_field = builder.add_unwrap(
+            "maybe_multiple_of",
+            TOption::new(multiple_of));
 
         TStruct::default()
             .add(Field::new(
@@ -406,9 +389,6 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                 Identifier::try_from("multiple_of").unwrap(),
                 multiple_of_field,
             ))
-            .with_meta(NameDescription {
-                name: "seq",
-                doc: "A sequence contains 0-n elements of the same type.",
-            })
+            .with_doc("A sequence contains 0-n elements of the same type.")
     }
 }

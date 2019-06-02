@@ -4,10 +4,9 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
 use crate::option::TOption;
-use crate::reference::TReference;
+use crate::key_ref::TKeyRef;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::TSeq;
@@ -27,7 +26,7 @@ const MAX_VALUES: usize = 32;
 const MIN_VARIANTS: usize = 1;
 
 type Variants<'a> = Vec<Variant<'a>>;
-type Values = Vec<TypeRef>;
+type Values<'a> = Vec<TypeRef>;
 
 /// An enumeration contains 1-n variants. Variants can (optionally) carry data.
 #[derive(Clone, Debug, Serialize, Deserialize, PartialEq, Eq, Hash)]
@@ -47,7 +46,7 @@ pub struct Variant<'a> {
     /// at index 0 is something you can't extend (a.g. not a struct).
     ///
     /// For variants without value, this is empty.
-    values: Option<Values>,
+    values: Option<Values<'a>>,
 }
 
 impl<'a> Variant<'a> {
@@ -162,7 +161,7 @@ impl<'a> Type for TEnum<'a> {
 
         // validate each element
         for r#type in variant.values() {
-            context.validate(*r#type)?;
+            context.validate(r#type)?;
         }
 
         if to_skip > 0 {
@@ -209,7 +208,7 @@ impl<'a> Type for TEnum<'a> {
             let variant = &self.variants[usize_ordinal];
             let mut num_read: u32 = 0;
             for r#type in variant.values() {
-                let cmp = context.compare(*r#type, r1, r2)?;
+                let cmp = context.compare(r#type, r1, r2)?;
                 num_read = num_read + 1;
                 if cmp != Ordering::Equal {
                     // no need to finish to the end (see contract)
@@ -237,12 +236,12 @@ impl<'a> Type for TEnum<'a> {
         }
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         let mut current = 0;
         for variant in self.variants() {
             for value in variant.values() {
                 if current == index {
-                    return Some(*value);
+                    return Some(value);
                 }
                 current += 1;
             }
@@ -265,32 +264,30 @@ impl<'a> MetadataSetter<'a> for TEnum<'a> {
 
 fn build_variant_schema<B>(builder: &mut B) -> TypeRef
 where
-    B: SchemaBuilder,
+    B: SchemaBuilder<'static>,
 {
     let field_name = Identifier::build_schema(builder);
 
-    let single_value = builder.add(TReference::default().with_meta(NameDescription {
-        name: "value_type",
-        doc: "Value type in an enum variant.",
-    }));
-    let values = builder.add(
+    let single_value = builder.add_unwrap("value_type",
+                                          TKeyRef::default().with_doc(
+       "Value type in an enum variant."));
+    let values = builder.add_unwrap(
+        "maybe_values",
         TSeq::new(
             single_value,
             U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
         )
-            .with_meta(NameDescription {
-            name: "variant_values",
-            doc: "Defines the one (or in rare cases more) value the enumeration \
+            .with_doc( "Defines the one (or in rare cases more) value the enumeration \
              variant takes. You should only have two or more values when variant got extended - \
-             do not use more than one value in the initial schema design." })
+             do not use more than one value in the initial schema design." )
     );
-    let field_values = builder.add(TOption::new(values).with_meta(NameDescription {
-        name: "maybe_values",
-        doc: "Enumeration variants have usually either no value (in this case \
-              this is absent) or one value.",
-    }));
+    let field_values = builder.add_unwrap(
+        "maybe_values",
+        TOption::new(values).with_doc( "Enumeration variants have usually either no value (in this case \
+              this is absent) or one value."));
 
-    builder.add(
+    builder.add_unwrap(
+        "variant",
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("name").unwrap(),
@@ -300,29 +297,25 @@ where
                 Identifier::try_from("values").unwrap(),
                 field_values,
             ))
-            .with_meta(NameDescription {
-                name: "variant",
-                doc: "A single variant in an enumeration.",
-            }),
+            .with_doc(
+                 "A single variant in an enumeration."),
     )
 }
 
 impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         let variant = build_variant_schema(builder);
-        let field_variants = builder.add(
+        let field_variants = builder.add_unwrap(
+            "variants",
             TSeq::new(
                 variant,
                 U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
             )
-            .with_meta(NameDescription {
-                name: "variants",
-                doc: "Every enumeration has to have one or more variants (just one usually \
-                      makes no sense but can be used to allow extension in future).",
-            }),
+            .with_doc("Every enumeration has to have one or more variants (just one usually \
+                      makes no sense but can be used to allow extension in future)."),
         );
 
         TStruct::default()
@@ -330,9 +323,6 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
                 Identifier::try_from("variants").unwrap(),
                 field_variants,
             ))
-            .with_meta(NameDescription {
-                name: "enum",
-                doc: "An enumeration of variants.",
-            })
+            .with_doc( "An enumeration of variants.")
     }
 }

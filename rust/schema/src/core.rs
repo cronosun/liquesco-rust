@@ -4,6 +4,7 @@ use std::fmt::Debug;
 
 use crate::any_type::AnyType;
 use crate::context::Context;
+use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
@@ -42,7 +43,7 @@ pub trait Type: Debug + WithMetadata {
     ///
     /// This is mostly used internally; usually you get embedded references
     /// by the appropriate methods.
-    fn reference(&self, _: usize) -> Option<TypeRef>;
+    fn reference(&self, _: usize) -> Option<&TypeRef>;
 }
 
 /// Configuration used for validation.
@@ -79,19 +80,19 @@ impl Config {
 }
 
 /// References a single type within a schema.
-#[derive(Copy, Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
-pub struct TypeRef(u32);
+#[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)] // TODO: Need custom serialization
+pub enum TypeRef {
+    /// This is the reference used for serialization (a serialized schema only uses numbers).
+    Numerical(u32),
+    /// This is the reference used when building a schema.
+    Identifier(Identifier<'static>)
+}
 
 impl TypeRef {
     /// Constructs a new type reference. This should usually never be used by user code,
     /// it's only to be used by `TypeContainer` implementations.
-    pub fn new(id: u32) -> Self {
-        Self(id)
-    }
-
-    /// The type id. Should usually never be used by user code.
-    pub fn id(&self) -> u32 {
-        self.0
+    pub fn new_numerical(id: u32) -> Self {
+        TypeRef::Numerical(id)
     }
 }
 

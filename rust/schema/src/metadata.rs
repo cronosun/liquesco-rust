@@ -34,6 +34,15 @@ pub trait MetadataSetter<'m>: WithMetadata {
         self.set_meta(meta.into());
         self
     }
+
+    fn with_doc<D : Into<Cow<'m, str>>>(mut self, doc : D) -> Self
+    where Self : Sized {
+        self.set_meta(Meta {
+            doc:    Some(doc.into()),
+            implements : self.meta().implements.clone()
+        });
+        self
+    }
 }
 
 /// Minimum length (utf-8 bytes) the documentation of a type must have.
@@ -44,54 +53,15 @@ pub const DOC_MAX_LEN_UTF8_BYTES: usize = 4000;
 /// The metadata of a type.
 #[derive(Clone, Debug, Serialize, Deserialize, Hash, PartialEq, Eq)]
 pub struct Meta<'a> {
-    pub name: Option<Identifier<'a>>,
     pub doc: Option<Cow<'a, str>>,
     pub implements: Option<Implements>,
-}
-
-pub struct NameDescription<'a> {
-    pub name: &'a str,
-    pub doc: &'a str,
-}
-
-impl<'a> Into<Meta<'a>> for NameDescription<'a> {
-    fn into(self) -> Meta<'a> {
-        Meta {
-            name: Some(Identifier::try_from(self.name).unwrap()),
-            doc: Some(Cow::Borrowed(self.doc)),
-            implements: None,
-        }
-    }
-}
-
-pub struct NameOnly<'a> {
-    pub name: &'a str,
-}
-
-impl<'a> Into<Meta<'a>> for NameOnly<'a> {
-    fn into(self) -> Meta<'a> {
-        Meta {
-            name: Some(Identifier::try_from(self.name).unwrap()),
-            doc: None,
-            implements: None,
-        }
-    }
 }
 
 impl<'a> Meta<'a> {
     pub const fn empty() -> Self {
         Self {
-            name: None,
             doc: None,
             implements: None,
-        }
-    }
-
-    pub fn name(&self) -> Option<&Identifier<'a>> {
-        if let Some(identifier) = &self.name {
-            Some(&identifier)
-        } else {
-            None
         }
     }
 
@@ -109,13 +79,6 @@ impl<'a> Meta<'a> {
         } else {
             &[]
         }
-    }
-
-    pub fn set_name<I>(&mut self, name: I)
-    where
-        I: Into<Identifier<'a>>,
-    {
-        self.name = Some(name.into());
     }
 
     pub fn set_doc<D>(&mut self, doc: D)
@@ -189,37 +152,29 @@ pub(crate) struct WithMetaSchemaBuilder<T: BaseTypeSchemaBuilder> {
 impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         // Adding fields for the doc
-        let identifier_ref = Identifier::build_schema(builder);
-        let field_name = builder.add(TOption::new(identifier_ref).with_meta(NameDescription {
-            name: "maybe_name",
-            doc: "An optional name for the type.",
-        }));
-        let doc_ref = builder.add(
+        let doc_ref = builder.add_unwrap(
+            "documentation",
             TUnicode::try_new(
                 DOC_MIN_LEN_UTF8_BYTES as u64,
                 DOC_MAX_LEN_UTF8_BYTES as u64,
                 LengthType::Utf8Byte,
             )
             .unwrap()
-            .with_meta(NameDescription {
-                name: "documentation",
-                doc: "Describes / documents the type. Use human readable text. \
-                      No markup is allowed.",
-            }),
+            .with_doc("Describes / documents the type. Use human readable text. \
+                      No markup is allowed."),
         );
-        let field_doc = builder.add(TOption::new(doc_ref).with_meta(NameDescription {
-            name: "maybe_doc",
-            doc: "Optional type description / documentation.",
-        }));
-        let uuid_ref = builder.add(TUuid::default().with_meta(NameDescription {
-            name: "implements_uuid",
-            doc: "UUID to describe the conformance / implementation / \
-                  protocol of this type uniquely.",
-        }));
-        let uuid_seq = builder.add(
+        let field_doc = builder.add_unwrap(
+            "maybe_doc",
+            TOption::new(doc_ref).with_doc( "Optional type description / documentation."));
+        let uuid_ref = builder.add_unwrap(
+            "implements_uuid",
+            TUuid::default().with_doc( "UUID to describe the conformance / implementation / \
+                  protocol of this type uniquely."));
+        let uuid_seq = builder.add_unwrap(
+            "implements",
             TSeq::new(
                 uuid_ref,
                 U32IneRange::try_new("Doc type implements",
@@ -229,24 +184,17 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                     direction: seq::Direction::Ascending,
                     unique: true,
                 })
-                .with_meta(NameDescription {
-                    name: "implements",
-                    doc: "A sequence of 'things' this type implements. What can this be used \
+                .with_doc("A sequence of 'things' this type implements. What can this be used \
         for? Say for example your type is an ASCII type. With that information we can't \
         really say what ASCII is for. Say for example that ASCII has a special meaning in your \
         company: It's a part number. So you can give that ASCII type a UUID to declare 'this \
-        type is a part number'. This makes it possible to find part numbers company wide.",
-                }));
+        type is a part number'. This makes it possible to find part numbers company wide."));
 
-        let field_implements = builder.add(TOption::new(uuid_seq).with_meta(NameOnly {
-            name: "maybe_implements",
-        }));
+        let field_implements = builder.add_unwrap(
+            "maybe_implements",
+            TOption::new(uuid_seq));
 
         let meta_struct = TStruct::default()
-            .add(Field::new(
-                Identifier::try_from("name").unwrap(),
-                field_name,
-            ))
             .add(Field::new(
                 Identifier::try_from("doc").unwrap(),
                  field_doc,
@@ -254,12 +202,11 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
             .add(Field::new(
                 Identifier::try_from("implements").unwrap(),
                 field_implements,
-            )).with_meta(NameDescription {
-            name: "meta",
-            doc: "Meta information about the type. You can optionally specify a name, a description/\
-        documentation and information about implementation/conformance.",
-        });
-        let meta_ref = builder.add(meta_struct);
+            )).with_doc( "Meta information about the type. You can optionally specify a name, a description/\
+        documentation and information about implementation/conformance.");
+        let meta_ref = builder.add_unwrap(
+            "meta",
+            meta_struct);
 
         let mut inner_struct = T::build_schema(builder);
         inner_struct.prepend(Field::new(Identifier::try_from("meta").unwrap(), meta_ref));

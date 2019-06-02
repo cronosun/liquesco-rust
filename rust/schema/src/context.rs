@@ -8,12 +8,12 @@ use std::cmp::Ordering;
 pub trait Context<'a> {
     type Reader: LqReader<'a>;
 
-    fn validate(&mut self, reference: TypeRef) -> Result<(), LqError>;
+    fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError>;
 
     /// See `Type::compare`.
     fn compare(
         &self,
-        reference: TypeRef,
+        reference: &TypeRef,
         r1: &mut Self::Reader,
         r2: &mut Self::Reader,
     ) -> Result<Ordering, LqError>;

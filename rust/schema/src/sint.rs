@@ -4,8 +4,6 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -73,7 +71,7 @@ impl Type for TSInt<'_> {
         Result::Ok(int1.cmp(&int2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -93,22 +91,20 @@ impl<'a> MetadataSetter<'a> for TSInt<'a> {
 impl BaseTypeSchemaBuilder for TSInt<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let element = builder.add(
+        let element = builder.add_unwrap(
+            "sint_range_element",
             TSInt::try_new(std::i64::MIN, std::i64::MAX)
                 .unwrap()
-                .with_meta(NameOnly {
-                    name: "sint_range_element",
-                }),
         );
 
-        let field_range = builder.add(
-            TRange::new(element, Inclusion::BothInclusive, false).with_meta(NameDescription {
-                name: "sint_range",
-                doc: "The range within the integer must be. Both (start and end) \
-                      are inclusive.",
-            }),
+        let field_range = builder.add_unwrap(
+            "sint_range",
+            TRange::new(element, Inclusion::BothInclusive, false)
+                .with_doc(
+                    "The range within the integer must be. Both (start and end) \
+                      are inclusive."),
         );
 
         TStruct::default()
@@ -116,9 +112,6 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
                 Identifier::try_from("range").unwrap(),
                 field_range,
             ))
-            .with_meta(NameDescription {
-                name: "sint",
-                doc: "Signed integer - maximum 64 bit.",
-            })
+            .with_doc("Signed integer - maximum 64 bit.")
     }
 }

@@ -1,6 +1,6 @@
 use crate::ascii::{CodeRange, TAscii};
 use crate::core::TypeRef;
-use crate::metadata::{Meta, MetadataSetter, NameDescription};
+use crate::metadata::{Meta, MetadataSetter};
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::seq::TSeq;
 use core::convert::TryFrom;
@@ -21,14 +21,14 @@ const MIN_NUMBER_OF_SEGMENTS: usize = 1;
 const MAX_NUMBER_OF_SEGMENTS: usize = 12;
 
 /// A single segment within an identifier.
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Segment<'a>(Cow<'a, str>);
 
 /// The identifier is used to identify various parts in the system. It's very simple
 /// and only supports lowercase ASCII characters and numbers (so it's simple to
 /// convert that to identifiers in the target language when generating code from the
 /// schema).
-#[derive(Debug, Clone, Eq, PartialEq, Hash, Serialize, Deserialize)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct Identifier<'a>(Vec<Segment<'a>>);
 
 impl<'a> Deref for Identifier<'a> {
@@ -89,25 +89,23 @@ impl<'a> Identifier<'a> {
 impl BuildsOwnSchema for Identifier<'_> {
     fn build_schema<B>(builder: &mut B) -> TypeRef
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         let mut code_range = CodeRange::try_new(48, 57 + 1).unwrap();
         code_range.add(97, 122 + 1).unwrap();
-        let segment_ref = builder.add(
+        let segment_ref = builder.add_unwrap(
+            "segment",
             TAscii::new(U64IneRange::try_new(
                 "Segment len",
                 SEGMENT_MIN_LEN as u64,
                 SEGMENT_MAX_LEN as u64,
             )
                 .unwrap(), code_range)
-            .with_meta(NameDescription {
-                name : "segment",
-                doc: "A single segment of an identifier. \
+            .with_doc("A single segment of an identifier. \
                  An identifier can only contain certain ASCII characters and is limited in length."
-            })
+            )
         );
         let meta = Meta {
-            name: Some(Identifier::try_from("identifier").unwrap()),
             doc: Some(Cow::Owned(format!(
                 "An identifier identifies something in the system. An \
                  identifier is composed of {min}-{max} segments. Each segment is composed of ASCII \
@@ -120,7 +118,7 @@ impl BuildsOwnSchema for Identifier<'_> {
             ))),
             implements: None,
         };
-        builder.add(
+        builder.add_unwrap("identifier",
             TSeq::try_new(
                 segment_ref,
                 MIN_NUMBER_OF_SEGMENTS as u32,

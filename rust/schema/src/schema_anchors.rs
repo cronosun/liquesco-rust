@@ -54,7 +54,7 @@ impl<'a> TypeContainer<'a> for SchemaAnchors<'a> {
 impl BuildsOwnSchema for SchemaAnchors<'_> {
     fn build_schema<B>(builder: &mut B) -> TypeRef
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         let any_type = AnyType::build_schema(builder);
         builder.add(

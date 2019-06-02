@@ -3,7 +3,6 @@ use crate::core::Type;
 use crate::core::TypeRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::TStruct;
@@ -53,7 +52,7 @@ impl Type for TUuid<'_> {
         Result::Ok(bin1.cmp(&bin2))
     }
 
-    fn reference(&self, _: usize) -> Option<TypeRef> {
+    fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
 }
@@ -73,12 +72,9 @@ impl<'a> MetadataSetter<'a> for TUuid<'a> {
 impl BaseTypeSchemaBuilder for TUuid<'_> {
     fn build_schema<B>(_: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
         // just an empty struct (but more fields will be added by the system)
-        TStruct::default().with_meta(NameDescription {
-            name: "uuid",
-            doc: "16 byte UUID; RFC 4122.",
-        })
+        TStruct::default().with_doc("16 byte UUID; RFC 4122.")
     }
 }

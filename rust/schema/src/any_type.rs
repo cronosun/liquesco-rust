@@ -1,4 +1,3 @@
-use crate::anchors::TAnchors;
 use crate::ascii::TAscii;
 use crate::binary::TBinary;
 use crate::boolean::TBool;
@@ -13,12 +12,10 @@ use crate::identifier::Identifier;
 use crate::key_ref::TKeyRef;
 use crate::map::TMap;
 use crate::metadata::Meta;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetaSchemaBuilder;
 use crate::metadata::{MetadataSetter, WithMetadata};
 use crate::option::TOption;
 use crate::range::TRange;
-use crate::reference::TReference;
 use crate::root_map::TRootMap;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
@@ -55,8 +52,6 @@ pub enum AnyType<'a> {
     RootMap(TRootMap<'a>),
     KeyRef(TKeyRef<'a>),
     Ascii(TAscii<'a>),
-    Anchors(TAnchors<'a>),
-    Reference(TReference<'a>),
     Uuid(TUuid<'a>),
     Range(TRange<'a>),
 }
@@ -73,8 +68,6 @@ impl<'a> WithMetadata for AnyType<'a> {
             AnyType::Ascii(value) => value.meta(),
             AnyType::Bool(value) => value.meta(),
             AnyType::Enum(value) => value.meta(),
-            AnyType::Anchors(value) => value.meta(),
-            AnyType::Reference(value) => value.meta(),
             AnyType::Seq(value) => value.meta(),
             AnyType::Binary(value) => value.meta(),
             AnyType::Float32(value) => value.meta(),
@@ -103,8 +96,6 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Ascii(value) => value.validate(context),
             AnyType::Bool(value) => value.validate(context),
             AnyType::Enum(value) => value.validate(context),
-            AnyType::Anchors(value) => value.validate(context),
-            AnyType::Reference(value) => value.validate(context),
             AnyType::Seq(value) => value.validate(context),
             AnyType::Binary(value) => value.validate(context),
             AnyType::Float32(value) => value.validate(context),
@@ -136,8 +127,6 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Ascii(value) => value.compare(context, r1, r2),
             AnyType::Bool(value) => value.compare(context, r1, r2),
             AnyType::Enum(value) => value.compare(context, r1, r2),
-            AnyType::Anchors(value) => value.compare(context, r1, r2),
-            AnyType::Reference(value) => value.compare(context, r1, r2),
             AnyType::Seq(value) => value.compare(context, r1, r2),
             AnyType::Binary(value) => value.compare(context, r1, r2),
             AnyType::Float32(value) => value.compare(context, r1, r2),
@@ -149,7 +138,7 @@ impl<'a> Type for AnyType<'a> {
         }
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         match self {
             AnyType::Struct(value) => value.reference(index),
             AnyType::Map(value) => value.reference(index),
@@ -160,8 +149,6 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Ascii(value) => value.reference(index),
             AnyType::Bool(value) => value.reference(index),
             AnyType::Enum(value) => value.reference(index),
-            AnyType::Anchors(value) => value.reference(index),
-            AnyType::Reference(value) => value.reference(index),
             AnyType::Seq(value) => value.reference(index),
             AnyType::Binary(value) => value.reference(index),
             AnyType::Float32(value) => value.reference(index),
@@ -174,32 +161,33 @@ impl<'a> Type for AnyType<'a> {
     }
 }
 
+// TODO: This will be the root type
+
+/*
 impl BuildsOwnSchema for AnyType<'_> {
     fn build_schema<B>(builder: &mut B) -> TypeRef
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let ref_bool = doc_type_ref::<TBool, B>(builder);
-        let ref_option = doc_type_ref::<TOption, B>(builder);
-        let ref_seq = doc_type_ref::<TSeq, B>(builder);
-        let ref_binary = doc_type_ref::<TBinary, B>(builder);
-        let ref_unicode = doc_type_ref::<TUnicode, B>(builder);
-        let ref_uint = doc_type_ref::<TUInt, B>(builder);
-        let ref_sint = doc_type_ref::<TSInt, B>(builder);
-        let ref_float_32 = doc_type_ref::<TFloat32, B>(builder);
-        let ref_float_64 = doc_type_ref::<TFloat64, B>(builder);
-        let ref_enum = doc_type_ref::<TEnum, B>(builder);
-        let ref_struct = doc_type_ref::<TStruct, B>(builder);
-        let ref_map = doc_type_ref::<TMap, B>(builder);
-        let ref_root_map = doc_type_ref::<TRootMap, B>(builder);
-        let ref_key_ref = doc_type_ref::<TKeyRef, B>(builder);
-        let ref_ascii = doc_type_ref::<TAscii, B>(builder);
-        let ref_anchors = doc_type_ref::<TAnchors, B>(builder);
-        let ref_reference = doc_type_ref::<TReference, B>(builder);
-        let ref_uuid = doc_type_ref::<TUuid, B>(builder);
-        let ref_range = doc_type_ref::<TRange, B>(builder);
+        let ref_bool = doc_type_ref::<TBool, B>("bool",builder);
+        let ref_option = doc_type_ref::<TOption, B>("option",builder);
+        let ref_seq = doc_type_ref::<TSeq, B>("seq", builder);
+        let ref_binary = doc_type_ref::<TBinary, B>("binary",builder);
+        let ref_unicode = doc_type_ref::<TUnicode, B>("unicode",builder);
+        let ref_uint = doc_type_ref::<TUInt, B>("uint",builder);
+        let ref_sint = doc_type_ref::<TSInt, B>("sint",builder);
+        let ref_float_32 = doc_type_ref::<TFloat32, B>("float_32",builder);
+        let ref_float_64 = doc_type_ref::<TFloat64, B>("float_64",builder);
+        let ref_enum = doc_type_ref::<TEnum, B>("enum",builder);
+        let ref_struct = doc_type_ref::<TStruct, B>("struct",builder);
+        let ref_map = doc_type_ref::<TMap, B>("map",builder);
+        let ref_root_map = doc_type_ref::<TRootMap, B>("root_map",builder);
+        let ref_key_ref = doc_type_ref::<TKeyRef, B>("key_ref",builder);
+        let ref_ascii = doc_type_ref::<TAscii, B>("ascii",builder);
+        let ref_uuid = doc_type_ref::<TUuid, B>("uuid",builder);
+        let ref_range = doc_type_ref::<TRange, B>("range",builder);
 
-        builder.add(
+        builder.add_unwrap("any_type",
             TEnum::default()
                 .add(variant(ref_bool, "bool"))
                 .add(variant(ref_option, "option"))
@@ -216,15 +204,10 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_root_map, "root_map"))
                 .add(variant(ref_key_ref, "key_ref"))
                 .add(variant(ref_ascii, "ascii"))
-                .add(variant(ref_anchors, "anchors"))
-                .add(variant(ref_reference, "reference"))
                 .add(variant(ref_uuid, "uuid"))
                 .add(variant(ref_range, "range"))
-                .with_meta(NameDescription {
-                    name: "any_type",
-                    doc: "The any type is an enumeration of all possible types available \
-                          in the type system.",
-                }),
+                .with_doc("The any type is an enumeration of all possible types available \
+                          in the type system."),
         )
     }
 }
@@ -233,11 +216,12 @@ fn variant(reference: TypeRef, id: &'static str) -> Variant<'static> {
     Variant::new(Identifier::try_from(id).unwrap()).add_value(reference)
 }
 
-fn doc_type_ref<T, B>(builder: &mut B) -> TypeRef
+fn doc_type_ref<T, B>(id : &'static str, builder: &'static mut B) -> TypeRef
 where
     T: BaseTypeSchemaBuilder + Type,
-    B: SchemaBuilder,
+    B: SchemaBuilder<'static>,
 {
     let schema = WithMetaSchemaBuilder::<T>::build_schema(builder);
-    builder.add(schema)
+    builder.add_unwrap(id, schema)
 }
+*/

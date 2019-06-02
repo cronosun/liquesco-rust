@@ -4,12 +4,11 @@ use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
 use crate::metadata::WithMetadata;
-use crate::reference::TReference;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
+use crate::key_ref::TKeyRef;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::option::Presence;
@@ -24,10 +23,10 @@ pub struct TOption<'a> {
     r#type: TypeRef,
 }
 
-impl TOption<'_> {
+impl<'a> TOption<'a> {
     /// The type of the present value.
-    pub fn r#type(&self) -> TypeRef {
-        self.r#type
+    pub fn r#type(&self) -> &TypeRef {
+        &self.r#type
     }
 
     /// Creates a new option type.
@@ -48,7 +47,7 @@ impl Type for TOption<'_> {
 
         match presence {
             Presence::Absent => Result::Ok(()),
-            Presence::Present => context.validate(self.r#type),
+            Presence::Present => context.validate(&self.r#type),
         }
     }
 
@@ -66,7 +65,7 @@ impl Type for TOption<'_> {
 
         match (presence1, presence2) {
             (Presence::Absent, Presence::Absent) => Result::Ok(Ordering::Equal),
-            (Presence::Present, Presence::Present) => context.compare(self.r#type, r1, r2),
+            (Presence::Present, Presence::Present) => context.compare(&self.r#type, r1, r2),
             (Presence::Absent, Presence::Present) => {
                 // "absent" < "present"
                 Result::Ok(Ordering::Less)
@@ -75,9 +74,9 @@ impl Type for TOption<'_> {
         }
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         if index == 0 {
-            Some(self.r#type)
+            Some(&self.r#type)
         } else {
             None
         }
@@ -99,21 +98,19 @@ impl<'a> MetadataSetter<'a> for TOption<'a> {
 impl BaseTypeSchemaBuilder for TOption<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let field_type = builder.add(TReference::default().with_meta(NameDescription {
-            name: "present_type",
-            doc: "Type of the present value in an option.",
-        }));
+        let field_type = builder.add_unwrap(
+            "present_type",
+                                            TKeyRef::default().with_doc(
+            "Type of the present value in an option."));
 
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("type").unwrap(),
                 field_type,
             ))
-            .with_meta(NameDescription {
-                name: "option",
-                doc: "Can have a value (some; present) or no value (none; empty; absent).",
-            })
+            .with_doc(
+                "Can have a value (some; present) or no value (none; empty; absent).")
     }
 }

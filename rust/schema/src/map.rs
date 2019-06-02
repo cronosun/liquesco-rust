@@ -7,12 +7,9 @@ use crate::enumeration::Variant;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
-use crate::metadata::NameDescription;
-use crate::metadata::NameOnly;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
 use crate::range::TRange;
-use crate::reference::TReference;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
@@ -28,6 +25,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::convert::TryFrom;
+use crate::key_ref::TKeyRef;
 
 /// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
 /// to create recursive data structures.
@@ -50,7 +48,7 @@ pub enum Sorting {
     Descending,
 }
 
-impl TMap<'_> {
+impl<'a> TMap<'a> {
     /// A new map; infinite length; Sorting: Ascending. No anchors.
     pub fn new(key: TypeRef, value: TypeRef) -> Self {
         Self {
@@ -90,8 +88,8 @@ impl Type for TMap<'_> {
             context,
             &self.length,
             length,
-            self.key,
-            self.value,
+            &self.key,
+            &self.value,
             self.sorting,
         )?;
 
@@ -112,13 +110,13 @@ impl Type for TMap<'_> {
     where
         C: Context<'c>,
     {
-        compare_map(context, r1, r2, self.key, self.value)
+        compare_map(context, r1, r2, &self.key, &self.value)
     }
 
-    fn reference(&self, index: usize) -> Option<TypeRef> {
+    fn reference(&self, index: usize) -> Option<&TypeRef> {
         match index {
-            0 => Some(self.key),
-            1 => Some(self.value),
+            0 => Some(&self.key),
+            1 => Some(&self.value),
             _ => None,
         }
     }
@@ -139,37 +137,27 @@ impl<'a> MetadataSetter<'a> for TMap<'a> {
 impl BaseTypeSchemaBuilder for TMap<'_> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        let field_key = builder.add(TReference::default().with_meta(NameDescription {
-            name: "key",
-            doc: "Type of keys in this map.",
-        }));
-        let field_value = builder.add(TReference::default().with_meta(NameDescription {
-            name: "value",
-            doc: "Type of values in this map.",
-        }));
-        let length_element = builder.add(
+        let field_key = builder.add_unwrap("map_key",TKeyRef::default().with_doc(
+            "Type of keys in this map."));
+        let field_value = builder.add_unwrap("map_value",TKeyRef::default().with_doc(
+            "Type of values in this map."));
+        let length_element = builder.add_unwrap(
+            "map_length_element",
             TUInt::try_new(0, std::u32::MAX as u64)
-                .unwrap()
-                .with_meta(NameOnly {
-                    name: "map_length_element",
-                }),
+                .unwrap(),
         );
-        let length_field = builder.add(
-            TRange::new(length_element, Inclusion::BothInclusive, false).with_meta(
-                NameDescription {
-                    name: "map_length",
-                    doc: "The length of a map (number of elements). Both - end and start - \
-                          are included.",
-                },
-            ),
+        let length_field = builder.add_unwrap(
+            "map_length",
+            TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
+                 "The length of a map (number of elements). Both - end and start - \
+                          are included."),
         );
         let sorting_field = Sorting::build_schema(builder);
-        let anchors_field = builder.add(TBool::default().with_meta(NameDescription {
-            name: "anchors",
-            doc: "If this is true, the keys in this map can be referenced using key refs.",
-        }));
+        let anchors_field = builder.add_unwrap(
+            "anchors",
+            TBool::default().with_doc("If this is true, the keys in this map can be referenced using key refs."));
 
         TStruct::default()
             .add(Field::new(Identifier::try_from("key").unwrap(), field_key))
@@ -189,11 +177,8 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                 Identifier::try_from("anchors").unwrap(),
                 anchors_field,
             ))
-            .with_meta(NameDescription {
-                name: "map",
-                doc: "A sequence of key-value entries. Duplicate keys are not allowed. The keys \
-                      can optionally be referenced to create recursive data structures.",
-            })
+            .with_doc("A sequence of key-value entries. Duplicate keys are not allowed. The keys \
+                      can optionally be referenced to create recursive data structures.")
     }
 }
 
@@ -201,8 +186,8 @@ pub(crate) fn validate_map<'c, C>(
     context: &mut C,
     length_range: &U32IneRange,
     length: u32,
-    key: TypeRef,
-    value: TypeRef,
+    key: &TypeRef,
+    value: &TypeRef,
     sorting: Sorting,
 ) -> Result<(), LqError>
 where
@@ -266,8 +251,8 @@ pub(crate) fn compare_map<'c, C>(
     context: &C,
     r1: &mut C::Reader,
     r2: &mut C::Reader,
-    key: TypeRef,
-    value: TypeRef,
+    key: &TypeRef,
+    value: &TypeRef,
 ) -> Result<Ordering, LqError>
 where
     C: Context<'c>,
@@ -302,17 +287,15 @@ where
 impl BuildsOwnSchema for Sorting {
     fn build_schema<B>(builder: &mut B) -> TypeRef
     where
-        B: SchemaBuilder,
+        B: SchemaBuilder<'static>,
     {
-        builder.add(
+        builder.add_unwrap(
+            "sorting",
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
-                .with_meta(NameDescription {
-                    name: "sorting",
-                    doc: "Determines the sort order of the keys in this map. You should usually \
-                          use 'ascending' if not sure.",
-                }),
+                .with_doc("Determines the sort order of the keys in this map. You should usually \
+                          use 'ascending' if not sure."),
         )
     }
 }
