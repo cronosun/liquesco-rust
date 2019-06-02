@@ -1,6 +1,7 @@
 mod common;
 
 use common::builder::builder;
+use common::builder::into_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
@@ -16,6 +17,7 @@ use liquesco_schema::unicode::LengthType;
 use liquesco_schema::unicode::TUnicode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn ok_empty() {
@@ -132,12 +134,13 @@ fn err_map_provides_no_anchors() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap("key", TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
 
-    let field_text = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add(TKeyRef::default());
-    let field_refs = builder.add(TSeq::try_new(single_ref, 0, 100).unwrap());
-    let value = builder.add(
+    let field_text = builder.add_unwrap("unicode",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let single_ref = builder.add_unwrap("key_ref",TKeyRef::default());
+    let field_refs = builder.add_unwrap("key_ref_seq", TSeq::try_new(single_ref, 0, 100).unwrap());
+    let value = builder.add_unwrap(
+        "struct",
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("text").unwrap(),
@@ -149,17 +152,18 @@ fn create_schema1() -> impl Schema<'static> {
             )),
     );
 
-    builder.finish(TMap::new(key, value).with_anchors(true))
+    into_schema(builder, TMap::new(key, value).with_anchors(true))
 }
 
 fn create_schema_no_anchors() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap("key",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
 
-    let field_text = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add(TKeyRef::default());
-    let field_refs = builder.add(TSeq::try_new(single_ref, 0, 100).unwrap());
-    let value = builder.add(
+    let field_text = builder.add_unwrap("unicode",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let single_ref = builder.add_unwrap("key_ref",TKeyRef::default());
+    let field_refs = builder.add_unwrap("key_ref_seq",TSeq::try_new(single_ref, 0, 100).unwrap());
+    let value = builder.add_unwrap(
+        "struct",
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("text").unwrap(),
@@ -172,7 +176,7 @@ fn create_schema_no_anchors() -> impl Schema<'static> {
     );
 
     // note: anchors is set to 'false'
-    builder.finish(TMap::new(key, value).with_anchors(false))
+    into_schema(builder, TMap::new(key, value).with_anchors(false))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

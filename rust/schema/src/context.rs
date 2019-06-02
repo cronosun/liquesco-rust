@@ -1,4 +1,5 @@
 use crate::core::Config;
+use crate::any_type::AnyType;
 use crate::core::TypeRef;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
@@ -9,6 +10,8 @@ pub trait Context<'a> {
     type Reader: LqReader<'a>;
 
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError>;
+
+    fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;
 
     /// See `Type::compare`.
     fn compare(
@@ -21,16 +24,6 @@ pub trait Context<'a> {
     fn reader(&mut self) -> &mut Self::Reader;
 
     fn config(&self) -> &Config;
-
-    // TODO: Deprecated
-    fn anchor_index(&self) -> Option<u32>;
-    // TODO: Deprecated
-    fn set_anchor_index(&mut self, value: Option<u32>);
-
-    // TODO: Deprecated
-    fn max_used_anchor_index(&self) -> Option<u32>;
-    // TODO: Deprecated
-    fn set_max_used_anchor_index(&mut self, value: Option<u32>);
 
     fn key_ref_info(&mut self) -> &mut KeyRefInfo;
 }

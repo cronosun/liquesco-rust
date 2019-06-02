@@ -171,6 +171,10 @@ impl Type for TFloat32<'_> {
     fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
+
+    fn set_reference(&mut self, _: usize, _: TypeRef) -> Result<(), LqError> {
+        LqError::err_new("This type has no references")
+    }
 }
 
 impl WithMetadata for TFloat32<'_> {
@@ -221,6 +225,10 @@ impl Type for TFloat64<'_> {
 
     fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
+    }
+
+    fn set_reference(&mut self, _: usize, _: TypeRef) -> Result<(), LqError> {
+        LqError::err_new("This type has no references")
     }
 }
 

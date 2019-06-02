@@ -81,6 +81,15 @@ impl Type for TOption<'_> {
             None
         }
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        if index==0 {
+            self.r#type = type_ref;
+            Ok(())
+        } else {
+            LqError::err_new(format!("Option has no type at index {}", index))
+        }
+    }
 }
 
 impl WithMetadata for TOption<'_> {

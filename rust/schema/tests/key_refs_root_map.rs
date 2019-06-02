@@ -1,6 +1,7 @@
 mod common;
 
 use common::builder::builder;
+use common::builder::into_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
@@ -17,6 +18,7 @@ use liquesco_schema::unicode::LengthType;
 use liquesco_schema::unicode::TUnicode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
+use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn ok_empty() {
@@ -114,12 +116,13 @@ fn err_out_of_index() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap("key", TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
 
-    let field_text = builder.add(TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add(TKeyRef::default());
-    let field_refs = builder.add(TSeq::try_new(single_ref, 0, 100).unwrap());
-    let value = builder.add(
+    let field_text = builder.add_unwrap("field_text",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let single_ref = builder.add_unwrap("single_ref",TKeyRef::default());
+    let field_refs = builder.add_unwrap("field_refs",TSeq::try_new(single_ref, 0, 100).unwrap());
+    let value = builder.add_unwrap(
+        "struct",
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("text").unwrap(),
@@ -127,16 +130,18 @@ fn create_schema1() -> impl Schema<'static> {
             ))
             .add(Field::new(
                 Identifier::try_from("refs").unwrap(),
-                field_refs,
+                field_refs.clone(),
             )),
     );
 
-    let root = builder.add(TStruct::default().add(Field::new(
+    let root = builder.add_unwrap(
+        "root_struct",
+        TStruct::default().add(Field::new(
         Identifier::try_from("refs").unwrap(),
         field_refs,
     )));
 
-    builder.finish(TRootMap::new(root, key, value))
+    into_schema(builder, TRootMap::new(root, key, value))
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

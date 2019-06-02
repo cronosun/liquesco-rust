@@ -124,6 +124,24 @@ impl Type for TRootMap<'_> {
             _ => None,
         }
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        match index {
+            0 => {
+                self.root = type_ref;
+                Ok(())
+            },
+            1 => {
+                self.key = type_ref;
+                Ok(())
+            },
+            2 => {
+                self.value = type_ref;
+                Ok(())
+            },
+            _ => LqError::err_new(format!("Root map has no type at index {}", index)),
+        }
+    }
 }
 
 impl WithMetadata for TRootMap<'_> {

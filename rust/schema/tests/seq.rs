@@ -1,6 +1,7 @@
 mod common;
 
 use common::builder::builder;
+use common::builder::into_schema;
 use common::ordering::ord_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
@@ -10,6 +11,7 @@ use liquesco_schema::seq::TSeq;
 use liquesco_schema::uint::TUInt;
 
 use serde::{Deserialize, Serialize};
+use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn working_1() {
@@ -88,8 +90,8 @@ fn too_many_elements() {
 
 fn create_schema() -> impl Schema<'static> {
     let mut builder = builder();
-    let int = builder.add(TUInt::try_new(50, 100).unwrap());
-    builder.finish(TSeq::try_new(int, 1, 10).unwrap())
+    let int = builder.add_unwrap("uint", TUInt::try_new(50, 100).unwrap());
+    into_schema(builder, TSeq::try_new(int, 1, 10).unwrap())
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]
@@ -98,9 +100,9 @@ struct WithSequence(Vec<u32>);
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let element = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
+            let element = builder.add_unwrap("element", TUInt::try_new(0, std::u64::MAX).unwrap());
             let seq = TSeq::try_new(element, 0, std::u32::MAX).unwrap();
-            builder.add(seq)
+            builder.add_unwrap("sequence",seq)
         },
         Direction::Ascending,
         true,

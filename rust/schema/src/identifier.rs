@@ -84,6 +84,32 @@ impl<'a> Identifier<'a> {
         }
         Identifier(new_segments)
     }
+
+    /// Never make this public. It's only to be used internally.
+    fn new_no_validation(value: Cow<'a, str>) -> Self {
+        match value {
+            Cow::Borrowed(value) => {
+                // borrowed version
+                let splits = value.split("_");
+                let mut segments = Vec::new();
+                for split in splits {
+                    segments.push(Segment(Cow::Borrowed(split)));
+                }
+                let number_of_segments = segments.len();
+                Identifier(segments)
+            }
+            Cow::Owned(owned) => {
+                let value : String = owned;
+                let splits = value.split("_");
+                let mut segments = Vec::new();
+                for split in splits {
+                    segments.push(Segment(Cow::Owned(split.to_string())));
+                }
+                let number_of_segments = segments.len();
+                Identifier(segments)
+            }
+        }
+    }
 }
 
 impl BuildsOwnSchema for Identifier<'_> {
@@ -262,5 +288,37 @@ impl<'a> Serializer for Identifier<'a> {
 impl<'a> Display for Identifier<'a> {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         write!(f, "Id({})", self.to_string(Format::SnakeCase))
+    }
+}
+
+/// Same as `Identifier` but internally stored as string.
+#[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
+pub struct StrIdentifier<'a>(Cow<'a, str>);
+
+impl<'a> TryFrom<Cow<'a, str>> for StrIdentifier<'a> {
+    type Error = LqError;
+
+    fn try_from(value: Cow<'a, str>) -> Result<Self, Self::Error> {
+        let splits = value.split("_");
+        let mut number_of_segments = 0;
+        for split in splits {
+            Segment::validate(split)?;
+            number_of_segments += 1;
+        }
+        Identifier::validate_number_of_segments(number_of_segments)?;
+        Result::Ok(StrIdentifier(value))
+    }
+}
+
+/// We can now convert without try, since `StrIdentifier' has already been validated.
+impl<'a> From<StrIdentifier<'a>> for Identifier<'a> {
+    fn from(str_id: StrIdentifier<'a>) -> Self {
+        Identifier::new_no_validation(str_id.0)
+    }
+}
+
+impl<'a> Display for StrIdentifier<'a> {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "Id({})", &self.0)
     }
 }

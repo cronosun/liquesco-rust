@@ -6,9 +6,9 @@ pub mod context;
 pub mod core;
 pub mod identifier;
 pub mod metadata;
-// TODO: pub mod schema;
-// TODO: pub mod schema_anchors;
+pub mod schema;
 pub mod schema_builder;
+pub mod type_container;
 
 pub mod ascii;
 pub mod binary;

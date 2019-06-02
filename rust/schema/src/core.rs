@@ -1,14 +1,19 @@
 use crate::metadata::WithMetadata;
 use std::cmp::Ordering;
-use std::fmt::Debug;
+use std::fmt::{Debug, Display};
 
 use crate::any_type::AnyType;
 use crate::context::Context;
 use crate::identifier::Identifier;
+use crate::identifier::StrIdentifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
 use serde::{Deserialize, Serialize};
+use std::rc::Rc;
+use serde::export::Formatter;
+use serde::export::fmt::Error;
+use std::borrow::Cow;
 
 /// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata {
@@ -44,6 +49,10 @@ pub trait Type: Debug + WithMetadata {
     /// This is mostly used internally; usually you get embedded references
     /// by the appropriate methods.
     fn reference(&self, _: usize) -> Option<&TypeRef>;
+
+    /// Sets the reference. This has to succeed when `reference` returns a non-empty type ref.
+    /// It has to fail when reference returns an empty type ref.
+    fn set_reference(&mut self, index : usize, type_ref : TypeRef) -> Result<(), LqError>;
 }
 
 /// Configuration used for validation.
@@ -80,12 +89,12 @@ impl Config {
 }
 
 /// References a single type within a schema.
-#[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)] // TODO: Need custom serialization
+#[derive(Clone, Hash, Eq, PartialEq, Debug)]
 pub enum TypeRef {
     /// This is the reference used for serialization (a serialized schema only uses numbers).
     Numerical(u32),
     /// This is the reference used when building a schema.
-    Identifier(Identifier<'static>)
+    Identifier(StrIdentifier<'static>)
 }
 
 impl TypeRef {
@@ -99,13 +108,86 @@ impl TypeRef {
 /// Contains multiple `Type` that can be got using a `TypeRef`.
 pub trait TypeContainer<'a> {
     /// Returns a `Type` if contained within this container.
-    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>>;
+    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType<'a>>;
+
+    /// Returns the root type.
+    fn root(&self) -> &AnyType<'a>;
+
+    /// Returns a `Type` if contained within this container.
+    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {
+        if let Some(present) = self.maybe_type(reference) {
+            Ok(present)
+        } else {
+            LqError::err_new(format!("There's no such type referenced by {}", reference))
+        }
+    }
 }
 
 /// A schema. Can be used to validate data.
 pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
+}
 
-    /// Returns the root type reference.
-    fn root_type(&self) -> TypeRef;
+
+/// Need custom serde.
+impl serde::Serialize for TypeRef {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+        where
+            S: serde::Serializer,
+    {
+        match self {
+            TypeRef::Identifier(id) => {
+                // TODO
+                /*S::Error::custom(format!("Unable to serialize identifier type ref ({}). Type ref \
+                need to be converted to numerical representation before it can \
+                be serialized.", id))*/
+                let msg = format!("Unable to serialize identifier type ref ({:?}). Type ref \
+                need to be converted to numerical representation before it can \
+                be serialized.", id);
+                panic!(msg)
+            },
+            TypeRef::Numerical(num) => {
+                serializer.serialize_u32(*num)
+            }
+
+        }
+    }
+}
+
+/// Need custom serde.
+impl<'de> serde::Deserialize<'de> for TypeRef {
+    fn deserialize<D>(deserializer: D) -> Result<TypeRef, D::Error>
+        where
+            D: serde::Deserializer<'de>,
+    {
+        deserializer.deserialize_u32(TypeRefVisitor)
+    }
+}
+
+struct TypeRefVisitor;
+
+impl<'de> serde::de::Visitor<'de> for TypeRefVisitor {
+    type Value = TypeRef;
+
+    fn expecting(&self, formatter: &mut Formatter) -> Result<(), Error> {
+        formatter.write_str("Expecting a u32 for type ref.")
+    }
+
+    fn visit_u32<E>(self, v: u32) -> Result<Self::Value, E> where
+        E: serde::de::Error, {
+        Ok(TypeRef::new_numerical(v))
+    }
+}
+
+impl Display for TypeRef {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        match self {
+            TypeRef::Identifier(id) => {
+                write!(f, "{}", id)
+            },
+            TypeRef::Numerical(num) => {
+                write!(f, "#{}", num)
+            }
+        }
+    }
 }

@@ -79,6 +79,10 @@ impl Type for TBinary<'_> {
     fn reference(&self, _: usize) -> Option<&TypeRef> {
         None
     }
+
+    fn set_reference(&mut self, _: usize, _: TypeRef) -> Result<(), LqError> {
+        LqError::err_new("This type has no references")
+    }
 }
 
 impl WithMetadata for TBinary<'_> {

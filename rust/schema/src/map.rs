@@ -120,6 +120,20 @@ impl Type for TMap<'_> {
             _ => None,
         }
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        match index {
+            0 => {
+                self.key = type_ref;
+                Ok(())
+            },
+            1 => {
+                self.value = type_ref;
+                Ok(())
+            },
+            _ => LqError::err_new(format!("Map has no type at index {}", index)),
+        }
+    }
 }
 
 impl WithMetadata for TMap<'_> {
@@ -290,7 +304,7 @@ impl BuildsOwnSchema for Sorting {
         B: SchemaBuilder<'static>,
     {
         builder.add_unwrap(
-            "sorting",
+            "map_sorting",
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))

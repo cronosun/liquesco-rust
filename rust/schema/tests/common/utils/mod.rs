@@ -12,6 +12,8 @@ use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
+use liquesco_schema::type_container::DefaultTypeContainer;
+use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
 
 pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
@@ -95,21 +97,10 @@ where
 
 pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     into_any_type: T,
-) -> DefaultSchema<'a, SingleContainer<'a>> {
+) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
     let any_type = into_any_type.into();
-    DefaultSchema::new(SingleContainer { any_type }, TypeRef::new(0))
+    let mut builder = DefaultSchemaBuilder::default();
+    builder.finish(any_type).unwrap().into()
 }
 
-pub struct SingleContainer<'a> {
-    any_type: AnyType<'a>,
-}
 
-impl<'a> TypeContainer<'a> for SingleContainer<'a> {
-    fn maybe_type(&self, reference: TypeRef) -> Option<&AnyType<'a>> {
-        if reference.id() == 0 {
-            Option::Some(&self.any_type)
-        } else {
-            Option::None
-        }
-    }
-}

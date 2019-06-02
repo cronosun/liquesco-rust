@@ -1,6 +1,7 @@
 mod common;
 
 use common::builder::builder;
+use common::builder::into_schema;
 use common::ordering::ord_schema;
 use common::utils::assert_valid_extended;
 use common::utils::id;
@@ -13,13 +14,14 @@ use liquesco_schema::uint::TUInt;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use serde::{Deserialize, Serialize};
+use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add(TUInt::try_new(1, 200).unwrap());
-    let upper_case = builder.add(TAscii::try_new(2, 10, 65, 90).unwrap());
-    let schema = builder.finish(
+    let int = builder.add_unwrap("int",TUInt::try_new(1, 200).unwrap());
+    let upper_case = builder.add_unwrap("ascii",TAscii::try_new(2, 10, 65, 90).unwrap());
+    let schema = into_schema(builder,
         TEnum::default()
             .add(Variant::new(id("shutdown")))
             .add(Variant::new(id("add")).add_value(int))
@@ -66,8 +68,10 @@ enum Schema1EnumTooManyValues {
 fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
-            let variant1_type = builder.add(TUInt::try_new(0, std::u64::MAX).unwrap());
-            builder.add(
+            let variant1_type = builder.add_unwrap("variant1_type",
+                                                   TUInt::try_new(0, std::u64::MAX).unwrap());
+            builder.add_unwrap(
+                "enum",
                 TEnum::default()
                     .add(Variant::new(id("variant1")).add_value(variant1_type))
                     .add(Variant::new(id("variant2"))),

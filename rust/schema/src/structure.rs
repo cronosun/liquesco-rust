@@ -160,6 +160,16 @@ impl<'a> Type for TStruct<'a> {
             Some(&self.fields()[index].r#type)
         }
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        let number_of_fields = self.fields().len();
+        if index >= number_of_fields {
+            LqError::err_new(format!("Structure has no type at index {}", index))
+        } else {
+            self.fields[index].r#type = type_ref;
+            Ok(())
+        }
+    }
 }
 
 impl WithMetadata for TStruct<'_> {

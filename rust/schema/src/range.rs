@@ -190,6 +190,15 @@ impl Type for TRange<'_> {
             None
         }
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        if index==0 {
+            self.element = type_ref;
+            Ok(())
+        } else {
+            LqError::err_new(format!("Range has no type at index {}", index))
+        }
+    }
 }
 
 impl WithMetadata for TRange<'_> {

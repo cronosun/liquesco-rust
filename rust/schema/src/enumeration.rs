@@ -109,6 +109,24 @@ impl<'a> TEnum<'a> {
         }
         Option::None
     }
+
+    fn find_type_by_index(&self, index : usize) -> Option<TypePosition> {
+        let mut current = 0;
+        for (variant_index, variant) in self.variants().iter().enumerate() {
+            for (index_in_variant, value) in variant.values().iter().enumerate() {
+                if current == index {
+                    return Some(TypePosition {
+                        variant_index,
+                        index_in_variant
+                    });
+                }
+                current += 1;
+            }
+        }
+        None
+
+    }
+
 }
 
 impl<'a> Type for TEnum<'a> {
@@ -237,17 +255,34 @@ impl<'a> Type for TEnum<'a> {
     }
 
     fn reference(&self, index: usize) -> Option<&TypeRef> {
-        let mut current = 0;
-        for variant in self.variants() {
-            for value in variant.values() {
-                if current == index {
-                    return Some(value);
-                }
-                current += 1;
-            }
+        let position = self.find_type_by_index(index);
+        if let Some(position) = position {
+            Some(&self.variants()[position.variant_index].values()[position.index_in_variant])
+        } else {
+            None
         }
-        None
     }
+
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
+        let position = self.find_type_by_index(index);
+        if let Some(position) = position {
+            let mut variant = &mut self.variants[position.variant_index];
+            if let Some(values) = &mut variant.values {
+                values[position.index_in_variant] = type_ref;
+                Ok(())
+            } else {
+                LqError::err_new(format!("Enum has no type at index {} (note: this should \
+                not happen and seems to a bug in this library)", index))
+            }
+        } else {
+            LqError::err_new(format!("Enum has no type at index {}", index))
+        }
+    }
+}
+
+struct TypePosition {
+    variant_index : usize,
+    index_in_variant : usize,
 }
 
 impl WithMetadata for TEnum<'_> {
@@ -272,7 +307,7 @@ where
                                           TKeyRef::default().with_doc(
        "Value type in an enum variant."));
     let values = builder.add_unwrap(
-        "maybe_values",
+        "values",
         TSeq::new(
             single_value,
             U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
