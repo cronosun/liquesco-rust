@@ -7,7 +7,6 @@ use std::borrow::Cow;
 use std::convert::TryFrom;
 
 use crate::option::TOption;
-use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq;
 use crate::seq::{Sorted, TSeq};

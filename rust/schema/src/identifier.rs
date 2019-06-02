@@ -95,7 +95,6 @@ impl<'a> Identifier<'a> {
                 for split in splits {
                     segments.push(Segment(Cow::Borrowed(split)));
                 }
-                let number_of_segments = segments.len();
                 Identifier(segments)
             }
             Cow::Owned(owned) => {
@@ -104,8 +103,7 @@ impl<'a> Identifier<'a> {
                 let mut segments = Vec::new();
                 for split in splits {
                     segments.push(Segment(Cow::Owned(split.to_string())));
-                }
-                let number_of_segments = segments.len();
+                }                
                 Identifier(segments)
             }
         }

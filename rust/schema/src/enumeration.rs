@@ -113,7 +113,7 @@ impl<'a> TEnum<'a> {
     fn find_type_by_index(&self, index : usize) -> Option<TypePosition> {
         let mut current = 0;
         for (variant_index, variant) in self.variants().iter().enumerate() {
-            for (index_in_variant, value) in variant.values().iter().enumerate() {
+            for index_in_variant in 0..variant.values().len() {
                 if current == index {
                     return Some(TypePosition {
                         variant_index,
@@ -266,7 +266,7 @@ impl<'a> Type for TEnum<'a> {
     fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
         let position = self.find_type_by_index(index);
         if let Some(position) = position {
-            let mut variant = &mut self.variants[position.variant_index];
+            let variant = &mut self.variants[position.variant_index];
             if let Some(values) = &mut variant.values {
                 values[position.index_in_variant] = type_ref;
                 Ok(())

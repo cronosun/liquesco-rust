@@ -4,16 +4,12 @@ use std::fmt::{Debug, Display};
 
 use crate::any_type::AnyType;
 use crate::context::Context;
-use crate::identifier::Identifier;
 use crate::identifier::StrIdentifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
-use serde::{Deserialize, Serialize};
-use std::rc::Rc;
 use serde::export::Formatter;
 use serde::export::fmt::Error;
-use std::borrow::Cow;
 
 /// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata {

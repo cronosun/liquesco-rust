@@ -8,9 +8,7 @@ use crate::type_container::DefaultTypeContainer;
 use liquesco_common::error::LqError;
 use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
-use std::rc::Rc;
 use std::borrow::Cow;
-use serde::export::PhantomData;
 
 pub trait SchemaBuilder<'a> {
     type TTypeContainer : TypeContainer<'a>;
@@ -86,7 +84,7 @@ impl<'a> SchemaBuilder<'a> for DefaultSchemaBuilder<'a> {
         Ok(TypeRef::Identifier(id))
     }
 
-    fn finish<T: Into<AnyType<'a>>>(mut self, root: T) -> Result<Self::TTypeContainer, LqError> {
+    fn finish<T: Into<AnyType<'a>>>(self, root: T) -> Result<Self::TTypeContainer, LqError> {
         let len = self.types.len();
 
         // First collect indexes / decompose types
@@ -101,7 +99,7 @@ impl<'a> SchemaBuilder<'a> for DefaultSchemaBuilder<'a> {
 
         // Now mutate all values: convert all string references to numerical references
         let mut types : Vec<(Identifier<'a>, AnyType<'a>)> = Vec::with_capacity(len);
-        for (for_loop_index, (identifier, mut any_type)) in types_vec.into_iter().enumerate() {
+        for (identifier, mut any_type) in types_vec.into_iter() {
             convert_type_refs(&mut any_type, &index_map)?;
             // Now add the "fixed" type to resulting map
             types.push((identifier, any_type));

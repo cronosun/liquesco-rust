@@ -18,7 +18,6 @@ use crate::option::TOption;
 use crate::range::TRange;
 use crate::root_map::TRootMap;
 use crate::schema_builder::BaseTypeSchemaBuilder;
-use crate::schema_builder::RootBuildsOwnSchema;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::seq::TSeq;
 use crate::sint::TSInt;

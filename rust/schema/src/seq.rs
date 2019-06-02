@@ -231,7 +231,7 @@ where
 
     // lex compare: first compare each element (even if their length is not equal)
     let min_to_read = header1.length().min(header2.length());
-    for index in 0..min_to_read {
+    for _ in 0..min_to_read {
         let cmp = context.compare(&element, r1, r2)?;
         if cmp != std::cmp::Ordering::Equal {
             // no need to finish to the end (see contract)

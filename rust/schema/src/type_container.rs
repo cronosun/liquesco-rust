@@ -1,12 +1,9 @@
-use std::collections::BTreeMap;
-
 use serde::{Deserialize, Serialize};
 
 use crate::any_type::AnyType;
 use crate::core::TypeContainer;
 use crate::identifier::Identifier;
 use crate::core::TypeRef;
-use std::borrow::Cow;
 use liquesco_common::error::LqError;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
