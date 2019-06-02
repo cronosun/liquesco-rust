@@ -1,5 +1,5 @@
-use crate::core::Config;
 use crate::any_type::AnyType;
+use crate::core::Config;
 use crate::core::TypeRef;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;

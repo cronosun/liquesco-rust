@@ -34,11 +34,13 @@ pub trait MetadataSetter<'m>: WithMetadata {
         self
     }
 
-    fn with_doc<D : Into<Cow<'m, str>>>(mut self, doc : D) -> Self
-    where Self : Sized {
+    fn with_doc<D: Into<Cow<'m, str>>>(mut self, doc: D) -> Self
+    where
+        Self: Sized,
+    {
         self.set_meta(Meta {
-            doc:    Some(doc.into()),
-            implements : self.meta().implements.clone()
+            doc: Some(doc.into()),
+            implements: self.meta().implements.clone(),
         });
         self
     }
@@ -162,16 +164,22 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                 LengthType::Utf8Byte,
             )
             .unwrap()
-            .with_doc("Describes / documents the type. Use human readable text. \
-                      No markup is allowed."),
+            .with_doc(
+                "Describes / documents the type. Use human readable text. \
+                 No markup is allowed.",
+            ),
         );
         let field_doc = builder.add_unwrap(
             "maybe_doc",
-            TOption::new(doc_ref).with_doc( "Optional type description / documentation."));
+            TOption::new(doc_ref).with_doc("Optional type description / documentation."),
+        );
         let uuid_ref = builder.add_unwrap(
             "implements_uuid",
-            TUuid::default().with_doc( "UUID to describe the conformance / implementation / \
-                  protocol of this type uniquely."));
+            TUuid::default().with_doc(
+                "UUID to describe the conformance / implementation / \
+                 protocol of this type uniquely.",
+            ),
+        );
         let uuid_seq = builder.add_unwrap(
             "implements",
             TSeq::new(
@@ -189,9 +197,7 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
         company: It's a part number. So you can give that ASCII type a UUID to declare 'this \
         type is a part number'. This makes it possible to find part numbers company wide."));
 
-        let field_implements = builder.add_unwrap(
-            "maybe_implements",
-            TOption::new(uuid_seq));
+        let field_implements = builder.add_unwrap("maybe_implements", TOption::new(uuid_seq));
 
         let meta_struct = TStruct::default()
             .add(Field::new(
@@ -203,9 +209,7 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
                 field_implements,
             )).with_doc( "Meta information about the type. You can optionally specify a name, a description/\
         documentation and information about implementation/conformance.");
-        let meta_ref = builder.add_unwrap(
-            "meta",
-            meta_struct);
+        let meta_ref = builder.add_unwrap("meta", meta_struct);
 
         let mut inner_struct = T::build_schema(builder);
         inner_struct.prepend(Field::new(Identifier::try_from("meta").unwrap(), meta_ref));

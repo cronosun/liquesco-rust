@@ -2,8 +2,8 @@ use serde::{Deserialize, Serialize};
 
 use crate::any_type::AnyType;
 use crate::core::TypeContainer;
-use crate::identifier::Identifier;
 use crate::core::TypeRef;
+use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
@@ -14,10 +14,7 @@ pub struct DefaultTypeContainer<'a> {
 
 impl<'a> DefaultTypeContainer<'a> {
     pub(crate) fn new(types: Vec<(Identifier<'a>, AnyType<'a>)>, root: AnyType<'a>) -> Self {
-        Self {
-            types,
-            root,
-        }
+        Self { types, root }
     }
 }
 
@@ -32,7 +29,9 @@ impl<'a> TypeContainer<'a> for DefaultTypeContainer<'a> {
             TypeRef::Identifier(string_id) => {
                 // find by ID should usually not happen (since all types should have been converted)
                 let id = string_id.clone().into();
-                self.types.iter().find(|item| item.0==id)
+                self.types
+                    .iter()
+                    .find(|item| item.0 == id)
                     .map(|item| &item.1)
             }
         }
@@ -46,10 +45,12 @@ impl<'a> TypeContainer<'a> for DefaultTypeContainer<'a> {
         if let Some(present) = self.maybe_type(reference) {
             Ok(present)
         } else {
-            let references : Vec<_> = self.types.iter()
-                .map(|entry| &entry.0).collect();
-            LqError::err_new(format!("There's no such type referenced by {}. All references \
-            I have: {:?}.", reference, references))
+            let references: Vec<_> = self.types.iter().map(|entry| &entry.0).collect();
+            LqError::err_new(format!(
+                "There's no such type referenced by {}. All references \
+                 I have: {:?}.",
+                reference, references
+            ))
         }
     }
 }

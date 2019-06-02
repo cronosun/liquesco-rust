@@ -11,6 +11,7 @@ use common::utils::id;
 use liquesco_schema::ascii::TAscii;
 use liquesco_schema::boolean::TBool;
 use liquesco_schema::core::Schema;
+use liquesco_schema::schema_builder::SchemaBuilder;
 use liquesco_schema::seq::Direction;
 use liquesco_schema::sint::TSInt;
 use liquesco_schema::structure::Field;
@@ -18,14 +19,14 @@ use liquesco_schema::structure::TStruct;
 use liquesco_schema::uint::TUInt;
 use serde::{Deserialize, Serialize};
 use std::string::ToString;
-use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add_unwrap("int",TUInt::try_new(2, 144).unwrap());
+    let int = builder.add_unwrap("int", TUInt::try_new(2, 144).unwrap());
     let upper_case = builder.add_unwrap("upper_case", TAscii::try_new(2, 10, 65, 90).unwrap());
-    let schema = into_schema(builder,
+    let schema = into_schema(
+        builder,
         TStruct::default()
             .add(Field::new(id("age"), int))
             .add(Field::new(id("name"), upper_case)),
@@ -102,18 +103,27 @@ fn ordering_create_schema() -> impl Schema<'static> {
     ord_schema(
         |builder| {
             let type_x = builder.add_unwrap("type_x", TUInt::try_new(0, std::u64::MAX).unwrap());
-            let type_y = builder.add_unwrap("type_y",TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap());
-            let inner_struct = builder.add_unwrap("inner_struct",Into::<TStruct>::into(
-                TStruct::default()
-                    .add(Field::new(id("x"), type_x))
-                    .add(Field::new(id("y"), type_y)),
-            ));
+            let type_y = builder.add_unwrap(
+                "type_y",
+                TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
+            );
+            let inner_struct = builder.add_unwrap(
+                "inner_struct",
+                Into::<TStruct>::into(
+                    TStruct::default()
+                        .add(Field::new(id("x"), type_x))
+                        .add(Field::new(id("y"), type_y)),
+                ),
+            );
             let type_more = builder.add_unwrap("type_more", TBool::default());
-            builder.add_unwrap("struct", Into::<TStruct>::into(
-                TStruct::default()
-                    .add(Field::new(id("content"), inner_struct))
-                    .add(Field::new(id("more"), type_more)),
-            ))
+            builder.add_unwrap(
+                "struct",
+                Into::<TStruct>::into(
+                    TStruct::default()
+                        .add(Field::new(id("content"), inner_struct))
+                        .add(Field::new(id("more"), type_more)),
+                ),
+            )
         },
         Direction::Ascending,
         true,

@@ -5,6 +5,7 @@ use crate::core::TypeRef;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
@@ -25,7 +26,6 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::convert::TryFrom;
-use crate::key_ref::TKeyRef;
 
 /// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
 /// to create recursive data structures.
@@ -126,11 +126,11 @@ impl Type for TMap<'_> {
             0 => {
                 self.key = type_ref;
                 Ok(())
-            },
+            }
             1 => {
                 self.value = type_ref;
                 Ok(())
-            },
+            }
             _ => LqError::err_new(format!("Map has no type at index {}", index)),
         }
     }
@@ -153,25 +153,32 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
     where
         B: SchemaBuilder<'static>,
     {
-        let field_key = builder.add_unwrap("map_key",TKeyRef::default().with_doc(
-            "Type of keys in this map."));
-        let field_value = builder.add_unwrap("map_value",TKeyRef::default().with_doc(
-            "Type of values in this map."));
+        let field_key = builder.add_unwrap(
+            "map_key",
+            TKeyRef::default().with_doc("Type of keys in this map."),
+        );
+        let field_value = builder.add_unwrap(
+            "map_value",
+            TKeyRef::default().with_doc("Type of values in this map."),
+        );
         let length_element = builder.add_unwrap(
             "map_length_element",
-            TUInt::try_new(0, std::u32::MAX as u64)
-                .unwrap(),
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
         );
         let length_field = builder.add_unwrap(
             "map_length",
             TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
-                 "The length of a map (number of elements). Both - end and start - \
-                          are included."),
+                "The length of a map (number of elements). Both - end and start - \
+                 are included.",
+            ),
         );
         let sorting_field = Sorting::build_schema(builder);
         let anchors_field = builder.add_unwrap(
             "anchors",
-            TBool::default().with_doc("If this is true, the keys in this map can be referenced using key refs."));
+            TBool::default().with_doc(
+                "If this is true, the keys in this map can be referenced using key refs.",
+            ),
+        );
 
         TStruct::default()
             .add(Field::new(Identifier::try_from("key").unwrap(), field_key))
@@ -191,8 +198,10 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
                 Identifier::try_from("anchors").unwrap(),
                 anchors_field,
             ))
-            .with_doc("A sequence of key-value entries. Duplicate keys are not allowed. The keys \
-                      can optionally be referenced to create recursive data structures.")
+            .with_doc(
+                "A sequence of key-value entries. Duplicate keys are not allowed. The keys \
+                 can optionally be referenced to create recursive data structures.",
+            )
     }
 }
 
@@ -308,8 +317,10 @@ impl BuildsOwnSchema for Sorting {
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
-                .with_doc("Determines the sort order of the keys in this map. You should usually \
-                          use 'ascending' if not sure."),
+                .with_doc(
+                    "Determines the sort order of the keys in this map. You should usually \
+                     use 'ascending' if not sure.",
+                ),
         )
     }
 }

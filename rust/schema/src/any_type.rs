@@ -185,11 +185,11 @@ impl<'a> Type for AnyType<'a> {
 
 impl BuildsOwnSchema for AnyType<'_> {
     fn build_schema<B>(builder: &mut B) -> TypeRef
-        where
-            B: SchemaBuilder<'static> {
-
-        let ref_bool = doc_type_ref::<TBool, B>("bool",builder);
-        let ref_option = doc_type_ref::<TOption, B>("option",builder);
+    where
+        B: SchemaBuilder<'static>,
+    {
+        let ref_bool = doc_type_ref::<TBool, B>("bool", builder);
+        let ref_option = doc_type_ref::<TOption, B>("option", builder);
         let ref_seq = doc_type_ref::<TSeq, B>("seq", builder);
         let ref_binary = doc_type_ref::<TBinary, B>("binary", builder);
         let ref_unicode = doc_type_ref::<TUnicode, B>("unicode", builder);
@@ -226,8 +226,10 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add(variant(ref_ascii, "ascii"))
                 .add(variant(ref_uuid, "uuid"))
                 .add(variant(ref_range, "range"))
-                .with_doc("The any type is an enumeration of all possible types available \
-                          in the type system."),
+                .with_doc(
+                    "The any type is an enumeration of all possible types available \
+                     in the type system.",
+                ),
         )
     }
 }
@@ -236,12 +238,11 @@ fn variant(reference: TypeRef, id: &'static str) -> Variant<'static> {
     Variant::new(Identifier::try_from(id).unwrap()).add_value(reference)
 }
 
-fn doc_type_ref<T, B>(id : &'static str, builder: &mut B) -> TypeRef
-    where
-        T: BaseTypeSchemaBuilder + Type,
-        B: SchemaBuilder<'static>,
+fn doc_type_ref<T, B>(id: &'static str, builder: &mut B) -> TypeRef
+where
+    T: BaseTypeSchemaBuilder + Type,
+    B: SchemaBuilder<'static>,
 {
     let schema = WithMetaSchemaBuilder::<T>::build_schema(builder);
     builder.add_unwrap(id, schema)
 }
-

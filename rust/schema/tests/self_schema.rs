@@ -2,11 +2,11 @@
 
 use liquesco_schema::core::Config;
 use liquesco_schema::core::Schema;
-use liquesco_schema::schema::{DefaultSchema, schema_schema};
-use liquesco_schema::schema_builder::{DefaultSchemaBuilder};
+use liquesco_schema::schema::{schema_schema, DefaultSchema};
+use liquesco_schema::schema_builder::DefaultSchemaBuilder;
+use liquesco_schema::type_container::DefaultTypeContainer;
 use liquesco_serialization::serde::{de_serialize_from_slice, serialize_to_vec};
 use liquesco_serialization::slice_reader::SliceReader;
-use liquesco_schema::type_container::DefaultTypeContainer;
 
 #[test]
 fn test_self_schema_is_valid() {
@@ -19,12 +19,7 @@ fn test_self_schema_is_valid() {
     let mut reader: SliceReader = (&serialized_data).into();
     schema.set_extended_diagnostics(true);
     schema
-        .validate(
-            Config {
-                no_extension: true,
-            },
-            &mut reader,
-        )
+        .validate(Config { no_extension: true }, &mut reader)
         .expect("The schema itself is not valid");
 }
 
@@ -49,7 +44,7 @@ fn build_liquesco_type_container() -> DefaultTypeContainer<'static> {
     schema_schema(builder).unwrap()
 }
 
-fn build_liquesco_schema() ->  DefaultSchema<'static, DefaultTypeContainer<'static>>  {
+fn build_liquesco_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     let type_container = build_liquesco_type_container();
     type_container.into()
 }

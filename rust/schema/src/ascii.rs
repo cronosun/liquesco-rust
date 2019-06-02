@@ -227,21 +227,18 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
     {
         let length_element = builder.add_unwrap(
             "ascii_length_element",
-            TUInt::try_new(0, std::u64::MAX).unwrap());
+            TUInt::try_new(0, std::u64::MAX).unwrap(),
+        );
         let field_length = builder.add_unwrap(
             "ascii_length",
             TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
                 "The length constraint of the ASCII string (also number of bytes). \
-                          Start and end \
-                          are both inclusive."
+                 Start and end \
+                 are both inclusive.",
             ),
         );
 
-        let range_element = builder.add_unwrap(
-            "ascii_code",
-            TUInt::try_new(0, 128)
-                .unwrap()
-        );
+        let range_element = builder.add_unwrap("ascii_code", TUInt::try_new(0, 128).unwrap());
         let field_codes = builder.add_unwrap(
             "codes",
             TSeq::new(
@@ -250,14 +247,19 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                     "Code range",
                     CODE_RANGE_ELEMENTS_MIN as u32,
                     CODE_RANGE_ELEMENTS_MAX as u32,
-                ).unwrap()
-            ).with_sorted(Sorted {
+                )
+                .unwrap(),
+            )
+            .with_sorted(Sorted {
                 direction: Ascending,
                 unique: true,
-            }).with_multiple_of(2)
-                .with_doc( "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
+            })
+            .with_multiple_of(2)
+            .with_doc(
+                "Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII \
                  codes (start, end); start is inclusive, end is exclusive. The ASCII string is \
-                 valid if every character of the ASCII string is within one of those ranges.")
+                 valid if every character of the ASCII string is within one of those ranges.",
+            ),
         );
 
         TStruct::default()
@@ -269,8 +271,10 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
                 Identifier::try_from("codes").unwrap(),
                 field_codes,
             ))
-            .with_doc("The ascii type must not be used to transfer human readable text. It's to be \
-                      used to transfer machine readable strings. Only characters withing the ASCII \
-                      range are allowed.")
+            .with_doc(
+                "The ascii type must not be used to transfer human readable text. It's to be \
+                 used to transfer machine readable strings. Only characters withing the ASCII \
+                 range are allowed.",
+            )
     }
 }

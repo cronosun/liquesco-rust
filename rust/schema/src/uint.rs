@@ -99,16 +99,15 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
     {
         let element = builder.add_unwrap(
             "uint_range_element",
-            TUInt::try_new(std::u64::MIN, std::u64::MAX)
-                .unwrap()
+            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
         );
 
         let field_range = builder.add_unwrap(
             "uint_range",
-            TRange::new(element, Inclusion::BothInclusive, false)
-                .with_doc(
-                    "The range within the integer must be. Both (start and end) \
-                      are inclusive."),
+            TRange::new(element, Inclusion::BothInclusive, false).with_doc(
+                "The range within the integer must be. Both (start and end) \
+                 are inclusive.",
+            ),
         );
 
         TStruct::default()
@@ -116,7 +115,6 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
                 Identifier::try_from("range").unwrap(),
                 field_range,
             ))
-            .with_doc(
-                "Unsigned integer - maximum 64 bit.")
+            .with_doc("Unsigned integer - maximum 64 bit.")
     }
 }

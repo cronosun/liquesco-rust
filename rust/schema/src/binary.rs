@@ -104,12 +104,11 @@ impl BaseTypeSchemaBuilder for TBinary<'_> {
     {
         let range_element = builder.add_unwrap(
             "binary_length_element",
-            TUInt::try_new(std::u64::MIN, std::u64::MAX)
-                .unwrap()
+            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
         );
         let field_length = builder.add_unwrap(
             "binary_length",
-            TRange::new(range_element, Inclusion::BothInclusive, false)
+            TRange::new(range_element, Inclusion::BothInclusive, false),
         );
 
         TStruct::default()

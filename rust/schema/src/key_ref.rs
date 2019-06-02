@@ -79,7 +79,6 @@ impl Type for TKeyRef<'_> {
     fn set_reference(&mut self, _: usize, _: TypeRef) -> Result<(), LqError> {
         LqError::err_new("This type has no references")
     }
-
 }
 
 impl WithMetadata for TKeyRef<'_> {
@@ -99,7 +98,9 @@ impl BaseTypeSchemaBuilder for TKeyRef<'_> {
     where
         B: SchemaBuilder<'static>,
     {
-        TStruct::default().with_doc( "Key references can reference keys from outer types that supports references \
-                  (provide anchors that can be referenced): Maps and RootMaps.")
+        TStruct::default().with_doc(
+            "Key references can reference keys from outer types that supports references \
+             (provide anchors that can be referenced): Maps and RootMaps.",
+        )
     }
 }

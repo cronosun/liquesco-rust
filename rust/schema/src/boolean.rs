@@ -76,6 +76,6 @@ impl BaseTypeSchemaBuilder for TBool<'_> {
         B: SchemaBuilder<'static>,
     {
         // just an empty struct (but more fields will be added by the system)
-        TStruct::default().with_doc( "A boolean: Can either be true or false.")
+        TStruct::default().with_doc("A boolean: Can either be true or false.")
     }
 }

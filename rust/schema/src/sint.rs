@@ -99,16 +99,15 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
     {
         let element = builder.add_unwrap(
             "sint_range_element",
-            TSInt::try_new(std::i64::MIN, std::i64::MAX)
-                .unwrap()
+            TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
         );
 
         let field_range = builder.add_unwrap(
             "sint_range",
-            TRange::new(element, Inclusion::BothInclusive, false)
-                .with_doc(
-                    "The range within the integer must be. Both (start and end) \
-                      are inclusive."),
+            TRange::new(element, Inclusion::BothInclusive, false).with_doc(
+                "The range within the integer must be. Both (start and end) \
+                 are inclusive.",
+            ),
         );
 
         TStruct::default()

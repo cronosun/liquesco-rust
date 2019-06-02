@@ -6,13 +6,13 @@ use crate::common::utils::assert_valid_strict;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::TypeRef;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::seq::{Direction, Sorted};
-use std::fmt::Debug;
+use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::DefaultSchemaBuilder;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::schema::DefaultSchema;
+use liquesco_schema::seq::TSeq;
+use liquesco_schema::seq::{Direction, Sorted};
 use liquesco_schema::type_container::DefaultTypeContainer;
+use std::fmt::Debug;
 
 pub fn ord_assert_equal<T, S>(any_type: T, item1: S, item2: S)
 where
@@ -66,5 +66,9 @@ fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> 
 where
     T: Into<AnyType<'static>>,
 {
-    ord_schema(|builder| builder.add_unwrap("ord_element", any_type.into()), direction, unique)
+    ord_schema(
+        |builder| builder.add_unwrap("ord_element", any_type.into()),
+        direction,
+        unique,
+    )
 }

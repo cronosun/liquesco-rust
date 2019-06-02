@@ -9,10 +9,10 @@ pub fn builder<'a>() -> DefaultSchemaBuilder<'a> {
     DefaultSchemaBuilder::default()
 }
 
-pub fn into_schema<'a, T: Into<AnyType<'a>>>(builder : DefaultSchemaBuilder<'a>, root : T)
-    ->
-                                                                                      DefaultSchema<'a, DefaultTypeContainer<'a>> {
-    let finished_builder : DefaultTypeContainer = builder.finish(root).unwrap();
+pub fn into_schema<'a, T: Into<AnyType<'a>>>(
+    builder: DefaultSchemaBuilder<'a>,
+    root: T,
+) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
+    let finished_builder: DefaultTypeContainer = builder.finish(root).unwrap();
     finished_builder.into()
 }
-

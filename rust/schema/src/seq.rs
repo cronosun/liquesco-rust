@@ -5,6 +5,7 @@ use crate::core::TypeRef;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
@@ -23,7 +24,6 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use crate::key_ref::TKeyRef;
 
 /// A sequence of 0-n elements where every element is of the same type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -183,7 +183,7 @@ impl Type for TSeq<'_> {
     }
 
     fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
-        if index==0 {
+        if index == 0 {
             self.element = type_ref;
             Ok(())
         } else {
@@ -323,17 +323,18 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
     {
         let element_field = builder.add_unwrap(
             "element",
-            TKeyRef::default().with_doc( "The element type of a sequence."));
+            TKeyRef::default().with_doc("The element type of a sequence."),
+        );
         let length_element = builder.add_unwrap(
             "seq_length_element",
-            TUInt::try_new(0, std::u32::MAX as u64)
-                .unwrap()
+            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
         );
         let length_field = builder.add_unwrap(
             "seq_length",
             TRange::new(length_element, Inclusion::BothInclusive, false).with_doc(
-                 "The length of a sequence (number of elements). It's tuple of start \
-                          and end. Both - end and start - are included."            ),
+                "The length of a sequence (number of elements). It's tuple of start \
+                 and end. Both - end and start - are included.",
+            ),
         );
 
         let directed_enum = builder.add_unwrap(
@@ -341,14 +342,18 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
             TEnum::default()
                 .add(Variant::new(Identifier::try_from("ascending").unwrap()))
                 .add(Variant::new(Identifier::try_from("descending").unwrap()))
-                .with_doc( "Determines how the elements in the sequence need to be sorted for \
-                          the sequence to be valid.")
+                .with_doc(
+                    "Determines how the elements in the sequence need to be sorted for \
+                     the sequence to be valid.",
+                ),
         );
         let unique = builder.add_unwrap(
             "unique",
             TBool::default().with_doc(
                 "When this is true, no duplicate elements are allowed in the sequence. \
-                  This automatically implies a sorted sequence."));
+                 This automatically implies a sorted sequence.",
+            ),
+        );
         let sorted_struct = builder.add_unwrap(
             "sorting",
             TStruct::default()
@@ -357,8 +362,10 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
                     directed_enum,
                 ))
                 .add(Field::new(Identifier::try_from("unique").unwrap(), unique))
-                .with_doc( "Determines how the sequence needs to be sorted and whether duplicate \
-                          elements are allowed."),
+                .with_doc(
+                    "Determines how the sequence needs to be sorted and whether duplicate \
+                     elements are allowed.",
+                ),
         );
         let ordering_field = builder.add_unwrap(
             "ordering",
@@ -373,13 +380,13 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
 
         let multiple_of = builder.add_unwrap(
             "multiple_of",
-            TUInt::try_new(2, std::u32::MAX as u64).unwrap()
-                .with_doc( "It's possible to specify another requirement on the length of the list \
-        (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
-        ... are allowed."));
-        let multiple_of_field = builder.add_unwrap(
-            "maybe_multiple_of",
-            TOption::new(multiple_of));
+            TUInt::try_new(2, std::u32::MAX as u64).unwrap().with_doc(
+                "It's possible to specify another requirement on the length of the list \
+                 (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
+                 ... are allowed.",
+            ),
+        );
+        let multiple_of_field = builder.add_unwrap("maybe_multiple_of", TOption::new(multiple_of));
 
         TStruct::default()
             .add(Field::new(

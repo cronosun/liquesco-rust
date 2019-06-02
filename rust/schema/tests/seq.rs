@@ -10,8 +10,8 @@ use liquesco_schema::seq::Direction;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::uint::TUInt;
 
-use serde::{Deserialize, Serialize};
 use liquesco_schema::schema_builder::SchemaBuilder;
+use serde::{Deserialize, Serialize};
 
 #[test]
 fn working_1() {
@@ -102,7 +102,7 @@ fn ordering_create_schema() -> impl Schema<'static> {
         |builder| {
             let element = builder.add_unwrap("element", TUInt::try_new(0, std::u64::MAX).unwrap());
             let seq = TSeq::try_new(element, 0, std::u32::MAX).unwrap();
-            builder.add_unwrap("sequence",seq)
+            builder.add_unwrap("sequence", seq)
         },
         Direction::Ascending,
         true,

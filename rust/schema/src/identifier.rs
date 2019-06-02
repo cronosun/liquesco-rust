@@ -98,12 +98,12 @@ impl<'a> Identifier<'a> {
                 Identifier(segments)
             }
             Cow::Owned(owned) => {
-                let value : String = owned;
+                let value: String = owned;
                 let splits = value.split("_");
                 let mut segments = Vec::new();
                 for split in splits {
                     segments.push(Segment(Cow::Owned(split.to_string())));
-                }                
+                }
                 Identifier(segments)
             }
         }
@@ -119,15 +119,19 @@ impl BuildsOwnSchema for Identifier<'_> {
         code_range.add(97, 122 + 1).unwrap();
         let segment_ref = builder.add_unwrap(
             "segment",
-            TAscii::new(U64IneRange::try_new(
-                "Segment len",
-                SEGMENT_MIN_LEN as u64,
-                SEGMENT_MAX_LEN as u64,
+            TAscii::new(
+                U64IneRange::try_new(
+                    "Segment len",
+                    SEGMENT_MIN_LEN as u64,
+                    SEGMENT_MAX_LEN as u64,
+                )
+                .unwrap(),
+                code_range,
             )
-                .unwrap(), code_range)
-            .with_doc("A single segment of an identifier. \
-                 An identifier can only contain certain ASCII characters and is limited in length."
-            )
+            .with_doc(
+                "A single segment of an identifier. \
+                 An identifier can only contain certain ASCII characters and is limited in length.",
+            ),
         );
         let meta = Meta {
             doc: Some(Cow::Owned(format!(
@@ -142,7 +146,8 @@ impl BuildsOwnSchema for Identifier<'_> {
             ))),
             implements: None,
         };
-        builder.add_unwrap("identifier",
+        builder.add_unwrap(
+            "identifier",
             TSeq::try_new(
                 segment_ref,
                 MIN_NUMBER_OF_SEGMENTS as u32,

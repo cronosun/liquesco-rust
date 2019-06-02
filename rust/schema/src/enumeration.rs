@@ -2,11 +2,11 @@ use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::option::TOption;
-use crate::key_ref::TKeyRef;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::seq::TSeq;
@@ -110,23 +110,21 @@ impl<'a> TEnum<'a> {
         Option::None
     }
 
-    fn find_type_by_index(&self, index : usize) -> Option<TypePosition> {
+    fn find_type_by_index(&self, index: usize) -> Option<TypePosition> {
         let mut current = 0;
         for (variant_index, variant) in self.variants().iter().enumerate() {
             for index_in_variant in 0..variant.values().len() {
                 if current == index {
                     return Some(TypePosition {
                         variant_index,
-                        index_in_variant
+                        index_in_variant,
                     });
                 }
                 current += 1;
             }
         }
         None
-
     }
-
 }
 
 impl<'a> Type for TEnum<'a> {
@@ -271,8 +269,11 @@ impl<'a> Type for TEnum<'a> {
                 values[position.index_in_variant] = type_ref;
                 Ok(())
             } else {
-                LqError::err_new(format!("Enum has no type at index {} (note: this should \
-                not happen and seems to a bug in this library)", index))
+                LqError::err_new(format!(
+                    "Enum has no type at index {} (note: this should \
+                     not happen and seems to a bug in this library)",
+                    index
+                ))
             }
         } else {
             LqError::err_new(format!("Enum has no type at index {}", index))
@@ -281,8 +282,8 @@ impl<'a> Type for TEnum<'a> {
 }
 
 struct TypePosition {
-    variant_index : usize,
-    index_in_variant : usize,
+    variant_index: usize,
+    index_in_variant: usize,
 }
 
 impl WithMetadata for TEnum<'_> {
@@ -303,23 +304,29 @@ where
 {
     let field_name = Identifier::build_schema(builder);
 
-    let single_value = builder.add_unwrap("value_type",
-                                          TKeyRef::default().with_doc(
-       "Value type in an enum variant."));
+    let single_value = builder.add_unwrap(
+        "value_type",
+        TKeyRef::default().with_doc("Value type in an enum variant."),
+    );
     let values = builder.add_unwrap(
         "values",
         TSeq::new(
             single_value,
             U32IneRange::try_new("", MIN_VALUES as u32, MAX_VALUES as u32).unwrap(),
         )
-            .with_doc( "Defines the one (or in rare cases more) value the enumeration \
+        .with_doc(
+            "Defines the one (or in rare cases more) value the enumeration \
              variant takes. You should only have two or more values when variant got extended - \
-             do not use more than one value in the initial schema design." )
+             do not use more than one value in the initial schema design.",
+        ),
     );
     let field_values = builder.add_unwrap(
         "maybe_values",
-        TOption::new(values).with_doc( "Enumeration variants have usually either no value (in this case \
-              this is absent) or one value."));
+        TOption::new(values).with_doc(
+            "Enumeration variants have usually either no value (in this case \
+             this is absent) or one value.",
+        ),
+    );
 
     builder.add_unwrap(
         "variant",
@@ -332,8 +339,7 @@ where
                 Identifier::try_from("values").unwrap(),
                 field_values,
             ))
-            .with_doc(
-                 "A single variant in an enumeration."),
+            .with_doc("A single variant in an enumeration."),
     )
 }
 
@@ -349,8 +355,10 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
                 variant,
                 U32IneRange::try_new("", MIN_VARIANTS as u32, std::u32::MAX).unwrap(),
             )
-            .with_doc("Every enumeration has to have one or more variants (just one usually \
-                      makes no sense but can be used to allow extension in future)."),
+            .with_doc(
+                "Every enumeration has to have one or more variants (just one usually \
+                 makes no sense but can be used to allow extension in future).",
+            ),
         );
 
         TStruct::default()
@@ -358,6 +366,6 @@ impl<'a> BaseTypeSchemaBuilder for TEnum<'a> {
                 Identifier::try_from("variants").unwrap(),
                 field_variants,
             ))
-            .with_doc( "An enumeration of variants.")
+            .with_doc("An enumeration of variants.")
     }
 }

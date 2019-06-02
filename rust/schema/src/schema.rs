@@ -4,27 +4,29 @@ use crate::context::KeyRefInfo;
 use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
-use crate::root_map::TRootMap;
-use crate::identifier::Identifier;
 use crate::core::{Config, Type};
+use crate::identifier::Identifier;
+use crate::metadata::MetadataSetter;
+use crate::root_map::TRootMap;
+use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::value::Value;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
-use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
-use crate::metadata::MetadataSetter;
 
 /// Builds the liquesco schema schema.
-pub fn schema_schema<B>(mut builder : B) -> Result<B::TTypeContainer, LqError> where
-    B: SchemaBuilder<'static> {
-
+pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
+where
+    B: SchemaBuilder<'static>,
+{
     let any_type = AnyType::build_schema(&mut builder);
     let identifier = Identifier::build_schema(&mut builder);
 
-    builder.finish(TRootMap::new(any_type.clone(), identifier, any_type)
-        .with_doc("The liquesco schema."))
+    builder.finish(
+        TRootMap::new(any_type.clone(), identifier, any_type).with_doc("The liquesco schema."),
+    )
 }
 
 pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
@@ -53,7 +55,7 @@ impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {
     }
 }
 
-impl<'a, T : TypeContainer<'a>> From<T> for DefaultSchema<'a, T> {
+impl<'a, T: TypeContainer<'a>> From<T> for DefaultSchema<'a, T> {
     fn from(container: T) -> Self {
         Self::new(container)
     }

@@ -5,13 +5,13 @@ use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
 
+use crate::common::builder::into_schema;
 use liquesco_schema::map::TMap;
+use liquesco_schema::schema_builder::SchemaBuilder;
 use liquesco_schema::sint::TSInt;
 use liquesco_schema::unicode::LengthType;
 use liquesco_schema::unicode::TUnicode;
 use std::collections::BTreeMap;
-use liquesco_schema::schema_builder::SchemaBuilder;
-use crate::common::builder::into_schema;
 
 #[test]
 fn ok_empty_map() {
@@ -72,16 +72,22 @@ fn ok_with_btree() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add_unwrap("key",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let value = builder.add_unwrap("value",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap(
+        "key",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
+    let value = builder.add_unwrap(
+        "value",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
 
     into_schema(builder, TMap::new(key, value))
 }
 
 fn create_schema_numbers() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add_unwrap("key",TSInt::try_new(-1000, 1000).unwrap());
-    let value = builder.add_unwrap("value",TSInt::try_new(-1000, 1000).unwrap());
+    let key = builder.add_unwrap("key", TSInt::try_new(-1000, 1000).unwrap());
+    let value = builder.add_unwrap("value", TSInt::try_new(-1000, 1000).unwrap());
 
     into_schema(builder, TMap::new(key, value))
 }

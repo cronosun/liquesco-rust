@@ -2,13 +2,13 @@ use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
-use crate::key_ref::TKeyRef;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::option::Presence;
@@ -83,7 +83,7 @@ impl Type for TOption<'_> {
     }
 
     fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
-        if index==0 {
+        if index == 0 {
             self.r#type = type_ref;
             Ok(())
         } else {
@@ -111,15 +111,14 @@ impl BaseTypeSchemaBuilder for TOption<'_> {
     {
         let field_type = builder.add_unwrap(
             "present_type",
-                                            TKeyRef::default().with_doc(
-            "Type of the present value in an option."));
+            TKeyRef::default().with_doc("Type of the present value in an option."),
+        );
 
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("type").unwrap(),
                 field_type,
             ))
-            .with_doc(
-                "Can have a value (some; present) or no value (none; empty; absent).")
+            .with_doc("Can have a value (some; present) or no value (none; empty; absent).")
     }
 }

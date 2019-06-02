@@ -8,8 +8,8 @@ use crate::identifier::StrIdentifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
-use serde::export::Formatter;
 use serde::export::fmt::Error;
+use serde::export::Formatter;
 
 /// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata {
@@ -48,7 +48,7 @@ pub trait Type: Debug + WithMetadata {
 
     /// Sets the reference. This has to succeed when `reference` returns a non-empty type ref.
     /// It has to fail when reference returns an empty type ref.
-    fn set_reference(&mut self, index : usize, type_ref : TypeRef) -> Result<(), LqError>;
+    fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError>;
 }
 
 /// Configuration used for validation.
@@ -72,9 +72,7 @@ impl Config {
     }
 
     pub fn strict() -> Self {
-        Self {
-            no_extension: true,            
-        }
+        Self { no_extension: true }
     }
 }
 
@@ -84,7 +82,7 @@ pub enum TypeRef {
     /// This is the reference used for serialization (a serialized schema only uses numbers).
     Numerical(u32),
     /// This is the reference used when building a schema.
-    Identifier(StrIdentifier<'static>)
+    Identifier(StrIdentifier<'static>),
 }
 
 impl TypeRef {
@@ -118,23 +116,23 @@ pub trait Schema<'a>: TypeContainer<'a> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
 }
 
-
 /// Need custom serde.
 impl serde::Serialize for TypeRef {
     fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
-        where
-            S: serde::Serializer,
+    where
+        S: serde::Serializer,
     {
         match self {
             TypeRef::Identifier(id) => {
-                let msg = format!("Unable to serialize identifier type ref ({:?}). Type ref \
-                need to be converted to numerical representation before it can \
-                be serialized.", id);
+                let msg = format!(
+                    "Unable to serialize identifier type ref ({:?}). Type ref \
+                     need to be converted to numerical representation before it can \
+                     be serialized.",
+                    id
+                );
                 Err(serde::ser::Error::custom(msg))
-            },
-            TypeRef::Numerical(num) => {
-                serializer.serialize_u32(*num)
             }
+            TypeRef::Numerical(num) => serializer.serialize_u32(*num),
         }
     }
 }
@@ -142,8 +140,8 @@ impl serde::Serialize for TypeRef {
 /// Need custom serde.
 impl<'de> serde::Deserialize<'de> for TypeRef {
     fn deserialize<D>(deserializer: D) -> Result<TypeRef, D::Error>
-        where
-            D: serde::Deserializer<'de>,
+    where
+        D: serde::Deserializer<'de>,
     {
         deserializer.deserialize_u32(TypeRefVisitor)
     }
@@ -158,8 +156,10 @@ impl<'de> serde::de::Visitor<'de> for TypeRefVisitor {
         formatter.write_str("Expecting a u32 for type ref.")
     }
 
-    fn visit_u32<E>(self, v: u32) -> Result<Self::Value, E> where
-        E: serde::de::Error, {
+    fn visit_u32<E>(self, v: u32) -> Result<Self::Value, E>
+    where
+        E: serde::de::Error,
+    {
         Ok(TypeRef::new_numerical(v))
     }
 }
@@ -167,12 +167,8 @@ impl<'de> serde::de::Visitor<'de> for TypeRefVisitor {
 impl Display for TypeRef {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
         match self {
-            TypeRef::Identifier(id) => {
-                write!(f, "{}", id)
-            },
-            TypeRef::Numerical(num) => {
-                write!(f, "#{}", num)
-            }
+            TypeRef::Identifier(id) => write!(f, "{}", id),
+            TypeRef::Numerical(num) => write!(f, "#{}", num),
         }
     }
 }

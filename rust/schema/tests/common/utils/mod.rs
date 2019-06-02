@@ -5,13 +5,13 @@ use liquesco_schema::core::Config;
 use liquesco_schema::core::Schema;
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::schema::DefaultSchema;
+use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
+use liquesco_schema::type_container::DefaultTypeContainer;
 use liquesco_serialization::serde::serialize;
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
-use liquesco_schema::type_container::DefaultTypeContainer;
-use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
 
 pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
@@ -71,7 +71,7 @@ where
         schema,
         Config {
             no_extension: false,
-                    },
+        },
         true,
     );
 }
@@ -98,5 +98,3 @@ pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     let builder = DefaultSchemaBuilder::default();
     builder.finish(any_type).unwrap().into()
 }
-
-

@@ -161,12 +161,11 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
     {
         let range_element = builder.add_unwrap(
             "unicode_length_element",
-            TUInt::try_new(std::u64::MIN, std::u64::MAX)
-                .unwrap()
+            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
         );
         let field_length = builder.add_unwrap(
             "unicode_length",
-            TRange::new(range_element, Inclusion::BothInclusive, false)
+            TRange::new(range_element, Inclusion::BothInclusive, false),
         );
 
         let field_length_type = builder.add_unwrap(
@@ -190,6 +189,6 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
                 Identifier::try_from("length_type").unwrap(),
                 field_length_type,
             ))
-            .with_doc( "Arbitrary unicode text. This can be used for human readable text.")
+            .with_doc("Arbitrary unicode text. This can be used for human readable text.")
     }
 }

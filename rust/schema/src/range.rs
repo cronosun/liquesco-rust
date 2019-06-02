@@ -13,6 +13,7 @@ use crate::core::TypeRef;
 use crate::enumeration::TEnum;
 use crate::enumeration::Variant;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
@@ -22,7 +23,6 @@ use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
-use crate::key_ref::TKeyRef;
 
 /// A range.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -192,7 +192,7 @@ impl Type for TRange<'_> {
     }
 
     fn set_reference(&mut self, index: usize, type_ref: TypeRef) -> Result<(), LqError> {
-        if index==0 {
+        if index == 0 {
             self.element = type_ref;
             Ok(())
         } else {
@@ -220,7 +220,8 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
     {
         let element_field = builder.add_unwrap(
             "range_element",
-                                               TKeyRef::default().with_doc( "The start and end type of the range."));
+            TKeyRef::default().with_doc("The start and end type of the range."),
+        );
 
         let inclusion_field = builder.add_unwrap(
             "inclusion",
@@ -236,9 +237,11 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
                 ))
                 .add(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
                 .add(Variant::new(Identifier::try_from("supplied").unwrap()))
-                .with_doc("Determines whether start and end are inclusive. There's one \
-                          special value: 'Supplied'. When you choose this, the data has to contain \
-                          the information whether start/end are inclusive or not."),
+                .with_doc(
+                    "Determines whether start and end are inclusive. There's one \
+                     special value: 'Supplied'. When you choose this, the data has to contain \
+                     the information whether start/end are inclusive or not.",
+                ),
         );
 
         let allow_empty_field = builder.add_unwrap(

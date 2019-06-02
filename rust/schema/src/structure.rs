@@ -2,6 +2,7 @@ use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
@@ -16,7 +17,6 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::key_ref::TKeyRef;
 
 type Fields<'a> = Vec<Field<'a>>;
 
@@ -196,7 +196,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
         B: SchemaBuilder<'static>,
     {
         let identifier = Identifier::build_schema(builder);
-        let r#type = builder.add_unwrap("field_type",TKeyRef::default());
+        let r#type = builder.add_unwrap("field_type", TKeyRef::default());
         let field_struct = builder.add_unwrap(
             "field",
             TStruct::default()
@@ -205,8 +205,10 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
                     identifier,
                 ))
                 .add(Field::new(Identifier::try_from("type").unwrap(), r#type))
-                .with_doc( "A single field in a structure. A field contains a name \
-                          and a type."),
+                .with_doc(
+                    "A single field in a structure. A field contains a name \
+                     and a type.",
+                ),
         );
 
         let fields_field = builder.add_unwrap(
@@ -215,7 +217,7 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
                 field_struct,
                 U32IneRange::try_new("", std::u32::MIN, std::u32::MAX).unwrap(),
             )
-            .with_doc( "A sequence of fields in a structure."),
+            .with_doc("A sequence of fields in a structure."),
         );
 
         TStruct::default()
@@ -223,7 +225,9 @@ impl<'a> BaseTypeSchemaBuilder for TStruct<'a> {
                 Identifier::try_from("fields").unwrap(),
                 fields_field,
             ))
-            .with_doc( "A structure is similar to a sequence but has a defined length and \
-                      can contain fields of different types.")
+            .with_doc(
+                "A structure is similar to a sequence but has a defined length and \
+                 can contain fields of different types.",
+            )
     }
 }

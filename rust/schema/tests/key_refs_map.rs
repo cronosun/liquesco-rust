@@ -11,13 +11,13 @@ use std::convert::TryFrom;
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::key_ref::TKeyRef;
 use liquesco_schema::map::TMap;
+use liquesco_schema::schema_builder::SchemaBuilder;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
 use liquesco_schema::unicode::LengthType;
 use liquesco_schema::unicode::TUnicode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
-use liquesco_schema::schema_builder::SchemaBuilder;
 
 #[test]
 fn ok_empty() {
@@ -134,10 +134,16 @@ fn err_map_provides_no_anchors() {
 
 fn create_schema1() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add_unwrap("key", TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap(
+        "key",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
 
-    let field_text = builder.add_unwrap("unicode",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add_unwrap("key_ref",TKeyRef::default());
+    let field_text = builder.add_unwrap(
+        "unicode",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
+    let single_ref = builder.add_unwrap("key_ref", TKeyRef::default());
     let field_refs = builder.add_unwrap("key_ref_seq", TSeq::try_new(single_ref, 0, 100).unwrap());
     let value = builder.add_unwrap(
         "struct",
@@ -157,11 +163,17 @@ fn create_schema1() -> impl Schema<'static> {
 
 fn create_schema_no_anchors() -> impl Schema<'static> {
     let mut builder = builder();
-    let key = builder.add_unwrap("key",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
+    let key = builder.add_unwrap(
+        "key",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
 
-    let field_text = builder.add_unwrap("unicode",TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap());
-    let single_ref = builder.add_unwrap("key_ref",TKeyRef::default());
-    let field_refs = builder.add_unwrap("key_ref_seq",TSeq::try_new(single_ref, 0, 100).unwrap());
+    let field_text = builder.add_unwrap(
+        "unicode",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
+    let single_ref = builder.add_unwrap("key_ref", TKeyRef::default());
+    let field_refs = builder.add_unwrap("key_ref_seq", TSeq::try_new(single_ref, 0, 100).unwrap());
     let value = builder.add_unwrap(
         "struct",
         TStruct::default()
