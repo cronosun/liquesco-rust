@@ -171,9 +171,9 @@ impl BaseTypeSchemaBuilder for TUnicode<'_> {
         let field_length_type = builder.add_unwrap(
             "length_type",
                 TEnum::default()
-                    .add(Variant::new(Identifier::try_from("byte").unwrap()))
-                    .add(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
-                    .add(Variant::new(Identifier::try_from("scalar").unwrap()))
+                    .add_variant(Variant::new(Identifier::try_from("byte").unwrap()))
+                    .add_variant(Variant::new(Identifier::try_from("utf8_byte").unwrap()))
+                    .add_variant(Variant::new(Identifier::try_from("scalar").unwrap()))
                     .with_doc(
                         "Specifies how the length of the unicode is measured. 'byte' can be \
                  measured very efficiently - but depends on the encoding. Note: Scalar must not be \

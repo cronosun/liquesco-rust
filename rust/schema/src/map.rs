@@ -315,8 +315,8 @@ impl BuildsOwnSchema for Sorting {
         builder.add_unwrap(
             "map_sorting",
             TEnum::default()
-                .add(Variant::new(Identifier::try_from("ascending").unwrap()))
-                .add(Variant::new(Identifier::try_from("descending").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("ascending").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("descending").unwrap()))
                 .with_doc(
                     "Determines the sort order of the keys in this map. You should usually \
                      use 'ascending' if not sure.",

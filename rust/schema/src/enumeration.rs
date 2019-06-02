@@ -93,7 +93,7 @@ impl<'a> TEnum<'a> {
         &self.variants
     }
 
-    pub fn add(mut self, variant: Variant<'a>) -> Self {
+    pub fn add_variant(mut self, variant: Variant<'a>) -> Self {
         self.variants.push(variant);
         self
     }

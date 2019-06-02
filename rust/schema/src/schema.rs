@@ -13,6 +13,7 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::value::Value;
+use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
 
@@ -48,6 +49,10 @@ impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {
 
     fn root(&self) -> &AnyType<'a> {
         self.types.root()
+    }
+
+    fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>> {
+        self.types.identifier(reference)
     }
 
     fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {

@@ -340,8 +340,8 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
         let directed_enum = builder.add_unwrap(
             "direction",
             TEnum::default()
-                .add(Variant::new(Identifier::try_from("ascending").unwrap()))
-                .add(Variant::new(Identifier::try_from("descending").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("ascending").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("descending").unwrap()))
                 .with_doc(
                     "Determines how the elements in the sequence need to be sorted for \
                      the sequence to be valid.",
@@ -370,8 +370,8 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
         let ordering_field = builder.add_unwrap(
             "ordering",
             TEnum::default()
-                .add(Variant::new(Identifier::try_from("none").unwrap()))
-                .add(
+                .add_variant(Variant::new(Identifier::try_from("none").unwrap()))
+                .add_variant(
                     Variant::new(Identifier::try_from("sorted").unwrap()).add_value(sorted_struct),
                 ).with_doc(
                  "Ordering is optional. When there's no ordering it can be irrelevant or \

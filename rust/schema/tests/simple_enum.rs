@@ -24,9 +24,9 @@ fn schema1() {
     let schema = into_schema(
         builder,
         TEnum::default()
-            .add(Variant::new(id("shutdown")))
-            .add(Variant::new(id("add")).add_value(int))
-            .add(Variant::new(id("delete_account")).add_value(upper_case)),
+            .add_variant(Variant::new(id("shutdown")))
+            .add_variant(Variant::new(id("add")).add_value(int))
+            .add_variant(Variant::new(id("delete_account")).add_value(upper_case)),
     );
 
     // valid
@@ -74,8 +74,8 @@ fn ordering_create_schema() -> impl Schema<'static> {
             builder.add_unwrap(
                 "enum",
                 TEnum::default()
-                    .add(Variant::new(id("variant1")).add_value(variant1_type))
-                    .add(Variant::new(id("variant2"))),
+                    .add_variant(Variant::new(id("variant1")).add_value(variant1_type))
+                    .add_variant(Variant::new(id("variant2"))),
             )
         },
         Direction::Ascending,

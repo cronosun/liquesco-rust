@@ -224,17 +224,17 @@ impl BaseTypeSchemaBuilder for TRange<'_> {
         let inclusion_field = builder.add_unwrap(
             "inclusion",
             TEnum::default()
-                .add(Variant::new(
+                .add_variant(Variant::new(
                     Identifier::try_from("both_inclusive").unwrap(),
                 ))
-                .add(Variant::new(
+                .add_variant(Variant::new(
                     Identifier::try_from("start_inclusive").unwrap(),
                 ))
-                .add(Variant::new(
+                .add_variant(Variant::new(
                     Identifier::try_from("both_exclusive").unwrap(),
                 ))
-                .add(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
-                .add(Variant::new(Identifier::try_from("supplied").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("end_inclusive").unwrap()))
+                .add_variant(Variant::new(Identifier::try_from("supplied").unwrap()))
                 .with_doc(
                     "Determines whether start and end are inclusive. There's one \
                      special value: 'Supplied'. When you choose this, the data has to contain \

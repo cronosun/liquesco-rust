@@ -4,12 +4,14 @@ use std::fmt::{Debug, Display};
 
 use crate::any_type::AnyType;
 use crate::context::Context;
+use crate::identifier::Identifier;
 use crate::identifier::StrIdentifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 
 use serde::export::fmt::Error;
 use serde::export::Formatter;
+use std::borrow::Cow;
 
 /// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata {
@@ -100,6 +102,9 @@ pub trait TypeContainer<'a> {
 
     /// Returns the root type.
     fn root(&self) -> &AnyType<'a>;
+
+    /// Returns the identifier for the given type reference.
+    fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>>;
 
     /// Returns a `Type` if contained within this container.
     fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {

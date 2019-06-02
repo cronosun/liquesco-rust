@@ -47,6 +47,18 @@ impl<'a> Deref for Segment<'a> {
 }
 
 impl<'a> Identifier<'a> {
+    /// Creates a new identifier that owns the string.
+    pub fn new_owned(value: &str) -> Result<Identifier<'static>, LqError> {
+        let splits = value.split('_');
+        let mut segments = Vec::new();
+        for split in splits {
+            segments.push(Segment::try_from(split.to_string())?);
+        }
+        let number_of_segments = segments.len();
+        Identifier::validate_number_of_segments(number_of_segments)?;
+        Result::Ok(Identifier(segments))
+    }
+
     pub fn segments(&self) -> &[Segment<'a>] {
         &self.0.as_slice()
     }
@@ -297,6 +309,12 @@ impl<'a> Display for Identifier<'a> {
 /// Same as `Identifier` but internally stored as string.
 #[derive(Debug, Clone, Eq, PartialEq, Hash, PartialOrd, Ord, Serialize, Deserialize)]
 pub struct StrIdentifier<'a>(Cow<'a, str>);
+
+impl<'a> StrIdentifier<'a> {
+    pub fn as_string(&self) -> &str {
+        &self.0
+    }
+}
 
 impl<'a> TryFrom<Cow<'a, str>> for StrIdentifier<'a> {
     type Error = LqError;
