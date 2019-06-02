@@ -141,13 +141,11 @@ impl Type for TFloat32<'_> {
         let float_value = Float32::de_serialize(context.reader())?;
         let (is_nan, is_p_infinite, is_n_infinite) = if float_value.is_nan() {
             (true, false, false)
+        } else if float_value.is_infinite() {
+            let negative = float_value.is_sign_negative();
+            (false, !negative, negative)
         } else {
-            if float_value.is_infinite() {
-                let negative = float_value.is_sign_negative();
-                (false, !negative, negative)
-            } else {
-                (false, false, false)
-            }
+            (false, false, false)
         };
 
         self.validate(float_value.into(), is_nan, is_p_infinite, is_n_infinite)

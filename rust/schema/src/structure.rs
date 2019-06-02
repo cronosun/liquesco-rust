@@ -126,7 +126,7 @@ impl<'a> Type for TStruct<'a> {
         let mut num_read: u32 = 0;
         for field in self.fields() {
             let cmp = context.compare(&field.r#type, r1, r2)?;
-            num_read = num_read + 1;
+            num_read += 1;
             if cmp != Ordering::Equal {
                 // no need to finish to the end (see contract)
                 return Result::Ok(cmp);

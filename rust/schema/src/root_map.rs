@@ -175,7 +175,7 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
         );
         let length_element = builder.add_unwrap(
             "map_length_element",
-            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
+            TUInt::try_new(0, u64::from(std::u32::MAX)).unwrap(),
         );
         let length_field = builder.add_unwrap(
             "map_length",

@@ -168,17 +168,15 @@ impl Type for TRange<'_> {
             let cmp2 = context.compare(&self.element, r1, r2)?;
             if cmp2 != Equal {
                 cmp2
-            } else {
-                if with_inclusion {
-                    let cmp3 = Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?);
-                    if cmp3 != Equal {
-                        cmp3
-                    } else {
-                        Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?)
-                    }
+            } else if with_inclusion {
+                let cmp3 = Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?);
+                if cmp3 != Equal {
+                    cmp3
                 } else {
-                    Equal
+                    Bool::de_serialize(r1)?.cmp(&Bool::de_serialize(r2)?)
                 }
+            } else {
+                Equal
             }
         })
     }

@@ -68,7 +68,7 @@ impl<'a> Variant<'a> {
     }
 
     pub fn add_value(mut self, value: TypeRef) -> Self {
-        if let None = self.values {
+        if self.values.is_none() {
             self.values = Some(Values::default());
         }
         let borrowed_self: &mut Self = &mut self;
@@ -100,12 +100,10 @@ impl<'a> TEnum<'a> {
 
     pub fn variant_by_id<'b>(&self, id: &Identifier<'b>) -> Option<(u32, &Variant<'a>)> {
         // maybe better use a map for the variants?
-        let mut ordinal: u32 = 0;
-        for variant in &self.variants {
+        for (ordinal, variant) in self.variants.iter().enumerate() {
             if &variant.name == id {
-                return Option::Some((ordinal, variant));
+                return Option::Some((ordinal as u32, variant));
             }
-            ordinal = ordinal + 1;
         }
         Option::None
     }
@@ -225,7 +223,7 @@ impl<'a> Type for TEnum<'a> {
             let mut num_read: u32 = 0;
             for r#type in variant.values() {
                 let cmp = context.compare(r#type, r1, r2)?;
-                num_read = num_read + 1;
+                num_read += 1;
                 if cmp != Ordering::Equal {
                     // no need to finish to the end (see contract)
                     return Result::Ok(cmp);

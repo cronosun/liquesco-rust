@@ -327,7 +327,7 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
         );
         let length_element = builder.add_unwrap(
             "seq_length_element",
-            TUInt::try_new(0, std::u32::MAX as u64).unwrap(),
+            TUInt::try_new(0, u64::from(std::u32::MAX)).unwrap(),
         );
         let length_field = builder.add_unwrap(
             "seq_length",
@@ -380,7 +380,9 @@ impl BaseTypeSchemaBuilder for TSeq<'_> {
 
         let multiple_of = builder.add_unwrap(
             "multiple_of",
-            TUInt::try_new(2, std::u32::MAX as u64).unwrap().with_doc(
+            TUInt::try_new(2, u64::from(std::u32::MAX))
+                .unwrap()
+                .with_doc(
                 "It's possible to specify another requirement on the length of the list \
                  (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, \
                  ... are allowed.",

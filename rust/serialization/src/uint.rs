@@ -93,7 +93,7 @@ impl Serializer for UInt8 {
     type Item = u8;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &u64::from(*item))
     }
 }
 
@@ -112,7 +112,7 @@ impl Serializer for UInt16 {
     type Item = u16;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &u64::from(*item))
     }
 }
 
@@ -131,6 +131,6 @@ impl Serializer for UInt32 {
     type Item = u32;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &(*item as u64))
+        UInt64::serialize(writer, &u64::from(*item))
     }
 }

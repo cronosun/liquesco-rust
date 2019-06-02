@@ -90,7 +90,7 @@ impl<'a> Identifier<'a> {
         match value {
             Cow::Borrowed(value) => {
                 // borrowed version
-                let splits = value.split("_");
+                let splits = value.split('_');
                 let mut segments = Vec::new();
                 for split in splits {
                     segments.push(Segment(Cow::Borrowed(split)));
@@ -99,7 +99,7 @@ impl<'a> Identifier<'a> {
             }
             Cow::Owned(owned) => {
                 let value: String = owned;
-                let splits = value.split("_");
+                let splits = value.split('_');
                 let mut segments = Vec::new();
                 for split in splits {
                     segments.push(Segment(Cow::Owned(split.to_string())));
@@ -169,7 +169,7 @@ impl<'a> TryFrom<&'a str> for Identifier<'a> {
     type Error = LqError;
 
     fn try_from(value: &'a str) -> Result<Self, Self::Error> {
-        let splits = value.split("_");
+        let splits = value.split('_');
         let mut segments = Vec::new();
         for split in splits {
             segments.push(Segment::try_from(split)?);
@@ -302,7 +302,7 @@ impl<'a> TryFrom<Cow<'a, str>> for StrIdentifier<'a> {
     type Error = LqError;
 
     fn try_from(value: Cow<'a, str>) -> Result<Self, Self::Error> {
-        let splits = value.split("_");
+        let splits = value.split('_');
         let mut number_of_segments = 0;
         for split in splits {
             Segment::validate(split)?;

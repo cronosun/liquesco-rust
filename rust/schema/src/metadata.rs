@@ -93,7 +93,7 @@ impl<'a> Meta<'a> {
     where
         U: Into<Uuid>,
     {
-        if let None = self.implements {
+        if self.implements.is_none() {
             self.implements = Option::Some(Implements::try_new(&[uuid.into()])?);
         } else {
             let mut implements = self.implements.take().unwrap();

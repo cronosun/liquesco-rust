@@ -1,3 +1,5 @@
+#![allow(clippy::derive_hash_xor_eq)]
+
 use crate::core::ContentDescription;
 use crate::core::DeSerializer;
 use crate::core::LqReader;

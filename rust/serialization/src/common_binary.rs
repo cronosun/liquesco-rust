@@ -16,7 +16,7 @@ pub(crate) fn binary_write<W: LqWriter>(
     let mut content_description = ContentDescription::default();
     content_description.set_self_length(bin_len_as_u64);
     writer.write_content_description(major_type, &content_description)?;
-    writer.write(data)?;
+    writer.write_all(data)?;
     Result::Ok(())
 }
 

@@ -126,28 +126,19 @@ fn convert_type_refs<'a>(
     index_map: &HashMap<StrIdentifier<'static>, u32>,
 ) -> Result<(), LqError> {
     let mut ref_index = 0;
-    loop {
-        if let Some(reference) = any_type.reference(ref_index) {
-            match reference {
-                TypeRef::Identifier(str_identifier) => {
-                    let index = index_map.get(str_identifier);
-                    if let Some(index) = index {
-                        any_type.set_reference(ref_index, TypeRef::new_numerical(*index))?;
-                    } else {
-                        // this should never happen
-                        return LqError::err_new(format!(
-                            "Type {:?} not found in \
-                             schema builder.",
-                            str_identifier
-                        ));
-                    }
-                }
-                _ => {
-                    // Nothing to do here
-                }
+    while let Some(reference) = any_type.reference(ref_index) {
+        if let TypeRef::Identifier(str_identifier) = reference {
+            let index = index_map.get(str_identifier);
+            if let Some(index) = index {
+                any_type.set_reference(ref_index, TypeRef::new_numerical(*index))?;
+            } else {
+                // this should never happen
+                return LqError::err_new(format!(
+                    "Type {:?} not found in \
+                     schema builder.",
+                    str_identifier
+                ));
             }
-        } else {
-            break;
         }
         ref_index += 1;
     }

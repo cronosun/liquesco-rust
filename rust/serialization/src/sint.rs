@@ -93,7 +93,7 @@ impl Serializer for SInt8 {
     type Item = i8;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        SInt64::serialize(writer, &(*item as i64))
+        SInt64::serialize(writer, &i64::from(*item))
     }
 }
 
@@ -112,7 +112,7 @@ impl Serializer for SInt16 {
     type Item = i16;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        SInt64::serialize(writer, &(*item as i64))
+        SInt64::serialize(writer, &i64::from(*item))
     }
 }
 
@@ -131,6 +131,6 @@ impl Serializer for SInt32 {
     type Item = i32;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        SInt64::serialize(writer, &(*item as i64))
+        SInt64::serialize(writer, &i64::from(*item))
     }
 }
