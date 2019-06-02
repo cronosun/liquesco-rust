@@ -62,11 +62,6 @@ pub struct Config {
     /// later schema version.
     #[new(value = "false")]
     pub no_extension: bool,
-
-    /// When this is true, wrong anchor ordering is ignored. Also unused anchors are allowed. You
-    /// usually want this to be false.
-    #[new(value = "false")]
-    pub weak_reference_validation: bool,
 }
 
 impl Config {
@@ -78,8 +73,7 @@ impl Config {
 
     pub fn strict() -> Self {
         Self {
-            no_extension: true,
-            weak_reference_validation: false,
+            no_extension: true,            
         }
     }
 }
@@ -133,19 +127,14 @@ impl serde::Serialize for TypeRef {
     {
         match self {
             TypeRef::Identifier(id) => {
-                // TODO
-                /*S::Error::custom(format!("Unable to serialize identifier type ref ({}). Type ref \
-                need to be converted to numerical representation before it can \
-                be serialized.", id))*/
                 let msg = format!("Unable to serialize identifier type ref ({:?}). Type ref \
                 need to be converted to numerical representation before it can \
                 be serialized.", id);
-                panic!(msg)
+                Err(serde::ser::Error::custom(msg))
             },
             TypeRef::Numerical(num) => {
                 serializer.serialize_u32(*num)
             }
-
         }
     }
 }

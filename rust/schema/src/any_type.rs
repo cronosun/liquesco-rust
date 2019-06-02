@@ -232,57 +232,6 @@ impl BuildsOwnSchema for AnyType<'_> {
     }
 }
 
-
-// TODO: Remove
-/*
-impl RootBuildsOwnSchema for AnyType<'_> {
-    fn root_build_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
-        where
-            B: SchemaBuilder<'static> {
-
-        let ref_bool = doc_type_ref::<TBool, B>("bool",&mut builder);
-        let ref_option = doc_type_ref::<TOption, B>("option",&mut builder);
-        let ref_seq = doc_type_ref::<TSeq, B>("seq", &mut builder);
-        let ref_binary = doc_type_ref::<TBinary, B>("binary",&mut builder);
-        let ref_unicode = doc_type_ref::<TUnicode, B>("unicode",&mut builder);
-        let ref_uint = doc_type_ref::<TUInt, B>("uint",&mut builder);
-        let ref_sint = doc_type_ref::<TSInt, B>("sint",&mut builder);
-        let ref_float_32 = doc_type_ref::<TFloat32, B>("float_32",&mut builder);
-        let ref_float_64 = doc_type_ref::<TFloat64, B>("float_64",&mut builder);
-        let ref_enum = doc_type_ref::<TEnum, B>("enum",&mut builder);
-        let ref_struct = doc_type_ref::<TStruct, B>("struct",&mut builder);
-        let ref_map = doc_type_ref::<TMap, B>("map",&mut builder);
-        let ref_root_map = doc_type_ref::<TRootMap, B>("root_map",&mut builder);
-        let ref_key_ref = doc_type_ref::<TKeyRef, B>("key_ref",&mut builder);
-        let ref_ascii = doc_type_ref::<TAscii, B>("ascii",&mut builder);
-        let ref_uuid = doc_type_ref::<TUuid, B>("uuid",&mut builder);
-        let ref_range = doc_type_ref::<TRange, B>("range",&mut builder);
-
-        builder.finish(
-                           TEnum::default()
-                               .add(variant(ref_bool, "bool"))
-                               .add(variant(ref_option, "option"))
-                               .add(variant(ref_seq, "seq"))
-                               .add(variant(ref_binary, "binary"))
-                               .add(variant(ref_unicode, "unicode"))
-                               .add(variant(ref_uint, "uint"))
-                               .add(variant(ref_sint, "sint"))
-                               .add(variant(ref_float_32, "f32"))
-                               .add(variant(ref_float_64, "f64"))
-                               .add(variant(ref_enum, "enum"))
-                               .add(variant(ref_struct, "struct"))
-                               .add(variant(ref_map, "map"))
-                               .add(variant(ref_root_map, "root_map"))
-                               .add(variant(ref_key_ref, "key_ref"))
-                               .add(variant(ref_ascii, "ascii"))
-                               .add(variant(ref_uuid, "uuid"))
-                               .add(variant(ref_range, "range"))
-                               .with_doc("The any type is an enumeration of all possible types available \
-                          in the type system."),
-        )
-    }
-}*/
-
 fn variant(reference: TypeRef, id: &'static str) -> Variant<'static> {
     Variant::new(Identifier::try_from(id).unwrap()).add_value(reference)
 }

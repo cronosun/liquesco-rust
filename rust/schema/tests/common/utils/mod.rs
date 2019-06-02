@@ -3,8 +3,6 @@
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::Config;
 use liquesco_schema::core::Schema;
-use liquesco_schema::core::TypeContainer;
-use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_serialization::serde::serialize;
@@ -73,8 +71,7 @@ where
         schema,
         Config {
             no_extension: false,
-            weak_reference_validation: false,
-        },
+                    },
         true,
     );
 }
@@ -89,7 +86,6 @@ where
         schema,
         Config {
             no_extension: false,
-            weak_reference_validation: false,
         },
         false,
     );
@@ -99,7 +95,7 @@ pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     into_any_type: T,
 ) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
     let any_type = into_any_type.into();
-    let mut builder = DefaultSchemaBuilder::default();
+    let builder = DefaultSchemaBuilder::default();
     builder.finish(any_type).unwrap().into()
 }
 

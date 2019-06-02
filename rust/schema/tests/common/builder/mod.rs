@@ -1,9 +1,6 @@
 #![allow(dead_code)]
 
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::core::Type;
-use liquesco_schema::core::TypeContainer;
-use liquesco_schema::core::TypeRef;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
 use liquesco_schema::type_container::DefaultTypeContainer;

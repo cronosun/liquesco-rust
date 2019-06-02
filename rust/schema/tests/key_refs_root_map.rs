@@ -10,7 +10,6 @@ use std::convert::TryFrom;
 
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::key_ref::TKeyRef;
-use liquesco_schema::map::TMap;
 use liquesco_schema::root_map::TRootMap;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;

@@ -3,13 +3,10 @@
 use liquesco_schema::core::Config;
 use liquesco_schema::core::Schema;
 use liquesco_schema::schema::{DefaultSchema, schema_schema};
-use liquesco_schema::schema_builder::{BuildsOwnSchema, DefaultSchemaBuilder};
+use liquesco_schema::schema_builder::{DefaultSchemaBuilder};
 use liquesco_serialization::serde::{de_serialize_from_slice, serialize_to_vec};
 use liquesco_serialization::slice_reader::SliceReader;
-use std::convert::TryInto;
-use liquesco_schema::any_type::AnyType;
 use liquesco_schema::type_container::DefaultTypeContainer;
-use liquesco_schema::schema_builder::RootBuildsOwnSchema;
 
 #[test]
 fn test_self_schema_is_valid() {
@@ -25,7 +22,6 @@ fn test_self_schema_is_valid() {
         .validate(
             Config {
                 no_extension: true,
-                weak_reference_validation: true, // TODO: Must also work when this is false
             },
             &mut reader,
         )
@@ -49,7 +45,7 @@ fn can_serde_self_schema() {
 }
 
 fn build_liquesco_type_container() -> DefaultTypeContainer<'static> {
-    let mut builder = DefaultSchemaBuilder::default();
+    let builder = DefaultSchemaBuilder::default();
     schema_schema(builder).unwrap()
 }
 

@@ -1,3 +1,4 @@
 [workspace]
+# Note: Currently only the "core" modules activated.
 members = ["common", "serialization", "schema"]
 #members = ["common", "serialization", "schema", "parsing", "processing", "gen-html", "gen-schema"]
