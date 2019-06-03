@@ -81,13 +81,14 @@ fn create_schema1() -> impl Schema {
         TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
     );
 
-    into_schema(builder, TMap::new(key, value))
+    let root = builder.add_unwrap("root", TMap::new(key, value));
+    into_schema(builder, root)
 }
 
 fn create_schema_numbers() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap("key", TSInt::try_new(-1000, 1000).unwrap());
     let value = builder.add_unwrap("value", TSInt::try_new(-1000, 1000).unwrap());
-
-    into_schema(builder, TMap::new(key, value))
+    let root = builder.add_unwrap("root", TMap::new(key, value));
+    into_schema(builder, root)
 }

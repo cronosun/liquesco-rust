@@ -6,6 +6,7 @@ use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
 use crate::identifier::Identifier;
+use crate::key_ref::TKeyRef;
 use crate::metadata::MetadataSetter;
 use crate::root_map::TRootMap;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
@@ -22,12 +23,21 @@ pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
 where
     B: SchemaBuilder<'static>,
 {
+    let root_ref = builder.add_unwrap(
+        "schema_root",
+        TKeyRef::default().with_doc(
+            "This references the root \
+             type. The root type is the type schema validation begins with.",
+        ),
+    );
     let any_type = AnyType::build_schema(&mut builder);
     let identifier = Identifier::build_schema(&mut builder);
+    let root = builder.add_unwrap(
+        "schema",
+        TRootMap::new(root_ref, identifier, any_type).with_doc("The liquesco schema."),
+    );
 
-    builder.finish(
-        TRootMap::new(any_type.clone(), identifier, any_type).with_doc("The liquesco schema."),
-    )
+    builder.finish(root)
 }
 
 pub struct DefaultSchema<'a, C: TypeContainer> {
@@ -47,7 +57,7 @@ impl<'a, C: TypeContainer> TypeContainer for DefaultSchema<'a, C> {
         self.types.maybe_type(reference)
     }
 
-    fn root(&self) -> &AnyType {
+    fn root(&self) -> &TypeRef {
         self.types.root()
     }
 
@@ -94,7 +104,7 @@ impl<'a, C: TypeContainer> DefaultSchema<'a, C> {
             _phantom1: &PhantomData,
             _phantom2: &PhantomData,
         };
-        context.validate_any_type(self.types.root())
+        context.validate(self.types.root())
     }
 }
 

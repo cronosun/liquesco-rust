@@ -15,6 +15,6 @@ fn no_value_enum() {
 #[test]
 fn with_value_enum() {
     let value: Value<'static> = "hello".into();
-    let enum_value = ValueVariant::new(45345233, value);
+    let enum_value = ValueVariant::new(45_345_233, value);
     check_value(&enum_value.into());
 }

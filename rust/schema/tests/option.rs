@@ -17,8 +17,9 @@ use liquesco_schema::type_container::DefaultTypeContainer;
 fn schema1() {
     let mut builder = builder();
     let boolean = builder.add_unwrap("boolean", TBool::default());
+    let root = builder.add_unwrap("root", TOption::new(boolean));
     let schema: DefaultSchema<'static, DefaultTypeContainer<'static>> =
-        builder.finish(TOption::new(boolean)).unwrap().into();
+        builder.finish(root).unwrap().into();
 
     // some valid items
     assert_valid_strict(Option::<bool>::None, &schema);

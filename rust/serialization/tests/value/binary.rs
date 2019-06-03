@@ -3,7 +3,7 @@ use crate::value::check_value;
 #[test]
 fn variable_binary() {
     let mut binary = Vec::new();
-    for index in 0..128457 {
+    for index in 0..128_457 {
         if index % 1785 == 0 {
             check_value(&(&binary).into());
         }

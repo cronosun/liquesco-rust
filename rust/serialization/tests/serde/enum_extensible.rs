@@ -33,12 +33,12 @@ fn enum_are_extensible_2() {
 fn enum_are_extensible_3() {
     let version_2 = Version2::Upgrade {
         account_id: "114256585_7".to_string(),
-        megabytes: 4458754,
+        megabytes: 4_458_754,
         activate_premium_account: true,
     };
     let version_1 = Version1::Upgrade {
         account_id: "114256585_7".to_string(),
-        megabytes: 4458754,
+        megabytes: 4_458_754,
     };
 
     can_decode_from(version_2, version_1);

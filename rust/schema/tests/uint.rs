@@ -23,7 +23,7 @@ fn schema1() {
     assert_invalid_strict(0usize, &schema);
     assert_invalid_strict(159usize, &schema);
     assert_invalid_strict(200usize, &schema);
-    assert_invalid_strict(20000000000u64, &schema);
+    assert_invalid_strict(20_000_000_000u64, &schema);
 }
 
 #[test]

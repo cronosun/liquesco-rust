@@ -107,9 +107,9 @@ fn vec_and_struct_serialize_to_same() {
     serialize_to_same(
         TwoFieldsStruct {
             x: 4587.0,
-            y: 47.2447747,
+            y: 47.244_774_7,
         },
-        vec![4587.0f64, 47.2447747f64],
+        vec![4587.0f64, 47.244_774_7f64],
     );
 }
 

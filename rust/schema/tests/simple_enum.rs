@@ -21,13 +21,14 @@ fn schema1() {
     let mut builder = builder();
     let int = builder.add_unwrap("int", TUInt::try_new(1, 200).unwrap());
     let upper_case = builder.add_unwrap("ascii", TAscii::try_new(2, 10, 65, 90).unwrap());
-    let schema = into_schema(
-        builder,
+    let root = builder.add_unwrap(
+        "root",
         TEnum::default()
             .add_variant(Variant::new(id("shutdown")))
             .add_variant(Variant::new(id("add")).add_value(int))
             .add_variant(Variant::new(id("delete_account")).add_value(upper_case)),
     );
+    let schema = into_schema(builder, root);
 
     // valid
     assert_valid_strict(Schema1Enum::Shutdown, &schema);

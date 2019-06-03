@@ -91,7 +91,8 @@ fn too_many_elements() {
 fn create_schema() -> impl Schema {
     let mut builder = builder();
     let int = builder.add_unwrap("uint", TUInt::try_new(50, 100).unwrap());
-    into_schema(builder, TSeq::try_new(int, 1, 10).unwrap())
+    let root = builder.add_unwrap("root", TSeq::try_new(int, 1, 10).unwrap());
+    into_schema(builder, root)
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

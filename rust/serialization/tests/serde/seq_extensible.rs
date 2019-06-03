@@ -15,8 +15,8 @@ fn structs_are_extensible() {
             age: 45,
             student: true,
         },
-        postfix: 7777777,
-        another_field: 4534534,
+        postfix: 7_777_777,
+        another_field: 4_534_534,
     };
 
     // that's what we expect to get (all other fields should be ignored)
@@ -26,7 +26,7 @@ fn structs_are_extensible() {
             first_name: "John".to_string(),
             last_name: "Doe".to_string(),
         },
-        postfix: 7777777,
+        postfix: 7_777_777,
     };
 
     can_decode_from(source, destination);

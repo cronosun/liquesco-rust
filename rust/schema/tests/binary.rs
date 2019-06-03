@@ -16,21 +16,23 @@ use std::convert::TryFrom;
 fn schema1() {
     let mut builder = builder();
     let binary = builder.add_unwrap("binary", TBinary::try_new(1, 20).unwrap());
-    let schema: DefaultSchema<'static, DefaultTypeContainer<'static>> = builder
-        .finish(TStruct::default().add(Field::new(Identifier::try_from("bin").unwrap(), binary)))
-        .unwrap()
-        .into();
+    let root = builder.add_unwrap(
+        "root",
+        TStruct::default().add(Field::new(Identifier::try_from("bin").unwrap(), binary)),
+    );
+    let schema: DefaultSchema<'static, DefaultTypeContainer<'static>> =
+        builder.finish(root).unwrap().into();
 
     assert_valid_strict(
         TestData {
-            bin: "hello".as_bytes().to_vec(),
+            bin: b"hello".to_vec(),
         },
         &schema,
     );
     // maximum length
     assert_valid_strict(
         TestData {
-            bin: "hellohellohellohello".as_bytes().to_vec(),
+            bin: b"hellohellohellohello".to_vec(),
         },
         &schema,
     );
@@ -42,16 +44,11 @@ fn schema1() {
         &schema,
     );
     // err: too short
-    assert_invalid_strict(
-        TestData {
-            bin: "".as_bytes().to_vec(),
-        },
-        &schema,
-    );
+    assert_invalid_strict(TestData { bin: b"".to_vec() }, &schema);
     // err: too long
     assert_invalid_strict(
         TestData {
-            bin: "hellohellohellohellox".as_bytes().to_vec(),
+            bin: b"hellohellohellohellox".to_vec(),
         },
         &schema,
     );

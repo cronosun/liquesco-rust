@@ -11,7 +11,7 @@ fn string() {
 fn uints() {
     assert_serde(8u8);
     assert_serde(27454u16);
-    assert_serde(1227454u32);
+    assert_serde(1_227_454u32);
     assert_serde(std::u64::MAX);
     assert_serde(std::u64::MIN);
 }
@@ -20,7 +20,7 @@ fn uints() {
 fn sints() {
     assert_serde(-8i8);
     assert_serde(-27454i16);
-    assert_serde(-1227454i32);
+    assert_serde(-1_227_454i32);
     assert_serde(std::i64::MIN);
     assert_serde(std::i64::MAX);
 }
@@ -53,8 +53,7 @@ fn option() {
 
 #[test]
 fn unit() {
-    let unit = ();
-    assert_serde(unit);
+    assert_serde(());
 }
 
 #[test]

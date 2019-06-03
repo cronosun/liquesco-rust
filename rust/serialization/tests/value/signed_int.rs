@@ -14,12 +14,12 @@ fn test_i16() {
 
 #[test]
 fn test_i32() {
-    check_value(&(-2147483648).into());
-    check_value(&(-2147483647).into());
+    check_value(&(-2_147_483_648).into());
+    check_value(&(-2_147_483_647).into());
 }
 
 #[test]
 fn test_i64() {
-    check_value(&(-9223372036854775808i64).into());
-    check_value(&(9223372036854775807i64).into());
+    check_value(&(-9_223_372_036_854_775_808i64).into());
+    check_value(&(9_223_372_036_854_775_807i64).into());
 }

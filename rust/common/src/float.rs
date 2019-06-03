@@ -28,16 +28,14 @@ impl Ord for F32Ext {
     fn cmp(&self, other: &Self) -> Ordering {
         if let Some(ord) = self.0.partial_cmp(&other.0) {
             ord
-        } else {
-            if self.0.is_nan() {
-                if other.0.is_nan() {
-                    Ordering::Equal
-                } else {
-                    Ordering::Less
-                }
+        } else if self.0.is_nan() {
+            if other.0.is_nan() {
+                Ordering::Equal
             } else {
-                panic!("Incomplete cmp implementation for float")
+                Ordering::Less
             }
+        } else {
+            panic!("Incomplete cmp implementation for float")
         }
     }
 }
@@ -54,16 +52,14 @@ impl Ord for F64Ext {
     fn cmp(&self, other: &Self) -> Ordering {
         if let Some(ord) = self.0.partial_cmp(&other.0) {
             ord
-        } else {
-            if self.0.is_nan() {
-                if other.0.is_nan() {
-                    Ordering::Equal
-                } else {
-                    Ordering::Less
-                }
+        } else if self.0.is_nan() {
+            if other.0.is_nan() {
+                Ordering::Equal
             } else {
-                panic!("Incomplete cmp implementation for float")
+                Ordering::Less
             }
+        } else {
+            panic!("Incomplete cmp implementation for float")
         }
     }
 }

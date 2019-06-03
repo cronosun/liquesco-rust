@@ -17,7 +17,7 @@ pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
 }
 
-pub fn assert_valid_invalid<'a, S, TSchema>(
+pub fn assert_valid_invalid<S, TSchema>(
     item: S,
     schema: &TSchema,
     config: Config,
@@ -35,17 +35,15 @@ pub fn assert_valid_invalid<'a, S, TSchema>(
 
     if expect_valid {
         result.unwrap();
-    } else {
-        if result.is_ok() {
-            panic!(format!(
-                "Expecting value {:?} to be invalid but schema considers this as valid.",
-                item
-            ))
-        }
+    } else if result.is_ok() {
+        panic!(format!(
+            "Expecting value {:?} to be invalid but schema considers this as valid.",
+            item
+        ))
     }
 }
 
-pub fn assert_valid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_valid_strict<S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
     TSchema: Schema + Sized,
@@ -53,7 +51,7 @@ where
     assert_valid_invalid(item, schema, Config::strict(), true);
 }
 
-pub fn assert_invalid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_invalid_strict<S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
     TSchema: Schema + Sized,
@@ -61,7 +59,7 @@ where
     assert_valid_invalid(item, schema, Config::strict(), false);
 }
 
-pub fn assert_valid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_valid_extended<S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
     TSchema: Schema + Sized,
@@ -76,7 +74,7 @@ where
     );
 }
 
-pub fn assert_invalid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
+pub fn assert_invalid_extended<S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
     TSchema: Schema + Sized,
@@ -95,6 +93,7 @@ pub fn single_schema<'a, T: Into<AnyType<'a>>>(
     into_any_type: T,
 ) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
     let any_type = into_any_type.into();
-    let builder = DefaultSchemaBuilder::default();
-    builder.finish(any_type).unwrap().into()
+    let mut builder = DefaultSchemaBuilder::default();
+    let root = builder.add_unwrap("root", any_type);
+    builder.finish(root).unwrap().into()
 }

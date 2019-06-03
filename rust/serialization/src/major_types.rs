@@ -39,21 +39,21 @@ pub(crate) const TYPE_ENUM_N: MajorType = MajorType::new(13);
 
 impl Debug for MajorType {
     fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
-        let name: &str = match self {
-            &TYPE_BOOL_FALSE => "TYPE_BOOL_FALSE",
-            &TYPE_BOOL_TRUE => "TYPE_BOOL_TRUE",
-            &TYPE_OPTION => "TYPE_OPTION",
-            &TYPE_SEQ => "TYPE_SEQ",
-            &TYPE_BINARY => "TYPE_BINARY",
-            &TYPE_UNICODE => "TYPE_UNICODE",
-            &TYPE_UINT => "TYPE_UINT",
-            &TYPE_SINT => "TYPE_SINT",
-            &TYPE_FLOAT => "TYPE_FLOAT",
-            &TYPE_ENUM_0 => "TYPE_ENUM_0",
-            &TYPE_ENUM_1 => "TYPE_ENUM_1",
-            &TYPE_ENUM_2 => "TYPE_ENUM_2",
-            &TYPE_ENUM_3 => "TYPE_ENUM_3",
-            &TYPE_ENUM_N => "TYPE_ENUM_N",
+        let name: &str = match *self {
+            TYPE_BOOL_FALSE => "TYPE_BOOL_FALSE",
+            TYPE_BOOL_TRUE => "TYPE_BOOL_TRUE",
+            TYPE_OPTION => "TYPE_OPTION",
+            TYPE_SEQ => "TYPE_SEQ",
+            TYPE_BINARY => "TYPE_BINARY",
+            TYPE_UNICODE => "TYPE_UNICODE",
+            TYPE_UINT => "TYPE_UINT",
+            TYPE_SINT => "TYPE_SINT",
+            TYPE_FLOAT => "TYPE_FLOAT",
+            TYPE_ENUM_0 => "TYPE_ENUM_0",
+            TYPE_ENUM_1 => "TYPE_ENUM_1",
+            TYPE_ENUM_2 => "TYPE_ENUM_2",
+            TYPE_ENUM_3 => "TYPE_ENUM_3",
+            TYPE_ENUM_N => "TYPE_ENUM_N",
             _ => "Unknown",
         };
         write!(f, "MajorType({}; {})", self.id(), name)

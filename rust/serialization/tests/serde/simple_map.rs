@@ -42,8 +42,8 @@ fn empty_map() {
 fn complex_key() {
     let map = hashmap! {
         MapKey { lo: 2212, hi : 212} => 54454,
-        MapKey { lo: 44, hi : 444447} => 4,
-        MapKey { lo: 144558, hi : 0} => -2
+        MapKey { lo: 44, hi : 444_447} => 4,
+        MapKey { lo: 144_558, hi : 0} => -2
     };
     assert_serde(map);
 }

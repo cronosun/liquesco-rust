@@ -27,7 +27,8 @@ pub trait SchemaBuilder<'a> {
         self.add(identifier, item).unwrap()
     }
 
-    fn finish<T: Into<AnyType<'a>>>(self, root: T) -> Result<Self::TTypeContainer, LqError>;
+    /// Finishes this builder by providing the root type.
+    fn finish(self, root: TypeRef) -> Result<Self::TTypeContainer, LqError>;
 }
 
 /// Something that can build its own schema.
@@ -92,7 +93,7 @@ impl<'a> SchemaBuilder<'a> for DefaultSchemaBuilder<'a> {
         Ok(TypeRef::Identifier(id))
     }
 
-    fn finish<T: Into<AnyType<'a>>>(self, root: T) -> Result<Self::TTypeContainer, LqError> {
+    fn finish(self, root: TypeRef) -> Result<Self::TTypeContainer, LqError> {
         let len = self.types.len();
 
         // First collect indexes / decompose types
@@ -114,10 +115,13 @@ impl<'a> SchemaBuilder<'a> for DefaultSchemaBuilder<'a> {
         }
 
         // Also convert the root type
-        let mut root_any = root.into();
-        convert_type_refs(&mut root_any, &index_map)?;
+        let new_root = if let Some(new_root) = convert_single_type_ref(&root, &index_map)? {
+            new_root
+        } else {
+            root
+        };
 
-        Ok(DefaultTypeContainer::new(types, root_any))
+        Ok(DefaultTypeContainer::new(types, new_root))
     }
 }
 
@@ -127,20 +131,31 @@ fn convert_type_refs<'a>(
 ) -> Result<(), LqError> {
     let mut ref_index = 0;
     while let Some(reference) = any_type.reference(ref_index) {
-        if let TypeRef::Identifier(str_identifier) = reference {
-            let index = index_map.get(str_identifier);
-            if let Some(index) = index {
-                any_type.set_reference(ref_index, TypeRef::new_numerical(*index))?;
-            } else {
-                // this should never happen
-                return LqError::err_new(format!(
-                    "Type {:?} not found in \
-                     schema builder.",
-                    str_identifier
-                ));
-            }
+        if let Some(new_reference) = convert_single_type_ref(reference, index_map)? {
+            any_type.set_reference(ref_index, new_reference)?;
         }
         ref_index += 1;
     }
     Ok(())
+}
+
+fn convert_single_type_ref(
+    original: &TypeRef,
+    index_map: &HashMap<StrIdentifier<'static>, u32>,
+) -> Result<Option<TypeRef>, LqError> {
+    if let TypeRef::Identifier(str_identifier) = original {
+        let index = index_map.get(str_identifier);
+        if let Some(index) = index {
+            Ok(Some(TypeRef::new_numerical(*index)))
+        } else {
+            // this should never happen
+            LqError::err_new(format!(
+                "Type {:?} not found in \
+                 schema builder.",
+                str_identifier
+            ))
+        }
+    } else {
+        Ok(None)
+    }
 }

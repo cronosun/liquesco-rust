@@ -147,7 +147,8 @@ fn create_schema1() -> impl Schema {
         )),
     );
 
-    into_schema(builder, TRootMap::new(root, key, value))
+    let root = builder.add_unwrap("root", TRootMap::new(root, key, value));
+    into_schema(builder, root)
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

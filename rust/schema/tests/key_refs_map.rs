@@ -158,7 +158,8 @@ fn create_schema1() -> impl Schema {
             )),
     );
 
-    into_schema(builder, TMap::new(key, value).with_anchors(true))
+    let root = builder.add_unwrap("root", TMap::new(key, value).with_anchors(true));
+    into_schema(builder, root)
 }
 
 fn create_schema_no_anchors() -> impl Schema {
@@ -188,7 +189,8 @@ fn create_schema_no_anchors() -> impl Schema {
     );
 
     // note: anchors is set to 'false'
-    into_schema(builder, TMap::new(key, value).with_anchors(false))
+    let root = builder.add_unwrap("root", TMap::new(key, value).with_anchors(false));
+    into_schema(builder, root)
 }
 
 #[derive(Serialize, Deserialize, Debug, Eq, PartialEq)]

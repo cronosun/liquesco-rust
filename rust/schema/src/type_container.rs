@@ -10,11 +10,11 @@ use std::borrow::Cow;
 #[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct DefaultTypeContainer<'a> {
     types: Vec<(Identifier<'a>, AnyType<'a>)>,
-    root: AnyType<'a>,
+    root: TypeRef,
 }
 
 impl<'a> DefaultTypeContainer<'a> {
-    pub(crate) fn new(types: Vec<(Identifier<'a>, AnyType<'a>)>, root: AnyType<'a>) -> Self {
+    pub(crate) fn new(types: Vec<(Identifier<'a>, AnyType<'a>)>, root: TypeRef) -> Self {
         Self { types, root }
     }
 }
@@ -34,7 +34,7 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
         }
     }
 
-    fn root(&self) -> &AnyType {
+    fn root(&self) -> &TypeRef {
         &self.root
     }
 

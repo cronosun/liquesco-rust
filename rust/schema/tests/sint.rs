@@ -14,13 +14,13 @@ fn schema1() {
     // some valid items
     assert_valid_strict(-45isize, &schema);
     assert_valid_strict(5isize, &schema);
-    assert_valid_strict(4443444isize, &schema);
-    assert_valid_strict(4443443isize, &schema);
+    assert_valid_strict(4_443_444isize, &schema);
+    assert_valid_strict(4_443_443isize, &schema);
     assert_valid_strict(0isize, &schema);
 
     // some invalid items
     assert_invalid_strict(-46isize, &schema);
-    assert_invalid_strict(4443445isize, &schema);
+    assert_invalid_strict(4_443_445isize, &schema);
     assert_invalid_strict(std::i64::MIN, &schema);
     assert_invalid_strict(std::i64::MAX, &schema);
 }

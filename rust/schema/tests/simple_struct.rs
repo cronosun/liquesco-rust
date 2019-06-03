@@ -25,12 +25,13 @@ fn schema1() {
     let mut builder = builder();
     let int = builder.add_unwrap("int", TUInt::try_new(2, 144).unwrap());
     let upper_case = builder.add_unwrap("upper_case", TAscii::try_new(2, 10, 65, 90).unwrap());
-    let schema = into_schema(
-        builder,
+    let root = builder.add_unwrap(
+        "root",
         TStruct::default()
             .add(Field::new(id("age"), int))
             .add(Field::new(id("name"), upper_case)),
     );
+    let schema = into_schema(builder, root);
 
     // valid
     assert_valid_strict(

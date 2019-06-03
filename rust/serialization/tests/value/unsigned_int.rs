@@ -17,10 +17,10 @@ fn test_u16() {
 
 #[test]
 fn test_u32() {
-    check_value(&4294967295u32.into());
+    check_value(&4_294_967_295u32.into());
 }
 
 #[test]
 fn test_u64() {
-    check_value(&18446744073709551615u64.into());
+    check_value(&18_446_744_073_709_551_615u64.into());
 }

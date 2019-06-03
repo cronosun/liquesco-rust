@@ -100,8 +100,8 @@ pub trait TypeContainer {
     /// Returns a `Type` if contained within this container.
     fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType>;
 
-    /// Returns the root type.
-    fn root(&self) -> &AnyType;
+    /// Returns the root type reference.
+    fn root(&self) -> &TypeRef;
 
     /// Returns the identifier for the given type reference.
     fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>>;

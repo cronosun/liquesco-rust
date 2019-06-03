@@ -172,7 +172,7 @@ fn ordering_32() {
     ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::INFINITY);
 
     // positive infinity is always the largest thing
-    ord_assert_ascending(schema.clone(), 1000000f32, std::f32::INFINITY);
+    ord_assert_ascending(schema.clone(), 1_000_000f32, std::f32::INFINITY);
     ord_assert_ascending(schema.clone(), std::f32::MAX, std::f32::INFINITY);
     ord_assert_ascending(schema.clone(), std::f32::NEG_INFINITY, std::f32::INFINITY);
 
