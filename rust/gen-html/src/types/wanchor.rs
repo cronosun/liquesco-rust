@@ -2,9 +2,9 @@ use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
 use crate::html::list_item;
 use crate::html::span;
-use liquesco_schema::anchors::TAnchors;
-use liquesco_schema::reference::TReference;
 use minidom::Element;
+
+// TODO: Remove
 
 pub struct WAnchors;
 

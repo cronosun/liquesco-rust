@@ -5,27 +5,28 @@ use crate::html::span;
 use liquesco_schema::unicode;
 use liquesco_schema::unicode::TUnicode;
 use minidom::Element;
+use liquesco_common::error::LqError;
 
 pub struct WUnicode;
 
 impl<'a> BodyWriter<'a> for WUnicode {
     type T = TUnicode<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
         let min_len = list_item(
             "Minimum length (inclusive)",
-            span(format!("{value}", value = ctx.r#type.length().start())),
+            span(format!("{value}", value = ctx.r#type().length().start())),
         );
         ul.append_child(min_len);
         let max_len = list_item(
             "Maximum length (inclusive)",
-            span(format!("{value}", value = ctx.r#type.length().end())),
+            span(format!("{value}", value = ctx.r#type().length().end())),
         );
         ul.append_child(max_len);
 
-        let length_str = match ctx.r#type.length_type() {
+        let length_str = match ctx.r#type().length_type() {
             unicode::LengthType::Byte => "Number of bytes (actual text length depends on encoding)",
             unicode::LengthType::Utf8Byte => {
                 "Number of UTF-8 bytes (needs to compute the length when encoding is not UTF-8)"
@@ -36,6 +37,6 @@ impl<'a> BodyWriter<'a> for WUnicode {
         };
         ul.append_child(list_item("Length type", span(length_str)));
 
-        ul
+        Ok(ul)
     }
 }

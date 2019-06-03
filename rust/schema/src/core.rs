@@ -96,18 +96,18 @@ impl TypeRef {
 }
 
 /// Contains multiple `Type` that can be got using a `TypeRef`.
-pub trait TypeContainer<'a> {
+pub trait TypeContainer {
     /// Returns a `Type` if contained within this container.
-    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType<'a>>;
+    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType>;
 
     /// Returns the root type.
-    fn root(&self) -> &AnyType<'a>;
+    fn root(&self) -> &AnyType;
 
     /// Returns the identifier for the given type reference.
     fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>>;
 
     /// Returns a `Type` if contained within this container.
-    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {
+    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType, LqError> {
         if let Some(present) = self.maybe_type(reference) {
             Ok(present)
         } else {
@@ -117,7 +117,7 @@ pub trait TypeContainer<'a> {
 }
 
 /// A schema. Can be used to validate data.
-pub trait Schema<'a>: TypeContainer<'a> {
+pub trait Schema: TypeContainer {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
 }
 

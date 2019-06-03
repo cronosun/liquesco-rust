@@ -5,20 +5,21 @@ use crate::html::span;
 use liquesco_schema::seq;
 use liquesco_schema::seq::TSeq;
 use minidom::Element;
+use liquesco_common::error::LqError;
 
 pub struct WSeq;
 
 impl<'a> BodyWriter<'a> for WSeq {
     type T = TSeq<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
-        let element = list_item("Element type", ctx.link(ctx.r#type.element()));
+        let element = list_item("Element type", ctx.link(ctx.r#type().element()));
         ul.append_child(element);
 
         // information about length
-        let length = ctx.r#type.length();
+        let length = ctx.r#type().length();
         if length.start() != length.end() {
             let min_len = list_item(
                 "Length minimum (inclusive)",
@@ -34,7 +35,7 @@ impl<'a> BodyWriter<'a> for WSeq {
             let fix_len = list_item("Fixed length", span(format!("{len}", len = length.start())));
             ul.append_child(fix_len);
         }
-        if let Some(multiple_of) = ctx.r#type.multiple_of() {
+        if let Some(multiple_of) = ctx.r#type().multiple_of() {
             let max_len = list_item(
                 "Length multiple of",
                 span(format!("{mult_of}", mult_of = multiple_of)),
@@ -43,7 +44,7 @@ impl<'a> BodyWriter<'a> for WSeq {
         }
 
         // ordering
-        let ordering = ctx.r#type.ordering();
+        let ordering = ctx.r#type().ordering();
         match ordering {
             seq::Ordering::None => {
                 let ordering = list_item(
@@ -71,6 +72,6 @@ impl<'a> BodyWriter<'a> for WSeq {
             }
         }
 
-        ul
+        Ok(ul)
     }
 }

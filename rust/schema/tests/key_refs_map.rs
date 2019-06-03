@@ -132,7 +132,7 @@ fn err_map_provides_no_anchors() {
     assert_invalid_strict(map, &schema);
 }
 
-fn create_schema1() -> impl Schema<'static> {
+fn create_schema1() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap(
         "key",
@@ -161,7 +161,7 @@ fn create_schema1() -> impl Schema<'static> {
     into_schema(builder, TMap::new(key, value).with_anchors(true))
 }
 
-fn create_schema_no_anchors() -> impl Schema<'static> {
+fn create_schema_no_anchors() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap(
         "key",

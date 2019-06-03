@@ -19,8 +19,8 @@ impl<'a> DefaultTypeContainer<'a> {
     }
 }
 
-impl<'a> TypeContainer<'a> for DefaultTypeContainer<'a> {
-    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType<'a>> {
+impl<'a> TypeContainer for DefaultTypeContainer<'a> {
+    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType> {
         match reference {
             TypeRef::Numerical(num) => self.types.get(*num as usize).map(|entry| &entry.1),
             TypeRef::Identifier(string_id) => {
@@ -34,7 +34,7 @@ impl<'a> TypeContainer<'a> for DefaultTypeContainer<'a> {
         }
     }
 
-    fn root(&self) -> &AnyType<'a> {
+    fn root(&self) -> &AnyType {
         &self.root
     }
 
@@ -56,7 +56,7 @@ impl<'a> TypeContainer<'a> for DefaultTypeContainer<'a> {
         }
     }
 
-    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {
+    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType, LqError> {
         if let Some(present) = self.maybe_type(reference) {
             Ok(present)
         } else {

@@ -70,7 +70,7 @@ fn ok_with_btree() {
     assert_valid_strict(my_map, &schema);
 }
 
-fn create_schema1() -> impl Schema<'static> {
+fn create_schema1() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap(
         "key",
@@ -84,7 +84,7 @@ fn create_schema1() -> impl Schema<'static> {
     into_schema(builder, TMap::new(key, value))
 }
 
-fn create_schema_numbers() -> impl Schema<'static> {
+fn create_schema_numbers() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap("key", TSInt::try_new(-1000, 1000).unwrap());
     let value = builder.add_unwrap("value", TSInt::try_new(-1000, 1000).unwrap());

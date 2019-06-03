@@ -28,7 +28,7 @@ fn schema1() {
     assert_invalid_strict(Option::Some("expecting a bool here".to_string()), &schema);
 }
 
-fn ordering_create_schema() -> impl Schema<'static> {
+fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
             let element = builder.add_unwrap(

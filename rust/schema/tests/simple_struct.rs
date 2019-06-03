@@ -99,7 +99,7 @@ struct Schema1StructLong {
     alive: bool,
 }
 
-fn ordering_create_schema() -> impl Schema<'static> {
+fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
             let type_x = builder.add_unwrap("type_x", TUInt::try_new(0, std::u64::MAX).unwrap());

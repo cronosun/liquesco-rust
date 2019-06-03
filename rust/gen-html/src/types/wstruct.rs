@@ -3,14 +3,15 @@ use crate::body_writer::Context;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::structure::TStruct;
 use minidom::Element;
+use liquesco_common::error::LqError;
 
 pub struct WStruct;
 
 impl<'a> BodyWriter<'a> for WStruct {
     type T = TStruct<'a>;
-    fn write(ctx: &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
         let mut ol = Element::builder("ol").attr("start", "0").build();
-        for field in ctx.r#type.fields() {
+        for field in ctx.r#type().fields() {
             let mut li = Element::builder("li").build();
 
             // var
@@ -28,6 +29,6 @@ impl<'a> BodyWriter<'a> for WStruct {
             ol.append_child(li);
         }
 
-        ol
+        Ok(ol)
     }
 }

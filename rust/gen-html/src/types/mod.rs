@@ -1,7 +1,5 @@
 use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
-use crate::types::wanchor::WAnchors;
-use crate::types::wanchor::WReference;
 use crate::types::wascii::WAscii;
 use crate::types::wbinary::WBinary;
 use crate::types::wbool::WBool;
@@ -17,14 +15,12 @@ use crate::types::wstruct::WStruct;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
 use crate::usage::Usage;
-use liquesco_processing::names::Names;
 
 use liquesco_processing::schema::SchemaReader;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::core::TypeRef;
 use minidom::Element;
 
-pub mod wanchor;
 pub mod wascii;
 pub mod wbinary;
 pub mod wbool;
@@ -46,8 +42,6 @@ pub fn write_body(ctx: BodyWriteContext) -> Element {
         AnyType::Seq(value) => WSeq::write(&mut ctx.into(value)),
         AnyType::Binary(value) => WBinary::write(&mut ctx.into(value)),
         AnyType::Enum(value) => WEnum::write(&mut ctx.into(value)),
-        AnyType::Anchors(value) => WAnchors::write(&mut ctx.into(value)),
-        AnyType::Reference(value) => WReference::write(&mut ctx.into(value)),
         AnyType::Ascii(value) => WAscii::write(&mut ctx.into(value)),
         AnyType::Bool(value) => WBool::write(&mut ctx.into(value)),
         AnyType::Float32(value) => WFloat32::write(&mut ctx.into(value)),
@@ -64,17 +58,6 @@ pub fn write_body(ctx: BodyWriteContext) -> Element {
 pub struct BodyWriteContext<'a> {
     pub schema: &'a SchemaReader,
     pub type_ref: TypeRef,
-    pub names: &'a mut Names,
     pub usage: &'a mut Usage,
 }
 
-impl<'a> BodyWriteContext<'a> {
-    fn into<T>(self, r#type: &'a T) -> Context<T> {
-        Context {
-            schema: self.schema,
-            r#type,
-            type_ref: self.type_ref,
-            names: self.names,
-        }
-    }
-}

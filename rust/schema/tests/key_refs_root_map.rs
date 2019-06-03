@@ -113,7 +113,7 @@ fn err_out_of_index() {
     assert_invalid_strict((map, RootValue { refs: vec![3] }), &schema);
 }
 
-fn create_schema1() -> impl Schema<'static> {
+fn create_schema1() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap(
         "key",

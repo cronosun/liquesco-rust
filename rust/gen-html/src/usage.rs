@@ -22,15 +22,15 @@ lazy_static! {
 }
 
 impl Usage {
-    pub fn set_uses(&mut self, myself: TypeRef, uses: TypeRef) {
+    pub fn set_uses(&mut self, myself: &TypeRef, uses: &TypeRef) {
         // uses
         let mut current = if let Some(current) = self.uses.remove(&myself) {
             current
         } else {
             HashSet::default()
         };
-        current.insert(uses);
-        self.uses.insert(myself, current);
+        current.insert(uses.clone());
+        self.uses.insert(myself.clone(), current);
 
         // and the reverse
         let mut used_by = if let Some(used_by) = self.is_used_by.remove(&uses) {
@@ -38,8 +38,8 @@ impl Usage {
         } else {
             HashSet::default()
         };
-        used_by.insert(myself);
-        self.is_used_by.insert(uses, used_by);
+        used_by.insert(myself.clone());
+        self.is_used_by.insert(uses.clone(), used_by);
     }
 
     pub fn uses(&self, type_ref: &TypeRef) -> &HashSet<TypeRef> {

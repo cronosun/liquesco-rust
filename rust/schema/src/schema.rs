@@ -30,24 +30,24 @@ where
     )
 }
 
-pub struct DefaultSchema<'a, C: TypeContainer<'a>> {
+pub struct DefaultSchema<'a, C: TypeContainer> {
     types: C,
     extended_diagnostics: bool,
     _phantom: &'a PhantomData<()>,
 }
 
-impl<'a, C: TypeContainer<'a>> Schema<'a> for DefaultSchema<'a, C> {
+impl<'a, C: TypeContainer> Schema for DefaultSchema<'a, C> {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
         self.validate_internal(config, reader)
     }
 }
 
-impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {
-    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType<'a>> {
+impl<'a, C: TypeContainer> TypeContainer for DefaultSchema<'a, C> {
+    fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType> {
         self.types.maybe_type(reference)
     }
 
-    fn root(&self) -> &AnyType<'a> {
+    fn root(&self) -> &AnyType {
         self.types.root()
     }
 
@@ -55,18 +55,18 @@ impl<'a, C: TypeContainer<'a>> TypeContainer<'a> for DefaultSchema<'a, C> {
         self.types.identifier(reference)
     }
 
-    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType<'a>, LqError> {
+    fn require_type(&self, reference: &TypeRef) -> Result<&AnyType, LqError> {
         self.types.require_type(reference)
     }
 }
 
-impl<'a, T: TypeContainer<'a>> From<T> for DefaultSchema<'a, T> {
+impl<'a, T: TypeContainer> From<T> for DefaultSchema<'a, T> {
     fn from(container: T) -> Self {
         Self::new(container)
     }
 }
 
-impl<'a, C: TypeContainer<'a>> DefaultSchema<'a, C> {
+impl<'a, C: TypeContainer> DefaultSchema<'a, C> {
     pub fn new(types: C) -> Self {
         Self {
             types,
@@ -98,7 +98,7 @@ impl<'a, C: TypeContainer<'a>> DefaultSchema<'a, C> {
     }
 }
 
-struct ValidationContext<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> {
+struct ValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
     types: &'s C,
     config: Config,
     reader: &'s mut R,
@@ -108,7 +108,7 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> {
     _phantom2: &'r PhantomData<()>,
 }
 
-impl<'s, 'c, 'r, C: TypeContainer<'c>, R: LqReader<'r>> Context<'r>
+impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
     for ValidationContext<'s, 'c, 'r, C, R>
 {
     type Reader = R;

@@ -42,7 +42,7 @@ where
 pub fn ord_assert_given_schema<'a, TSchema, S>(schema: &TSchema, item1: S, item2: S)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a>,
+    TSchema: Schema,
 {
     assert_valid_strict((item1, item2), schema);
 }
@@ -62,7 +62,7 @@ pub fn ord_schema<FElement: FnOnce(&mut DefaultSchemaBuilder<'static>) -> TypeRe
     builder.finish(seq).unwrap().into()
 }
 
-fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema<'static>
+fn ord_schema_single<'a, T>(any_type: T, direction: Direction, unique: bool) -> impl Schema
 where
     T: Into<AnyType<'static>>,
 {

@@ -4,17 +4,18 @@ use crate::html::list_item;
 use crate::html::span;
 use liquesco_schema::ascii::TAscii;
 use minidom::Element;
+use liquesco_common::error::LqError;
 
 pub struct WAscii;
 
 impl<'a> BodyWriter<'a> for WAscii {
     type T = TAscii<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
         // information about Length
-        let length = ctx.r#type.length();
+        let length = ctx.r#type().length();
         let min_len = list_item(
             "Length minimum (inclusive; number of chars)",
             span(format!("{start}", start = length.start())),
@@ -27,7 +28,7 @@ impl<'a> BodyWriter<'a> for WAscii {
         ul.append_child(max_len);
 
         // allowed codes
-        let codes = ctx.r#type.codes();
+        let codes = ctx.r#type().codes();
         let number_of_ranges = codes.len() / 2;
         for index in 0..number_of_ranges {
             let start = codes[index * 2];
@@ -46,6 +47,6 @@ impl<'a> BodyWriter<'a> for WAscii {
             ul.append_child(range_info);
         }
 
-        ul
+        Ok(ul)
     }
 }

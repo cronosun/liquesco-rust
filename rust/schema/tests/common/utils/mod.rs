@@ -24,7 +24,7 @@ pub fn assert_valid_invalid<'a, S, TSchema>(
     expect_valid: bool,
 ) where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a> + Sized,
+    TSchema: Schema + Sized,
 {
     let mut writer = VecWriter::default();
     serialize(&mut writer, &item).expect("Unable to serialize value");
@@ -48,7 +48,7 @@ pub fn assert_valid_invalid<'a, S, TSchema>(
 pub fn assert_valid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a> + Sized,
+    TSchema: Schema + Sized,
 {
     assert_valid_invalid(item, schema, Config::strict(), true);
 }
@@ -56,7 +56,7 @@ where
 pub fn assert_invalid_strict<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a> + Sized,
+    TSchema: Schema + Sized,
 {
     assert_valid_invalid(item, schema, Config::strict(), false);
 }
@@ -64,7 +64,7 @@ where
 pub fn assert_valid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a> + Sized,
+    TSchema: Schema + Sized,
 {
     assert_valid_invalid(
         item,
@@ -79,7 +79,7 @@ where
 pub fn assert_invalid_extended<'a, S, TSchema>(item: S, schema: &TSchema)
 where
     S: serde::Serialize + serde::de::DeserializeOwned + PartialEq + Debug + 'static,
-    TSchema: Schema<'a> + Sized,
+    TSchema: Schema + Sized,
 {
     assert_valid_invalid(
         item,

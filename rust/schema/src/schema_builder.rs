@@ -11,7 +11,7 @@ use std::collections::{BTreeMap, HashMap};
 use std::convert::TryFrom;
 
 pub trait SchemaBuilder<'a> {
-    type TTypeContainer: TypeContainer<'a>;
+    type TTypeContainer: TypeContainer;
 
     /// Adds a type to the schema. What happens on duplicate IDs? This depends on the
     /// implementation: Might return an error or might adjust the ID (that's why we return

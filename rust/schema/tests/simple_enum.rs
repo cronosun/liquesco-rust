@@ -66,7 +66,7 @@ enum Schema1EnumTooManyValues {
     DeleteAccount(String),
 }
 
-fn ordering_create_schema() -> impl Schema<'static> {
+fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
             let variant1_type =
