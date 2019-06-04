@@ -1,17 +1,21 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::ContextFunctions;
+use crate::body_writer::TypedElementWriter;
+use liquesco_common::error::LqError;
 use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::identifier::Format;
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WEnum;
+pub struct WEnum<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WEnum {
+impl<'a> TypedElementWriter for WEnum<'a> {
     type T = TEnum<'a>;
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(ctx: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ol = Element::builder("ol").attr("start", "0").build();
-        for variant in ctx.r#type().variants() {
+        for variant in typ.variants() {
             let mut li = Element::builder("li").build();
 
             // var
@@ -25,7 +29,7 @@ impl<'a> BodyWriter<'a> for WEnum {
             if number_of_values > 0 {
                 for value in values {
                     li.append_child(Element::bare("br"));
-                    let link = ctx.link_to(Some(value))?;
+                    let link = ctx.link_to(value)?;
                     li.append_child(link);
                 }
             }
@@ -33,6 +37,6 @@ impl<'a> BodyWriter<'a> for WEnum {
             ol.append_child(li);
         }
 
-        ol
+        Ok(ol)
     }
 }

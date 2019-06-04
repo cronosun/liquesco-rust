@@ -1,19 +1,23 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::ContextFunctions;
+use crate::body_writer::TypedElementWriter;
+use liquesco_common::error::LqError;
 use liquesco_schema::option::TOption;
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WOption;
+pub struct WOption<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WOption {
+impl<'a> TypedElementWriter for WOption<'a> {
     type T = TOption<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(ctx: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut item = Element::bare("p");
         item.append_text_node("Present type ");
 
-        let link = ctx.link_to(Some(ctx.r#type().r#type()))?;
+        let link = ctx.link_to(typ.r#type())?;
         item.append_child(link);
         Ok(item)
     }

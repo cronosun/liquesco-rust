@@ -1,25 +1,29 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::ContextFunctions;
+use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
+use liquesco_common::error::LqError;
 use liquesco_schema::range::{Inclusion, TRange};
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WRange;
+pub struct WRange<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WRange {
+impl<'a> TypedElementWriter for WRange<'a> {
     type T = TRange<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(ctx: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
-        let link = ctx.link_to(Some(ctx.r#type().element()))?;
+        let link = ctx.link_to(typ.element())?;
 
         let range_element = list_item("Range element", link);
         ul.append_child(range_element);
 
-        let inclusion: (&str, &str) = match ctx.r#type().inclusion() {
+        let inclusion: (&str, &str) = match typ.inclusion() {
             Inclusion::BothInclusive => ("Inclusive", "Inclusive"),
             Inclusion::StartInclusive => ("Inclusive", "Exclusive"),
             Inclusion::BothExclusive => ("Exclusive", "Exclusive"),
@@ -33,11 +37,7 @@ impl<'a> BodyWriter<'a> for WRange {
 
         ul.append_child(list_item(
             "Allow empty range",
-            span(if ctx.r#type().allow_empty() {
-                "Yes"
-            } else {
-                "No"
-            }),
+            span(if typ.allow_empty() { "Yes" } else { "No" }),
         ));
 
         Ok(ul)

@@ -1,7 +1,8 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
+use liquesco_common::error::LqError;
 use liquesco_common::range::Range;
 use liquesco_schema::float::TFloat;
 use liquesco_schema::float::TFloat32;
@@ -9,32 +10,36 @@ use liquesco_schema::float::TFloat64;
 use minidom::Element;
 use std::fmt::Debug;
 use std::fmt::Display;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WFloat32;
+pub struct WFloat32<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WFloat32 {
+impl<'a> TypedElementWriter for WFloat32<'a> {
     type T = TFloat32<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(_: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
-        let range = ctx.r#type().range();
+        let range = typ.range();
         float_range(&mut ul, range, std::f32::MIN.into(), std::f32::MAX.into());
-        float_properties(&mut ul, ctx.r#type());
+        float_properties(&mut ul, typ);
         Ok(ul)
     }
 }
 
-pub struct WFloat64;
+pub struct WFloat64<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WFloat64 {
+impl<'a> TypedElementWriter for WFloat64<'a> {
     type T = TFloat64<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(_: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
-        let range = ctx.r#type().range();
+        let range = typ.range();
         float_range(&mut ul, range, std::f64::MIN.into(), std::f64::MAX.into());
-        float_properties(&mut ul, ctx.r#type());
+        float_properties(&mut ul, typ);
         Ok(ul)
     }
 }

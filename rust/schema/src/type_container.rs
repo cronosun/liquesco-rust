@@ -38,8 +38,8 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
         &self.root
     }
 
-    fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>> {
-        match reference {
+    fn identifier(&self, reference: &TypeRef) -> Result<Cow<Identifier>, LqError> {
+        let maybe_id = match reference {
             TypeRef::Numerical(num) => self
                 .types
                 .get(*num as usize)
@@ -53,6 +53,11 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
                     None
                 }
             }
+        };
+        if let Some(id) = maybe_id {
+            Ok(id)
+        } else {
+            LqError::err_new(format!("Type {:?} not found in schema.", reference))
         }
     }
 

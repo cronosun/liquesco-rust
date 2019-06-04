@@ -104,7 +104,7 @@ pub trait TypeContainer {
     fn root(&self) -> &TypeRef;
 
     /// Returns the identifier for the given type reference.
-    fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>>;
+    fn identifier(&self, reference: &TypeRef) -> Result<Cow<Identifier>, LqError>;
 
     /// Returns a `Type` if contained within this container.
     fn require_type(&self, reference: &TypeRef) -> Result<&AnyType, LqError> {

@@ -1,25 +1,22 @@
-use crate::body_writer::TypedElementWriter;
-use crate::body_writer::MaybeElementWriter;
-use crate::body_writer::ElementWriter;
 use crate::body_writer::Context;
+use crate::body_writer::ContextFunctions;
+use crate::body_writer::ContextProvider;
+use crate::body_writer::ElementWriter;
+use crate::body_writer::MaybeElementWriter;
 use crate::type_description::type_description;
-use crate::body_writer::TypedContext;
-use minidom::Element;
-use liquesco_schema::identifier::Format;
-use std::marker::PhantomData;
-use liquesco_schema::core::Type;
 use liquesco_common::error::LqError;
+use liquesco_schema::metadata::WithMetadata;
+use minidom::Element;
 
-struct TypeHeader;
+pub struct TypeHeader;
 
 impl ElementWriter for TypeHeader {
-
-    fn write(ctx: &mut Context) -> Result<Element, LqError> {
+    fn write(ctx: &Context) -> Result<Element, LqError> {
         // name / title
         let mut header_title = Element::builder("div").attr("class", "liquesco-type-header-title");
         let name = ctx.display_name();
         let mut title = Element::builder("h1").build();
-        title.append_text_node(name.to_string(Format::SnakeCase));
+        title.append_text_node(name);
         header_title = header_title.append(title);
 
         let mut header_body = Element::builder("div").attr("class", "liquesco-type-header-body");
@@ -45,7 +42,7 @@ impl ElementWriter for TypeHeader {
             header_body = header_body.append(description_elem);
         }
 
-        let anchor_id = ctx.self_anchor_id();
+        let anchor_id: &str = &ctx.self_anchor_id();
         Ok(Element::builder("div")
             .attr("id", anchor_id)
             .append(header_title)
@@ -54,11 +51,10 @@ impl ElementWriter for TypeHeader {
     }
 }
 
-struct TypeFooter;
+pub struct TypeFooter;
 
-impl MaybeElementWriter for TypeFooter{
-
-    fn write(ctx: &mut Context) -> Result<Option<Element>, LqError> {
+impl MaybeElementWriter for TypeFooter {
+    fn write(ctx: &Context) -> Result<Option<Element>, LqError> {
         let used_by = ctx.usage().is_used_by(&ctx.type_info().reference());
         if !used_by.is_empty() {
             let mut used_by_element = Element::builder("div")
@@ -70,7 +66,7 @@ impl MaybeElementWriter for TypeFooter{
 
             let mut ul = Element::bare("ul");
             for used_by_item in used_by {
-                let link = ctx.link_to(Some(used_by_item))?;
+                let link = ctx.link_to(used_by_item)?;
                 let mut li = Element::bare("li");
                 li.append_child(link);
                 ul.append_child(li);

@@ -65,6 +65,32 @@ impl<'a> TMap<'a> {
         self.anchors = anchors;
         self
     }
+
+    /// The type of keys in this map.
+    pub fn key(&self) -> &TypeRef {
+        &self.key
+    }
+
+    /// The type of values in this map.
+    pub fn value(&self) -> &TypeRef {
+        &self.value
+    }
+
+    /// Length constraints for the number of entries in this map.
+    pub fn length(&self) -> &U32IneRange {
+        &self.length
+    }
+
+    /// Sorting of keys in this map. Keys always have to be sorted in a map, either ascending
+    /// (default) or descending.
+    pub fn sorting(&self) -> Sorting {
+        self.sorting
+    }
+
+    /// If this is true, the keys in this map can be referenced using key ref.
+    pub fn anchors(&self) -> bool {
+        self.anchors
+    }
 }
 
 impl Type for TMap<'_> {

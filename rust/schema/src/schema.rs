@@ -61,7 +61,7 @@ impl<'a, C: TypeContainer> TypeContainer for DefaultSchema<'a, C> {
         self.types.root()
     }
 
-    fn identifier(&self, reference: &TypeRef) -> Option<Cow<Identifier>> {
+    fn identifier(&self, reference: &TypeRef) -> Result<Cow<Identifier>, LqError> {
         self.types.identifier(reference)
     }
 

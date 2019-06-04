@@ -1,5 +1,5 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::{ContextProvider, TypedElementWriter};
 use crate::types::wascii::WAscii;
 use crate::types::wbinary::WBinary;
 use crate::types::wbool::WBool;
@@ -8,17 +8,18 @@ use crate::types::wfloat::WFloat32;
 use crate::types::wfloat::WFloat64;
 use crate::types::wint::WSInt;
 use crate::types::wint::WUInt;
+use crate::types::wkey_ref::WKeyRef;
+use crate::types::wmap::WMap;
 use crate::types::woption::WOption;
 use crate::types::wrange::WRange;
+use crate::types::wroot_map::WRootMap;
 use crate::types::wseq::WSeq;
 use crate::types::wstruct::WStruct;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
-use crate::usage::Usage;
 
-use liquesco_processing::schema::SchemaReader;
+use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::core::TypeRef;
 use minidom::Element;
 
 pub mod wascii;
@@ -27,37 +28,34 @@ pub mod wbool;
 pub mod wenum;
 pub mod wfloat;
 pub mod wint;
+pub mod wkey_ref;
+pub mod wmap;
 pub mod woption;
 pub mod wrange;
+pub mod wroot_map;
 pub mod wseq;
 pub mod wstruct;
 pub mod wunicode;
 pub mod wuuid;
 
-pub fn write_body(ctx: BodyWriteContext) -> Element {
-    let any_type = ctx.schema.require(ctx.type_ref);
-
-    match any_type {
-        AnyType::Struct(value) => WStruct::write(&mut ctx.into(value)),
-        AnyType::Seq(value) => WSeq::write(&mut ctx.into(value)),
-        AnyType::Binary(value) => WBinary::write(&mut ctx.into(value)),
-        AnyType::Enum(value) => WEnum::write(&mut ctx.into(value)),
-        AnyType::Ascii(value) => WAscii::write(&mut ctx.into(value)),
-        AnyType::Bool(value) => WBool::write(&mut ctx.into(value)),
-        AnyType::Float32(value) => WFloat32::write(&mut ctx.into(value)),
-        AnyType::Float64(value) => WFloat64::write(&mut ctx.into(value)),
-        AnyType::UInt(value) => WUInt::write(&mut ctx.into(value)),
-        AnyType::SInt(value) => WSInt::write(&mut ctx.into(value)),
-        AnyType::Option(value) => WOption::write(&mut ctx.into(value)),
-        AnyType::Unicode(value) => WUnicode::write(&mut ctx.into(value)),
-        AnyType::Uuid(value) => WUuid::write(&mut ctx.into(value)),
-        AnyType::Range(value) => WRange::write(&mut ctx.into(value)),
+pub fn write_body(ctx: &Context) -> Result<Element, LqError> {
+    match ctx.type_info().any_type() {
+        AnyType::Struct(value) => WStruct::write(ctx, value),
+        AnyType::Seq(value) => WSeq::write(ctx, value),
+        AnyType::Binary(value) => WBinary::write(ctx, value),
+        AnyType::Enum(value) => WEnum::write(ctx, value),
+        AnyType::Ascii(value) => WAscii::write(ctx, value),
+        AnyType::Bool(value) => WBool::write(ctx, value),
+        AnyType::Float32(value) => WFloat32::write(ctx, value),
+        AnyType::Float64(value) => WFloat64::write(ctx, value),
+        AnyType::UInt(value) => WUInt::write(ctx, value),
+        AnyType::SInt(value) => WSInt::write(ctx, value),
+        AnyType::Option(value) => WOption::write(ctx, value),
+        AnyType::Unicode(value) => WUnicode::write(ctx, value),
+        AnyType::Uuid(value) => WUuid::write(ctx, value),
+        AnyType::Range(value) => WRange::write(ctx, value),
+        AnyType::Map(value) => WMap::write(ctx, value),
+        AnyType::RootMap(value) => WRootMap::write(ctx, value),
+        AnyType::KeyRef(value) => WKeyRef::write(ctx, value),
     }
 }
-
-pub struct BodyWriteContext<'a> {
-    pub schema: &'a SchemaReader,
-    pub type_ref: TypeRef,
-    pub usage: &'a mut Usage,
-}
-

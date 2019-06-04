@@ -1,28 +1,31 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
+use liquesco_common::error::LqError;
 use liquesco_schema::sint::TSInt;
 use liquesco_schema::uint::TUInt;
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WUInt;
+pub struct WUInt<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WUInt {
+impl<'a> TypedElementWriter for WUInt<'a> {
     type T = TUInt<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(_: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
         let min_len = list_item(
             "Minimum value (inclusive)",
-            span(format!("{value}", value = ctx.r#type().range().start())),
+            span(format!("{value}", value = typ.range().start())),
         );
         ul.append_child(min_len);
         let max_len = list_item(
             "Maximum value (inclusive)",
-            span(format!("{value}", value = ctx.r#type().range().end())),
+            span(format!("{value}", value = typ.range().end())),
         );
         ul.append_child(max_len);
 
@@ -30,22 +33,24 @@ impl<'a> BodyWriter<'a> for WUInt {
     }
 }
 
-pub struct WSInt;
+pub struct WSInt<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WSInt {
+impl<'a> TypedElementWriter for WSInt<'a> {
     type T = TSInt<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(_: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
         let min_len = list_item(
             "Minimum value (inclusive)",
-            span(format!("{value}", value = ctx.r#type().range().start())),
+            span(format!("{value}", value = typ.range().start())),
         );
         ul.append_child(min_len);
         let max_len = list_item(
             "Maximum value (inclusive)",
-            span(format!("{value}", value = ctx.r#type().range().end())),
+            span(format!("{value}", value = typ.range().end())),
         );
         ul.append_child(max_len);
 

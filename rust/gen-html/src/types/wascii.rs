@@ -1,21 +1,24 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
+use liquesco_common::error::LqError;
 use liquesco_schema::ascii::TAscii;
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WAscii;
+pub struct WAscii<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WAscii {
+impl<'a> TypedElementWriter for WAscii<'a> {
     type T = TAscii<'a>;
 
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(_: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
         // information about Length
-        let length = ctx.r#type().length();
+        let length = typ.length();
         let min_len = list_item(
             "Length minimum (inclusive; number of chars)",
             span(format!("{start}", start = length.start())),
@@ -28,7 +31,7 @@ impl<'a> BodyWriter<'a> for WAscii {
         ul.append_child(max_len);
 
         // allowed codes
-        let codes = ctx.r#type().codes();
+        let codes = typ.codes();
         let number_of_ranges = codes.len() / 2;
         for index in 0..number_of_ranges {
             let start = codes[index * 2];

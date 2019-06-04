@@ -1,17 +1,21 @@
-use crate::body_writer::BodyWriter;
 use crate::body_writer::Context;
+use crate::body_writer::ContextFunctions;
+use crate::body_writer::TypedElementWriter;
+use liquesco_common::error::LqError;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::structure::TStruct;
 use minidom::Element;
-use liquesco_common::error::LqError;
+use std::marker::PhantomData;
 
-pub struct WStruct;
+pub struct WStruct<'a> {
+    _phantom: &'a PhantomData<()>,
+}
 
-impl<'a> BodyWriter<'a> for WStruct {
+impl<'a> TypedElementWriter for WStruct<'a> {
     type T = TStruct<'a>;
-    fn write(ctx: &mut Context<Self::T>) -> Result<Element, LqError> {
+    fn write(ctx: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ol = Element::builder("ol").attr("start", "0").build();
-        for field in ctx.r#type().fields() {
+        for field in typ.fields() {
             let mut li = Element::builder("li").build();
 
             // var
@@ -24,7 +28,7 @@ impl<'a> BodyWriter<'a> for WStruct {
             li.append_child(space);
 
             // value
-            li.append_child(ctx.link(field.r#type()));
+            li.append_child(ctx.link_to(field.r#type())?);
 
             ol.append_child(li);
         }

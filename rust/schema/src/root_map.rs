@@ -52,6 +52,32 @@ impl<'a> TRootMap<'a> {
             sorting: Sorting::Ascending,
         }
     }
+
+    /// The root type in this map.
+    pub fn root(&self) -> &TypeRef {
+        &self.root
+    }
+
+    /// The type of keys in this map.
+    pub fn key(&self) -> &TypeRef {
+        &self.key
+    }
+
+    /// The type of values in this map.
+    pub fn value(&self) -> &TypeRef {
+        &self.value
+    }
+
+    /// Length constraints for the number of entries in this map.
+    pub fn length(&self) -> &U32IneRange {
+        &self.length
+    }
+
+    /// Sorting of keys in this map. Keys always have to be sorted in a map, either ascending
+    /// (default) or descending.
+    pub fn sorting(&self) -> Sorting {
+        self.sorting
+    }
 }
 
 impl Type for TRootMap<'_> {
