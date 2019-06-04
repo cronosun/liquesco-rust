@@ -132,7 +132,7 @@ pub trait Converter {
                 // accept when no precision is lost
                 let f32_value = *value as f32;
                 let f64_value = f32_value as f64;
-                if value == &f64_value {
+                if (value - &f64_value).abs() ==0f64 {
                     Some(f32_value)
                 } else {
                     None

@@ -1,35 +1,35 @@
-use crate::builder::builder;
-use crate::utils::{assert_err, assert_ok, id};
+use crate::utils::{assert_err, assert_ok, id, builder};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
-use liquesco_schema::core::Schema;
 use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::enumeration::Variant;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::sint::TSInt;
+use liquesco_schema::schema_builder::SchemaBuilder;
+use liquesco_schema::schema::DefaultSchema;
+use liquesco_schema::type_container::DefaultTypeContainer;
 
 /// Creates an enum
-fn create_schema() -> impl Schema<'static> {
+fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     let mut builder = builder();
 
-    let variant1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
-    let variant2_1 = builder.add(AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
-    let variant2_2 = builder.add(AnyType::SInt(TSInt::try_new(-10, 3000).unwrap()));
+    let variant1 = builder.add_unwrap("variant1",AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
+    let variant2_1 = builder.add_unwrap("variant21",AnyType::Ascii(TAscii::try_new(1, 50, 0, 127).unwrap()));
+    let variant2_2 = builder.add_unwrap("variant22",AnyType::SInt(TSInt::try_new(-10, 3000).unwrap()));
 
     let enum_value = TEnum::default()
-        .add(Variant::new(id("the_empty_variant")))
-        .add(Variant::new(id("normal_variant")).add_value(variant1))
-        .add(
+        .add_variant(Variant::new(id("the_empty_variant")))
+        .add_variant(Variant::new(id("normal_variant")).add_value(variant1))
+        .add_variant(
             Variant::new(id("two_value_variant"))
                 .add_value(variant2_1)
                 .add_value(variant2_2),
         );
-
-    let enumeration = builder.add(AnyType::Enum(enum_value));
-
+    let enumeration = builder.add_unwrap("enum",AnyType::Enum(enum_value));
+    let root = builder.add_unwrap("root", AnyType::Seq(TSeq::try_new(enumeration, 1, 20).unwrap()));
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(TSeq::try_new(enumeration, 1, 20).unwrap()))
+    builder.finish(root).unwrap().into()
 }
 
 #[test]

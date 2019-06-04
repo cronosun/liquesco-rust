@@ -1,7 +1,5 @@
-mod builder;
 mod utils;
 
-pub mod anchors;
 pub mod ascii;
 pub mod binary;
 pub mod enumeration;

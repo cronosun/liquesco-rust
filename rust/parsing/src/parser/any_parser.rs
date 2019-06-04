@@ -1,4 +1,3 @@
-use crate::parser::anchors::PAnchors;
 use crate::parser::ascii::PAscii;
 use crate::parser::binary::PBinary;
 use crate::parser::boolean::PBool;
@@ -9,7 +8,6 @@ use crate::parser::float::PFloat32;
 use crate::parser::float::PFloat64;
 use crate::parser::option::POption;
 use crate::parser::range::PRange;
-use crate::parser::reference::PReference;
 use crate::parser::seq::PSeq;
 use crate::parser::sint::PSInt;
 use crate::parser::structure::PStruct;
@@ -42,9 +40,8 @@ where
         AnyType::Unicode(value) => PUnicode::parse(context, writer, text_value, value),
         AnyType::Float32(value) => PFloat32::parse(context, writer, text_value, value),
         AnyType::Float64(value) => PFloat64::parse(context, writer, text_value, value),
-        AnyType::Anchors(value) => PAnchors::parse(context, writer, text_value, value),
-        AnyType::Reference(value) => PReference::parse(context, writer, text_value, value),
         AnyType::Uuid(value) => PUuid::parse(context, writer, text_value, value),
         AnyType::Range(value) => PRange::parse(context, writer, text_value, value),
+        _ => { unimplemented!("TODO")}
     }
 }

@@ -9,23 +9,28 @@ use std::collections::HashMap;
 
 pub trait Context<'a> {
     type TConverter: Converter;
-    type TSchema: Schema<'a>;
+    type TSchema: Schema;
     type TWriter: LqWriter;
 
     fn schema(&self) -> &Self::TSchema;
+    
     fn parse(
         &mut self,
         writer: &mut Self::TWriter,
-        r#type: TypeRef,
+        r#type: &TypeRef,
         value: &TextValue,
     ) -> Result<(), LqError>;
 
+    // TODO: Remove
     fn anchor_info(&mut self) -> &mut Option<AnchorInfo>;
 
+// TODO: Remove
     fn take_anchor_info(&mut self) -> Option<AnchorInfo>;
 
+// TODO: Remove
     fn set_anchor_info(&mut self, anchor_info: Option<AnchorInfo>);
 
+// TODO: Remove
     fn present_anchor_info(&mut self) -> &mut AnchorInfo;
 }
 
@@ -44,6 +49,7 @@ pub trait Parser<'a> {
         C: Context<'c>;
 }
 
+// TODO: Remove
 #[derive(Debug)]
 pub struct AnchorInfo {
     anchors: HashMap<String, u32>,

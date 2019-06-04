@@ -1,3 +1,4 @@
+use liquesco_schema::schema_builder::DefaultSchemaBuilder;
 use liquesco_schema::identifier::Identifier;
 use std::convert::TryInto;
 use std::fmt::Debug;
@@ -14,4 +15,8 @@ pub fn assert_err<T, R>(result: Result<T, R>) {
 
 pub fn id(string: &'static str) -> Identifier<'static> {
     string.try_into().unwrap()
+}
+
+pub fn builder<'a>() -> DefaultSchemaBuilder<'a> {
+    DefaultSchemaBuilder::default()
 }

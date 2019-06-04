@@ -1,4 +1,2 @@
 [workspace]
-# Note: Currently only the "core" modules activated. Other modules beging refactored.
-members = ["common", "serialization", "schema", "processing", "gen-html", "gen-schema"]
-#members = ["common", "serialization", "schema", "parsing", "processing", "gen-html", "gen-schema"]
+members = ["common", "serialization", "schema", "processing", "gen-html", "gen-schema", "parsing"]

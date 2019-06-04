@@ -12,7 +12,7 @@ pub mod deserializer;
 
 pub fn parse_from_yaml_str<'s, S>(schema: &S, src: &str) -> Result<Vec<u8>, LqError>
 where
-    S: Schema<'s>,
+    S: Schema,
 {
     let mut docs = YamlLoader::load_from_str(src).unwrap(); // TODO: "Unwrap"
     let yaml = docs.remove(0);
@@ -21,7 +21,7 @@ where
 
 pub fn parse_from_yaml<'s, S>(schema: &S, yaml: Yaml) -> Result<Vec<u8>, LqError>
 where
-    S: Schema<'s>,
+    S: Schema,
 {
     let value = deserialize(yaml)?;
 
@@ -32,7 +32,7 @@ where
     };
 
     let mut writer = VecWriter::default();
-    context.parse(&mut writer, schema.root_type(), &value)?;
+    context.parse(&mut writer, schema.root(), &value)?;
     let data = writer.finish();
 
     // Now validate the result

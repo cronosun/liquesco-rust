@@ -1,21 +1,22 @@
-use crate::builder::builder;
-use crate::utils::{assert_err, assert_ok, id};
+use crate::utils::{assert_err, assert_ok, id, builder};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::core::Schema;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
 use liquesco_schema::seq::TSeq;
 use liquesco_schema::structure::Field;
 use liquesco_schema::structure::TStruct;
+use liquesco_schema::schema_builder::SchemaBuilder;
+use liquesco_schema::schema::DefaultSchema;
+use liquesco_schema::type_container::DefaultTypeContainer;
 
-fn create_schema() -> impl Schema<'static> {
+fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     let mut builder = builder();
 
-    let field1 = builder.add(AnyType::Float32(
+    let field1 = builder.add_unwrap("field1",AnyType::Float32(
         TFloat32::try_new(std::f32::MIN.into(), std::f32::MAX.into()).unwrap(),
     ));
-    let field2 = builder.add(AnyType::Float64(
+    let field2 = builder.add_unwrap("field2",AnyType::Float64(
         TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into()).unwrap(),
     ));
 
@@ -23,10 +24,11 @@ fn create_schema() -> impl Schema<'static> {
         .add(Field::new(id("my_float_32"), field1))
         .add(Field::new(id("my_float_64"), field2));
 
-    let structure = builder.add(AnyType::Struct(struct_value.into()));
+    let structure = builder.add_unwrap("structure",AnyType::Struct(struct_value));
+    let root = builder.add_unwrap("root", AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()));
 
     // people (structure) within a sequence
-    builder.finish(AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()))
+    builder.finish(root).unwrap().into()
 }
 
 #[test]

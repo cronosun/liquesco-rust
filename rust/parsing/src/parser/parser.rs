@@ -10,7 +10,7 @@ use std::marker::PhantomData;
 
 pub(crate) struct ParserContext<'se, 's, TSchema>
 where
-    TSchema: Schema<'s>,
+    TSchema: Schema,
 {
     pub(crate) schema: &'se TSchema,
     pub(crate) anchor_info: Option<AnchorInfo>,
@@ -23,7 +23,7 @@ impl Converter for DefaultConverter {}
 
 impl<'se, 's, 'v, STSchema> Context<'s> for ParserContext<'se, 's, STSchema>
 where
-    STSchema: Schema<'s>,
+    STSchema: Schema,
 {
     type TConverter = DefaultConverter;
     type TSchema = STSchema;
@@ -36,7 +36,7 @@ where
     fn parse(
         &mut self,
         writer: &mut Self::TWriter,
-        r#type: TypeRef,
+        r#type: &TypeRef,
         value: &TextValue,
     ) -> Result<(), LqError> {
         let taken_anchor_info = self.take_anchor_info();
