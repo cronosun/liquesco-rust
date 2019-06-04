@@ -1,16 +1,20 @@
-use crate::body_writer::BodyWriter;
+use crate::body_writer::TypedElementWriter;
 use crate::body_writer::MaybeElementWriter;
-use crate::type_description::type_description;
+use crate::body_writer::ElementWriter;
 use crate::body_writer::Context;
+use crate::type_description::type_description;
+use crate::body_writer::TypedContext;
 use minidom::Element;
 use liquesco_schema::identifier::Format;
+use std::marker::PhantomData;
+use liquesco_schema::core::Type;
+use liquesco_common::error::LqError;
 
-struct TypeHeader<Tg>;
+struct TypeHeader;
 
-impl<Tg> BodyWriter for TypeHeader<Tg> {
-    type T = Tg;
+impl ElementWriter for TypeHeader {
 
-    fn write(ctx: &mut Context<Self::T>) -> Element {
+    fn write(ctx: &mut Context) -> Result<Element, LqError> {
         // name / title
         let mut header_title = Element::builder("div").attr("class", "liquesco-type-header-title");
         let name = ctx.display_name();
@@ -42,23 +46,20 @@ impl<Tg> BodyWriter for TypeHeader<Tg> {
         }
 
         let anchor_id = ctx.self_anchor_id();
-        Element::builder("div")
+        Ok(Element::builder("div")
             .attr("id", anchor_id)
             .append(header_title)
             .append(header_body.build())
-            .build()
+            .build())
     }
 }
 
-struct TypeFooter<T>;
+struct TypeFooter;
 
-impl<Tg> MaybeElementWriter for TypeFooter<Tg> {
-    type T = Tg;
+impl MaybeElementWriter for TypeFooter{
 
-    fn write(ctx: &Context<Self::T>) -> Option<Element> {
-
-
-        let used_by = ctx.usage.is_used_by(&ctx.type_info().reference());
+    fn write(ctx: &mut Context) -> Result<Option<Element>, LqError> {
+        let used_by = ctx.usage().is_used_by(&ctx.type_info().reference());
         if !used_by.is_empty() {
             let mut used_by_element = Element::builder("div")
                 .attr("class", "liquesco-type-footer")
@@ -75,9 +76,9 @@ impl<Tg> MaybeElementWriter for TypeFooter<Tg> {
                 ul.append_child(li);
             }
             used_by_element.append_child(ul);
-            Some(used_by_element)
+            Ok(Some(used_by_element))
         } else {
-            None
+            Ok(None)
         }
     }
 }
