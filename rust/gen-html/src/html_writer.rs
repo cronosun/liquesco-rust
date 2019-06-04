@@ -1,8 +1,6 @@
 use crate::types::write_body;
 use crate::usage::Usage;
 use liquesco_common::error::LqError;
-use liquesco_processing::schema::SchemaReader;
-use liquesco_schema::core::Type;
 use minidom::Element;
 
 use crate::body_writer::Context;
@@ -12,15 +10,18 @@ use crate::type_components::TypeFooter;
 use crate::type_components::TypeHeader;
 use liquesco_schema::core::TypeRef;
 use std::collections::HashMap;
+use liquesco_schema::core::TypeContainer;
+use liquesco_processing::type_info::TypeInfo;
+use liquesco_schema::core::Type;
 
 pub struct HtmlWriter<'a> {
-    schema: &'a SchemaReader,
+    schema: &'a TypeContainer,
     bodies: HashMap<TypeRef, Element>,
     usage: Usage,
 }
 
 impl<'a> HtmlWriter<'a> {
-    pub fn new(schema: &'a SchemaReader) -> Self {
+    pub fn new(schema: &'a TypeContainer) -> Self {
         Self {
             schema,
             bodies: HashMap::default(),
@@ -68,7 +69,7 @@ impl HtmlWriter<'_> {
                 .attr("class", "liquesco-type")
                 .build();
 
-            let type_info = self.schema.type_info(type_ref)?;
+            let type_info = TypeInfo::try_from(self.schema, type_ref)?;
             // Context
             let context = Context::new(self.schema, type_info, &mut self.usage);
 
@@ -107,7 +108,7 @@ impl HtmlWriter<'_> {
             return Ok(());
         }
 
-        let type_info = self.schema.type_info(type_ref)?;
+        let type_info = TypeInfo::try_from(self.schema, type_ref)?;
         let write_context = Context::new(self.schema, type_info, &mut self.usage);
         self.bodies
             .insert(type_ref.clone(), write_body(&write_context)?);
