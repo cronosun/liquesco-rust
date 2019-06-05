@@ -164,6 +164,12 @@ pub trait LqWriter: std::io::Write + Sized {
     }
 }
 
+/// A `LqWriter` that writes into a `Vec<u8>`.
+pub trait ToVecLqWriter : LqWriter {
+    /// Finishes the writer and returns the written data as `Vec<u8>`.
+    fn into_vec(self) -> Vec<u8>;
+}
+
 pub trait LqReader<'a>: std::io::Read {
     fn peek_u8(&self) -> Result<u8, LqError>;
     fn read_u8(&mut self) -> Result<u8, LqError>;

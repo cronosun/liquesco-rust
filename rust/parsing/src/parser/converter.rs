@@ -255,10 +255,12 @@ pub trait Converter {
         })
     }
 
+    // TODO: Remove?
     fn master_anchor() -> &'static str {
         "MAIN*"
     }
 
+    // TODO: Remove?
     fn validate_reference(value: &str) -> Result<(), LqError> {
         if value == Self::master_anchor() {
             // of course the master anchor is OK

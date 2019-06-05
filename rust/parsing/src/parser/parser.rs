@@ -7,6 +7,7 @@ use liquesco_common::error::LqError;
 use liquesco_schema::core::{Schema, TypeRef};
 use liquesco_serialization::vec_writer::VecWriter;
 use std::marker::PhantomData;
+use liquesco_serialization::core::ToVecLqWriter;
 
 pub(crate) struct ParserContext<'se, 's, TSchema>
 where
@@ -57,6 +58,15 @@ where
 
         result
     }
+
+    fn parse_to_vec(
+        &mut self,
+         r#type: &TypeRef,
+        value: &TextValue) -> Result<Vec<u8>, LqError> {
+            let mut vec_writer = VecWriter::default();
+            self.parse(&mut vec_writer, r#type, value)?;
+            Ok(vec_writer.into_vec())
+        }
 
     fn anchor_info(&mut self) -> &mut Option<AnchorInfo> {
         &mut self.anchor_info

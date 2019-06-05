@@ -7,6 +7,7 @@ use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
 use std::marker::PhantomData;
 use yaml_rust::{Yaml, YamlLoader};
+use liquesco_serialization::core::ToVecLqWriter;
 
 pub mod deserializer;
 
@@ -33,7 +34,7 @@ where
 
     let mut writer = VecWriter::default();
     context.parse(&mut writer, schema.root(), &value)?;
-    let data = writer.finish();
+    let data = writer.into_vec();
 
     // Now validate the result
     let mut reader: SliceReader = (&data).into();

@@ -14,12 +14,13 @@ pub mod signed_int;
 pub mod unsigned_int;
 pub mod utf8;
 pub mod uuid;
+use liquesco_serialization::core::ToVecLqWriter;
 
 pub fn check_value(value: &Value) {
     // serialize the data
     let mut writer = VecWriter::default();
     Value::serialize(&mut writer, value).expect("Unable to serialize value");
-    let serialized_data = writer.finish();
+    let serialized_data = writer.into_vec();
     // now de-serialize the data
     let mut reader: SliceReader = (&serialized_data).into();
     let de_serialized_value = Value::de_serialize(&mut reader).expect(&format!(
@@ -42,7 +43,7 @@ where
     // serialize the data
     let mut writer = VecWriter::default();
     Value::serialize(&mut writer, value).expect("Unable to serialize value");
-    let serialized_data = writer.finish();
+    let serialized_data = writer.into_vec();
     // now de-serialize the data
     let mut reader: SliceReader = (&serialized_data).into();
     let de_serialized_value = Value::de_serialize(&mut reader).expect(&format!(

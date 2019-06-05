@@ -7,6 +7,7 @@ use crate::slice_reader::SliceReader;
 use crate::vec_writer::VecWriter;
 use liquesco_common::error::{Category, LqError};
 use serde::ser;
+use crate::core::ToVecLqWriter;
 
 mod deserializer;
 mod error;
@@ -30,7 +31,7 @@ pub fn serialize<W: LqWriter, S: ser::Serialize>(writer: &mut W, value: S) -> Re
 pub fn serialize_to_vec<S: ser::Serialize>(value: S) -> Result<Vec<u8>, LqError> {
     let mut vec_writer = VecWriter::default();
     serialize(&mut vec_writer, value)?;
-    Ok(vec_writer.finish())
+    Ok(vec_writer.into_vec())
 }
 
 /// De-serializes `T` using given reader. When an error occurs the state of the reader is

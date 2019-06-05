@@ -21,6 +21,11 @@ pub trait Context<'a> {
         value: &TextValue,
     ) -> Result<(), LqError>;
 
+    fn parse_to_vec(
+        &mut self,
+         r#type: &TypeRef,
+        value: &TextValue) -> Result<Vec<u8>, LqError>;
+
     // TODO: Remove
     fn anchor_info(&mut self) -> &mut Option<AnchorInfo>;
 
@@ -32,6 +37,14 @@ pub trait Context<'a> {
 
 // TODO: Remove
     fn present_anchor_info(&mut self) -> &mut AnchorInfo;
+
+    fn remove_anchors(&mut self) -> Option<HashMap<Vec<u8>, u32>> {
+        unimplemented!()
+    }
+
+    fn set_anchors(&mut self, anchors : Option<HashMap<Vec<u8>, u32>>) {
+        unimplemented!()
+    }
 }
 
 pub trait Parser<'a> {
