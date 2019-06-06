@@ -17,6 +17,7 @@ use liquesco_serialization::sint::SInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// 64 bit signed integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -64,7 +65,7 @@ impl Type for TSInt<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let int1 = SInt64::de_serialize(r1)?;
         let int2 = SInt64::de_serialize(r2)?;

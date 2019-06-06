@@ -5,13 +5,23 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 use std::cmp::Ordering;
 
+// TODO: Rename to `ValidationContext`
 /// Data used for type validation.
-pub trait Context<'a> {
-    type Reader: LqReader<'a>;
-
+pub trait Context<'a> : CmpContext<'a> {
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError>;
 
-    fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;
+    fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;    
+
+    fn reader(&mut self) -> &mut Self::Reader;
+
+    fn config(&self) -> &Config;
+
+    fn key_ref_info(&mut self) -> &mut KeyRefInfo;
+}
+
+/// The context for type compare. It's a simplified version of `Context`.
+pub trait CmpContext<'a> {       
+    type Reader: LqReader<'a>;
 
     /// See `Type::compare`.
     fn compare(
@@ -20,12 +30,6 @@ pub trait Context<'a> {
         r1: &mut Self::Reader,
         r2: &mut Self::Reader,
     ) -> Result<Ordering, LqError>;
-
-    fn reader(&mut self) -> &mut Self::Reader;
-
-    fn config(&self) -> &Config;
-
-    fn key_ref_info(&mut self) -> &mut KeyRefInfo;
 }
 
 /// Information used for key ref validation.

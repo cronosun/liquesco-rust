@@ -15,6 +15,7 @@ use liquesco_serialization::option::Presence;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// Data of the option type have two variants: Absent or present and a value.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -58,7 +59,7 @@ impl Type for TOption<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let presence1 = Presence::de_serialize(r1)?;
         let presence2 = Presence::de_serialize(r2)?;

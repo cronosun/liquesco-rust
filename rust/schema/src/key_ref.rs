@@ -12,6 +12,7 @@ use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use crate::context::CmpContext;
 
 /// References a key in the next outer map.
 ///
@@ -65,7 +66,7 @@ impl Type for TKeyRef<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let int1 = UInt32::de_serialize(r1)?;
         let int2 = UInt32::de_serialize(r2)?;

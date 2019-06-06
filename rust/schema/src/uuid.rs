@@ -12,6 +12,7 @@ use liquesco_serialization::binary::Binary;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uuid::Uuid;
 use serde::{Deserialize, Serialize};
+use crate::context::CmpContext;
 
 /// A 16 byte Uuid (no other validation besides the length of 16 bytes is performed).
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -44,7 +45,7 @@ impl Type for TUuid<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         // compare like "normal" binaries
         let bin1 = Binary::de_serialize(r1)?;

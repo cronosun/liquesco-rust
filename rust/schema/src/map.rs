@@ -26,6 +26,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
 /// to create recursive data structures.
@@ -63,6 +64,11 @@ impl<'a> TMap<'a> {
 
     pub fn with_anchors(mut self, anchors: bool) -> Self {
         self.anchors = anchors;
+        self
+    }
+
+    pub fn with_length(mut self, length : U32IneRange) -> Self {
+        self.length = length;
         self
     }
 
@@ -134,7 +140,7 @@ impl Type for TMap<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         compare_map(context, r1, r2, &self.key, &self.value)
     }
@@ -304,7 +310,7 @@ pub(crate) fn compare_map<'c, C>(
     value: &TypeRef,
 ) -> Result<Ordering, LqError>
 where
-    C: Context<'c>,
+    C: CmpContext<'c>,
 {
     let entries1 = SeqHeader::de_serialize(r1)?;
     let entries2 = SeqHeader::de_serialize(r2)?;

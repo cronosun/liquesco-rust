@@ -17,6 +17,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 type Fields<'a> = Vec<Field<'a>>;
 
@@ -113,7 +114,7 @@ impl<'a> Type for TStruct<'a> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         // here it's important that we only compare what's defined in the schema. Why?
         // If we'd compare all fields it would be possible to add some arbitrary fields

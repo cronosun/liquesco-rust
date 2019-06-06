@@ -11,6 +11,7 @@ use liquesco_serialization::boolean::Bool;
 use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use crate::context::CmpContext;
 
 /// The boolean type (true / false).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]
@@ -42,7 +43,7 @@ impl Type for TBool<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let bool1 = Bool::de_serialize(r1)?;
         let bool2 = Bool::de_serialize(r2)?;

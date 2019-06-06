@@ -24,6 +24,7 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// A sequence of 0-n elements where every element is of the same type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -169,7 +170,7 @@ impl Type for TSeq<'_> {
         r2: &mut C::Reader,
     ) -> Result<std::cmp::Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         seq_compare(&self.element, context, r1, r2)
     }
@@ -212,7 +213,7 @@ pub(crate) fn seq_compare<'c, C>(
     r2: &mut C::Reader,
 ) -> Result<std::cmp::Ordering, LqError>
 where
-    C: Context<'c>,
+    C: CmpContext<'c>,
 {
     let header1 = SeqHeader::de_serialize(r1)?;
     let header2 = SeqHeader::de_serialize(r2)?;

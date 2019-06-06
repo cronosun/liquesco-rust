@@ -20,6 +20,7 @@ use liquesco_serialization::enumeration::EnumHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 const MIN_VALUES: usize = 1;
 const MAX_VALUES: usize = 32;
@@ -192,7 +193,7 @@ impl<'a> Type for TEnum<'a> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let header1 = EnumHeader::de_serialize(r1)?;
         let header2 = EnumHeader::de_serialize(r2)?;

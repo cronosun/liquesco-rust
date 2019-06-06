@@ -1,5 +1,5 @@
 use liquesco_schema::schema::DefaultSchema;
-use crate::utils::{assert_err, assert_ok, builder};
+use crate::utils::{assert_err, assert_ok, builder, finish};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::ascii::TAscii;
@@ -11,7 +11,7 @@ fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     let mut builder = builder();
     let text = builder.add_unwrap("ascii",AnyType::Ascii(TAscii::try_new(2, 20, 65, 90).unwrap()));
     let root = builder.add_unwrap("root", AnyType::Seq(TSeq::try_new(text, 3, 6).unwrap()));
-    builder.finish(root).unwrap().into()
+    finish(builder, root)
 }
 
 #[test]

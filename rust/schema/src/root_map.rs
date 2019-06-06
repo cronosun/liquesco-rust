@@ -24,6 +24,7 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// A map with a root. Keys have to be unique. The keys can be referenced. The root cannot be
 /// referenced. The root can reference keys.
@@ -127,7 +128,7 @@ impl Type for TRootMap<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         // the outer sequence
         SeqHeader::de_serialize(r1)?;

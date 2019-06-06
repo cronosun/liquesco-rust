@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::metadata::WithMetadata;
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display};
@@ -38,7 +39,7 @@ pub trait Type: Debug + WithMetadata {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>;
+        C: CmpContext<'c>;
 
     /// Returns the embedded references by index (starting at index 0).
     /// Returns `None` if there are no more references (does not contain
@@ -119,6 +120,16 @@ pub trait TypeContainer {
 /// A schema. Can be used to validate data.
 pub trait Schema: TypeContainer {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
+
+    // TODO
+    /// Compares two values.
+    /// 
+    /// Details:
+    ///  - When both are equal: The reader `r1` and `r2` have fully read the type. When not 
+    /// equal: The read offset of `r1` and `r2` is undefined.
+    ///  - The values should have been validated. If not: The compare result is undefined: Might
+    /// fail or might return the wrong result.
+    fn compare<'r, R : LqReader<'r>>(&self, type_ref : &TypeRef, r1 : &mut R, r2: &mut R) -> Result<Ordering, LqError>;
 }
 
 /// Need custom serde.

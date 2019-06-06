@@ -10,6 +10,7 @@ use liquesco_schema::type_container::DefaultTypeContainer;
 use liquesco_serialization::serde::serialize;
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
+use liquesco_serialization::core::ToVecLqWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
 
@@ -28,7 +29,7 @@ pub fn assert_valid_invalid<S, TSchema>(
 {
     let mut writer = VecWriter::default();
     serialize(&mut writer, &item).expect("Unable to serialize value");
-    let serialized_data = writer.finish();
+    let serialized_data = writer.into_vec();
     let mut reader: SliceReader = (&serialized_data).into();
 
     let result = schema.validate(config, &mut reader);

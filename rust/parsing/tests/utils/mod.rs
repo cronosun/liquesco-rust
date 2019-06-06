@@ -1,7 +1,10 @@
-use liquesco_schema::schema_builder::DefaultSchemaBuilder;
+use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
 use liquesco_schema::identifier::Identifier;
 use std::convert::TryInto;
 use std::fmt::Debug;
+use liquesco_schema::schema::DefaultSchema;
+use liquesco_schema::core::TypeRef;
+use liquesco_schema::type_container::DefaultTypeContainer;
 
 pub fn assert_ok<T, R: Debug + Send + 'static>(result: Result<T, R>) {
     if result.is_err() {
@@ -19,4 +22,10 @@ pub fn id(string: &'static str) -> Identifier<'static> {
 
 pub fn builder<'a>() -> DefaultSchemaBuilder<'a> {
     DefaultSchemaBuilder::default()
+}
+
+pub fn finish<'a>(builder : DefaultSchemaBuilder<'a>, root : TypeRef) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
+    let finished = builder.finish(root).unwrap();
+    let mut schema : DefaultSchema<'a, DefaultTypeContainer<'a>> = finished.into();
+    schema.with_extended_diagnostics(true)
 }

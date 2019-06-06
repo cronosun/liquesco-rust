@@ -22,6 +22,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::str::from_utf8;
+use crate::context::CmpContext;
 
 /// A unicode text.
 ///
@@ -125,7 +126,7 @@ impl Type for TUnicode<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let bytes1 = UncheckedUnicode::de_serialize(r1)?;
         let bytes2 = UncheckedUnicode::de_serialize(r2)?;

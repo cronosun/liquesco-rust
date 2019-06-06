@@ -7,3 +7,4 @@ pub mod float_num;
 pub mod identifier;
 pub mod range;
 pub mod structure;
+pub mod map;

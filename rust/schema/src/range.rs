@@ -23,6 +23,7 @@ use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
+use crate::context::CmpContext;
 
 /// A range.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -150,7 +151,7 @@ impl Type for TRange<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let header1 = SeqHeader::de_serialize(r1)?;
         let header2 = SeqHeader::de_serialize(r2)?;

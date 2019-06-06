@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::boolean::TBool;
 use crate::context::Context;
 use crate::core::Type;
@@ -158,7 +159,7 @@ impl Type for TFloat32<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let float1 = Float32::de_serialize(r1)?;
         let float2 = Float32::de_serialize(r2)?;
@@ -212,7 +213,7 @@ impl Type for TFloat64<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let float1 = Float64::de_serialize(r1)?;
         let float2 = Float64::de_serialize(r2)?;

@@ -23,6 +23,7 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
+use crate::context::CmpContext;
 
 /// Text within the ASCII code range (0 to 127). Can have length restriction and code
 /// range restriction.
@@ -195,7 +196,7 @@ impl Type for TAscii<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let bytes1 = UncheckedUnicode::de_serialize(r1)?;
         let bytes2 = UncheckedUnicode::de_serialize(r2)?;

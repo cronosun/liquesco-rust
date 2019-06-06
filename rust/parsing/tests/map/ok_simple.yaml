@@ -1,0 +1,5 @@
+# The map is sorted automatically according to the keys
+my_key_one: "The text"
+another_key: "Some other text"
+z_key: "See, this has z"
+a_key: "And now this begins with a"

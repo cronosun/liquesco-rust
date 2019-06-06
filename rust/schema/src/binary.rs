@@ -19,6 +19,7 @@ use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::context::CmpContext;
 
 /// Arbitrary binary data.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
@@ -68,7 +69,7 @@ impl Type for TBinary<'_> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         let bytes1 = Binary::de_serialize(r1)?;
         let bytes2 = Binary::de_serialize(r2)?;

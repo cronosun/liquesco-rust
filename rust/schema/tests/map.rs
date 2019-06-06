@@ -70,6 +70,35 @@ fn ok_with_btree() {
     assert_valid_strict(my_map, &schema);
 }
 
+/// When using BTreeMap we get correct key ordering automatically
+#[test]
+fn ok_with_btree_2() {
+    let mut my_map: BTreeMap<isize, String> = BTreeMap::new();
+    for index in 0..300 {
+        let key = index % 17;
+        let value = format!("Hello Entry #{}", index);
+        my_map.insert(key, value);
+    }
+
+    let schema = create_schema2();
+    assert_valid_strict(my_map, &schema);
+}
+
+fn create_schema2() -> impl Schema {
+    let mut builder = builder();
+    let key = builder.add_unwrap(
+        "key",
+        TSInt::try_new(-1000, 1000).unwrap(),
+    );
+    let value = builder.add_unwrap(
+        "value",
+        TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),
+    );
+
+    let root = builder.add_unwrap("root", TMap::new(key, value));
+    into_schema(builder, root)
+}
+
 fn create_schema1() -> impl Schema {
     let mut builder = builder();
     let key = builder.add_unwrap(

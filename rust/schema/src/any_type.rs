@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::ascii::TAscii;
 use crate::binary::TBinary;
 use crate::boolean::TBool;
@@ -114,7 +115,7 @@ impl<'a> Type for AnyType<'a> {
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
     where
-        C: Context<'c>,
+        C: CmpContext<'c>,
     {
         // is there no macro for this?
         match self {

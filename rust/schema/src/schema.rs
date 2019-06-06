@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::any_type::AnyType;
 use crate::context::Context;
 use crate::context::KeyRefInfo;
@@ -40,19 +41,37 @@ where
     builder.finish(root)
 }
 
-pub struct DefaultSchema<'a, C: TypeContainer> {
-    types: C,
+pub struct DefaultSchema<'a, C: TypeContainer + Clone> {
+    types: Cow<'a, C>,
     extended_diagnostics: bool,
-    _phantom: &'a PhantomData<()>,
+    _phantom: PhantomData<&'a ()>,
 }
 
-impl<'a, C: TypeContainer> Schema for DefaultSchema<'a, C> {
-    fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
-        self.validate_internal(config, reader)
+impl<'a, C : TypeContainer + Clone> DefaultSchema<'a, C> {
+    pub fn with_extended_diagnostics(mut self, extended_diagnostics: bool) -> Self {
+        self.extended_diagnostics = extended_diagnostics;
+        self
     }
 }
 
-impl<'a, C: TypeContainer> TypeContainer for DefaultSchema<'a, C> {
+impl<'a, C: TypeContainer + Clone> Schema for DefaultSchema<'a, C> {
+    fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError> {
+        self.validate_internal(config, reader)
+    }
+
+    fn compare<'r, R : LqReader<'r>>(&self, type_ref : &TypeRef, r1 : &mut R, r2: &mut R) -> Result<Ordering, LqError> {
+        let type_container : &C = &self.types;        
+        let cmp_context = DefaultCmpContext {
+            types : type_container,
+            extended_diagnostics : self.extended_diagnostics,
+            _phantom1 : PhantomData,
+            _phantom2 : PhantomData
+        };
+        cmp_context.compare(type_ref, r1, r2)
+    }
+}
+
+impl<'a, C: TypeContainer + Clone> TypeContainer for DefaultSchema<'a, C> {
     fn maybe_type(&self, reference: &TypeRef) -> Option<&AnyType> {
         self.types.maybe_type(reference)
     }
@@ -70,18 +89,24 @@ impl<'a, C: TypeContainer> TypeContainer for DefaultSchema<'a, C> {
     }
 }
 
-impl<'a, T: TypeContainer> From<T> for DefaultSchema<'a, T> {
+impl<'a, T: TypeContainer + Clone> From<T> for DefaultSchema<'a, T> {
     fn from(container: T) -> Self {
-        Self::new(container)
+        Self::new(Cow::Owned(container))
     }
 }
 
-impl<'a, C: TypeContainer> DefaultSchema<'a, C> {
-    pub fn new(types: C) -> Self {
+impl<'a, T: TypeContainer + Clone> From<&'a T> for DefaultSchema<'a, T> {
+    fn from(container: &'a T) -> Self {
+        Self::new(Cow::Borrowed(container))
+    }
+}
+
+impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
+    pub fn new<IntoC : Into<Cow<'a, C>>>(types: IntoC) -> Self {
         Self {
-            types,
+            types : types.into(),
             extended_diagnostics: false,
-            _phantom: &PhantomData,
+            _phantom: PhantomData,
         }
     }
 
@@ -95,8 +120,9 @@ impl<'a, C: TypeContainer> DefaultSchema<'a, C> {
         config: Config,
         reader: &'c mut R,
     ) -> Result<(), LqError> {
+        let type_container : &C = &self.types;
         let mut context = ValidationContext {
-            types: &self.types,
+            types: type_container,
             config,
             reader,
             extended_diagnostics: self.extended_diagnostics,
@@ -118,11 +144,32 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
     _phantom2: &'r PhantomData<()>,
 }
 
-impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
+impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r>
     for ValidationContext<'s, 'c, 'r, C, R>
 {
     type Reader = R;
 
+    fn compare(
+        &self,
+        reference: &TypeRef,
+        r1: &mut Self::Reader,
+        r2: &mut Self::Reader,
+    ) -> Result<Ordering, LqError> {
+        if let Some(any_type) = self.types.maybe_type(reference) {
+            any_type.compare(self, r1, r2)
+        } else {
+            LqError::err_new(format!(
+                "Type (reference {:?}) not found. \
+                 Unable to validate (compare).",
+                reference
+            ))
+        }
+    }
+}
+
+impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
+    for ValidationContext<'s, 'c, 'r, C, R>
+{
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError> {
         let any_type = self.types.require_type(reference)?;
         self.validate_any_type(any_type)
@@ -139,23 +186,6 @@ impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
             }
         } else {
             any_type.validate(self)
-        }
-    }
-
-    fn compare(
-        &self,
-        reference: &TypeRef,
-        r1: &mut Self::Reader,
-        r2: &mut Self::Reader,
-    ) -> Result<Ordering, LqError> {
-        if let Some(any_type) = self.types.maybe_type(reference) {
-            any_type.compare(self, r1, r2)
-        } else {
-            LqError::err_new(format!(
-                "Type (reference {:?}) not found. \
-                 Unable to validate (compare).",
-                reference
-            ))
         }
     }
 
@@ -199,4 +229,32 @@ fn enrich_validation_error<'a, R: LqReader<'a>>(
         value_str
     );
     err.with_msg(new_msg)
+}
+
+struct DefaultCmpContext<'a, 'r, C: TypeContainer, R: LqReader<'r>> {
+    types: &'a C,
+    extended_diagnostics: bool, // TODO: Use
+    _phantom1 : PhantomData<R>,
+    _phantom2 : PhantomData<&'r ()>,
+}
+
+impl<'a, 'r, C : TypeContainer, R : LqReader<'r>> CmpContext<'r> for DefaultCmpContext<'a, 'r, C, R> {
+    type Reader = R;
+
+    fn compare(
+        &self,
+        reference: &TypeRef,
+        r1: &mut Self::Reader,
+        r2: &mut Self::Reader,
+    ) -> Result<Ordering, LqError> {
+        if let Some(any_type) = self.types.maybe_type(reference) {
+            any_type.compare(self, r1, r2)
+        } else {
+            LqError::err_new(format!(
+                "Type (reference {:?}) not found. \
+                 Unable to validate (compare).",
+                reference
+            ))
+        }
+    }
 }
