@@ -40,14 +40,12 @@ impl<'a> Parser<'a> for PKeyRef {
     where
         C: Context<'c>,
     {
-        // first step is to read the key. Note: We have to clone the type (since cannot borrow
-        // more than once, since parse needs a mutable context)
-        let key_type = require_anchors(context, r#type.level())?.key_type().clone();
+        let anchor_info = require_anchors(context, r#type.level())?;
 
-        let key_as_vec = context.parse_to_vec(&key_type, value)?;
+        let key_as_vec = context.parse_to_vec(anchor_info.key_type(), value)?;
 
         // now find the index
-        let anchors = require_anchors(context, r#type.level())?.anchors();
+        let anchors = anchor_info.anchors();
         let maybe_index = anchors.get(&key_as_vec);
         if let Some(index) = maybe_index {
             UInt32::serialize(writer, index)

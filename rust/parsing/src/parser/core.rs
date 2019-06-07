@@ -14,7 +14,6 @@ pub trait Context<'a> {
 
     fn schema(&self) -> &Self::TSchema;
 
-    // TODO: Versuchen das &mut self, nach &self zu machen (müsste eigentlich gehen) -> In diesem fall könnte man das clonen in 'PKeyRef' verhindern. Vermutlich müsste man das AnchorInfo anpassen, man könnte da pointer nehmen die zurück verweisen
     fn parse(
         &self,
         writer: &mut Self::TWriter,
@@ -22,7 +21,6 @@ pub trait Context<'a> {
         value: &TextValue,
     ) -> Result<(), LqError>;
 
-    // TODO: The same : &mut -> &
     fn parse_to_vec(
         &self,
          r#type: &TypeRef,
