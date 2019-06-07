@@ -50,3 +50,21 @@ fn ok_1() {
     let schema = create_schema();
     assert_ok(parse_from_yaml_str(&schema, include_str!("ok1.yaml")))
 }
+
+#[test]
+fn err_root_key_not_found() {
+    let schema = create_schema();
+    assert_err(parse_from_yaml_str(&schema, include_str!("err_root_key_not_found.yaml")))
+}
+
+#[test]
+fn err_inner_key_not_found() {
+    let schema = create_schema();
+    assert_err(parse_from_yaml_str(&schema, include_str!("err_inner_key_not_found.yaml")))
+}
+
+#[test]
+fn err_too_many_refs() {
+    let schema = create_schema();
+    assert_err(parse_from_yaml_str(&schema, include_str!("err_too_many_refs.yaml")))
+}

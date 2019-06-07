@@ -16,7 +16,7 @@ pub trait Context<'a> {
 
     // TODO: Versuchen das &mut self, nach &self zu machen (müsste eigentlich gehen) -> In diesem fall könnte man das clonen in 'PKeyRef' verhindern. Vermutlich müsste man das AnchorInfo anpassen, man könnte da pointer nehmen die zurück verweisen
     fn parse(
-        &mut self,
+        &self,
         writer: &mut Self::TWriter,
         r#type: &TypeRef,
         value: &TextValue,
@@ -24,23 +24,17 @@ pub trait Context<'a> {
 
     // TODO: The same : &mut -> &
     fn parse_to_vec(
-        &mut self,
+        &self,
          r#type: &TypeRef,
         value: &TextValue) -> Result<Vec<u8>, LqError>;
 
-    fn push_anchors(&mut self, anchors : AnchorInfo) {
-        unimplemented!()
-    }
+    fn push_anchors(&mut self, anchors : AnchorInfo);
 
     /// Pops the anchors info from top of the stack. Returns error if stack is empty.
-    fn pop_anchors(&mut self) -> Result<(), LqError> {
-        unimplemented!()
-    }
+    fn pop_anchors(&mut self) -> Result<(), LqError>;
 
     /// Returns the anchor info or empty if there's no anchor info.
-    fn anchors(&self, level : u32) -> Option<&AnchorInfo> {
-        unimplemented!()
-    }
+    fn anchors(&self, level : u32) -> Option<&AnchorInfo>;
 }
 
 pub trait Parser<'a> {

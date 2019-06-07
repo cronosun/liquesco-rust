@@ -1,0 +1,40 @@
+---
+# Note: This "3" is the root. It's a reference - but there's no such item "3". There's only 0, 1 and 2.
+- 3
+- 0:
+    key_a:
+      outers:
+        - 1
+      inners:
+        - key_a
+    key_z:
+      outers:
+        - 0
+      inners:
+        - key_a
+        - key_b
+    key_b:
+      outers:
+        - 0
+      inners:
+        - key_a
+        - key_z
+  1:
+    key_a:
+      outers:
+        - 0
+        - 1
+      inners:
+        - key_a
+    key_z:
+      outers: []
+      inners:
+        - key_a
+        - key_b
+    key_b:
+      outers:
+        - 0
+      inners:
+        - key_a
+        - key_z
+  2: {}
