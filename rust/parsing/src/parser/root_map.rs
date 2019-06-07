@@ -1,26 +1,13 @@
-
-use liquesco_schema::any_type::AnyType;
-use liquesco_schema::map::TMap;
-use liquesco_schema::map::Sorting;
 use crate::parser::value::TextValue;
 use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
-use crate::parser::value::Seq;
 use crate::parser::map_common::parse_map;
 use liquesco_common::error::LqError;
-use liquesco_schema::core::TypeRef;
-use liquesco_schema::core::TypeContainer;
-use liquesco_schema::core::Schema;
-use std::io::Write;
 
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::seq::SeqHeader;
-use liquesco_serialization::slice_reader::SliceReader;
 
-use std::collections::HashMap;
-use std::convert::TryFrom;
-use std::cmp::Ordering;
 use liquesco_schema::root_map::TRootMap;
 
 pub struct PRootMap;

@@ -26,7 +26,7 @@ where
 {
     let value = deserialize(yaml)?;
 
-    let mut context = ParserContext {
+    let context = ParserContext {
         schema,
         parent: None,
         anchor_info: vec![],

@@ -26,6 +26,6 @@ pub fn builder<'a>() -> DefaultSchemaBuilder<'a> {
 
 pub fn finish<'a>(builder : DefaultSchemaBuilder<'a>, root : TypeRef) -> DefaultSchema<'a, DefaultTypeContainer<'a>> {
     let finished = builder.finish(root).unwrap();
-    let mut schema : DefaultSchema<'a, DefaultTypeContainer<'a>> = finished.into();
+    let schema : DefaultSchema<'a, DefaultTypeContainer<'a>> = finished.into();
     schema.with_extended_diagnostics(true)
 }
