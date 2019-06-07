@@ -7,14 +7,18 @@ use crate::metadata::WithMetadata;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::SchemaBuilder;
 use crate::structure::TStruct;
+use crate::structure::Field;
+use crate::uint::TUInt;
+use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use crate::context::CmpContext;
+use std::convert::TryFrom;
 
-/// References a key in the next outer map.
+/// References a key in the nth outer map (see level).
 ///
 /// Technical detail: It's just a number. That number is the index in the outer map. So it's
 /// always >=0 and < number of items in the map. It can only be used when there's an outer
@@ -23,28 +27,43 @@ use crate::context::CmpContext;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TKeyRef<'a> {
     meta: Meta<'a>,
+    level: u32,
 }
 
 impl<'a> Default for TKeyRef<'a> {
     fn default() -> Self {
         Self {
             meta: Meta::empty(),
+            level: 0,
         }
+    }
+}
+
+impl<'a> TKeyRef<'a> {
+    /// The level determines which outer map is references. Usually the level is 0, in this case
+    /// it's the next outer map.
+    pub fn with_level(mut self, level: u32) -> Self {
+        self.level = level;
+        self
+    }
+
+    pub fn level(&self) -> u32 {
+        self.level
     }
 }
 
 impl Type for TKeyRef<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-    where
-        C: Context<'c>,
+        where
+            C: Context<'c>,
     {
         let ref_int = UInt32::de_serialize(context.reader())?;
-        if let Some(len) = context.key_ref_info().map_len() {
-            if ref_int >= len {
+        if let Some(ref_info) = context.key_ref_info(self.level) {
+            if ref_int >= ref_info.map_len() {
                 LqError::err_new(format!(
                     "You're referencing key at index {} in a map but \
                      the map only has {} keys.",
-                    ref_int, len
+                    ref_int, ref_info.map_len()
                 ))
             } else {
                 Ok(())
@@ -52,9 +71,11 @@ impl Type for TKeyRef<'_> {
         } else {
             LqError::err_new(format!(
                 "You're trying to reference key {} in a map but \
-                 there's no map that's currently being processed. Key references can only \
+                 there's no map that's currently being processed; or there's no map at level {}. \
+                 Key references can only \
                  be within a map.",
-                ref_int
+                ref_int,
+                self.level
             ))
         }
     }
@@ -65,8 +86,8 @@ impl Type for TKeyRef<'_> {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-    where
-        C: CmpContext<'c>,
+        where
+            C: CmpContext<'c>,
     {
         let int1 = UInt32::de_serialize(r1)?;
         let int2 = UInt32::de_serialize(r2)?;
@@ -95,13 +116,24 @@ impl<'a> MetadataSetter<'a> for TKeyRef<'a> {
 }
 
 impl BaseTypeSchemaBuilder for TKeyRef<'_> {
-    fn build_schema<B>(_: &mut B) -> TStruct<'static>
-    where
-        B: SchemaBuilder<'static>,
+    fn build_schema<B>(builder: &mut B) -> TStruct<'static>
+        where
+            B: SchemaBuilder<'static>,
     {
-        TStruct::default().with_doc(
-            "Key references can reference keys from outer types that supports references \
+        let level_type = builder.add_unwrap(
+            "level",
+            TUInt::try_new(0, u64::from(std::u32::MAX)).unwrap()
+                .with_doc("Specifies which outer map you want to reference. This is usually \
+                0: In this case you reference keys from the next outer map. Note: Those map \
+                that do not provide anchors that can be referenced are ignored."));
+        TStruct::default()
+            .add(Field::new(
+                Identifier::try_from("level").unwrap(),
+                level_type,
+            ))
+            .with_doc(
+                "Key references can reference keys from outer types that supports references \
              (provide anchors that can be referenced): Maps and RootMaps.",
-        )
+            )
     }
 }

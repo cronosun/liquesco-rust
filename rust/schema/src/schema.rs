@@ -18,6 +18,8 @@ use liquesco_serialization::value::Value;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::marker::PhantomData;
+use smallvec::SmallVec;
+use std::convert::TryFrom;
 
 /// Builds the liquesco schema schema.
 pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
@@ -126,7 +128,7 @@ impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
             config,
             reader,
             extended_diagnostics: self.extended_diagnostics,
-            key_ref_info: KeyRefInfo::default(),
+            key_ref_info: SmallVec::new(),
             _phantom1: &PhantomData,
             _phantom2: &PhantomData,
         };
@@ -139,7 +141,9 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
     config: Config,
     reader: &'s mut R,
     extended_diagnostics: bool,
-    key_ref_info: KeyRefInfo,
+    /// The key ref info. Note: We use a smallvec of 4, since it's very rare that there are
+    /// ever more than 4 levels.
+    key_ref_info: SmallVec<[KeyRefInfo; 4]>,
     _phantom1: &'c PhantomData<()>,
     _phantom2: &'r PhantomData<()>,
 }
@@ -197,8 +201,32 @@ impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
         &self.config
     }
 
-    fn key_ref_info(&mut self) -> &mut KeyRefInfo {
-        &mut self.key_ref_info
+    fn key_ref_info(&self, level : u32) -> Option<KeyRefInfo> {
+        let len = self.key_ref_info.len();
+        let usize_level = usize::try_from(level).ok();
+        if let Some(usize_level) = usize_level {
+            if usize_level < len {
+                Some(self.key_ref_info[len - usize_level - 1])
+            } else {
+                None
+            }
+        } else {
+            None
+        }
+    }
+
+    fn push_key_ref_info(&mut self, info: KeyRefInfo) {
+        self.key_ref_info.push(info);
+    }
+
+    fn pop_key_ref_info(&mut self) -> Result<KeyRefInfo, LqError> {
+        let len = self.key_ref_info.len();
+        if len==0 {
+            LqError::err_new("You're trying to pop from ref info stack but the ref info \
+            stack is empty. This is a bug in the liquesco implementation.")
+        } else {
+            Ok(self.key_ref_info.remove(len-1))
+        }
     }
 }
 

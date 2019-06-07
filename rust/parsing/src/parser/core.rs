@@ -13,7 +13,8 @@ pub trait Context<'a> {
     type TWriter: LqWriter;
 
     fn schema(&self) -> &Self::TSchema;
-    
+
+    // TODO: Versuchen das &mut self, nach &self zu machen (müsste eigentlich gehen) -> In diesem fall könnte man das clonen in 'PKeyRef' verhindern. Vermutlich müsste man das AnchorInfo anpassen, man könnte da pointer nehmen die zurück verweisen
     fn parse(
         &mut self,
         writer: &mut Self::TWriter,
@@ -21,28 +22,23 @@ pub trait Context<'a> {
         value: &TextValue,
     ) -> Result<(), LqError>;
 
+    // TODO: The same : &mut -> &
     fn parse_to_vec(
         &mut self,
          r#type: &TypeRef,
         value: &TextValue) -> Result<Vec<u8>, LqError>;
 
-    // TODO: Remove
-    fn anchor_info(&mut self) -> &mut Option<AnchorInfo>;
-
-// TODO: Remove
-    fn take_anchor_info(&mut self) -> Option<AnchorInfo>;
-
-// TODO: Remove
-    fn set_anchor_info(&mut self, anchor_info: Option<AnchorInfo>);
-
-// TODO: Remove
-    fn present_anchor_info(&mut self) -> &mut AnchorInfo;
-
-    fn remove_anchors(&mut self) -> Option<HashMap<Vec<u8>, u32>> {
+    fn push_anchors(&mut self, anchors : AnchorInfo) {
         unimplemented!()
     }
 
-    fn set_anchors(&mut self, anchors : Option<HashMap<Vec<u8>, u32>>) {
+    /// Pops the anchors info from top of the stack. Returns error if stack is empty.
+    fn pop_anchors(&mut self) -> Result<(), LqError> {
+        unimplemented!()
+    }
+
+    /// Returns the anchor info or empty if there's no anchor info.
+    fn anchors(&self, level : u32) -> Option<&AnchorInfo> {
         unimplemented!()
     }
 }
@@ -62,38 +58,26 @@ pub trait Parser<'a> {
         C: Context<'c>;
 }
 
-// TODO: Remove
 #[derive(Debug)]
 pub struct AnchorInfo {
-    anchors: HashMap<String, u32>,
-    anchors_by_index: Vec<String>,
-}
-
-impl Default for AnchorInfo {
-    fn default() -> Self {
-        Self {
-            anchors: HashMap::default(),
-            anchors_by_index: Vec::default(),
-        }
-    }
+    /// The serialized anchors mapped to index
+    anchors: HashMap<Vec<u8>, u32>,
+    key_type : TypeRef,
 }
 
 impl AnchorInfo {
-    pub fn reference(&mut self, name: &str) -> u32 {
-        if let Some(found) = self.anchors.get(name) {
-            *found
-        } else {
-            let len = self.anchors.len();
-            let len_u32 = len as u32;
-            self.anchors.insert(name.to_string(), len_u32);
-            self.anchors_by_index.push(name.to_string());
-            len_u32
+    pub fn new(anchors: HashMap<Vec<u8>, u32>,
+               key_type : TypeRef) -> Self {
+        AnchorInfo {
+            anchors, r#key_type
         }
     }
 
-    pub fn by_index(&self, index: u32) -> Option<&str> {
-        self.anchors_by_index
-            .get(index as usize)
-            .map(|string| string.as_str())
+    pub fn key_type(&self) -> &TypeRef {
+        &self.key_type
+    }
+
+    pub fn anchors(&self) -> &HashMap<Vec<u8>, u32> {
+        &self.anchors
     }
 }

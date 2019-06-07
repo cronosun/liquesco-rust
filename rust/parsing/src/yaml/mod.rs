@@ -28,7 +28,7 @@ where
 
     let mut context = ParserContext {
         schema,
-        anchor_info: Option::None,
+        anchor_info: None,
         _phantom: &PhantomData,
     };
 

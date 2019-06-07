@@ -15,6 +15,7 @@ use crate::parser::uint::PUInt;
 use crate::parser::unicode::PUnicode;
 use crate::parser::uuid::PUuid;
 use crate::parser::map::PMap;
+use crate::parser::root_map::PRootMap;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
@@ -44,6 +45,7 @@ where
         AnyType::Uuid(value) => PUuid::parse(context, writer, text_value, value),
         AnyType::Range(value) => PRange::parse(context, writer, text_value, value),
         AnyType::Map(value) => PMap::parse(context, writer, text_value, value),
+        AnyType::RootMap(value) => PRootMap::parse(context, writer, text_value, value),
         _ => { unimplemented!("TODO")}
     }
 }

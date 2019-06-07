@@ -45,7 +45,7 @@ pub trait Converter {
             Value::U64(value) => Option::Some(*value),
             Value::I64(value) => {
                 let s_value = *value;
-                if s_value > 0 {
+                if s_value >= 0 {
                     Option::Some(s_value as u64)
                 } else {
                     Option::None

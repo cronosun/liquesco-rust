@@ -10,6 +10,7 @@ use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
+use crate::context::KeyRefInfo;
 use crate::range::TRange;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -107,14 +108,10 @@ impl Type for TMap<'_> {
         let entries = SeqHeader::de_serialize(context.reader())?;
         let length = entries.length();
 
-        // persist ref info (when we have nested maps)
-        let persisted_ref_info = if self.anchors {
-            let persisted = context.key_ref_info().clone();
-            context.key_ref_info().set_map_len(Some(length));
-            Some(persisted)
-        } else {
-            None
-        };
+        // push ref info.
+        if self.anchors {
+            context.push_key_ref_info(KeyRefInfo::new(length));
+        }
 
         validate_map(
             context,
@@ -123,11 +120,12 @@ impl Type for TMap<'_> {
             &self.key,
             &self.value,
             self.sorting,
+            self.anchors,
         )?;
 
-        // maybe restore key ref info (if we have nested maps)
-        if let Some(persisted) = persisted_ref_info {
-            context.key_ref_info().restore_from(persisted);
+        // pop ref info.
+        if self.anchors {
+            context.pop_key_ref_info()?;
         }
 
         Ok(())
@@ -208,7 +206,8 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
         let anchors_field = builder.add_unwrap(
             "anchors",
             TBool::default().with_doc(
-                "If this is true, the keys in this map can be referenced using key refs.",
+                "If this is true, the keys in this map can be referenced using key refs. \
+                Note: Only values can reference keys. Keys cannot reference itself.",
             ),
         );
 
@@ -244,6 +243,7 @@ pub(crate) fn validate_map<'c, C>(
     key: &TypeRef,
     value: &TypeRef,
     sorting: Sorting,
+    anchors : bool,
 ) -> Result<(), LqError>
 where
     C: Context<'c>,
@@ -276,7 +276,15 @@ where
         // Create two copies (required for next iteration and for compare)
         let mut current_key_reader = context.reader().clone();
         let current_key_reader_for_next_iteration = context.reader().clone();
-        context.validate(key)?;
+
+        if anchors {
+            // This pop-push is required so keys cannot reference itself.
+            let saved_info = context.pop_key_ref_info()?;
+            context.validate(key)?;
+            context.push_key_ref_info(saved_info);
+        } else {
+            context.validate(key)?;
+        }
         context.validate(value)?;
 
         // Compare this key and the previous key to make sure keys have correct sorting

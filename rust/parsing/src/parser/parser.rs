@@ -14,7 +14,7 @@ where
     TSchema: Schema,
 {
     pub(crate) schema: &'se TSchema,
-    pub(crate) anchor_info: Option<AnchorInfo>,
+    pub(crate) anchor_info: Option<Vec<AnchorInfo>>,
     pub(crate) _phantom: &'s PhantomData<()>,
 }
 
@@ -40,7 +40,8 @@ where
         r#type: &TypeRef,
         value: &TextValue,
     ) -> Result<(), LqError> {
-        let taken_anchor_info = self.take_anchor_info();
+        let taken_anchor_info = self.anchor_info.take();
+
         let maybe_any_type = self.schema().maybe_type(r#type);
         let any_type = maybe_any_type.unwrap(); // TODO
 
@@ -53,8 +54,7 @@ where
         // TODO: Add position if position is missing
         let result = parse_any(&mut context, any_type, value, writer);
 
-        let re_taken_anchor_info = context.take_anchor_info();
-        self.anchor_info = re_taken_anchor_info;
+        self.anchor_info = context.anchor_info;
 
         result
     }
@@ -67,28 +67,4 @@ where
             self.parse(&mut vec_writer, r#type, value)?;
             Ok(vec_writer.into_vec())
         }
-
-    fn anchor_info(&mut self) -> &mut Option<AnchorInfo> {
-        &mut self.anchor_info
-    }
-
-    fn set_anchor_info(&mut self, anchor_info: Option<AnchorInfo>) {
-        self.anchor_info = anchor_info;
-    }
-
-    fn present_anchor_info(&mut self) -> &mut AnchorInfo {
-        if self.anchor_info().is_none() {
-            self.set_anchor_info(Some(AnchorInfo::default()));
-        }
-
-        if let Some(info) = &mut self.anchor_info {
-            return info;
-        } else {
-            panic!("must never get here")
-        }
-    }
-
-    fn take_anchor_info(&mut self) -> Option<AnchorInfo> {
-        self.anchor_info.take()
-    }
 }

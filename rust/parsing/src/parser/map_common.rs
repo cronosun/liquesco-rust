@@ -8,6 +8,7 @@ use crate::parser::converter::Converter;
 use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::Seq;
+use crate::parser::core::AnchorInfo;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::core::TypeContainer;
@@ -34,14 +35,35 @@ pub(crate) fn parse_map<'c, C>(
     value_type : &TypeRef,
     sorting : Sorting,
     length : &U32IneRange,
-    anchors : bool, // TODO: Use this
+    anchors : bool,
+    // you want this to be true (usually)
+    pop_anchors : bool,
 ) -> Result<(), LqError>
     where
         C: Context<'c>, {
 
     let map_as_vec = process_map_init(context, value, key_type, length)?;
     let vec_sorted = sort(context, key_type, sorting, map_as_vec)?;
-    write_map(context, writer,value_type,&vec_sorted)
+    let anchors_map = to_anchors_map(&vec_sorted);
+    if anchors {
+        let anchor_info = AnchorInfo::new( anchors_map, key_type.clone());
+        context.push_anchors(anchor_info);
+    }
+    write_map(context, writer,value_type,&vec_sorted)?;
+    if anchors && pop_anchors {
+        context.pop_anchors()?;
+    }
+    Ok(())
+}
+
+fn to_anchors_map(vec : &Vec<(Vec<u8>, &TextValue)>) -> HashMap<Vec<u8>, u32> {
+    let mut index : u32 = 0;
+    let mut result = HashMap::with_capacity(vec.len());
+    for entry in vec {
+        result.insert(entry.0.clone(), index);
+        index = index + 1;
+    }
+    result
 }
 
 fn write_map<'a, 'c, C>(

@@ -16,7 +16,15 @@ pub trait Context<'a> : CmpContext<'a> {
 
     fn config(&self) -> &Config;
 
-    fn key_ref_info(&mut self) -> &mut KeyRefInfo;
+    /// Returns the key ref info currently active (top op stack).
+    fn key_ref_info(&self, level : u32) -> Option<KeyRefInfo>;
+
+    /// Pushes a new key ref info on top of the stack.
+    fn push_key_ref_info(&mut self, info : KeyRefInfo);
+
+    /// Pops the key ref info from top of the stack. Returns an error when you try to pop
+    /// when the stack is already empty.
+    fn pop_key_ref_info(&mut self) -> Result<KeyRefInfo, LqError>;
 }
 
 /// The context for type compare. It's a simplified version of `Context`.
@@ -33,29 +41,21 @@ pub trait CmpContext<'a> {
 }
 
 /// Information used for key ref validation.
-#[derive(Clone)]
+#[derive(Clone, Copy, PartialOrd, PartialEq, Hash)]
 pub struct KeyRefInfo {
-    map_len: Option<u32>,
-}
-
-impl Default for KeyRefInfo {
-    fn default() -> Self {
-        Self { map_len: None }
-    }
+    map_len: u32,
 }
 
 impl KeyRefInfo {
-    pub fn set_map_len(&mut self, map_len: Option<u32>) {
-        self.map_len = map_len;
+
+    pub fn new(map_len : u32) -> KeyRefInfo {
+        Self {
+            map_len
+        }
     }
 
-    /// The length of the map that's currently being validated. Returns `None` if there's no map
-    /// being processed.
-    pub fn map_len(&self) -> Option<u32> {
+    /// The length of the map that's currently being validated.
+    pub fn map_len(&self) -> u32 {
         self.map_len
-    }
-
-    pub fn restore_from(&mut self, from: KeyRefInfo) {
-        self.map_len = from.map_len
     }
 }

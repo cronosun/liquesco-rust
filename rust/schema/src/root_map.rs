@@ -25,9 +25,10 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use crate::context::CmpContext;
+use crate::context::KeyRefInfo;
 
 /// A map with a root. Keys have to be unique. The keys can be referenced. The root cannot be
-/// referenced. The root can reference keys.
+/// referenced. The root can reference keys. Keys cannot reference itself.
 ///
 /// Technical details: Internally a root map looks like this:
 /// `[[[key1, value1], [key2, value2], ...], root]`.
@@ -99,9 +100,8 @@ impl Type for TRootMap<'_> {
         let entries = SeqHeader::de_serialize(context.reader())?;
         let length = entries.length();
 
-        // persist ref info (when we have nested maps)
-        let persisted_ref_info = context.key_ref_info().clone();
-        context.key_ref_info().set_map_len(Some(length));
+        // push ref info.
+            context.push_key_ref_info(KeyRefInfo::new(length));
 
         validate_map(
             context,
@@ -110,13 +110,14 @@ impl Type for TRootMap<'_> {
             &self.key,
             &self.value,
             self.sorting,
+            true,
         )?;
 
         // now validate the root
         context.validate(&self.root)?;
 
-        // maybe restore key ref info (if we have nested maps)
-        context.key_ref_info().restore_from(persisted_ref_info);
+        // pop ref info
+        context.pop_key_ref_info()?;
 
         Ok(())
     }
@@ -232,8 +233,9 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
                 sorting_field,
             ))
             .with_doc(
-                "A map with a root. Keys have to be unique. The keys can be referenced. \
-                 The root cannot be referenced. The root can reference keys.",
+                "A map with a root. Keys have to be unique. The keys can be referenced. Keys \
+                cannot reference itself. The root cannot be referenced. The root can \
+                reference keys.",
             )
     }
 }
