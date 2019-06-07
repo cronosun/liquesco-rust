@@ -1,7 +1,7 @@
-use crate::context::CmpContext;
 use crate::ascii::TAscii;
 use crate::binary::TBinary;
 use crate::boolean::TBool;
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;

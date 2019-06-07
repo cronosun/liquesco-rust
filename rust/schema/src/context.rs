@@ -7,20 +7,20 @@ use std::cmp::Ordering;
 
 // TODO: Rename to `ValidationContext`
 /// Data used for type validation.
-pub trait Context<'a> : CmpContext<'a> {
+pub trait Context<'a>: CmpContext<'a> {
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError>;
 
-    fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;    
+    fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;
 
     fn reader(&mut self) -> &mut Self::Reader;
 
     fn config(&self) -> &Config;
 
     /// Returns the key ref info currently active (top op stack).
-    fn key_ref_info(&self, level : u32) -> Option<KeyRefInfo>;
+    fn key_ref_info(&self, level: u32) -> Option<KeyRefInfo>;
 
     /// Pushes a new key ref info on top of the stack.
-    fn push_key_ref_info(&mut self, info : KeyRefInfo);
+    fn push_key_ref_info(&mut self, info: KeyRefInfo);
 
     /// Pops the key ref info from top of the stack. Returns an error when you try to pop
     /// when the stack is already empty.
@@ -28,7 +28,7 @@ pub trait Context<'a> : CmpContext<'a> {
 }
 
 /// The context for type compare. It's a simplified version of `Context`.
-pub trait CmpContext<'a> {       
+pub trait CmpContext<'a> {
     type Reader: LqReader<'a>;
 
     /// See `Type::compare`.
@@ -47,11 +47,8 @@ pub struct KeyRefInfo {
 }
 
 impl KeyRefInfo {
-
-    pub fn new(map_len : u32) -> KeyRefInfo {
-        Self {
-            map_len
-        }
+    pub fn new(map_len: u32) -> KeyRefInfo {
+        Self { map_len }
     }
 
     /// The length of the map that's currently being validated.

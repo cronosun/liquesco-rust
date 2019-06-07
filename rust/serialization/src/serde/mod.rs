@@ -1,5 +1,6 @@
 use crate::core::LqReader;
 use crate::core::LqWriter;
+use crate::core::ToVecLqWriter;
 use crate::serde::deserializer::Deserializer;
 use crate::serde::error::CATEGORY;
 use crate::serde::serializer::Serializer;
@@ -7,7 +8,6 @@ use crate::slice_reader::SliceReader;
 use crate::vec_writer::VecWriter;
 use liquesco_common::error::{Category, LqError};
 use serde::ser;
-use crate::core::ToVecLqWriter;
 
 mod deserializer;
 mod error;

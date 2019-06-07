@@ -123,13 +123,18 @@ pub trait Schema: TypeContainer {
 
     // TODO
     /// Compares two values.
-    /// 
+    ///
     /// Details:
-    ///  - When both are equal: The reader `r1` and `r2` have fully read the type. When not 
+    ///  - When both are equal: The reader `r1` and `r2` have fully read the type. When not
     /// equal: The read offset of `r1` and `r2` is undefined.
     ///  - The values should have been validated. If not: The compare result is undefined: Might
     /// fail or might return the wrong result.
-    fn compare<'r, R : LqReader<'r>>(&self, type_ref : &TypeRef, r1 : &mut R, r2: &mut R) -> Result<Ordering, LqError>;
+    fn compare<'r, R: LqReader<'r>>(
+        &self,
+        type_ref: &TypeRef,
+        r1: &mut R,
+        r2: &mut R,
+    ) -> Result<Ordering, LqError>;
 }
 
 /// Need custom serde.

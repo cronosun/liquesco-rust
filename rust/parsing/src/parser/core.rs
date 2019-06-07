@@ -21,18 +21,15 @@ pub trait Context<'a> {
         value: &TextValue,
     ) -> Result<(), LqError>;
 
-    fn parse_to_vec(
-        &self,
-         r#type: &TypeRef,
-        value: &TextValue) -> Result<Vec<u8>, LqError>;
+    fn parse_to_vec(&self, r#type: &TypeRef, value: &TextValue) -> Result<Vec<u8>, LqError>;
 
-    fn push_anchors(&mut self, anchors : AnchorInfo);
+    fn push_anchors(&mut self, anchors: AnchorInfo);
 
     /// Pops the anchors info from top of the stack. Returns error if stack is empty.
     fn pop_anchors(&mut self) -> Result<(), LqError>;
 
     /// Returns the anchor info or empty if there's no anchor info.
-    fn anchors(&self, level : u32) -> Option<&AnchorInfo>;
+    fn anchors(&self, level: u32) -> Option<&AnchorInfo>;
 }
 
 pub trait Parser<'a> {
@@ -54,14 +51,14 @@ pub trait Parser<'a> {
 pub struct AnchorInfo {
     /// The serialized anchors mapped to index
     anchors: HashMap<Vec<u8>, u32>,
-    key_type : TypeRef,
+    key_type: TypeRef,
 }
 
 impl AnchorInfo {
-    pub fn new(anchors: HashMap<Vec<u8>, u32>,
-               key_type : TypeRef) -> Self {
+    pub fn new(anchors: HashMap<Vec<u8>, u32>, key_type: TypeRef) -> Self {
         AnchorInfo {
-            anchors, r#key_type
+            anchors,
+            r#key_type,
         }
     }
 

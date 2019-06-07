@@ -1,8 +1,8 @@
 use liquesco_common::error::LqError;
-use liquesco_schema::core::TypeContainer;
 use liquesco_schema::any_type::AnyType;
+use liquesco_schema::core::TypeContainer;
 use liquesco_schema::core::TypeRef;
-use liquesco_schema::identifier::{Identifier};
+use liquesco_schema::identifier::Identifier;
 use std::borrow::Cow;
 
 pub struct TypeInfo<'a> {
@@ -12,13 +12,15 @@ pub struct TypeInfo<'a> {
 }
 
 impl<'a> TypeInfo<'a> {
-
-    pub fn try_from(type_container : &'a TypeContainer, reference: &'a TypeRef) -> Result<Self, LqError> {
+    pub fn try_from(
+        type_container: &'a TypeContainer,
+        reference: &'a TypeRef,
+    ) -> Result<Self, LqError> {
         let any_type = type_container.require_type(reference)?;
-        Ok(Self{
+        Ok(Self {
             any_type,
             reference,
-            id : type_container.identifier(reference)?,
+            id: type_container.identifier(reference)?,
         })
     }
 

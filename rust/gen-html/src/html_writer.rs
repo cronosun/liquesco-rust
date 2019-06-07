@@ -8,11 +8,11 @@ use crate::body_writer::ElementWriter;
 use crate::body_writer::MaybeElementWriter;
 use crate::type_components::TypeFooter;
 use crate::type_components::TypeHeader;
-use liquesco_schema::core::TypeRef;
-use std::collections::HashMap;
-use liquesco_schema::core::TypeContainer;
 use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::core::Type;
+use liquesco_schema::core::TypeContainer;
+use liquesco_schema::core::TypeRef;
+use std::collections::HashMap;
 
 pub struct HtmlWriter<'a> {
     schema: &'a TypeContainer,

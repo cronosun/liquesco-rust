@@ -86,10 +86,7 @@ fn ok_with_btree_2() {
 
 fn create_schema2() -> impl Schema {
     let mut builder = builder();
-    let key = builder.add_unwrap(
-        "key",
-        TSInt::try_new(-1000, 1000).unwrap(),
-    );
+    let key = builder.add_unwrap("key", TSInt::try_new(-1000, 1000).unwrap());
     let value = builder.add_unwrap(
         "value",
         TUnicode::try_new(0, 100, LengthType::Utf8Byte).unwrap(),

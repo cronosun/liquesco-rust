@@ -1,4 +1,6 @@
+use crate::context::CmpContext;
 use crate::context::Context;
+use crate::context::KeyRefInfo;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
@@ -24,8 +26,6 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::context::CmpContext;
-use crate::context::KeyRefInfo;
 
 /// A map with a root. Keys have to be unique. The keys can be referenced. The root cannot be
 /// referenced. The root can reference keys. Keys cannot reference itself.
@@ -101,7 +101,7 @@ impl Type for TRootMap<'_> {
         let length = entries.length();
 
         // push ref info.
-            context.push_key_ref_info(KeyRefInfo::new(length));
+        context.push_key_ref_info(KeyRefInfo::new(length));
 
         validate_map(
             context,
@@ -234,8 +234,8 @@ impl BaseTypeSchemaBuilder for TRootMap<'_> {
             ))
             .with_doc(
                 "A map with a root. Keys have to be unique. The keys can be referenced. Keys \
-                cannot reference itself. The root cannot be referenced. The root can \
-                reference keys.",
+                 cannot reference itself. The root cannot be referenced. The root can \
+                 reference keys.",
             )
     }
 }

@@ -6,9 +6,9 @@ use liquesco_processing::path::Path;
 use liquesco_processing::path::Segment;
 use liquesco_processing::plugin::Plugin;
 use liquesco_processing::settings::Settings;
+use liquesco_schema::core::TypeContainer;
 use liquesco_schema::schema::schema_schema;
 use liquesco_schema::schema_builder::DefaultSchemaBuilder;
-use liquesco_schema::core::TypeContainer;
 
 pub struct HtmlGenSchemaPlugin;
 
@@ -22,7 +22,7 @@ impl Plugin for HtmlGenSchemaPlugin {
     fn process(&self, receiver: &mut CodeReceiver, _: &Settings) -> Result<(), LqError> {
         let builder = DefaultSchemaBuilder::default();
         let schema = schema_schema(builder)?;
-        let type_container : &TypeContainer = &schema;
+        let type_container: &TypeContainer = &schema;
 
         let html_writer = HtmlWriter::new(type_container);
         let string = html_writer.write_to_string(schema.root())?;

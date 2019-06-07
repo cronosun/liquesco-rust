@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -15,7 +16,6 @@ use liquesco_serialization::option::Presence;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::context::CmpContext;
 
 /// Data of the option type have two variants: Absent or present and a value.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

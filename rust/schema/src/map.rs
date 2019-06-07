@@ -1,5 +1,7 @@
 use crate::boolean::TBool;
+use crate::context::CmpContext;
 use crate::context::Context;
+use crate::context::KeyRefInfo;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::enumeration::TEnum;
@@ -10,7 +12,6 @@ use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::range::Inclusion;
-use crate::context::KeyRefInfo;
 use crate::range::TRange;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
@@ -27,7 +28,6 @@ use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::convert::TryFrom;
-use crate::context::CmpContext;
 
 /// A map. Keys have to be unique. Has to be sorted by keys. The keys can optionally be referenced
 /// to create recursive data structures.
@@ -68,7 +68,7 @@ impl<'a> TMap<'a> {
         self
     }
 
-    pub fn with_length(mut self, length : U32IneRange) -> Self {
+    pub fn with_length(mut self, length: U32IneRange) -> Self {
         self.length = length;
         self
     }
@@ -207,7 +207,7 @@ impl BaseTypeSchemaBuilder for TMap<'_> {
             "anchors",
             TBool::default().with_doc(
                 "If this is true, the keys in this map can be referenced using key refs. \
-                Note: Only values can reference keys. Keys cannot reference itself.",
+                 Note: Only values can reference keys. Keys cannot reference itself.",
             ),
         );
 
@@ -243,7 +243,7 @@ pub(crate) fn validate_map<'c, C>(
     key: &TypeRef,
     value: &TypeRef,
     sorting: Sorting,
-    anchors : bool,
+    anchors: bool,
 ) -> Result<(), LqError>
 where
     C: Context<'c>,

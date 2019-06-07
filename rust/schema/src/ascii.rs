@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -23,7 +24,6 @@ use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::ops::Index;
-use crate::context::CmpContext;
 
 /// Text within the ASCII code range (0 to 127). Can have length restriction and code
 /// range restriction.

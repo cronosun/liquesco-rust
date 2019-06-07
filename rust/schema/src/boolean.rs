@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -11,7 +12,6 @@ use liquesco_serialization::boolean::Bool;
 use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
-use crate::context::CmpContext;
 
 /// The boolean type (true / false).
 #[derive(Clone, Debug, Hash, PartialEq, Eq, Serialize, Deserialize)]

@@ -1,8 +1,7 @@
-
-use crate::parser::value::TextValue;
-use crate::parser::core::Context;
 use crate::parser::core::AnchorInfo;
+use crate::parser::core::Context;
 use crate::parser::core::Parser;
+use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
 
 use liquesco_serialization::core::Serializer;
@@ -34,26 +33,30 @@ impl<'a> Parser<'a> for PKeyRef {
         if let Some(index) = maybe_index {
             UInt32::serialize(writer, index)
         } else {
-            LqError::err_new(
-                format!("You're trying to reference a key from an outer map (level {}). \
-                    That key was not found in the outer map (note: keys in maps cannot reference \
-                    itself). Given key value is {:?}.",
-                        r#type.level(), value))
+            LqError::err_new(format!(
+                "You're trying to reference a key from an outer map (level {}). \
+                 That key was not found in the outer map (note: keys in maps cannot reference \
+                 itself). Given key value is {:?}.",
+                r#type.level(),
+                value
+            ))
         }
     }
 }
 
-fn require_anchors<'c, C>(context : &C, level : u32) -> Result<&AnchorInfo, LqError>     where
-    C: Context<'c>, {
+fn require_anchors<'c, C>(context: &C, level: u32) -> Result<&AnchorInfo, LqError>
+where
+    C: Context<'c>,
+{
     let anchors = context.anchors(level);
     if let Some(anchors) = anchors {
         Ok(anchors)
     } else {
-        LqError::err_new(
-            format!("There's no outer map (level {}) I could reference. Key refs can \
-                only reference keys from outer maps - but there's none at given level. Note: \
-                Keys in maps do not reference keys in the same map.",
-                    level))
+        LqError::err_new(format!(
+            "There's no outer map (level {}) I could reference. Key refs can \
+             only reference keys from outer maps - but there's none at given level. Note: \
+             Keys in maps do not reference keys in the same map.",
+            level
+        ))
     }
-
 }

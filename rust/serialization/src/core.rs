@@ -165,7 +165,7 @@ pub trait LqWriter: std::io::Write + Sized {
 }
 
 /// A `LqWriter` that writes into a `Vec<u8>`.
-pub trait ToVecLqWriter : LqWriter {
+pub trait ToVecLqWriter: LqWriter {
     /// Finishes the writer and returns the written data as `Vec<u8>`.
     fn into_vec(self) -> Vec<u8>;
 }

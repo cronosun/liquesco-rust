@@ -1,5 +1,5 @@
-use crate::context::CmpContext;
 use crate::any_type::AnyType;
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::context::KeyRefInfo;
 use crate::core::Schema;
@@ -15,11 +15,11 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::value::Value;
+use smallvec::SmallVec;
 use std::borrow::Cow;
 use std::cmp::Ordering;
-use std::marker::PhantomData;
-use smallvec::SmallVec;
 use std::convert::TryFrom;
+use std::marker::PhantomData;
 
 /// Builds the liquesco schema schema.
 pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
@@ -49,7 +49,7 @@ pub struct DefaultSchema<'a, C: TypeContainer + Clone> {
     _phantom: PhantomData<&'a ()>,
 }
 
-impl<'a, C : TypeContainer + Clone> DefaultSchema<'a, C> {
+impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
     pub fn with_extended_diagnostics(mut self, extended_diagnostics: bool) -> Self {
         self.extended_diagnostics = extended_diagnostics;
         self
@@ -61,13 +61,18 @@ impl<'a, C: TypeContainer + Clone> Schema for DefaultSchema<'a, C> {
         self.validate_internal(config, reader)
     }
 
-    fn compare<'r, R : LqReader<'r>>(&self, type_ref : &TypeRef, r1 : &mut R, r2: &mut R) -> Result<Ordering, LqError> {
-        let type_container : &C = &self.types;        
+    fn compare<'r, R: LqReader<'r>>(
+        &self,
+        type_ref: &TypeRef,
+        r1: &mut R,
+        r2: &mut R,
+    ) -> Result<Ordering, LqError> {
+        let type_container: &C = &self.types;
         let cmp_context = DefaultCmpContext {
-            types : type_container,
-            extended_diagnostics : self.extended_diagnostics,
-            _phantom1 : PhantomData,
-            _phantom2 : PhantomData
+            types: type_container,
+            extended_diagnostics: self.extended_diagnostics,
+            _phantom1: PhantomData,
+            _phantom2: PhantomData,
         };
         cmp_context.compare(type_ref, r1, r2)
     }
@@ -104,9 +109,9 @@ impl<'a, T: TypeContainer + Clone> From<&'a T> for DefaultSchema<'a, T> {
 }
 
 impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
-    pub fn new<IntoC : Into<Cow<'a, C>>>(types: IntoC) -> Self {
+    pub fn new<IntoC: Into<Cow<'a, C>>>(types: IntoC) -> Self {
         Self {
-            types : types.into(),
+            types: types.into(),
             extended_diagnostics: false,
             _phantom: PhantomData,
         }
@@ -122,7 +127,7 @@ impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
         config: Config,
         reader: &'c mut R,
     ) -> Result<(), LqError> {
-        let type_container : &C = &self.types;
+        let type_container: &C = &self.types;
         let mut context = ValidationContext {
             types: type_container,
             config,
@@ -201,7 +206,7 @@ impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
         &self.config
     }
 
-    fn key_ref_info(&self, level : u32) -> Option<KeyRefInfo> {
+    fn key_ref_info(&self, level: u32) -> Option<KeyRefInfo> {
         let len = self.key_ref_info.len();
         let usize_level = usize::try_from(level).ok();
         if let Some(usize_level) = usize_level {
@@ -221,11 +226,13 @@ impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
 
     fn pop_key_ref_info(&mut self) -> Result<KeyRefInfo, LqError> {
         let len = self.key_ref_info.len();
-        if len==0 {
-            LqError::err_new("You're trying to pop from ref info stack but the ref info \
-            stack is empty. This is a bug in the liquesco implementation.")
+        if len == 0 {
+            LqError::err_new(
+                "You're trying to pop from ref info stack but the ref info \
+                 stack is empty. This is a bug in the liquesco implementation.",
+            )
         } else {
-            Ok(self.key_ref_info.remove(len-1))
+            Ok(self.key_ref_info.remove(len - 1))
         }
     }
 }
@@ -262,11 +269,11 @@ fn enrich_validation_error<'a, R: LqReader<'a>>(
 struct DefaultCmpContext<'a, 'r, C: TypeContainer, R: LqReader<'r>> {
     types: &'a C,
     extended_diagnostics: bool, // TODO: Use
-    _phantom1 : PhantomData<R>,
-    _phantom2 : PhantomData<&'r ()>,
+    _phantom1: PhantomData<R>,
+    _phantom2: PhantomData<&'r ()>,
 }
 
-impl<'a, 'r, C : TypeContainer, R : LqReader<'r>> CmpContext<'r> for DefaultCmpContext<'a, 'r, C, R> {
+impl<'a, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r> for DefaultCmpContext<'a, 'r, C, R> {
     type Reader = R;
 
     fn compare(

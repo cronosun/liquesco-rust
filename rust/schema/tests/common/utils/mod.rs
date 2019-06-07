@@ -7,10 +7,10 @@ use liquesco_schema::identifier::Identifier;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::{DefaultSchemaBuilder, SchemaBuilder};
 use liquesco_schema::type_container::DefaultTypeContainer;
+use liquesco_serialization::core::ToVecLqWriter;
 use liquesco_serialization::serde::serialize;
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::vec_writer::VecWriter;
-use liquesco_serialization::core::ToVecLqWriter;
 use std::convert::TryInto;
 use std::fmt::Debug;
 

@@ -1,11 +1,11 @@
 // TODO: Rename file to "element_writer"
 
-use liquesco_schema::core::TypeContainer;
 use crate::type_description::type_description;
 use crate::usage::Usage;
 use liquesco_common::error::LqError;
 use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::core::Type;
+use liquesco_schema::core::TypeContainer;
 use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::{Format, Identifier};
 use minidom::Element;
@@ -74,7 +74,7 @@ pub trait ContextFunctions<'a>: ContextProvider<'a> {
         Self::display_name_for(&self.type_info())
     }
 
-    fn display_name_for(type_info : &TypeInfo) -> Cow<'static, str> {
+    fn display_name_for(type_info: &TypeInfo) -> Cow<'static, str> {
         let identifier: &Identifier = type_info.identifier();
         Cow::Owned(format!("Type[{}]", identifier.to_string(Format::SnakeCase)))
     }

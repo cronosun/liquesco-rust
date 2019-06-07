@@ -1,4 +1,5 @@
 use crate::boolean::TBool;
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -24,7 +25,6 @@ use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
-use crate::context::CmpContext;
 
 /// A sequence of 0-n elements where every element is of the same type.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

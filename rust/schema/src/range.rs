@@ -7,6 +7,7 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 
 use crate::boolean::TBool;
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -23,7 +24,6 @@ use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
-use crate::context::CmpContext;
 
 /// A range.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

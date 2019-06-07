@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -20,7 +21,6 @@ use liquesco_serialization::enumeration::EnumHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::context::CmpContext;
 
 const MIN_VALUES: usize = 1;
 const MAX_VALUES: usize = 32;

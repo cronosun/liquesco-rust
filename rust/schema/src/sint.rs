@@ -1,3 +1,4 @@
+use crate::context::CmpContext;
 use crate::context::Context;
 use crate::core::Type;
 use crate::core::TypeRef;
@@ -17,7 +18,6 @@ use liquesco_serialization::sint::SInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::context::CmpContext;
 
 /// 64 bit signed integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
