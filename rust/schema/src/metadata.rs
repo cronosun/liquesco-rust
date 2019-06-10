@@ -1,7 +1,7 @@
 use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
-use liquesco_serialization::uuid::Uuid;
+use liquesco_serialization::types::uuid::Uuid;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::convert::TryFrom;

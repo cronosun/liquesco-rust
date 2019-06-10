@@ -1,16 +1,16 @@
-use crate::binary::Binary;
-use crate::boolean::Bool;
+use crate::types::binary::Binary;
+use crate::types::boolean::Bool;
 use crate::core::LqWriter;
 use crate::core::Serializer as S;
-use crate::enumeration::EnumHeader;
-use crate::float::Float32;
-use crate::float::Float64;
-use crate::option::Presence;
-use crate::seq::SeqHeader;
+use crate::types::enumeration::EnumHeader;
+use crate::types::float::Float32;
+use crate::types::float::Float64;
+use crate::types::option::Presence;
+use crate::types::seq::SeqHeader;
 use crate::serde::error::SLqError;
-use crate::sint::{SInt16, SInt32, SInt64, SInt8};
-use crate::uint::{UInt16, UInt32, UInt64, UInt8};
-use crate::unicode::Unicode;
+use crate::types::sint::{SInt16, SInt32, SInt64, SInt8};
+use crate::types::uint::{UInt16, UInt32, UInt64, UInt8};
+use crate::types::unicode::Unicode;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 

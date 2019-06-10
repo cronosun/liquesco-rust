@@ -8,7 +8,7 @@ use liquesco_common::error::LqError;
 use liquesco_schema::enumeration::TEnum;
 use liquesco_schema::identifier::Identifier;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::enumeration::EnumHeader;
+use liquesco_serialization::types::enumeration::EnumHeader;
 
 use std::convert::TryFrom;
 

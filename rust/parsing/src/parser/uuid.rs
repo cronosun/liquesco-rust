@@ -24,9 +24,9 @@ impl<'a> Parser<'a> for PUuid {
         let uuid = uuid::Uuid::parse_str(text);
         match uuid {
             Result::Ok(uuid) => {
-                liquesco_serialization::uuid::Uuid::serialize(
+                liquesco_serialization::types::uuid::Uuid::serialize(
                     writer,
-                    &liquesco_serialization::uuid::Uuid::from(uuid.as_bytes()),
+                    &liquesco_serialization::types::uuid::Uuid::from(uuid.as_bytes()),
                 )?;
                 Ok(())
             }

@@ -1,4 +1,4 @@
-use liquesco_serialization::boolean::Bool;
+use liquesco_serialization::types::boolean::Bool;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -22,7 +22,7 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_serialization::core::LqReader;
-use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::types::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
 
 /// A range.

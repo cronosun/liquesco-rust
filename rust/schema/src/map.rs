@@ -24,7 +24,7 @@ use liquesco_common::range::LqRangeBounds;
 use liquesco_common::range::NewFull;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
-use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::types::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::{min, Ordering};
 use std::convert::TryFrom;

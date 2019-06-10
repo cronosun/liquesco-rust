@@ -1,5 +1,5 @@
-use crate::float::Float;
-use crate::uuid::Uuid;
+use crate::types::float::Float;
+use crate::types::uuid::Uuid;
 use crate::value::Value;
 use crate::value::ValueRef;
 use crate::value::ValueSeq;

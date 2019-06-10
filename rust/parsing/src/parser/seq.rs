@@ -6,7 +6,7 @@ use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::seq::TSeq;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::types::seq::SeqHeader;
 use std::convert::TryFrom;
 
 pub struct PSeq;

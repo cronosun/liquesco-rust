@@ -8,8 +8,8 @@ use liquesco_schema::ascii::TAscii;
 use liquesco_schema::core::TypeContainer;
 use liquesco_schema::seq::TSeq;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::seq::SeqHeader;
-use liquesco_serialization::unicode::Unicode;
+use liquesco_serialization::types::seq::SeqHeader;
+use liquesco_serialization::types::unicode::Unicode;
 use std::convert::TryFrom;
 
 pub struct PIdentifier;

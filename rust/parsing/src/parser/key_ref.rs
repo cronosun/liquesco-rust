@@ -7,7 +7,7 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::Serializer;
 
 use liquesco_schema::key_ref::TKeyRef;
-use liquesco_serialization::uint::UInt32;
+use liquesco_serialization::types::uint::UInt32;
 
 pub struct PKeyRef;
 

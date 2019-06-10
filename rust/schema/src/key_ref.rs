@@ -13,7 +13,7 @@ use crate::structure::TStruct;
 use crate::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::uint::UInt32;
+use liquesco_serialization::types::uint::UInt32;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

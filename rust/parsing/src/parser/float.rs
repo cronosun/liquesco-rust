@@ -6,7 +6,7 @@ use liquesco_common::error::LqError;
 use liquesco_schema::float::TFloat32;
 use liquesco_schema::float::TFloat64;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::float::Float;
+use liquesco_serialization::types::float::Float;
 
 pub struct PFloat32;
 

@@ -19,7 +19,7 @@ use liquesco_common::error::LqError;
 use liquesco_common::ine_range::{U32IneRange, U64IneRange};
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::unicode::UncheckedUnicode;
+use liquesco_serialization::types::unicode::UncheckedUnicode;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

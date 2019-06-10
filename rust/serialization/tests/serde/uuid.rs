@@ -1,6 +1,6 @@
 use crate::serde::assert_serde;
 use crate::serde::serialize_to_same;
-use liquesco_serialization::uuid::Uuid;
+use liquesco_serialization::types::uuid::Uuid;
 use serde_bytes;
 
 #[test]

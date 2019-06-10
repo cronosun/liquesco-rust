@@ -14,7 +14,7 @@ use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
-use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::types::seq::SeqHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

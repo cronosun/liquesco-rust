@@ -12,7 +12,7 @@ use crate::structure::Field;
 use crate::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::option::Presence;
+use liquesco_serialization::types::option::Presence;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

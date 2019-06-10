@@ -14,7 +14,7 @@ use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::uint::UInt64;
+use liquesco_serialization::types::uint::UInt64;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;

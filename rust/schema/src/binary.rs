@@ -15,7 +15,7 @@ use crate::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
-use liquesco_serialization::binary::Binary;
+use liquesco_serialization::types::binary::Binary;
 use liquesco_serialization::core::DeSerializer;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;

@@ -1,4 +1,4 @@
-use crate::binary::Binary;
+use crate::types::binary::Binary;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;

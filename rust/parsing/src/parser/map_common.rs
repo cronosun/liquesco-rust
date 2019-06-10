@@ -12,7 +12,7 @@ use liquesco_schema::map::Sorting;
 use std::io::Write;
 
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::seq::SeqHeader;
+use liquesco_serialization::types::seq::SeqHeader;
 use liquesco_serialization::slice_reader::SliceReader;
 
 use liquesco_common::ine_range::U32IneRange;
