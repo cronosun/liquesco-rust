@@ -5,7 +5,7 @@ use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use crate::parser::value::Value;
 use liquesco_common::error::LqError;
-use liquesco_schema::structure::TStruct;
+use liquesco_schema::types::structure::TStruct;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::types::seq::SeqHeader;
 use std::convert::TryFrom;

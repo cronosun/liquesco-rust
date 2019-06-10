@@ -1,22 +1,22 @@
-use crate::boolean::TBool;
+use crate::types::boolean::TBool;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
+use crate::types::enumeration::TEnum;
+use crate::types::enumeration::Variant;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::option::TOption;
-use crate::range::Inclusion;
-use crate::range::TRange;
+use crate::types::option::TOption;
+use crate::types::range::Inclusion;
+use crate::types::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_common::range::LqRangeBounds;
@@ -120,7 +120,7 @@ impl<'a> TSeq<'a> {
 impl Type for TSeq<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();
@@ -260,7 +260,7 @@ fn validate_with_ordering<'c, C>(
     number_of_items: u32,
 ) -> Result<(), LqError>
 where
-    C: Context<'c>,
+    C: ValidationContext<'c>,
 {
     // here validation is a bit more complex
     let mut previous: Option<C::Reader> = Option::None;

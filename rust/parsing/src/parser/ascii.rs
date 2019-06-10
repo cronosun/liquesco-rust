@@ -3,7 +3,7 @@ use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::ascii::TAscii;
+use liquesco_schema::types::ascii::TAscii;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::types::unicode::Unicode;
 

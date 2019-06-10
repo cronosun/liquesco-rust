@@ -1,7 +1,7 @@
 use crate::body_writer::Context;
 use crate::body_writer::TypedElementWriter;
 use liquesco_common::error::LqError;
-use liquesco_schema::boolean::TBool;
+use liquesco_schema::types::boolean::TBool;
 use minidom::Element;
 use std::marker::PhantomData;
 

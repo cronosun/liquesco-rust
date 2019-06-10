@@ -4,7 +4,7 @@ use std::cmp::Ordering;
 use std::fmt::{Debug, Display};
 
 use crate::any_type::AnyType;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::identifier::Identifier;
 use crate::identifier::StrIdentifier;
 use liquesco_common::error::LqError;
@@ -18,7 +18,7 @@ use std::borrow::Cow;
 pub trait Type: Debug + WithMetadata {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>;
+        C: ValidationContext<'c>;
 
     /// Compares r1 to r2. It's expected that you call this function only
     /// on data that has been validated successfully (if you call this on

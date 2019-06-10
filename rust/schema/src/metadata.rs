@@ -6,14 +6,14 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::convert::TryFrom;
 
-use crate::option::TOption;
+use crate::types::option::TOption;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq;
-use crate::seq::{Sorted, TSeq};
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::unicode::{LengthType, TUnicode};
-use crate::uuid::TUuid;
+use crate::types::seq::{Sorted, TSeq};
+use crate::types::seq;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::unicode::{LengthType, TUnicode};
+use crate::types::uuid::TUuid;
 use serde::export::PhantomData;
 
 /// Something that has metadata.

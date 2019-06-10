@@ -1,23 +1,23 @@
-use crate::boolean::TBool;
+use crate::types::boolean::TBool;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::context::KeyRefInfo;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
+use crate::types::enumeration::TEnum;
+use crate::types::enumeration::Variant;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::range::Inclusion;
-use crate::range::TRange;
+use crate::types::range::Inclusion;
+use crate::types::range::TRange;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_common::range::LqRangeBounds;
@@ -103,7 +103,7 @@ impl<'a> TMap<'a> {
 impl Type for TMap<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let entries = SeqHeader::de_serialize(context.reader())?;
         let length = entries.length();
@@ -246,7 +246,7 @@ pub(crate) fn validate_map<'c, C>(
     anchors: bool,
 ) -> Result<(), LqError>
 where
-    C: Context<'c>,
+    C: ValidationContext<'c>,
 {
     // length OK?
     length_range.require_within(

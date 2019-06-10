@@ -6,21 +6,21 @@ use std::convert::TryFrom;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 
-use crate::boolean::TBool;
+use crate::types::boolean::TBool;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
+use crate::types::enumeration::TEnum;
+use crate::types::enumeration::Variant;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
 use liquesco_serialization::core::LqReader;
 use liquesco_serialization::types::seq::SeqHeader;
 use std::cmp::Ordering::Equal;
@@ -74,7 +74,7 @@ impl<'a> TRange<'a> {
 impl Type for TRange<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let seq = SeqHeader::de_serialize(context.reader())?;
         let number_of_items = seq.length();

@@ -3,7 +3,7 @@ use crate::body_writer::ContextFunctions;
 use crate::body_writer::TypedElementWriter;
 use liquesco_common::error::LqError;
 use liquesco_schema::identifier::Format;
-use liquesco_schema::structure::TStruct;
+use liquesco_schema::types::structure::TStruct;
 use minidom::Element;
 use std::marker::PhantomData;
 

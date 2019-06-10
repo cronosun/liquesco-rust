@@ -9,8 +9,8 @@ use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
 use liquesco_common::range::NewFull;
 use liquesco_common::range::Range;
-use liquesco_schema::float::TFloat32;
-use liquesco_schema::float::TFloat64;
+use liquesco_schema::types::float::TFloat32;
+use liquesco_schema::types::float::TFloat64;
 
 #[test]
 fn schema1_32() {

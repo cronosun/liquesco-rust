@@ -5,7 +5,7 @@ use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
-use liquesco_schema::sint::TSInt;
+use liquesco_schema::types::sint::TSInt;
 
 #[test]
 fn schema1() {

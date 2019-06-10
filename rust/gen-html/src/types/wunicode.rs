@@ -3,8 +3,8 @@ use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
 use liquesco_common::error::LqError;
-use liquesco_schema::unicode;
-use liquesco_schema::unicode::TUnicode;
+use liquesco_schema::types::unicode;
+use liquesco_schema::types::unicode::TUnicode;
 use minidom::Element;
 use std::marker::PhantomData;
 

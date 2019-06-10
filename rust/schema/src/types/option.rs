@@ -1,15 +1,15 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::types::option::Presence;
@@ -42,7 +42,7 @@ impl<'a> TOption<'a> {
 impl Type for TOption<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let presence = Presence::de_serialize(context.reader())?;
 

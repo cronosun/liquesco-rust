@@ -3,8 +3,8 @@ use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::float::TFloat32;
-use liquesco_schema::float::TFloat64;
+use liquesco_schema::types::float::TFloat32;
+use liquesco_schema::types::float::TFloat64;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::types::float::Float;
 

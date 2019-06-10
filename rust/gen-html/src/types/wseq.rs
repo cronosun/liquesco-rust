@@ -4,8 +4,8 @@ use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
 use liquesco_common::error::LqError;
-use liquesco_schema::seq;
-use liquesco_schema::seq::TSeq;
+use liquesco_schema::types::seq;
+use liquesco_schema::types::seq::TSeq;
 use minidom::Element;
 use std::marker::PhantomData;
 

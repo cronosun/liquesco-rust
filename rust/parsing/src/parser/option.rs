@@ -2,7 +2,7 @@ use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::option::TOption;
+use liquesco_schema::types::option::TOption;
 use liquesco_serialization::core::Serializer;
 use liquesco_serialization::types::option::Presence;
 

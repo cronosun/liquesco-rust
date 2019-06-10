@@ -5,7 +5,7 @@ use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
-use liquesco_schema::ascii::TAscii;
+use liquesco_schema::types::ascii::TAscii;
 
 #[test]
 fn schema1() {

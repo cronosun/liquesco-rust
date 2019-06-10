@@ -2,11 +2,11 @@ use crate::utils::{assert_err, assert_ok, builder};
 use liquesco_common::ine_range::U64IneRange;
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::ascii::CodeRange;
-use liquesco_schema::ascii::TAscii;
+use liquesco_schema::types::ascii::CodeRange;
+use liquesco_schema::types::ascii::TAscii;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::seq::TSeq;
+use liquesco_schema::types::seq::TSeq;
 use liquesco_schema::type_container::DefaultTypeContainer;
 
 fn create_identifier_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {

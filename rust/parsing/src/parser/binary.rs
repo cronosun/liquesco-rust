@@ -3,7 +3,7 @@ use crate::parser::core::Context;
 use crate::parser::core::Parser;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::binary::TBinary;
+use liquesco_schema::types::binary::TBinary;
 use liquesco_serialization::types::binary::Binary;
 use liquesco_serialization::core::Serializer;
 

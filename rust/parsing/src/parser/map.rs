@@ -3,7 +3,7 @@ use crate::parser::core::Parser;
 use crate::parser::map_common::parse_map;
 use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::map::TMap;
+use liquesco_schema::types::map::TMap;
 
 pub struct PMap;
 

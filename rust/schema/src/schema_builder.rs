@@ -3,7 +3,7 @@ use crate::core::TypeContainer;
 use crate::core::{Type, TypeRef};
 use crate::identifier::Identifier;
 use crate::identifier::StrIdentifier;
-use crate::structure::TStruct;
+use crate::types::structure::TStruct;
 use crate::type_container::DefaultTypeContainer;
 use liquesco_common::error::LqError;
 use std::borrow::Cow;

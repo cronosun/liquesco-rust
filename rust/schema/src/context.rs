@@ -5,9 +5,8 @@ use liquesco_common::error::LqError;
 use liquesco_serialization::core::LqReader;
 use std::cmp::Ordering;
 
-// TODO: Rename to `ValidationContext`
 /// Data used for type validation.
-pub trait Context<'a>: CmpContext<'a> {
+pub trait ValidationContext<'a>: CmpContext<'a> {
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError>;
 
     fn validate_any_type(&mut self, any_type: &AnyType) -> Result<(), LqError>;

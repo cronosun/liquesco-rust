@@ -8,7 +8,7 @@ use crate::parser::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::TypeRef;
-use liquesco_schema::map::Sorting;
+use liquesco_schema::types::map::Sorting;
 use std::io::Write;
 
 use liquesco_serialization::core::Serializer;

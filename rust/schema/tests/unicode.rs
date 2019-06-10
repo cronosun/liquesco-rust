@@ -5,8 +5,8 @@ use common::ordering::ord_assert_equal;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use common::utils::single_schema;
-use liquesco_schema::unicode::LengthType;
-use liquesco_schema::unicode::TUnicode;
+use liquesco_schema::types::unicode::LengthType;
+use liquesco_schema::types::unicode::TUnicode;
 
 #[test]
 fn schema1() {

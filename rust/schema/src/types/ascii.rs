@@ -1,20 +1,20 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::range::Inclusion;
-use crate::range::TRange;
+use crate::types::range::Inclusion;
+use crate::types::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::Direction::Ascending;
-use crate::seq::Sorted;
-use crate::seq::TSeq;
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
+use crate::types::seq::Direction::Ascending;
+use crate::types::seq::Sorted;
+use crate::types::seq::TSeq;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::{U32IneRange, U64IneRange};
 use liquesco_common::range::LqRangeBounds;
@@ -163,7 +163,7 @@ impl TAscii<'_> {
 impl Type for TAscii<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let bytes = UncheckedUnicode::de_serialize(context.reader())?;
 

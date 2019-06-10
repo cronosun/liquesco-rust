@@ -1,5 +1,5 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
@@ -8,9 +8,9 @@ use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::SchemaBuilder;
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::types::uint::UInt32;
@@ -55,7 +55,7 @@ impl<'a> TKeyRef<'a> {
 impl Type for TKeyRef<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let ref_int = UInt32::de_serialize(context.reader())?;
         if let Some(ref_info) = context.key_ref_info(self.level) {

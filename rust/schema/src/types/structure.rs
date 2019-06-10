@@ -1,15 +1,15 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::TSeq;
+use crate::types::seq::TSeq;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
@@ -74,7 +74,7 @@ impl<'a> TStruct<'a> {
 impl<'a> Type for TStruct<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let list = SeqHeader::de_serialize(context.reader())?;
         let schema_number_of_fields = u32::try_from(self.fields().len())?;

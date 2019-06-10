@@ -1,15 +1,15 @@
 use crate::any_type::AnyType;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::context::KeyRefInfo;
 use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::MetadataSetter;
-use crate::root_map::TRootMap;
+use crate::types::root_map::TRootMap;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
@@ -128,7 +128,7 @@ impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
         reader: &'c mut R,
     ) -> Result<(), LqError> {
         let type_container: &C = &self.types;
-        let mut context = ValidationContext {
+        let mut context = DefaultValidationContext {
             types: type_container,
             config,
             reader,
@@ -141,7 +141,7 @@ impl<'a, C: TypeContainer + Clone> DefaultSchema<'a, C> {
     }
 }
 
-struct ValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
+struct DefaultValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
     types: &'s C,
     config: Config,
     reader: &'s mut R,
@@ -154,7 +154,7 @@ struct ValidationContext<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> {
 }
 
 impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r>
-    for ValidationContext<'s, 'c, 'r, C, R>
+    for DefaultValidationContext<'s, 'c, 'r, C, R>
 {
     type Reader = R;
 
@@ -176,8 +176,8 @@ impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r>
     }
 }
 
-impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> Context<'r>
-    for ValidationContext<'s, 'c, 'r, C, R>
+impl<'s, 'c, 'r, C: TypeContainer, R: LqReader<'r>> ValidationContext<'r>
+    for DefaultValidationContext<'s, 'c, 'r, C, R>
 {
     fn validate(&mut self, reference: &TypeRef) -> Result<(), LqError> {
         let any_type = self.types.require_type(reference)?;

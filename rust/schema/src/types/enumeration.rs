@@ -1,18 +1,18 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
+use crate::types::key_ref::TKeyRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::option::TOption;
+use crate::types::option::TOption;
 use crate::schema_builder::BuildsOwnSchema;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::seq::TSeq;
-use crate::structure::Field;
-use crate::structure::TStruct;
+use crate::types::seq::TSeq;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
@@ -129,7 +129,7 @@ impl<'a> TEnum<'a> {
 impl<'a> Type for TEnum<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let enum_header = EnumHeader::de_serialize(context.reader())?;
         let number_of_values = enum_header.number_of_values();

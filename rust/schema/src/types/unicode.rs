@@ -1,19 +1,19 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
+use crate::types::enumeration::TEnum;
+use crate::types::enumeration::Variant;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::range::Inclusion;
-use crate::range::TRange;
+use crate::types::range::Inclusion;
+use crate::types::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
@@ -96,7 +96,7 @@ impl<'a> TUnicode<'a> {
 impl Type for TUnicode<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         // we read the unchecked unicode (so we know the length of utf-8 bytes)
         let bytes = UncheckedUnicode::de_serialize(context.reader())?;

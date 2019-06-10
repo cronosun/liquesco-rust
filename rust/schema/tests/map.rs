@@ -6,11 +6,11 @@ use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
 
 use crate::common::builder::into_schema;
-use liquesco_schema::map::TMap;
+use liquesco_schema::types::map::TMap;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::sint::TSInt;
-use liquesco_schema::unicode::LengthType;
-use liquesco_schema::unicode::TUnicode;
+use liquesco_schema::types::sint::TSInt;
+use liquesco_schema::types::unicode::LengthType;
+use liquesco_schema::types::unicode::TUnicode;
 use std::collections::BTreeMap;
 
 #[test]

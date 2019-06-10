@@ -4,8 +4,8 @@ use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
 use liquesco_common::error::LqError;
-use liquesco_schema::map::Sorting;
-use liquesco_schema::root_map::TRootMap;
+use liquesco_schema::types::map::Sorting;
+use liquesco_schema::types::root_map::TRootMap;
 use minidom::Element;
 use std::marker::PhantomData;
 

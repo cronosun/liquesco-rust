@@ -1,12 +1,12 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::TStruct;
+use crate::types::structure::TStruct;
 use core::cmp::Ordering;
 use liquesco_common::error::LqError;
 use liquesco_serialization::types::binary::Binary;
@@ -31,7 +31,7 @@ impl<'a> Default for TUuid<'a> {
 impl Type for TUuid<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         // it's just a normal binary
         Uuid::de_serialize(context.reader())?;

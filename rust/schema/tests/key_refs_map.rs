@@ -5,17 +5,17 @@ use common::builder::into_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
-use liquesco_schema::seq::TSeq;
+use liquesco_schema::types::seq::TSeq;
 use std::convert::TryFrom;
 
 use liquesco_schema::identifier::Identifier;
-use liquesco_schema::key_ref::TKeyRef;
-use liquesco_schema::map::TMap;
+use liquesco_schema::types::key_ref::TKeyRef;
+use liquesco_schema::types::map::TMap;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::structure::Field;
-use liquesco_schema::structure::TStruct;
-use liquesco_schema::unicode::LengthType;
-use liquesco_schema::unicode::TUnicode;
+use liquesco_schema::types::structure::Field;
+use liquesco_schema::types::structure::TStruct;
+use liquesco_schema::types::unicode::LengthType;
+use liquesco_schema::types::unicode::TUnicode;
 use serde::{Deserialize, Serialize};
 use std::collections::BTreeMap;
 

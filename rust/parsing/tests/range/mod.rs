@@ -1,12 +1,12 @@
 use crate::utils::{assert_err, assert_ok, builder};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::range::{Inclusion, TRange};
+use liquesco_schema::types::range::{Inclusion, TRange};
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::seq::TSeq;
+use liquesco_schema::types::seq::TSeq;
 use liquesco_schema::type_container::DefaultTypeContainer;
-use liquesco_schema::uint::TUInt;
+use liquesco_schema::types::uint::TUInt;
 
 fn create_schema_given_inclusion() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     let mut builder = builder();

@@ -5,11 +5,11 @@ use common::builder::into_schema;
 use common::ordering::ord_schema;
 use common::utils::assert_valid_extended;
 use common::utils::id;
-use liquesco_schema::ascii::TAscii;
+use liquesco_schema::types::ascii::TAscii;
 use liquesco_schema::core::Schema;
-use liquesco_schema::enumeration::{TEnum, Variant};
-use liquesco_schema::seq::Direction;
-use liquesco_schema::uint::TUInt;
+use liquesco_schema::types::enumeration::{TEnum, Variant};
+use liquesco_schema::types::seq::Direction;
+use liquesco_schema::types::uint::TUInt;
 
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;

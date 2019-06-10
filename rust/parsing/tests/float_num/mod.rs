@@ -1,13 +1,13 @@
 use crate::utils::{assert_err, assert_ok, builder, id};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::float::TFloat32;
-use liquesco_schema::float::TFloat64;
+use liquesco_schema::types::float::TFloat32;
+use liquesco_schema::types::float::TFloat64;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::structure::Field;
-use liquesco_schema::structure::TStruct;
+use liquesco_schema::types::seq::TSeq;
+use liquesco_schema::types::structure::Field;
+use liquesco_schema::types::structure::TStruct;
 use liquesco_schema::type_container::DefaultTypeContainer;
 
 fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {

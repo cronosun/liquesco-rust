@@ -1,15 +1,15 @@
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::range::{Inclusion, TRange};
+use crate::types::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U64IneRange;
 use liquesco_common::range::LqRangeBounds;
@@ -50,7 +50,7 @@ impl<'a> TUInt<'a> {
 impl Type for TUInt<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let int_value = UInt64::de_serialize(context.reader())?;
         self.range

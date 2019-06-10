@@ -4,13 +4,13 @@ use common::builder::builder;
 use common::ordering::ord_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
-use liquesco_schema::ascii::TAscii;
-use liquesco_schema::boolean::TBool;
+use liquesco_schema::types::ascii::TAscii;
+use liquesco_schema::types::boolean::TBool;
 use liquesco_schema::core::Schema;
-use liquesco_schema::option::TOption;
+use liquesco_schema::types::option::TOption;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::seq::Direction;
+use liquesco_schema::types::seq::Direction;
 use liquesco_schema::type_container::DefaultTypeContainer;
 
 #[test]

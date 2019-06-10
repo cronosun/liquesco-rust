@@ -6,9 +6,9 @@ use common::ordering::ord_schema;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
 use liquesco_schema::core::Schema;
-use liquesco_schema::seq::Direction;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::uint::TUInt;
+use liquesco_schema::types::seq::Direction;
+use liquesco_schema::types::seq::TSeq;
+use liquesco_schema::types::uint::TUInt;
 
 use liquesco_schema::schema_builder::SchemaBuilder;
 use serde::{Deserialize, Serialize};

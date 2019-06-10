@@ -3,7 +3,7 @@ use crate::body_writer::TypedElementWriter;
 use crate::html::list_item;
 use crate::html::span;
 use liquesco_common::error::LqError;
-use liquesco_schema::key_ref::TKeyRef;
+use liquesco_schema::types::key_ref::TKeyRef;
 use minidom::Element;
 use std::marker::PhantomData;
 

@@ -1,17 +1,17 @@
-use crate::boolean::TBool;
+use crate::types::boolean::TBool;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::range::Inclusion;
-use crate::range::TRange;
+use crate::types::range::Inclusion;
+use crate::types::range::TRange;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::structure::Field;
-use crate::structure::TStruct;
+use crate::types::structure::Field;
+use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
 use liquesco_common::float::F32Ext;
 use liquesco_common::float::F64Ext;
@@ -137,7 +137,7 @@ impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
 impl Type for TFloat32<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let float_value = Float32::de_serialize(context.reader())?;
         let (is_nan, is_p_infinite, is_n_infinite) = if float_value.is_nan() {
@@ -191,7 +191,7 @@ impl<'a> MetadataSetter<'a> for TFloat32<'a> {
 impl Type for TFloat64<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         let float_value = Float64::de_serialize(context.reader())?;
         let (is_nan, is_p_infinite, is_n_infinite) = if float_value.is_nan() {

@@ -1,13 +1,13 @@
 use crate::utils::{assert_err, assert_ok, builder, id};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::any_type::AnyType;
-use liquesco_schema::ascii::TAscii;
-use liquesco_schema::enumeration::TEnum;
-use liquesco_schema::enumeration::Variant;
+use liquesco_schema::types::ascii::TAscii;
+use liquesco_schema::types::enumeration::TEnum;
+use liquesco_schema::types::enumeration::Variant;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::seq::TSeq;
-use liquesco_schema::sint::TSInt;
+use liquesco_schema::types::seq::TSeq;
+use liquesco_schema::types::sint::TSInt;
 use liquesco_schema::type_container::DefaultTypeContainer;
 
 /// Creates an enum

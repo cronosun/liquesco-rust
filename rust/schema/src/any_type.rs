@@ -1,31 +1,31 @@
-use crate::ascii::TAscii;
-use crate::binary::TBinary;
-use crate::boolean::TBool;
+use crate::types::ascii::TAscii;
+use crate::types::binary::TBinary;
+use crate::types::boolean::TBool;
 use crate::context::CmpContext;
-use crate::context::Context;
+use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
-use crate::enumeration::TEnum;
-use crate::enumeration::Variant;
-use crate::float::TFloat32;
-use crate::float::TFloat64;
+use crate::types::enumeration::TEnum;
+use crate::types::enumeration::Variant;
+use crate::types::float::TFloat32;
+use crate::types::float::TFloat64;
 use crate::identifier::Identifier;
-use crate::key_ref::TKeyRef;
-use crate::map::TMap;
+use crate::types::key_ref::TKeyRef;
+use crate::types::map::TMap;
 use crate::metadata::Meta;
 use crate::metadata::WithMetaSchemaBuilder;
 use crate::metadata::{MetadataSetter, WithMetadata};
-use crate::option::TOption;
-use crate::range::TRange;
-use crate::root_map::TRootMap;
+use crate::types::option::TOption;
+use crate::types::range::TRange;
+use crate::types::root_map::TRootMap;
 use crate::schema_builder::BaseTypeSchemaBuilder;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
-use crate::seq::TSeq;
-use crate::sint::TSInt;
-use crate::structure::TStruct;
-use crate::uint::TUInt;
-use crate::unicode::TUnicode;
-use crate::uuid::TUuid;
+use crate::types::seq::TSeq;
+use crate::types::sint::TSInt;
+use crate::types::structure::TStruct;
+use crate::types::uint::TUInt;
+use crate::types::unicode::TUnicode;
+use crate::types::uuid::TUuid;
 use from_variants::FromVariants;
 use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
@@ -84,7 +84,7 @@ impl<'a> WithMetadata for AnyType<'a> {
 impl<'a> Type for AnyType<'a> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
-        C: Context<'c>,
+        C: ValidationContext<'c>,
     {
         // is there no macro for this?
         match self {
