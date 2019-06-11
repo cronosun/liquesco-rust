@@ -11,10 +11,10 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::I64IneRange;
+use liquesco_common::ine_range::{I128IneRange};
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::types::sint::SInt64;
+use liquesco_serialization::types::sint::{SInt128};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -23,26 +23,27 @@ use std::convert::TryFrom;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt<'a> {
     meta: Meta<'a>,
-    range: I64IneRange,
+    range: I128IneRange,
 }
 
 impl<'a> TSInt<'a> {
-    pub fn new(range: I64IneRange) -> Self {
+    pub fn new(range: I128IneRange) -> Self {
         Self {
             meta: Meta::empty(),
             range,
         }
     }
 
-    pub fn try_new(min: i64, max: i64) -> Result<Self, LqError> {
-        Result::Ok(TSInt::new(I64IneRange::try_new(
+    pub fn try_new<TMin, TMax>(min: TMin, max: TMax) -> Result<Self, LqError>
+        where TMin : Into<i128>, TMax : Into<i128> {
+        Result::Ok(TSInt::new(I128IneRange::try_new(
             "Signed integer range",
-            min,
-            max,
+            min.into(),
+            max.into(),
         )?))
     }
 
-    pub fn range(&self) -> &I64IneRange {
+    pub fn range(&self) -> &I128IneRange {
         &self.range
     }
 }
@@ -52,7 +53,7 @@ impl Type for TSInt<'_> {
     where
         C: ValidationContext<'c>,
     {
-        let int_value = SInt64::de_serialize(context.reader())?;
+        let int_value = SInt128::de_serialize(context.reader())?;
         self.range
             .require_within("Signed integer schema validation", &int_value)?;
         Result::Ok(())
@@ -67,8 +68,8 @@ impl Type for TSInt<'_> {
     where
         C: CmpContext<'c>,
     {
-        let int1 = SInt64::de_serialize(r1)?;
-        let int2 = SInt64::de_serialize(r2)?;
+        let int1 = SInt128::de_serialize(r1)?;
+        let int2 = SInt128::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
     }
 
@@ -100,7 +101,7 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
     {
         let element = builder.add_unwrap(
             "sint_range_element",
-            TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),
+            TSInt::try_new(std::i128::MIN, std::i128::MAX).unwrap(),
         );
 
         let field_range = builder.add_unwrap(
@@ -116,6 +117,6 @@ impl BaseTypeSchemaBuilder for TSInt<'_> {
                 Identifier::try_from("range").unwrap(),
                 field_range,
             ))
-            .with_doc("Signed integer - maximum 64 bit.")
+            .with_doc("Signed integer - maximum 128 bit.")
     }
 }

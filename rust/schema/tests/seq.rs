@@ -90,7 +90,7 @@ fn too_many_elements() {
 
 fn create_schema() -> impl Schema {
     let mut builder = builder();
-    let int = builder.add_unwrap("uint", TUInt::try_new(50, 100).unwrap());
+    let int = builder.add_unwrap("uint", TUInt::try_new(50u32, 100u32).unwrap());
     let root = builder.add_unwrap("root", TSeq::try_new(int, 1, 10).unwrap());
     into_schema(builder, root)
 }
@@ -101,7 +101,7 @@ struct WithSequence(Vec<u32>);
 fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
-            let element = builder.add_unwrap("element", TUInt::try_new(0, std::u64::MAX).unwrap());
+            let element = builder.add_unwrap("element", TUInt::try_new(0u32, std::u64::MAX).unwrap());
             let seq = TSeq::try_new(element, 0, std::u32::MAX).unwrap();
             builder.add_unwrap("sequence", seq)
         },

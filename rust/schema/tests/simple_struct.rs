@@ -23,7 +23,7 @@ use std::string::ToString;
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add_unwrap("int", TUInt::try_new(2, 144).unwrap());
+    let int = builder.add_unwrap("int", TUInt::try_new(2u32, 144u32).unwrap());
     let upper_case = builder.add_unwrap("upper_case", TAscii::try_new(2, 10, 65, 90).unwrap());
     let root = builder.add_unwrap(
         "root",
@@ -103,7 +103,7 @@ struct Schema1StructLong {
 fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
-            let type_x = builder.add_unwrap("type_x", TUInt::try_new(0, std::u64::MAX).unwrap());
+            let type_x = builder.add_unwrap("type_x", TUInt::try_new(0u32, std::u64::MAX).unwrap());
             let type_y = builder.add_unwrap(
                 "type_y",
                 TSInt::try_new(std::i64::MIN, std::i64::MAX).unwrap(),

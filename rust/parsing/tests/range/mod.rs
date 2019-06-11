@@ -13,7 +13,7 @@ fn create_schema_given_inclusion() -> DefaultSchema<'static, DefaultTypeContaine
 
     let range_element = builder.add_unwrap(
         "range_element",
-        AnyType::UInt(TUInt::try_new(5, 150).unwrap()),
+        AnyType::UInt(TUInt::try_new(5u32, 150u32).unwrap()),
     );
     let range_value = TRange::new(range_element, Inclusion::StartInclusive, false);
     let range = builder.add_unwrap("range", AnyType::Range(range_value));
@@ -27,7 +27,7 @@ fn create_schema_supplied_inclusion() -> DefaultSchema<'static, DefaultTypeConta
 
     let range_element = builder.add_unwrap(
         "range_element",
-        AnyType::UInt(TUInt::try_new(5, 150).unwrap()),
+        AnyType::UInt(TUInt::try_new(5u32, 150u32).unwrap()),
     );
     let range_value = TRange::new(range_element, Inclusion::Supplied, false);
     let range = builder.add_unwrap("range", AnyType::Range(range_value));

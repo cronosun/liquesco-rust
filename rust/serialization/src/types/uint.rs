@@ -112,7 +112,7 @@ impl<'a> DeSerializer<'a> for UInt8 {
     type Item = u8;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = UInt64::de_serialize(reader)?;
+        let value = UInt128::de_serialize(reader)?;
         Ok(Self::Item::try_from(value)?)
     }
 }
@@ -121,7 +121,7 @@ impl Serializer for UInt8 {
     type Item = u8;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &u64::from(*item))
+        UInt128::serialize(writer, &u128::from(*item))
     }
 }
 
@@ -131,7 +131,7 @@ impl<'a> DeSerializer<'a> for UInt16 {
     type Item = u16;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = UInt64::de_serialize(reader)?;
+        let value = UInt128::de_serialize(reader)?;
         Ok(Self::Item::try_from(value)?)
     }
 }
@@ -140,7 +140,7 @@ impl Serializer for UInt16 {
     type Item = u16;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &u64::from(*item))
+        UInt128::serialize(writer, &u128::from(*item))
     }
 }
 
@@ -150,7 +150,7 @@ impl<'a> DeSerializer<'a> for UInt32 {
     type Item = u32;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
-        let value = UInt64::de_serialize(reader)?;
+        let value = UInt128::de_serialize(reader)?;
         Ok(Self::Item::try_from(value)?)
     }
 }
@@ -159,6 +159,6 @@ impl Serializer for UInt32 {
     type Item = u32;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        UInt64::serialize(writer, &u64::from(*item))
+        UInt128::serialize(writer, &u128::from(*item))
     }
 }

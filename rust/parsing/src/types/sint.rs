@@ -5,7 +5,7 @@ use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::types::sint::TSInt;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::types::sint::SInt64;
+use liquesco_serialization::types::sint::{SInt128};
 
 pub struct PSInt;
 
@@ -21,8 +21,8 @@ impl<'a> Parser<'a> for PSInt {
     where
         C: Context<'c>,
     {
-        let value = C::TConverter::require_i64(value.as_ref())?;
-        SInt64::serialize(writer, &value)?;
+        let value = C::TConverter::require_i128(value.as_ref())?;
+        SInt128::serialize(writer, &value)?;
         Result::Ok(())
     }
 }

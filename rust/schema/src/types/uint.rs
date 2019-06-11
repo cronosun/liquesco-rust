@@ -11,10 +11,10 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::U64IneRange;
+use liquesco_common::ine_range::{U128IneRange};
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::types::uint::UInt64;
+use liquesco_serialization::types::uint::{UInt128};
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -23,26 +23,27 @@ use std::convert::TryFrom;
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUInt<'a> {
     meta: Meta<'a>,
-    range: U64IneRange,
+    range: U128IneRange,
 }
 
 impl<'a> TUInt<'a> {
-    pub fn new(range: U64IneRange) -> Self {
+    pub fn new(range: U128IneRange) -> Self {
         Self {
             meta: Meta::empty(),
             range,
         }
     }
 
-    pub fn try_new(min: u64, max: u64) -> Result<Self, LqError> {
-        Result::Ok(TUInt::new(U64IneRange::try_new(
+    pub fn try_new<TMin, TMax>(min: TMin, max: TMax) -> Result<Self, LqError>
+    where TMin : Into<u128>, TMax : Into<u128> {
+        Result::Ok(TUInt::new(U128IneRange::try_new(
             "Unsigned integer range",
-            min,
-            max,
+            min.into(),
+            max.into(),
         )?))
     }
 
-    pub fn range(&self) -> &U64IneRange {
+    pub fn range(&self) -> &U128IneRange {
         &self.range
     }
 }
@@ -52,7 +53,7 @@ impl Type for TUInt<'_> {
     where
         C: ValidationContext<'c>,
     {
-        let int_value = UInt64::de_serialize(context.reader())?;
+        let int_value = UInt128::de_serialize(context.reader())?;
         self.range
             .require_within("Unsigned integer schema validation", &int_value)?;
         Result::Ok(())
@@ -67,8 +68,8 @@ impl Type for TUInt<'_> {
     where
         C: CmpContext<'c>,
     {
-        let int1 = UInt64::de_serialize(r1)?;
-        let int2 = UInt64::de_serialize(r2)?;
+        let int1 = UInt128::de_serialize(r1)?;
+        let int2 = UInt128::de_serialize(r2)?;
         Result::Ok(int1.cmp(&int2))
     }
 
@@ -100,7 +101,7 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
     {
         let element = builder.add_unwrap(
             "uint_range_element",
-            TUInt::try_new(std::u64::MIN, std::u64::MAX).unwrap(),
+            TUInt::try_new(std::u128::MIN, std::u128::MAX).unwrap(),
         );
 
         let field_range = builder.add_unwrap(
@@ -116,6 +117,6 @@ impl BaseTypeSchemaBuilder for TUInt<'_> {
                 Identifier::try_from("range").unwrap(),
                 field_range,
             ))
-            .with_doc("Unsigned integer - maximum 64 bit.")
+            .with_doc("Unsigned integer - maximum 128 bit.")
     }
 }

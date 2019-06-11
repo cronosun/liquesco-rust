@@ -40,26 +40,21 @@ pub trait Converter {
         })
     }
 
-    fn to_u64(value: &Value) -> Option<u64> {
+    fn to_u128(value: &Value) -> Option<u128> {
         match value {
-            Value::U64(value) => Option::Some(*value),
+            Value::U64(value) => Option::Some(u128::from(*value)),
             Value::I64(value) => {
-                let s_value = *value;
-                if s_value >= 0 {
-                    Option::Some(s_value as u64)
-                } else {
-                    Option::None
-                }
+                u128::try_from(*value).ok()
             }
             // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
             // TODO: Also accept hex encoding...
-            Value::Text(text) => text.parse::<u64>().ok(),
+            Value::Text(text) => text.parse::<u128>().ok(),
             _ => Option::None,
         }
     }
 
-    fn require_u64(value: &Value) -> Result<u64, LqError> {
-        require(Self::to_u64(value), || {
+    fn require_u128(value: &Value) -> Result<u128, LqError> {
+        require(Self::to_u128(value), || {
             format!("Expecting an unsigned integer, got {:?}", value)
         })
     }
@@ -85,25 +80,21 @@ pub trait Converter {
         })
     }
 
-    fn to_i64(value: &Value) -> Option<i64> {
+    fn to_i128(value: &Value) -> Option<i128> {
         match value {
-            Value::I64(value) => Option::Some(*value),
+            Value::I64(value) => Option::Some(i128::from(*value)),
             Value::U64(value) => {
-                if value < &(std::i64::MAX as u64) {
-                    Some(*value as i64)
-                } else {
-                    Option::None
-                }
+                i128::try_from(*value).ok()
             }
             // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
             // TODO: Also accept hex encoding...
-            Value::Text(text) => text.parse::<i64>().ok(),
+            Value::Text(text) => text.parse::<i128>().ok(),
             _ => Option::None,
         }
     }
 
-    fn require_i64(value: &Value) -> Result<i64, LqError> {
-        require(Self::to_i64(value), || {
+    fn require_i128(value: &Value) -> Result<i128, LqError> {
+        require(Self::to_i128(value), || {
             format!("Expecting a signed integer, got {:?}", value)
         })
     }
@@ -225,8 +216,8 @@ pub trait Converter {
                 let number_of_elements = seq.len();
                 let mut result = Vec::with_capacity(number_of_elements);
                 for element in seq {
-                    if let Some(element_as_number) = Self::to_u64(&element.value) {
-                        if element_as_number <= std::u8::MAX as u64 {
+                    if let Some(element_as_number) = Self::to_u128(&element.value) {
+                        if element_as_number <= std::u8::MAX as u128 {
                             result.push(element_as_number as u8);
                         } else {
                             return None;

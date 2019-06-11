@@ -232,7 +232,7 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
     {
         let length_element = builder.add_unwrap(
             "ascii_length_element",
-            TUInt::try_new(0, std::u64::MAX).unwrap(),
+            TUInt::try_new(0u64, std::u64::MAX).unwrap(),
         );
         let field_length = builder.add_unwrap(
             "ascii_length",
@@ -243,7 +243,7 @@ impl BaseTypeSchemaBuilder for TAscii<'_> {
             ),
         );
 
-        let range_element = builder.add_unwrap("ascii_code", TUInt::try_new(0, 128).unwrap());
+        let range_element = builder.add_unwrap("ascii_code", TUInt::try_new(0u32, 128u32).unwrap());
         let field_codes = builder.add_unwrap(
             "codes",
             TSeq::new(

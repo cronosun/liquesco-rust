@@ -27,7 +27,7 @@ fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     );
     let field_year_born = builder.add_unwrap(
         "year_born",
-        AnyType::UInt(TUInt::try_new(1000, 3000).unwrap()),
+        AnyType::UInt(TUInt::try_new(1000u32, 3000u32).unwrap()),
     );
     let email = builder.add_unwrap(
         "email",

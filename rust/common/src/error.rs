@@ -80,6 +80,10 @@ impl LqError {
 
 impl From<TryFromIntError> for LqError {
     fn from(value: TryFromIntError) -> Self {
+        if true {
+            // TODO
+            panic!("err")
+        }
         LqError::new(format!(
             "The given integers could not be converted (casted); this \
              can either happen on platforms with small usize (in general this library only works \

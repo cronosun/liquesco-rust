@@ -19,7 +19,7 @@ use serde::{Deserialize, Serialize};
 #[test]
 fn schema1() {
     let mut builder = builder();
-    let int = builder.add_unwrap("int", TUInt::try_new(1, 200).unwrap());
+    let int = builder.add_unwrap("int", TUInt::try_new(1u32, 200u32).unwrap());
     let upper_case = builder.add_unwrap("ascii", TAscii::try_new(2, 10, 65, 90).unwrap());
     let root = builder.add_unwrap(
         "root",
@@ -71,7 +71,7 @@ fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
             let variant1_type =
-                builder.add_unwrap("variant1_type", TUInt::try_new(0, std::u64::MAX).unwrap());
+                builder.add_unwrap("variant1_type", TUInt::try_new(0u32, std::u64::MAX).unwrap());
             builder.add_unwrap(
                 "enum",
                 TEnum::default()

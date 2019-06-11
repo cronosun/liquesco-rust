@@ -9,7 +9,9 @@ use std::ops::RangeBounds;
 pub type F32IneRange = IneRange<f32>;
 pub type F64IneRange = IneRange<f64>;
 pub type U64IneRange = IneRange<u64>;
+pub type U128IneRange = IneRange<u128>;
 pub type I64IneRange = IneRange<i64>;
+pub type I128IneRange = IneRange<i128>;
 pub type U32IneRange = IneRange<u32>;
 pub type U8IneRange = IneRange<u8>;
 

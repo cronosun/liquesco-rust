@@ -44,7 +44,7 @@ fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
     // outer map
     // note: we can reference own keys in root type.
     let root_type = builder.add_unwrap("root_type", TKeyRef::default());
-    let outer_map_key = builder.add_unwrap("outer_map_key", TUInt::try_new(0, 100).unwrap());
+    let outer_map_key = builder.add_unwrap("outer_map_key", TUInt::try_new(0u32, 100u32).unwrap());
     let outer_map = builder.add_unwrap(
         "outer_map",
         TRootMap::new(root_type, outer_map_key, inner_map),

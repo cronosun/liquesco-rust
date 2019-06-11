@@ -122,7 +122,7 @@ impl BaseTypeSchemaBuilder for TKeyRef<'_> {
     {
         let level_type = builder.add_unwrap(
             "level",
-            TUInt::try_new(0, u64::from(std::u32::MAX))
+            TUInt::try_new(0u32, u64::from(std::u32::MAX))
                 .unwrap()
                 .with_doc(
                     "Specifies which outer map you want to reference. This is usually \
