@@ -1,8 +1,8 @@
-use crate::parser::converter::Converter;
-use crate::parser::core::Context;
-use crate::parser::core::Parser;
-use crate::parser::map_common::parse_map;
-use crate::parser::value::TextValue;
+use crate::converter::Converter;
+use crate::core::Context;
+use crate::core::Parser;
+use crate::types::map_common::parse_map;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 
 use liquesco_serialization::core::Serializer;

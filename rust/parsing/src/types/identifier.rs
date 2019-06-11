@@ -1,7 +1,7 @@
-use crate::parser::converter::Converter;
-use crate::parser::core::Context;
-use crate::parser::value::Text;
-use crate::parser::value::TextValue;
+use crate::converter::Converter;
+use crate::core::Context;
+use crate::value::Text;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
 use liquesco_schema::types::ascii::TAscii;

@@ -1,8 +1,8 @@
-use crate::parser::converter::Converter;
-use crate::parser::core::Context;
-use crate::parser::core::Parser;
-use crate::parser::identifier::PIdentifier;
-use crate::parser::value::TextValue;
+use crate::converter::Converter;
+use crate::core::Context;
+use crate::core::Parser;
+use crate::types::identifier::PIdentifier;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::types::seq::TSeq;
 use liquesco_serialization::core::Serializer;

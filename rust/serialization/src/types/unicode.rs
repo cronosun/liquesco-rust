@@ -1,5 +1,5 @@
-use crate::common_binary::binary_read;
-use crate::common_binary::binary_write;
+use crate::types::common_binary::binary_read;
+use crate::types::common_binary::binary_write;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;

@@ -1,10 +1,10 @@
 // Common utilities for map parsing
 
-use crate::parser::converter::Converter;
-use crate::parser::core::AnchorInfo;
-use crate::parser::core::Context;
-use crate::parser::value::Seq;
-use crate::parser::value::TextValue;
+use crate::converter::Converter;
+use crate::core::AnchorInfo;
+use crate::core::Context;
+use crate::value::Seq;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::TypeRef;

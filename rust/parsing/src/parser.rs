@@ -1,8 +1,8 @@
-use crate::parser::any_parser::parse_any;
-use crate::parser::converter::Converter;
-use crate::parser::core::AnchorInfo;
-use crate::parser::core::Context;
-use crate::parser::value::TextValue;
+use crate::any_parser::parse_any;
+use crate::converter::Converter;
+use crate::core::AnchorInfo;
+use crate::core::Context;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::{Schema, TypeRef};
 use liquesco_serialization::core::ToVecLqWriter;
@@ -42,8 +42,6 @@ where
         r#type: &TypeRef,
         value: &TextValue,
     ) -> Result<(), LqError> {
-        //let taken_anchor_info = self.anchor_info.take();
-
         let maybe_any_type = self.schema().maybe_type(r#type);
         let any_type = maybe_any_type.unwrap(); // TODO
 
@@ -56,8 +54,6 @@ where
 
         // TODO: Add position if position is missing
         let result = parse_any(&mut context, any_type, value, writer);
-
-        //self.anchor_info = context.anchor_info;
 
         result
     }

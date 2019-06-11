@@ -1,5 +1,5 @@
-use crate::parser::converter::Converter;
-use crate::parser::value::TextValue;
+use crate::converter::Converter;
+use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::Schema;
 use liquesco_schema::core::Type;

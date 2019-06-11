@@ -268,7 +268,7 @@ fn enrich_validation_error<'a, R: LqReader<'a>>(
 
 struct DefaultCmpContext<'a, 'r, C: TypeContainer, R: LqReader<'r>> {
     types: &'a C,
-    extended_diagnostics: bool, // TODO: Use
+    extended_diagnostics: bool,
     _phantom1: PhantomData<R>,
     _phantom2: PhantomData<&'r ()>,
 }
@@ -283,7 +283,19 @@ impl<'a, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r> for DefaultCmpCon
         r2: &mut Self::Reader,
     ) -> Result<Ordering, LqError> {
         if let Some(any_type) = self.types.maybe_type(reference) {
-            any_type.compare(self, r1, r2)
+            if self.extended_diagnostics {
+                let saved_reader1 = r1.clone();
+                let saved_reader2 = r2.clone();
+                let result = any_type.compare(self, r1, r2);
+                match result {
+                    Err(err) => {
+                        Err(enrich_cmp_error(err, saved_reader1, saved_reader2))
+                    },
+                    Ok(ok) => Ok(ok)
+                }
+            } else {
+                any_type.compare(self, r1, r2)
+            }
         } else {
             LqError::err_new(format!(
                 "Type (reference {:?}) not found. \
@@ -292,4 +304,31 @@ impl<'a, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r> for DefaultCmpCon
             ))
         }
     }
+}
+
+fn enrich_cmp_error<'a, R: LqReader<'a>>(
+    err: LqError,
+    mut r1: R,
+    mut r2 : R,
+) -> LqError {
+    let value1 = Value::de_serialize(&mut r1);
+    let value1_str = match value1 {
+        Ok(ok) => format!("{}", ok),
+        Err(err) => format!("{:?}", err),
+    };
+
+    let value2 = Value::de_serialize(&mut r2);
+    let value2_str = match value2 {
+        Ok(ok) => format!("{}", ok),
+        Err(err) => format!("{:?}", err),
+    };
+
+    let new_msg = format!(
+        "{}. Extended diagnostics:\n\n - Compare LHS: {:?}\n\n - \
+         Compare RHS: {:?}",
+        err.msg(),
+        value1_str,
+        value2_str
+    );
+    err.with_msg(new_msg)
 }

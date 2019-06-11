@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display};
-use std::num::TryFromIntError;
+use std::num::{TryFromIntError, ParseIntError};
 
 pub const DEFAULT_CATEGORY: Category = Category("default");
 pub const DEFAULT_CODE: ErrCode = ErrCode(0);
@@ -93,5 +93,14 @@ impl From<TryFromIntError> for LqError {
 impl From<std::io::Error> for LqError {
     fn from(value: std::io::Error) -> Self {
         LqError::new(format!("Got an I/O error: {:?}", value))
+    }
+}
+
+impl From<ParseIntError> for LqError {
+    fn from(value: ParseIntError) -> Self {
+        LqError::new(format!(
+            "Unable to parse given integer (converting from string to integer); error: {:?}",
+            value
+        ))
     }
 }

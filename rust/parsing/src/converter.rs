@@ -1,7 +1,7 @@
-use crate::parser::value::Seq;
-use crate::parser::value::Text;
-use crate::parser::value::TextValue;
-use crate::parser::value::Value;
+use crate::value::Seq;
+use crate::value::Text;
+use crate::value::TextValue;
+use crate::value::Value;
 use data_encoding::BASE64_NOPAD;
 use data_encoding::HEXLOWER_PERMISSIVE;
 use liquesco_common::error::LqError;
@@ -254,43 +254,11 @@ pub trait Converter {
             )
         })
     }
-
-    // TODO: Remove?
-    fn master_anchor() -> &'static str {
-        "MAIN*"
-    }
-
-    // TODO: Remove?
-    fn validate_reference(value: &str) -> Result<(), LqError> {
-        if value == Self::master_anchor() {
-            // of course the master anchor is OK
-            Result::Ok(())
-        } else {
-            if !value.ends_with("*") {
-                return Err(LqError::new(format!(
-                    "References must end with `*`; \
-                     the reference you supplied does not: `{:?}`",
-                    value
-                )));
-            }
-            let len = value.len();
-            let (identifier, _) = value.split_at(len - 1);
-            if Identifier::try_from(identifier).is_err() {
-                return Err(LqError::new(format!(
-                    "References must be valid \
-                     identifiers (see doc; essentially only latin lower cases and underscores). \
-                     You supplied: `{:?}`",
-                    identifier
-                )));
-            }
-            Result::Ok(())
-        }
-    }
 }
 
 pub enum IdentifierType {
     StructField,
-    EnumIdentifier, // TODO: Vielleicht das in klammern?
+    EnumIdentifier,
 }
 
 fn require<T, Msg: FnOnce() -> String>(value: Option<T>, msg: Msg) -> Result<T, LqError> {

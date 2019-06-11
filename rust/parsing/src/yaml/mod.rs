@@ -1,5 +1,5 @@
-use crate::parser::core::Context;
-use crate::parser::parser::ParserContext;
+use crate::core::Context;
+use crate::parser::ParserContext;
 use crate::yaml::deserializer::deserialize;
 use liquesco_common::error::LqError;
 use liquesco_schema::core::{Config, Schema};

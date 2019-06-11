@@ -8,3 +8,5 @@ pub mod sint;
 pub mod uint;
 pub mod unicode;
 pub mod uuid;
+
+pub(crate) mod common_binary;
