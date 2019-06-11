@@ -106,27 +106,39 @@ impl<'a> From<ValueVariant<'a>> for Value<'a> {
     }
 }
 
+impl From<u128> for Value<'static> {
+    fn from(value: u128) -> Self {
+        Value::UInt(value)
+    }
+}
+
+impl From<i128> for Value<'static> {
+    fn from(value: i128) -> Self {
+        Value::SInt(value)
+    }
+}
+
 impl From<u64> for Value<'static> {
     fn from(value: u64) -> Self {
-        Value::UInt(value)
+        Value::UInt(u128::from(value))
     }
 }
 
 impl From<i64> for Value<'static> {
     fn from(value: i64) -> Self {
-        Value::SInt(value)
+        Value::SInt(i128::from(value))
     }
 }
 
 impl From<u32> for Value<'static> {
     fn from(value: u32) -> Self {
-        Value::UInt(u64::from(value))
+        Value::UInt(u128::from(value))
     }
 }
 
 impl From<i32> for Value<'static> {
     fn from(value: i32) -> Self {
-        Value::SInt(i64::from(value))
+        Value::SInt(i128::from(value))
     }
 }
 
@@ -208,7 +220,7 @@ impl<'a> TryFrom<&'a Value<'a>> for &'a str {
     }
 }
 
-impl<'a> TryFrom<&'a Value<'a>> for u64 {
+impl<'a> TryFrom<&'a Value<'a>> for u128 {
     type Error = LqError;
 
     fn try_from(value: &'a Value<'a>) -> Result<Self, Self::Error> {
@@ -220,7 +232,7 @@ impl<'a> TryFrom<&'a Value<'a>> for u64 {
     }
 }
 
-impl<'a> TryFrom<&'a Value<'a>> for i64 {
+impl<'a> TryFrom<&'a Value<'a>> for i128 {
     type Error = LqError;
 
     fn try_from(value: &'a Value<'a>) -> Result<Self, Self::Error> {

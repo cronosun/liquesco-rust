@@ -10,7 +10,7 @@ use std::cmp::Ordering;
 /// Note: To make sure cmp and equals work you have to use normalized values.
 #[derive(Clone, Copy, PartialEq, Eq, Hash, Debug, Serialize, Deserialize)]
 pub struct Decimal {
-    coefficient: i64,
+    coefficient: i64, // TODO: i128
     exponent: i8,
 }
 

@@ -7,11 +7,11 @@ use crate::major_types::TYPE_UINT;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
-/// 64 bit unsigned integer.
-pub struct UInt64;
+/// 128 bit unsigned integer.
+pub struct UInt128;
 
-impl<'a> DeSerializer<'a> for UInt64 {
-    type Item = u64;
+impl<'a> DeSerializer<'a> for UInt128 {
+    type Item = u128;
 
     fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
         let type_header = reader.read_header_byte()?;
@@ -30,12 +30,71 @@ impl<'a> DeSerializer<'a> for UInt64 {
 
         match content_description.self_length() {
             0 => Result::Ok(0),
-            1 => Result::Ok(u64::from(reader.read_u8()?)),
-            2 => Result::Ok(u64::from(reader.read_u16()?)),
-            4 => Result::Ok(u64::from(reader.read_u32()?)),
-            8 => reader.read_u64(),
+            1 => Result::Ok(u128::from(reader.read_u8()?)),
+            2 => Result::Ok(u128::from(reader.read_u16()?)),
+            4 => Result::Ok(u128::from(reader.read_u32()?)),
+            8 => Result::Ok(u128::from(reader.read_u64()?)),
+            16 => Result::Ok(reader.read_u128()?),
             _ => LqError::err_new("Invalid length for unsigned integer type"),
         }
+    }
+}
+
+impl Serializer for UInt128 {
+    type Item = u128;
+
+    fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
+        let deref_item = *item;
+        match deref_item {
+            0 => writer.write_content_description(TYPE_UINT, &ContentDescription::default()),
+            n if n >= u128::from(std::u8::MIN) && n <= u128::from(std::u8::MAX) => {
+                writer.write_content_description(
+                    TYPE_UINT,
+                    &ContentDescription::new_self_length(1),
+                )?;
+                writer.write_u8(deref_item as u8)
+            }
+            n if n >= u128::from(std::u16::MIN) && n <= u128::from(std::u16::MAX) => {
+                writer.write_content_description(
+                    TYPE_UINT,
+                    &ContentDescription::new_self_length(2),
+                )?;
+                writer.write_u16(deref_item as u16)
+            }
+            n if n >= u128::from(std::u32::MIN) && n <= u128::from(std::u32::MAX) => {
+                writer.write_content_description(
+                    TYPE_UINT,
+                    &ContentDescription::new_self_length(4),
+                )?;
+                writer.write_u32(deref_item as u32)
+            }
+            n if n >= u128::from(std::u64::MIN) && n <= u128::from(std::u64::MAX) => {
+                writer.write_content_description(
+                    TYPE_UINT,
+                    &ContentDescription::new_self_length(8),
+                )?;
+                writer.write_u64(deref_item as u64)
+            }
+            _ => {
+                writer.write_content_description(
+                    TYPE_UINT,
+                    &ContentDescription::new_self_length(16),
+                )?;
+                writer.write_u128(*item)
+            }
+        }
+    }
+}
+
+/// 64 bit unsigned integer.
+pub struct UInt64;
+
+impl<'a> DeSerializer<'a> for UInt64 {
+    type Item = u64;
+
+    fn de_serialize<R: LqReader<'a>>(reader: &mut R) -> Result<Self::Item, LqError> {
+        let value = UInt128::de_serialize(reader)?;
+        Ok(Self::Item::try_from(value)?)
     }
 }
 
@@ -43,38 +102,7 @@ impl Serializer for UInt64 {
     type Item = u64;
 
     fn serialize<W: LqWriter>(writer: &mut W, item: &Self::Item) -> Result<(), LqError> {
-        let deref_item = *item;
-        match deref_item {
-            0 => writer.write_content_description(TYPE_UINT, &ContentDescription::default()),
-            n if n >= u64::from(std::u8::MIN) && n <= u64::from(std::u8::MAX) => {
-                writer.write_content_description(
-                    TYPE_UINT,
-                    &ContentDescription::new_self_length(1),
-                )?;
-                writer.write_u8(deref_item as u8)
-            }
-            n if n >= u64::from(std::u16::MIN) && n <= u64::from(std::u16::MAX) => {
-                writer.write_content_description(
-                    TYPE_UINT,
-                    &ContentDescription::new_self_length(2),
-                )?;
-                writer.write_u16(deref_item as u16)
-            }
-            n if n >= u64::from(std::u32::MIN) && n <= u64::from(std::u32::MAX) => {
-                writer.write_content_description(
-                    TYPE_UINT,
-                    &ContentDescription::new_self_length(4),
-                )?;
-                writer.write_u32(deref_item as u32)
-            }
-            _ => {
-                writer.write_content_description(
-                    TYPE_UINT,
-                    &ContentDescription::new_self_length(8),
-                )?;
-                writer.write_u64(*item)
-            }
-        }
+        UInt128::serialize(writer, &u128::from(*item))
     }
 }
 

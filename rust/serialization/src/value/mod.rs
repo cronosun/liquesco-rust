@@ -25,8 +25,8 @@ use crate::major_types::TYPE_UINT;
 use crate::major_types::TYPE_UNICODE;
 use crate::types::option::Presence;
 use crate::types::seq::SeqHeader;
-use crate::types::sint::SInt64;
-use crate::types::uint::UInt64;
+use crate::types::sint::{SInt128};
+use crate::types::uint::{UInt128};
 use crate::types::unicode::Unicode;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
@@ -47,8 +47,8 @@ pub enum Value<'a> {
     Option(Option<ValueRef<'a>>),
     Seq(ValueSeq<'a>),
     Enum(ValueVariant<'a>),
-    UInt(u64),
-    SInt(i64),
+    UInt(u128),
+    SInt(i128),
     Float(Float),
 }
 
@@ -208,11 +208,11 @@ impl<'a> DeSerializer<'a> for Value<'a> {
                 }
             }
             TYPE_UINT => {
-                let value = UInt64::de_serialize(reader)?;
+                let value = UInt128::de_serialize(reader)?;
                 Value::UInt(value)
             }
             TYPE_SINT => {
-                let value = SInt64::de_serialize(reader)?;
+                let value = SInt128::de_serialize(reader)?;
                 Value::SInt(value)
             }
             TYPE_FLOAT => {
@@ -266,8 +266,8 @@ impl<'a> Serializer for Value<'a> {
                 }
                 Result::Ok(())
             }
-            Value::UInt(value) => UInt64::serialize(writer, value),
-            Value::SInt(value) => SInt64::serialize(writer, value),
+            Value::UInt(value) => UInt128::serialize(writer, value),
+            Value::SInt(value) => SInt128::serialize(writer, value),
             Value::Float(value) => Float::serialize(writer, value),
         }
     }

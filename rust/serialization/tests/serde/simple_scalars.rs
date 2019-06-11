@@ -14,6 +14,7 @@ fn uints() {
     assert_serde(1_227_454u32);
     assert_serde(std::u64::MAX);
     assert_serde(std::u64::MIN);
+    assert_serde(std::u128::MAX);
 }
 
 #[test]
@@ -23,6 +24,7 @@ fn sints() {
     assert_serde(-1_227_454i32);
     assert_serde(std::i64::MIN);
     assert_serde(std::i64::MAX);
+    assert_serde(std::i128::MAX);
 }
 
 #[test]

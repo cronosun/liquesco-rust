@@ -8,8 +8,8 @@ use crate::types::float::Float64;
 use crate::types::option::Presence;
 use crate::types::seq::SeqHeader;
 use crate::serde::error::SLqError;
-use crate::types::sint::{SInt16, SInt32, SInt64, SInt8};
-use crate::types::uint::{UInt16, UInt32, UInt64, UInt8};
+use crate::types::sint::{SInt16, SInt32, SInt64, SInt8, SInt128};
+use crate::types::uint::{UInt16, UInt32, UInt64, UInt8, UInt128};
 use crate::types::unicode::Unicode;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
@@ -60,6 +60,10 @@ impl<'a, W: LqWriter> ser::Serializer for &'a mut Serializer<'a, W> {
         Ok(SInt64::serialize(self.writer, &v)?)
     }
 
+    fn serialize_i128(self, v: i128) -> Result<()> {
+        Ok(SInt128::serialize(self.writer, &v)?)
+    }
+
     fn serialize_u8(self, v: u8) -> Result<()> {
         Ok(UInt8::serialize(self.writer, &v)?)
     }
@@ -74,6 +78,10 @@ impl<'a, W: LqWriter> ser::Serializer for &'a mut Serializer<'a, W> {
 
     fn serialize_u64(self, v: u64) -> Result<()> {
         Ok(UInt64::serialize(self.writer, &v)?)
+    }
+
+    fn serialize_u128(self, v: u128) -> Result<()> {
+        Ok(UInt128::serialize(self.writer, &v)?)
     }
 
     fn serialize_f32(self, v: f32) -> Result<()> {

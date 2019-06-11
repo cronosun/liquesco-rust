@@ -91,6 +91,10 @@ pub trait LqWriter: std::io::Write + Sized {
         Ok(WriteBytesExt::write_u64::<LittleEndian>(self, data)?)
     }
 
+    fn write_u128(&mut self, data: u128) -> Result<(), LqError> {
+        Ok(WriteBytesExt::write_u128::<LittleEndian>(self, data)?)
+    }
+
     fn write_i8(&mut self, data: i8) -> Result<(), LqError> {
         Ok(WriteBytesExt::write_i8(self, data)?)
     }
@@ -105,6 +109,10 @@ pub trait LqWriter: std::io::Write + Sized {
 
     fn write_i64(&mut self, data: i64) -> Result<(), LqError> {
         Ok(WriteBytesExt::write_i64::<LittleEndian>(self, data)?)
+    }
+
+    fn write_i128(&mut self, data: i128) -> Result<(), LqError> {
+        Ok(WriteBytesExt::write_i128::<LittleEndian>(self, data)?)
     }
 
     fn write_f32(&mut self, data: f32) -> Result<(), LqError> {
@@ -206,6 +214,10 @@ pub trait LqReader<'a>: std::io::Read {
         Ok(ReadBytesExt::read_u64::<LittleEndian>(self)?)
     }
 
+    fn read_u128(&mut self) -> Result<u128, LqError> {
+        Ok(ReadBytesExt::read_u128::<LittleEndian>(self)?)
+    }
+
     fn read_header_byte(&mut self) -> Result<HeaderByte, LqError> {
         let header_byte = LqReader::read_u8(self)?;
         Result::Ok(HeaderByte::from_u8(header_byte))
@@ -225,6 +237,10 @@ pub trait LqReader<'a>: std::io::Read {
 
     fn read_i64(&mut self) -> Result<i64, LqError> {
         Ok(ReadBytesExt::read_i64::<LittleEndian>(self)?)
+    }
+
+    fn read_i128(&mut self) -> Result<i128, LqError> {
+        Ok(ReadBytesExt::read_i128::<LittleEndian>(self)?)
     }
 
     fn read_f32(&mut self) -> Result<f32, LqError> {
