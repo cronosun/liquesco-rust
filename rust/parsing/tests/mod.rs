@@ -9,3 +9,4 @@ pub mod key_ref;
 pub mod map;
 pub mod range;
 pub mod structure;
+pub mod decimal;

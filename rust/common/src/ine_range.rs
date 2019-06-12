@@ -14,6 +14,7 @@ pub type I64IneRange = IneRange<i64>;
 pub type I128IneRange = IneRange<i128>;
 pub type U32IneRange = IneRange<u32>;
 pub type U8IneRange = IneRange<u8>;
+pub type I8IneRange = IneRange<i8>;
 
 /// Inclusive non-empty range.
 ///
@@ -79,5 +80,17 @@ impl NewFull for F64IneRange {
 impl NewFull for U32IneRange {
     fn full() -> Self {
         Self::try_new("Full range", std::u32::MIN, std::u32::MAX).unwrap()
+    }
+}
+
+impl NewFull for I128IneRange {
+    fn full() -> Self {
+        Self::try_new("Full range", std::i128::MIN, std::i128::MAX).unwrap()
+    }
+}
+
+impl NewFull for I8IneRange {
+    fn full() -> Self {
+        Self::try_new("Full range", std::i8::MIN, std::i8::MAX).unwrap()
     }
 }

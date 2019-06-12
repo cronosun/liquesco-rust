@@ -31,6 +31,7 @@ use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::types::decimal::TDecimal;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 ///
@@ -55,6 +56,7 @@ pub enum AnyType<'a> {
     Ascii(TAscii<'a>),
     Uuid(TUuid<'a>),
     Range(TRange<'a>),
+    Decimal(TDecimal<'a>)
 }
 
 impl<'a> WithMetadata for AnyType<'a> {
@@ -77,6 +79,7 @@ impl<'a> WithMetadata for AnyType<'a> {
             AnyType::Unicode(value) => value.meta(),
             AnyType::Uuid(value) => value.meta(),
             AnyType::Range(value) => value.meta(),
+            AnyType::Decimal(value) => value.meta(),
         }
     }
 }
@@ -105,6 +108,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Unicode(value) => value.validate(context),
             AnyType::Uuid(value) => value.validate(context),
             AnyType::Range(value) => value.validate(context),
+            AnyType::Decimal(value) => value.validate(context),
         }
     }
 
@@ -136,6 +140,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Unicode(value) => value.compare(context, r1, r2),
             AnyType::Uuid(value) => value.compare(context, r1, r2),
             AnyType::Range(value) => value.compare(context, r1, r2),
+            AnyType::Decimal(value) => value.compare(context, r1, r2),
         }
     }
 
@@ -158,6 +163,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Unicode(value) => value.reference(index),
             AnyType::Uuid(value) => value.reference(index),
             AnyType::Range(value) => value.reference(index),
+            AnyType::Decimal(value) => value.reference(index),
         }
     }
 
@@ -180,6 +186,7 @@ impl<'a> Type for AnyType<'a> {
             AnyType::Unicode(value) => value.set_reference(index, type_ref),
             AnyType::Uuid(value) => value.set_reference(index, type_ref),
             AnyType::Range(value) => value.set_reference(index, type_ref),
+            AnyType::Decimal(value) => value.set_reference(index, type_ref),
         }
     }
 }
@@ -206,6 +213,7 @@ impl BuildsOwnSchema for AnyType<'_> {
         let ref_ascii = doc_type_ref::<TAscii, B>("ascii", builder);
         let ref_uuid = doc_type_ref::<TUuid, B>("uuid", builder);
         let ref_range = doc_type_ref::<TRange, B>("range", builder);
+        let ref_decimal = doc_type_ref::<TDecimal, B>("decimal", builder);
 
         builder.add_unwrap(
             "any_type",
@@ -227,6 +235,7 @@ impl BuildsOwnSchema for AnyType<'_> {
                 .add_variant(variant(ref_ascii, "ascii"))
                 .add_variant(variant(ref_uuid, "uuid"))
                 .add_variant(variant(ref_range, "range"))
+                .add_variant(variant(ref_decimal, "decimal"))
                 .with_doc(
                     "The any type is an enumeration of all possible types available \
                      in the type system.",

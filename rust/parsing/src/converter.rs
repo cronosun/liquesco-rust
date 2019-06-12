@@ -10,6 +10,9 @@ use liquesco_schema::identifier::Identifier;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
+use liquesco_common::decimal::Decimal;
+use std::fmt::Write;
+use std::ops::Deref;
 
 /// Naming:
 /// - require: Returns an error when conversion is not possible.
@@ -140,6 +143,34 @@ pub trait Converter {
                 "Expecting a float 32 (if this is an integer, try adding .0; e.g. 12 \
                  -> 12.0; of it looks like a float, make sure it can be represented as 32 bit \
                  float value without loosing precision), got {:?}",
+                value
+            )
+        })
+    }
+
+    fn to_decimal(value: &Value) -> Option<Decimal> {
+        // will also accept floats and ints
+        if let Value::Text(text) = value {
+            Decimal::try_from(text.deref()).ok()
+        } else if let Some(float) = Self::to_f64(value) {
+            let mut as_string = String::new();
+            if let Ok(_) = write!(&mut as_string, "{}", float) {
+                Decimal::try_from(as_string.as_str()).ok()
+            } else {
+                None
+            }
+        } else if let Some(int) = Self::to_i128(value) {
+            Some(Decimal::from_parts(int, 0))
+        } else {
+            None
+        }
+    }
+
+    fn require_decimal(value: &Value) -> Result<Decimal, LqError> {
+        require(Self::to_decimal(value), || {
+            format!(
+                "Expecting a decimal value; Valid decimal values look like \
+                this: 12.23, 12, 5e-4 or 4e3. got {:?}",
                 value
             )
         })

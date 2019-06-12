@@ -14,6 +14,7 @@ pub mod structure;
 pub mod uint;
 pub mod unicode;
 pub mod uuid;
+pub mod decimal;
 
 pub mod identifier;
 pub mod map_common;

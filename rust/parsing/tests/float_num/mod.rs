@@ -32,7 +32,6 @@ fn create_schema() -> DefaultSchema<'static, DefaultTypeContainer<'static>> {
         AnyType::Seq(TSeq::try_new(structure, 1, 20).unwrap()),
     );
 
-    // people (structure) within a sequence
     builder.finish(root).unwrap().into()
 }
 

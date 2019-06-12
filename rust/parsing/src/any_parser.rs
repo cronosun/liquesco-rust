@@ -20,6 +20,7 @@ use crate::core::Context;
 use crate::core::Parser;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
+use crate::types::decimal::PDecimal;
 
 pub(crate) fn parse_any<'c, C>(
     context: &mut C,
@@ -48,5 +49,6 @@ where
         AnyType::Map(value) => PMap::parse(context, writer, text_value, value),
         AnyType::RootMap(value) => PRootMap::parse(context, writer, text_value, value),
         AnyType::KeyRef(value) => PKeyRef::parse(context, writer, text_value, value),
+        AnyType::Decimal(value) => PDecimal::parse(context, writer, text_value, value),
     }
 }
