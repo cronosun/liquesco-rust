@@ -8,7 +8,5 @@ edition = "2018"
 liquesco-common = { path = "../common" }
 derive_more = "0.13.0"
 liquesco-schema = { path = "../schema" }
-#for demo (TODO: Remove)
-quick-xml = "0.14.0"
 minidom = "0.10.0"
 lazy_static = "1.3.0"
