@@ -29,6 +29,8 @@ impl<'a> Parser<'a> for PSeq {
             return Ok(());
         }
 
+        // TODO: Since we now have a dedicated range type, automatically sort here?
+
         let seq = C::TConverter::require_seq(value.as_ref())?;
         let len = seq.len();
         let u32_len = u32::try_from(len)?;

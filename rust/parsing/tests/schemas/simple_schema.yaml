@@ -1,0 +1,71 @@
+---
+- people_map
+- people_map:
+    - map
+    - meta:
+        doc: "A map of some people: keys are of type person_id, values of type person. The map is
+        sorted by keys, ascending. This map of people is also the root type of this schema."
+      key: person_id
+      value: person
+      # This restricts the number of entries in this map.
+      length: [0, 65536]
+      sorting: ascending
+      # This map provides anchors so we can reference those anchors; see "child_of_a_person".
+      anchors: true
+  person_id:
+    - binary
+    - meta:
+        doc: "That's just an arbitrary binary of 100 bytes maximum that identifies a person
+        uniquely in the map (could be an ID from a database or something similar)."
+      length: [0, 100]
+  person:
+    - struct
+    - meta:
+        doc: "This is a person, it can have children (optionally)."
+      fields:
+        - name: first_name
+          type: first_name
+        - name: last_name
+          type: last_name
+        - name: year_born
+          type: year_born
+        - name: children
+          type: children_of_a_person
+  first_name:
+    - unicode
+    - meta:
+        doc: "First name of a person."
+      length: [1, 1000]
+      length_type: utf8_byte
+  last_name:
+    - unicode
+    - meta:
+        doc: "Last name of a person."
+      length: [1, 1000]
+      length_type: utf8_byte
+  year_born:
+    - uint
+    - meta:
+        doc: "The year this person was born."
+      range: [0, 7000]
+  children_of_a_person:
+    - seq
+    - meta:
+        doc: "A sequence of 0-n children of a person."
+      element: child_of_a_person
+      length: [0, 255]
+      # Note: Ordering is set to ascending and unique. So this is actually a set: duplicate
+      # children are not allowed. Every set in liquesco has to be sorted for 2 reasons: To
+      # make sure there's only one possible representation for the same data and it's much
+      # easier and performing to check for duplicate entries in the set.
+      ordering:
+        - sorted
+        - direction: ascending
+          unique: true
+  child_of_a_person:
+    - key_ref
+    - meta:
+        doc: "It's a single child of a person. It references a single person in the outer map."
+      # Level is set to 0. So this references an entry from the next outer map (that's
+      # 'people_map' in this case). This is how liquesco handles recursive data.
+      level: 0

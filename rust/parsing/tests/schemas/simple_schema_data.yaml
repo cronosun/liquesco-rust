@@ -1,0 +1,31 @@
+# this demonstrates data that validates against the 'simple_schema.yaml"
+
+---
+hex:99999000:
+  first_name: Lutz
+  last_name: Roeder
+  year_born: 1965
+  children:
+    - hex:12344DD0
+    - hex:5545FC
+hex:77677780:
+  first_name: Alberta
+  last_name: Roeder
+  year_born: 1966
+  children:
+    - hex:12344DD0
+hex:5545FC:
+  first_name: Laura
+  last_name: Roeder
+  year_born: 2003
+  children: []
+hex:12344DD0:
+  first_name: Robert
+  last_name: Roeder
+  year_born: 2009
+  children: []
+hex:005675F1:
+  first_name: Someone
+  last_name: Else
+  year_born: 1997
+  children: []
