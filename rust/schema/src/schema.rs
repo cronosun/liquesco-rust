@@ -1,16 +1,16 @@
 use crate::any_type::AnyType;
 use crate::context::CmpContext;
-use crate::context::ValidationContext;
 use crate::context::KeyRefInfo;
+use crate::context::ValidationContext;
 use crate::core::Schema;
 use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
 use crate::identifier::Identifier;
-use crate::types::key_ref::TKeyRef;
 use crate::metadata::MetadataSetter;
-use crate::types::root_map::TRootMap;
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use crate::types::key_ref::TKeyRef;
+use crate::types::root_map::TRootMap;
 use liquesco_common::error::LqError;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::LqReader;
@@ -288,10 +288,8 @@ impl<'a, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r> for DefaultCmpCon
                 let saved_reader2 = r2.clone();
                 let result = any_type.compare(self, r1, r2);
                 match result {
-                    Err(err) => {
-                        Err(enrich_cmp_error(err, saved_reader1, saved_reader2))
-                    },
-                    Ok(ok) => Ok(ok)
+                    Err(err) => Err(enrich_cmp_error(err, saved_reader1, saved_reader2)),
+                    Ok(ok) => Ok(ok),
                 }
             } else {
                 any_type.compare(self, r1, r2)
@@ -306,11 +304,7 @@ impl<'a, 'r, C: TypeContainer, R: LqReader<'r>> CmpContext<'r> for DefaultCmpCon
     }
 }
 
-fn enrich_cmp_error<'a, R: LqReader<'a>>(
-    err: LqError,
-    mut r1: R,
-    mut r2 : R,
-) -> LqError {
+fn enrich_cmp_error<'a, R: LqReader<'a>>(err: LqError, mut r1: R, mut r2: R) -> LqError {
     let value1 = Value::de_serialize(&mut r1);
     let value1_str = match value1 {
         Ok(ok) => format!("{}", ok),

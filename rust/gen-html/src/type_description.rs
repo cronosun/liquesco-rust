@@ -41,5 +41,7 @@ pub(crate) fn type_description(any_type: &AnyType) -> (&'static str, &'static st
             The keys can be referenced. The root cannot be referenced. The root can reference keys."),
             AnyType::KeyRef(_) => ("key_ref", "Key references can reference keys from outer types \
             that supports references (provide anchors that can be referenced): Maps and RootMaps."),
+            AnyType::Decimal(_) => ("decimal", "A normalized decimal number. It's composed of \
+            a signed 128 bit coefficient (at max) and a signed 8 bit exponent (at max) (c*10^e)."),
     }
 }

@@ -1,14 +1,14 @@
+use crate::core::DeSerializer;
+use crate::serde::error::SLqError;
 use crate::types::binary::Binary;
 use crate::types::boolean::Bool;
-use crate::core::DeSerializer;
 use crate::types::enumeration::EnumHeader;
 use crate::types::float::Float32;
 use crate::types::float::Float64;
 use crate::types::option::Presence;
 use crate::types::seq::SeqHeader;
-use crate::serde::error::SLqError;
-use crate::types::sint::{SInt16, SInt32, SInt64, SInt8, SInt128};
-use crate::types::uint::{UInt16, UInt32, UInt64, UInt8, UInt128};
+use crate::types::sint::{SInt128, SInt16, SInt32, SInt64, SInt8};
+use crate::types::uint::{UInt128, UInt16, UInt32, UInt64, UInt8};
 use crate::types::unicode::Unicode;
 use liquesco_common::error::LqError;
 use serde::de::IntoDeserializer;
@@ -89,8 +89,8 @@ where
     }
 
     fn deserialize_i128<V>(self, visitor: V) -> Result<V::Value>
-        where
-            V: Visitor<'de>,
+    where
+        V: Visitor<'de>,
     {
         let value = SInt128::de_serialize(&mut self.reader)?;
         visitor.visit_i128(value)
@@ -129,8 +129,8 @@ where
     }
 
     fn deserialize_u128<V>(self, visitor: V) -> Result<V::Value>
-        where
-            V: Visitor<'de>,
+    where
+        V: Visitor<'de>,
     {
         let value = UInt128::de_serialize(&mut self.reader)?;
         visitor.visit_u128(value)

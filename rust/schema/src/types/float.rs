@@ -1,4 +1,3 @@
-use crate::types::boolean::TBool;
 use crate::context::CmpContext;
 use crate::context::ValidationContext;
 use crate::core::Type;
@@ -7,9 +6,10 @@ use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
+use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::types::boolean::TBool;
 use crate::types::range::Inclusion;
 use crate::types::range::TRange;
-use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
@@ -314,8 +314,10 @@ where
             Identifier::try_from("allow_negative_infinity").unwrap(),
             allow_negative_infinity_field,
         ))
-        .with_doc("A floating point number. This should be used for technical things. When \
-        working with numbers like amount of money consider using the decimal type.")
+        .with_doc(
+            "A floating point number. This should be used for technical things. When \
+             working with numbers like amount of money consider using the decimal type.",
+        )
 }
 
 impl BaseTypeSchemaBuilder for Float32 {

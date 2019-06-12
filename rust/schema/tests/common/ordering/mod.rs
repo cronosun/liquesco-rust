@@ -9,9 +9,9 @@ use liquesco_schema::core::TypeRef;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::DefaultSchemaBuilder;
 use liquesco_schema::schema_builder::SchemaBuilder;
+use liquesco_schema::type_container::DefaultTypeContainer;
 use liquesco_schema::types::seq::TSeq;
 use liquesco_schema::types::seq::{Direction, Sorted};
-use liquesco_schema::type_container::DefaultTypeContainer;
 use std::fmt::Debug;
 
 pub fn ord_assert_equal<T, S>(any_type: T, item1: S, item2: S)

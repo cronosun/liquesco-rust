@@ -6,15 +6,15 @@ use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::types::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::types::range::{Inclusion, TRange};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{I128IneRange};
+use liquesco_common::ine_range::I128IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::types::sint::{SInt128};
+use liquesco_serialization::types::sint::SInt128;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -35,7 +35,10 @@ impl<'a> TSInt<'a> {
     }
 
     pub fn try_new<TMin, TMax>(min: TMin, max: TMax) -> Result<Self, LqError>
-        where TMin : Into<i128>, TMax : Into<i128> {
+    where
+        TMin: Into<i128>,
+        TMax: Into<i128>,
+    {
         Result::Ok(TSInt::new(I128IneRange::try_new(
             "Signed integer range",
             min.into(),

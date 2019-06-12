@@ -1,6 +1,9 @@
+use crate::core::Context;
+use crate::core::Parser;
 use crate::types::ascii::PAscii;
 use crate::types::binary::PBinary;
 use crate::types::boolean::PBool;
+use crate::types::decimal::PDecimal;
 use crate::types::enumeration::PEnum;
 use crate::types::float::PFloat32;
 use crate::types::float::PFloat64;
@@ -16,11 +19,8 @@ use crate::types::uint::PUInt;
 use crate::types::unicode::PUnicode;
 use crate::types::uuid::PUuid;
 use crate::value::TextValue;
-use crate::core::Context;
-use crate::core::Parser;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
-use crate::types::decimal::PDecimal;
 
 pub(crate) fn parse_any<'c, C>(
     context: &mut C,

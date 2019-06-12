@@ -1,7 +1,7 @@
-use crate::types::ascii::{CodeRange, TAscii};
 use crate::core::TypeRef;
 use crate::metadata::{Meta, MetadataSetter};
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use crate::types::ascii::{CodeRange, TAscii};
 use crate::types::seq::TSeq;
 use core::convert::TryFrom;
 use liquesco_common::error::LqError;

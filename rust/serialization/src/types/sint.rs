@@ -7,7 +7,6 @@ use crate::major_types::TYPE_SINT;
 use liquesco_common::error::LqError;
 use std::convert::TryFrom;
 
-
 /// A 128 bit signed integer.
 pub struct SInt128;
 

@@ -1,8 +1,8 @@
-use crate::types::binary::Binary;
 use crate::core::DeSerializer;
 use crate::core::LqReader;
 use crate::core::LqWriter;
 use crate::core::Serializer;
+use crate::types::binary::Binary;
 use liquesco_common::error::LqError;
 use serde::export::fmt::Error;
 use serde::export::Formatter;

@@ -4,13 +4,13 @@ use crate::value::TextValue;
 use crate::value::Value;
 use data_encoding::BASE64_NOPAD;
 use data_encoding::HEXLOWER_PERMISSIVE;
+use liquesco_common::decimal::Decimal;
 use liquesco_common::error::LqError;
 use liquesco_schema::identifier::Format;
 use liquesco_schema::identifier::Identifier;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::convert::TryFrom;
-use liquesco_common::decimal::Decimal;
 use std::fmt::Write;
 use std::ops::Deref;
 
@@ -46,9 +46,7 @@ pub trait Converter {
     fn to_u128(value: &Value) -> Option<u128> {
         match value {
             Value::U64(value) => Option::Some(u128::from(*value)),
-            Value::I64(value) => {
-                u128::try_from(*value).ok()
-            }
+            Value::I64(value) => u128::try_from(*value).ok(),
             // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
             // TODO: Also accept hex encoding...
             Value::Text(text) => text.parse::<u128>().ok(),
@@ -86,9 +84,7 @@ pub trait Converter {
     fn to_i128(value: &Value) -> Option<i128> {
         match value {
             Value::I64(value) => Option::Some(i128::from(*value)),
-            Value::U64(value) => {
-                i128::try_from(*value).ok()
-            }
+            Value::U64(value) => i128::try_from(*value).ok(),
             // TODO: Maybe also allow "MAX_8", "MAX_16", "MIN_8"...
             // TODO: Also accept hex encoding...
             Value::Text(text) => text.parse::<i128>().ok(),
@@ -170,7 +166,7 @@ pub trait Converter {
         require(Self::to_decimal(value), || {
             format!(
                 "Expecting a decimal value; Valid decimal values look like \
-                this: 12.23, 12, 5e-4 or 4e3. got {:?}",
+                 this: 12.23, 12, 5e-4 or 4e3. got {:?}",
                 value
             )
         })

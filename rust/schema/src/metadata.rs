@@ -6,10 +6,10 @@ use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 use std::convert::TryFrom;
 
-use crate::types::option::TOption;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
-use crate::types::seq::{Sorted, TSeq};
+use crate::types::option::TOption;
 use crate::types::seq;
+use crate::types::seq::{Sorted, TSeq};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use crate::types::unicode::{LengthType, TUnicode};

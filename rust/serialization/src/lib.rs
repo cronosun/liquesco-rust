@@ -9,4 +9,3 @@ pub mod write_writer;
 pub(crate) mod major_types;
 
 pub mod types;
-

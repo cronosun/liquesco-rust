@@ -3,12 +3,12 @@ mod common;
 use common::builder::builder;
 use common::utils::assert_invalid_strict;
 use common::utils::assert_valid_strict;
-use liquesco_schema::types::binary::TBinary;
 use liquesco_schema::identifier::Identifier;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
-use liquesco_schema::types::structure::{Field, TStruct};
 use liquesco_schema::type_container::DefaultTypeContainer;
+use liquesco_schema::types::binary::TBinary;
+use liquesco_schema::types::structure::{Field, TStruct};
 use serde::{Deserialize, Serialize};
 use std::convert::TryFrom;
 

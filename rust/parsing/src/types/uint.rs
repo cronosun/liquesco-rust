@@ -5,7 +5,7 @@ use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::types::uint::TUInt;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::types::uint::{UInt128};
+use liquesco_serialization::types::uint::UInt128;
 
 pub struct PUInt;
 

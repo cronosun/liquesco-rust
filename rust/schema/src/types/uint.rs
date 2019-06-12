@@ -6,15 +6,15 @@ use crate::identifier::Identifier;
 use crate::metadata::Meta;
 use crate::metadata::MetadataSetter;
 use crate::metadata::WithMetadata;
-use crate::types::range::{Inclusion, TRange};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
+use crate::types::range::{Inclusion, TRange};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{U128IneRange};
+use liquesco_common::ine_range::U128IneRange;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
-use liquesco_serialization::types::uint::{UInt128};
+use liquesco_serialization::types::uint::UInt128;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
@@ -35,7 +35,10 @@ impl<'a> TUInt<'a> {
     }
 
     pub fn try_new<TMin, TMax>(min: TMin, max: TMax) -> Result<Self, LqError>
-    where TMin : Into<u128>, TMax : Into<u128> {
+    where
+        TMin: Into<u128>,
+        TMax: Into<u128>,
+    {
         Result::Ok(TUInt::new(U128IneRange::try_new(
             "Unsigned integer range",
             min.into(),

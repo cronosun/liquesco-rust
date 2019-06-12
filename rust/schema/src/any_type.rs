@@ -1,25 +1,26 @@
-use crate::types::ascii::TAscii;
-use crate::types::binary::TBinary;
-use crate::types::boolean::TBool;
 use crate::context::CmpContext;
 use crate::context::ValidationContext;
 use crate::core::Type;
 use crate::core::TypeRef;
+use crate::identifier::Identifier;
+use crate::metadata::Meta;
+use crate::metadata::WithMetaSchemaBuilder;
+use crate::metadata::{MetadataSetter, WithMetadata};
+use crate::schema_builder::BaseTypeSchemaBuilder;
+use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use crate::types::ascii::TAscii;
+use crate::types::binary::TBinary;
+use crate::types::boolean::TBool;
+use crate::types::decimal::TDecimal;
 use crate::types::enumeration::TEnum;
 use crate::types::enumeration::Variant;
 use crate::types::float::TFloat32;
 use crate::types::float::TFloat64;
-use crate::identifier::Identifier;
 use crate::types::key_ref::TKeyRef;
 use crate::types::map::TMap;
-use crate::metadata::Meta;
-use crate::metadata::WithMetaSchemaBuilder;
-use crate::metadata::{MetadataSetter, WithMetadata};
 use crate::types::option::TOption;
 use crate::types::range::TRange;
 use crate::types::root_map::TRootMap;
-use crate::schema_builder::BaseTypeSchemaBuilder;
-use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
 use crate::types::seq::TSeq;
 use crate::types::sint::TSInt;
 use crate::types::structure::TStruct;
@@ -31,7 +32,6 @@ use liquesco_common::error::LqError;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::types::decimal::TDecimal;
 
 /// This is an enumeration of all `Type`s that are known to the system.
 ///
@@ -56,7 +56,7 @@ pub enum AnyType<'a> {
     Ascii(TAscii<'a>),
     Uuid(TUuid<'a>),
     Range(TRange<'a>),
-    Decimal(TDecimal<'a>)
+    Decimal(TDecimal<'a>),
 }
 
 impl<'a> WithMetadata for AnyType<'a> {

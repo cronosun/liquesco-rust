@@ -1,15 +1,15 @@
 use crate::utils::{assert_err, assert_ok, builder, finish};
 use liquesco_parsing::yaml::parse_from_yaml_str;
 use liquesco_schema::identifier::Identifier;
-use liquesco_schema::types::key_ref::TKeyRef;
-use liquesco_schema::types::map::TMap;
-use liquesco_schema::types::root_map::TRootMap;
 use liquesco_schema::schema::DefaultSchema;
 use liquesco_schema::schema_builder::BuildsOwnSchema;
 use liquesco_schema::schema_builder::SchemaBuilder;
+use liquesco_schema::type_container::DefaultTypeContainer;
+use liquesco_schema::types::key_ref::TKeyRef;
+use liquesco_schema::types::map::TMap;
+use liquesco_schema::types::root_map::TRootMap;
 use liquesco_schema::types::seq::TSeq;
 use liquesco_schema::types::structure::{Field, TStruct};
-use liquesco_schema::type_container::DefaultTypeContainer;
 use liquesco_schema::types::uint::TUInt;
 use std::convert::TryFrom;
 

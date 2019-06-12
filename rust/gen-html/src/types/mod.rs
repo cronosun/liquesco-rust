@@ -18,6 +18,7 @@ use crate::types::wstruct::WStruct;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
 
+use crate::types::wdecimal::WDecimal;
 use liquesco_common::error::LqError;
 use liquesco_schema::any_type::AnyType;
 use minidom::Element;
@@ -25,6 +26,7 @@ use minidom::Element;
 pub mod wascii;
 pub mod wbinary;
 pub mod wbool;
+pub mod wdecimal;
 pub mod wenum;
 pub mod wfloat;
 pub mod wint;
@@ -57,5 +59,6 @@ pub fn write_body(ctx: &Context) -> Result<Element, LqError> {
         AnyType::Map(value) => WMap::write(ctx, value),
         AnyType::RootMap(value) => WRootMap::write(ctx, value),
         AnyType::KeyRef(value) => WKeyRef::write(ctx, value),
+        AnyType::Decimal(value) => WDecimal::write(ctx, value),
     }
 }

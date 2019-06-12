@@ -27,17 +27,16 @@ fn schema1() {
 
 #[test]
 fn schema_big() {
-    let schema = single_schema(
-        TSInt::try_new(std::i128::MIN+2, std::i128::MAX-2).unwrap());
+    let schema = single_schema(TSInt::try_new(std::i128::MIN + 2, std::i128::MAX - 2).unwrap());
 
     // some valid items
-    assert_valid_strict(std::i128::MIN+2, &schema);
-    assert_valid_strict(std::i128::MAX-2, &schema);
+    assert_valid_strict(std::i128::MIN + 2, &schema);
+    assert_valid_strict(std::i128::MAX - 2, &schema);
 
     // some invalid items
-    assert_invalid_strict(std::i128::MIN+1, &schema);
+    assert_invalid_strict(std::i128::MIN + 1, &schema);
     assert_invalid_strict(std::i128::MIN, &schema);
-    assert_invalid_strict(std::i128::MAX-1, &schema);
+    assert_invalid_strict(std::i128::MAX - 1, &schema);
     assert_invalid_strict(std::i128::MAX, &schema);
 }
 

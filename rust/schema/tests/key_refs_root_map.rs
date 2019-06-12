@@ -9,9 +9,9 @@ use liquesco_schema::types::seq::TSeq;
 use std::convert::TryFrom;
 
 use liquesco_schema::identifier::Identifier;
+use liquesco_schema::schema_builder::SchemaBuilder;
 use liquesco_schema::types::key_ref::TKeyRef;
 use liquesco_schema::types::root_map::TRootMap;
-use liquesco_schema::schema_builder::SchemaBuilder;
 use liquesco_schema::types::structure::Field;
 use liquesco_schema::types::structure::TStruct;
 use liquesco_schema::types::unicode::LengthType;

@@ -5,7 +5,7 @@ use crate::value::TextValue;
 use liquesco_common::error::LqError;
 use liquesco_schema::types::sint::TSInt;
 use liquesco_serialization::core::Serializer;
-use liquesco_serialization::types::sint::{SInt128};
+use liquesco_serialization::types::sint::SInt128;
 
 pub struct PSInt;
 

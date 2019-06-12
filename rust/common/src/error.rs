@@ -3,7 +3,7 @@ use std::borrow::Cow;
 use std::collections::HashMap;
 use std::error::Error;
 use std::fmt::{Debug, Display};
-use std::num::{TryFromIntError, ParseIntError};
+use std::num::{ParseIntError, TryFromIntError};
 
 pub const DEFAULT_CATEGORY: Category = Category("default");
 pub const DEFAULT_CODE: ErrCode = ErrCode(0);

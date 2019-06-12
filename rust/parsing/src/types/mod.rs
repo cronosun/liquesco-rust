@@ -1,6 +1,7 @@
 pub mod ascii;
 pub mod binary;
 pub mod boolean;
+pub mod decimal;
 pub mod enumeration;
 pub mod float;
 pub mod key_ref;
@@ -14,7 +15,6 @@ pub mod structure;
 pub mod uint;
 pub mod unicode;
 pub mod uuid;
-pub mod decimal;
 
 pub mod identifier;
 pub mod map_common;

@@ -5,8 +5,8 @@ use common::builder::into_schema;
 use common::ordering::ord_schema;
 use common::utils::assert_valid_extended;
 use common::utils::id;
-use liquesco_schema::types::ascii::TAscii;
 use liquesco_schema::core::Schema;
+use liquesco_schema::types::ascii::TAscii;
 use liquesco_schema::types::enumeration::{TEnum, Variant};
 use liquesco_schema::types::seq::Direction;
 use liquesco_schema::types::uint::TUInt;
@@ -70,8 +70,10 @@ enum Schema1EnumTooManyValues {
 fn ordering_create_schema() -> impl Schema {
     ord_schema(
         |builder| {
-            let variant1_type =
-                builder.add_unwrap("variant1_type", TUInt::try_new(0u32, std::u64::MAX).unwrap());
+            let variant1_type = builder.add_unwrap(
+                "variant1_type",
+                TUInt::try_new(0u32, std::u64::MAX).unwrap(),
+            );
             builder.add_unwrap(
                 "enum",
                 TEnum::default()

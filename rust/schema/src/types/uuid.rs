@@ -9,8 +9,8 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::structure::TStruct;
 use core::cmp::Ordering;
 use liquesco_common::error::LqError;
-use liquesco_serialization::types::binary::Binary;
 use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::types::binary::Binary;
 use liquesco_serialization::types::uuid::Uuid;
 use serde::{Deserialize, Serialize};
 

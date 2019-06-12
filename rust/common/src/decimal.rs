@@ -1,7 +1,8 @@
-use serde::{Deserialize, Serialize};
 use crate::error::LqError;
-use std::convert::TryFrom;
+use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
+use std::convert::TryFrom;
+use std::fmt::{Display, Error, Formatter};
 
 /// A simple decimal numbers with 128 bit coefficient and an 8 bit exponent. Does not support
 /// NaN or infinity. Supports normalization, so there's only one single representation
@@ -43,18 +44,17 @@ impl Decimal {
 
     /// Constructs a raw decimal value that's maybe not normalized. Only use this function
     /// when you know what you're doing.
-    pub const fn from_parts_de_normalized(
-        coefficient: i128,
-        exponent: i8) -> Self  {
+    pub const fn from_parts_de_normalized(coefficient: i128, exponent: i8) -> Self {
         Self {
             coefficient,
             exponent,
         }
     }
 
-    pub fn from_parts<TC>(
-        coefficient: TC,
-        exponent: i8) -> Self where TC : Into<i128> {
+    pub fn from_parts<TC>(coefficient: TC, exponent: i8) -> Self
+    where
+        TC: Into<i128>,
+    {
         Self::from_parts_de_normalized(coefficient.into(), exponent).normalize()
     }
 
@@ -66,7 +66,7 @@ impl Decimal {
 
     /// True if coefficient is negative.
     pub fn is_sign_negative(&self) -> bool {
-        self.coefficient<0
+        self.coefficient < 0
     }
 
     #[inline]
@@ -83,7 +83,10 @@ impl Decimal {
                 // this could overflow
                 let new_coefficient = self.coefficient.checked_mul(10);
                 if let Some(new_coefficient) = new_coefficient {
-                    Self::normalize(Self::from_parts_de_normalized(new_coefficient, new_exponent))
+                    Self::normalize(Self::from_parts_de_normalized(
+                        new_coefficient,
+                        new_exponent,
+                    ))
                 } else {
                     self
                 }
@@ -91,7 +94,10 @@ impl Decimal {
                 let new_exponent = self.exponent + 1;
                 // this will never cause problems (since % 10 is true)
                 let new_coefficient = self.coefficient / 10;
-                Self::normalize(Self::from_parts_de_normalized(new_coefficient, new_exponent))
+                Self::normalize(Self::from_parts_de_normalized(
+                    new_coefficient,
+                    new_exponent,
+                ))
             } else {
                 self
             }
@@ -100,7 +106,7 @@ impl Decimal {
         }
     }
 
-    fn from_str_no_normalization(string : &str) -> Result<Decimal, LqError> {
+    fn from_str_no_normalization(string: &str) -> Result<Decimal, LqError> {
         if let Some(dot_position) = string.find(".") {
             // segment0.segment1
             // coefficient0.coefficient1
@@ -109,35 +115,45 @@ impl Decimal {
             } else {
                 (&string[0..dot_position], false)
             };
-            let segment1 = &string[dot_position+1..];
+            let segment1 = &string[dot_position + 1..];
             let segment1_len = segment1.len();
-            let coefficient0 = if segment0.len()==0 {
+            let coefficient0 = if segment0.len() == 0 {
                 0i128
             } else {
                 i128::from_str_radix(&segment0, 10)?
             };
-            let coefficient1 = if segment1_len==0 {
+            let coefficient1 = if segment1_len == 0 {
                 0i128
-            } else { i128::from_str_radix(&segment1, 10)? };
-            let multiplication = 10i128.checked_pow(u32::try_from(segment1_len)?).ok_or_else(|| {
-                LqError::new(
-                    format!("Value too large, cannot compute 10^x where x is {}. \
-                    Given decimal value {}.",
-                                         segment1_len, string))
-            })?;
-            let multiplied_coefficient0 = coefficient0.checked_mul(multiplication).ok_or_else(||{
-                LqError::new(
-                    format!("Value too large, cannot compute x*y where x is {} and y is {}. \
-                    Given decimal value {}.",
-                                     coefficient0, multiplication, string))
-            })?;
+            } else {
+                i128::from_str_radix(&segment1, 10)?
+            };
+            let multiplication = 10i128
+                .checked_pow(u32::try_from(segment1_len)?)
+                .ok_or_else(|| {
+                    LqError::new(format!(
+                        "Value too large, cannot compute 10^x where x is {}. \
+                         Given decimal value {}.",
+                        segment1_len, string
+                    ))
+                })?;
+            let multiplied_coefficient0 =
+                coefficient0.checked_mul(multiplication).ok_or_else(|| {
+                    LqError::new(format!(
+                        "Value too large, cannot compute x*y where x is {} and y is {}. \
+                         Given decimal value {}.",
+                        coefficient0, multiplication, string
+                    ))
+                })?;
 
-            let coefficient = coefficient1.checked_add(multiplied_coefficient0).ok_or_else(|| {
-                LqError::new(
-                    format!("Value too large, cannot compute x+y where x is {} and y is {}. \
-                    Given decimal value {}.",
-                            coefficient1, multiplied_coefficient0, string))
-            })?;
+            let coefficient = coefficient1
+                .checked_add(multiplied_coefficient0)
+                .ok_or_else(|| {
+                    LqError::new(format!(
+                        "Value too large, cannot compute x+y where x is {} and y is {}. \
+                         Given decimal value {}.",
+                        coefficient1, multiplied_coefficient0, string
+                    ))
+                })?;
             let coefficient = if negative_coefficient {
                 -coefficient
             } else {
@@ -147,7 +163,7 @@ impl Decimal {
             Ok(Self::from_parts_de_normalized(coefficient, exponent))
         } else if let Some(e_position) = string.find("e") {
             let segment0 = &string[0..e_position];
-            let segment1 = &string[e_position+1..];
+            let segment1 = &string[e_position + 1..];
             let coefficient = i128::from_str_radix(&segment0, 10)?;
             let exponent = i8::from_str_radix(&segment1, 10)?;
             Ok(Self::from_parts_de_normalized(coefficient, exponent))
@@ -156,6 +172,12 @@ impl Decimal {
             let coefficient = i128::from_str_radix(string, 10)?;
             Ok(Self::from_parts_de_normalized(coefficient, 0))
         }
+    }
+}
+
+impl Display for Decimal {
+    fn fmt(&self, f: &mut Formatter) -> Result<(), Error> {
+        write!(f, "{}e{}", self.coefficient(), self.exponent())
     }
 }
 
@@ -170,11 +192,11 @@ impl TryFrom<&str> for Decimal {
 
 impl Ord for Decimal {
     fn cmp(&self, other: &Self) -> Ordering {
-        if self==other {
+        if self == other {
             return Ordering::Equal;
         }
         let exponent_cmp = self.exponent.cmp(&other.exponent);
-        if exponent_cmp==Ordering::Equal {
+        if exponent_cmp == Ordering::Equal {
             self.coefficient.cmp(&other.coefficient)
         } else {
             // Quick exit if major differences
@@ -186,11 +208,11 @@ impl Ord for Decimal {
                 return Ordering::Greater;
             }
 
-            if self.coefficient<0 && other.coefficient>=0 {
+            if self.coefficient < 0 && other.coefficient >= 0 {
                 Ordering::Less
-            } else if self.coefficient>=0 && other.coefficient<0 {
+            } else if self.coefficient >= 0 && other.coefficient < 0 {
                 Ordering::Greater
-            } else if self.exponent>other.exponent {
+            } else if self.exponent > other.exponent {
                 if let Some(new_self) = decrement_exponent_to(self, other.exponent) {
                     Decimal::cmp(&new_self, &other)
                 } else {
@@ -220,10 +242,10 @@ impl Ord for Decimal {
 }
 
 /// Returns none on overflow. Only supports decrementing.
-fn decrement_exponent_to(value : &Decimal, exponent : i8) -> Option<Decimal> {
+fn decrement_exponent_to(value: &Decimal, exponent: i8) -> Option<Decimal> {
     let mut current_exponent = value.exponent;
     let mut current_coefficient = value.coefficient;
-    while current_exponent>exponent {
+    while current_exponent > exponent {
         if let Some(new_coefficient) = current_coefficient.checked_mul(10) {
             current_coefficient = new_coefficient;
         } else {
@@ -232,7 +254,10 @@ fn decrement_exponent_to(value : &Decimal, exponent : i8) -> Option<Decimal> {
         }
         current_exponent -= 1;
     }
-    Some(Decimal::from_parts_de_normalized(current_coefficient, current_exponent))
+    Some(Decimal::from_parts_de_normalized(
+        current_coefficient,
+        current_exponent,
+    ))
 }
 
 impl PartialOrd for Decimal {
@@ -388,72 +413,71 @@ fn test_from_string_sn() {
 fn test_ord() {
     assert_ord(
         &Decimal::try_from("1").unwrap(),
-        &Decimal::try_from("2").unwrap()
+        &Decimal::try_from("2").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("0").unwrap(),
-        &Decimal::try_from("1").unwrap()
+        &Decimal::try_from("1").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("-1").unwrap(),
-        &Decimal::try_from("0").unwrap()
+        &Decimal::try_from("0").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("-2").unwrap(),
-        &Decimal::try_from("-1").unwrap()
+        &Decimal::try_from("-1").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("-1.2").unwrap(),
-        &Decimal::try_from("-1.1").unwrap()
+        &Decimal::try_from("-1.1").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("1.1").unwrap(),
-        &Decimal::try_from("1.2").unwrap()
+        &Decimal::try_from("1.2").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("-1.1").unwrap(),
-        &Decimal::try_from("1.2").unwrap()
+        &Decimal::try_from("1.2").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("11.1111212").unwrap(),
-        &Decimal::try_from("12").unwrap()
+        &Decimal::try_from("12").unwrap(),
     );
     assert_ord(
         &Decimal::try_from("11").unwrap(),
-        &Decimal::try_from("12.111122").unwrap()
+        &Decimal::try_from("12.111122").unwrap(),
     );
     assert_ord(
-        &Decimal::from_parts(std::i64::MAX-1, std::i8::MAX),
-        &Decimal::from_parts(std::i64::MAX, std::i8::MAX)
+        &Decimal::from_parts(std::i64::MAX - 1, std::i8::MAX),
+        &Decimal::from_parts(std::i64::MAX, std::i8::MAX),
     );
     assert_ord(
-        &Decimal::from_parts(std::i64::MAX, std::i8::MAX-1),
-        &Decimal::from_parts(std::i64::MAX, std::i8::MAX)
+        &Decimal::from_parts(std::i64::MAX, std::i8::MAX - 1),
+        &Decimal::from_parts(std::i64::MAX, std::i8::MAX),
     );
     assert_ord(
-        &Decimal::from_parts(std::i128::MAX, std::i8::MAX-1),
-        &Decimal::from_parts(std::i128::MAX, std::i8::MAX)
+        &Decimal::from_parts(std::i128::MAX, std::i8::MAX - 1),
+        &Decimal::from_parts(std::i128::MAX, std::i8::MAX),
     );
     assert_ord(
-        &Decimal::from_parts(std::i128::MIN+1, std::i8::MAX),
-            &Decimal::ZERO,
+        &Decimal::from_parts(std::i128::MIN + 1, std::i8::MAX),
+        &Decimal::ZERO,
     );
     assert_ord(
-        &Decimal::from_parts(std::i128::MIN, std::i8::MAX-1),
-        &Decimal::from_parts(std::i128::MIN+1, std::i8::MAX-2),
-
+        &Decimal::from_parts(std::i128::MIN, std::i8::MAX - 1),
+        &Decimal::from_parts(std::i128::MIN + 1, std::i8::MAX - 2),
     );
     assert_ord(
         &Decimal::ZERO,
-        &Decimal::from_parts(std::i128::MAX-1, std::i8::MAX)
+        &Decimal::from_parts(std::i128::MAX - 1, std::i8::MAX),
     );
     assert_ord(
-        &Decimal::from_parts( -170141183460469231731687303715884105727i128, 127),
-        &Decimal::from_parts(-10, 0)
+        &Decimal::from_parts(-170141183460469231731687303715884105727i128, 127),
+        &Decimal::from_parts(-10, 0),
     );
     assert_ord(
         &Decimal::from_parts(-10, 0),
-        &Decimal::from_parts(  170141183460469231731687303715884105726i128, 127),
+        &Decimal::from_parts(170141183460469231731687303715884105726i128, 127),
     );
 }
 
@@ -461,36 +485,36 @@ fn test_ord() {
 fn test_ord_eq() {
     assert_eq(
         &Decimal::try_from("1").unwrap(),
-        &Decimal::try_from("1").unwrap()
+        &Decimal::try_from("1").unwrap(),
     );
     assert_eq(
         &Decimal::try_from("0").unwrap(),
-        &Decimal::try_from("0").unwrap()
+        &Decimal::try_from("0").unwrap(),
     );
     assert_eq(
         &Decimal::try_from("-1").unwrap(),
-        &Decimal::try_from("-1").unwrap()
+        &Decimal::try_from("-1").unwrap(),
     );
     assert_eq(
         &Decimal::try_from("10").unwrap(),
-        &Decimal::try_from("10.0").unwrap()
+        &Decimal::try_from("10.0").unwrap(),
     );
     assert_eq(
         &Decimal::try_from("-99.99").unwrap(),
-        &Decimal::try_from("-99.9900").unwrap()
+        &Decimal::try_from("-99.9900").unwrap(),
     );
     assert_eq(
         &Decimal::try_from(".001").unwrap(),
-        &Decimal::try_from("000.0010").unwrap()
+        &Decimal::try_from("000.0010").unwrap(),
     );
 }
 
 #[cfg(test)]
-fn assert_ord(lesser : &Decimal, greater : &Decimal) {
+fn assert_ord(lesser: &Decimal, greater: &Decimal) {
     assert_eq!(lesser.cmp(greater), Ordering::Less);
 }
 
 #[cfg(test)]
-fn assert_eq(lhs : &Decimal, rhs : &Decimal) {
+fn assert_eq(lhs: &Decimal, rhs: &Decimal) {
     assert_eq!(lhs.cmp(rhs), Ordering::Equal);
 }

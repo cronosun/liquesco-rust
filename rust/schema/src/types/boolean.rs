@@ -8,8 +8,8 @@ use crate::metadata::WithMetadata;
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::structure::TStruct;
 use liquesco_common::error::LqError;
-use liquesco_serialization::types::boolean::Bool;
 use liquesco_serialization::core::DeSerializer;
+use liquesco_serialization::types::boolean::Bool;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 

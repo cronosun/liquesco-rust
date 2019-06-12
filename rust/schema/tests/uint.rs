@@ -42,18 +42,17 @@ fn schema2() {
 
 #[test]
 fn schema_big() {
-    let schema = single_schema(
-        TUInt::try_new(1u128, std::u128::MAX-2).unwrap());
+    let schema = single_schema(TUInt::try_new(1u128, std::u128::MAX - 2).unwrap());
 
     // some valid items
     assert_valid_strict(1u32, &schema);
     assert_valid_strict(2u32, &schema);
-    assert_valid_strict(std::u128::MAX-2, &schema);
-    assert_valid_strict(std::u128::MAX-3, &schema);
+    assert_valid_strict(std::u128::MAX - 2, &schema);
+    assert_valid_strict(std::u128::MAX - 3, &schema);
 
     // some invalid items
     assert_invalid_strict(0u32, &schema);
-    assert_invalid_strict(std::u128::MAX-1, &schema);
+    assert_invalid_strict(std::u128::MAX - 1, &schema);
     assert_invalid_strict(std::u128::MAX, &schema);
 }
 
