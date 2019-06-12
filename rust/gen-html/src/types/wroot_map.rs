@@ -19,7 +19,7 @@ impl<'a> TypedElementWriter for WRootMap<'a> {
     fn write(ctx: &Context, typ: &Self::T) -> Result<Element, LqError> {
         let mut ul = Element::bare("ul");
 
-        ul.append_child(list_item("Root type", ctx.link_to(typ.key())?));
+        ul.append_child(list_item("Root type", ctx.link_to(typ.root())?));
         ul.append_child(list_item("Key type", ctx.link_to(typ.key())?));
         ul.append_child(list_item("Value type", ctx.link_to(typ.value())?));
 

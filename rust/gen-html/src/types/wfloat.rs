@@ -89,6 +89,14 @@ where
     F: Eq + PartialOrd + Debug,
 {
     element.append_child(list_item(
+        "Allow positive zero",
+        span(yes_no(float.allow_positive_zero())),
+    ));
+    element.append_child(list_item(
+        "Allow negative zero",
+        span(yes_no(float.allow_negative_zero())),
+    ));
+    element.append_child(list_item(
         "Allow NaN (not a number)",
         span(yes_no(float.allow_nan())),
     ));
@@ -99,6 +107,10 @@ where
     element.append_child(list_item(
         "Allow negative infinity",
         span(yes_no(float.allow_negative_infinity())),
+    ));
+    element.append_child(list_item(
+        "Allow subnormal",
+        span(yes_no(float.allow_subnormal())),
     ));
 }
 

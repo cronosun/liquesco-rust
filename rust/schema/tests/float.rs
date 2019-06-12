@@ -17,8 +17,6 @@ fn schema1_32() {
     let schema = single_schema(TFloat32::new(Range::<F32Ext>::full()));
 
     // some valid items
-    assert_valid_strict(-0.0f32, &schema);
-    assert_valid_strict(0.0f32, &schema);
     assert_valid_strict(-458.0f32, &schema);
     assert_valid_strict(458.0f32, &schema);
     assert_valid_strict(std::f32::MIN, &schema);
@@ -29,6 +27,12 @@ fn schema1_32() {
     assert_invalid_strict(std::f32::NAN, &schema);
     assert_invalid_strict(std::f32::NEG_INFINITY, &schema);
     assert_invalid_strict(std::f32::INFINITY, &schema);
+    // err: subnormal
+    assert_invalid_strict(1.0e-40_f32, &schema);
+    assert_invalid_strict(-1.0e-40_f32, &schema);
+    // err: zero
+    assert_invalid_strict(0.0f32, &schema);
+    assert_invalid_strict(-0.0f32, &schema);
 }
 
 #[test]
@@ -36,8 +40,6 @@ fn schema1_64() {
     let schema = single_schema(TFloat64::new(Range::<F64Ext>::full()));
 
     // some valid items
-    assert_valid_strict(-0.0f64, &schema);
-    assert_valid_strict(0.0f64, &schema);
     assert_valid_strict(-458.0f64, &schema);
     assert_valid_strict(458.0f64, &schema);
     assert_valid_strict(std::f64::MIN, &schema);
@@ -48,6 +50,13 @@ fn schema1_64() {
     assert_invalid_strict(std::f64::NAN, &schema);
     assert_invalid_strict(std::f64::NEG_INFINITY, &schema);
     assert_invalid_strict(std::f64::INFINITY, &schema);
+    // err: subnormal
+    assert_invalid_strict(1.0e-308_f64, &schema);
+    assert_invalid_strict(-1.0e-308_f64, &schema);
+    // err: zero
+    assert_invalid_strict(0.0f64, &schema);
+    assert_invalid_strict(-0.0f64, &schema);
+
 }
 
 #[test]
@@ -57,7 +66,10 @@ fn schema2_32() {
     )
     .with_allow_nan(true)
     .with_allow_positive_infinity(true)
-    .with_allow_negative_infinity(true);
+    .with_allow_negative_infinity(true)
+        .with_allow_positive_zero(true)
+        .with_allow_negative_zero(true)
+        .with_allow_subnormal(true);
 
     let schema = single_schema(float);
 
@@ -69,6 +81,10 @@ fn schema2_32() {
     assert_valid_strict(std::f32::NAN, &schema);
     assert_valid_strict(std::f32::NEG_INFINITY, &schema);
     assert_valid_strict(std::f32::INFINITY, &schema);
+    assert_valid_strict(0.0f32, &schema);
+    assert_valid_strict(-0.0f32, &schema);
+    assert_valid_strict(1.0e-40_f32, &schema);
+    assert_valid_strict(-1.0e-40_f32, &schema);
 
     // some invalid items
     assert_invalid_strict(-14.51f32, &schema);
@@ -82,7 +98,10 @@ fn schema2_64() {
     )
     .with_allow_nan(true)
     .with_allow_positive_infinity(true)
-    .with_allow_negative_infinity(true);
+    .with_allow_negative_infinity(true)
+        .with_allow_positive_zero(true)
+        .with_allow_negative_zero(true)
+        .with_allow_subnormal(true);
 
     let schema = single_schema(float);
 
@@ -94,6 +113,10 @@ fn schema2_64() {
     assert_valid_strict(std::f64::NAN, &schema);
     assert_valid_strict(std::f64::NEG_INFINITY, &schema);
     assert_valid_strict(std::f64::INFINITY, &schema);
+    assert_valid_strict(0.0f64, &schema);
+    assert_valid_strict(-0.0f64, &schema);
+    assert_valid_strict(1.0e-308_f64, &schema);
+    assert_valid_strict(-1.0e-308_f64, &schema);
 
     // some invalid items
     assert_invalid_strict(-14.51f64, &schema);
