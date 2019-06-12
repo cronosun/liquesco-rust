@@ -1,17 +1,7 @@
-use crate::utils::{assert_err, assert_ok, builder, id};
 use liquesco_parsing::yaml::parse_from_yaml_str;
-use liquesco_schema::any_type::AnyType;
 use liquesco_schema::schema::{DefaultSchema, schema_schema};
-use liquesco_schema::schema_builder::{SchemaBuilder, DefaultSchemaBuilder};
+use liquesco_schema::schema_builder::{DefaultSchemaBuilder};
 use liquesco_schema::type_container::DefaultTypeContainer;
-use liquesco_schema::types::ascii::TAscii;
-use liquesco_schema::types::option::TOption;
-use liquesco_schema::types::seq::TSeq;
-use liquesco_schema::types::structure::Field;
-use liquesco_schema::types::structure::TStruct;
-use liquesco_schema::types::uint::TUInt;
-use liquesco_schema::types::unicode::LengthType;
-use liquesco_schema::types::unicode::TUnicode;
 use liquesco_schema::core::{Config, Schema};
 use liquesco_serialization::slice_reader::SliceReader;
 use liquesco_serialization::serde::de_serialize_from_slice;

@@ -31,6 +31,11 @@
           type: year_born
         - name: children
           type: children_of_a_person
+        - name: approx_number_of_molecules
+          type: approx_number_of_molecules
+          # Note: The photo is optional.
+        - name: photo
+          type: maybe_photo
   first_name:
     - unicode
     - meta:
@@ -69,3 +74,22 @@
       # Level is set to 0. So this references an entry from the next outer map (that's
       # 'people_map' in this case). This is how liquesco handles recursive data.
       level: 0
+  approx_number_of_molecules:
+    - decimal
+    - meta:
+        doc: "Approx number of molecules in the body of that person."
+      range:
+        - 0e0
+        - 170141183460469231731687303715884105727e127
+        - true
+        - true
+  maybe_photo:
+    - option
+    - meta:
+        doc: "A person can optionally have a picture (face)."
+      type: photo
+  photo:
+    - binary
+    - meta:
+        doc: "Picture of a person (face). Use jpeg. No more than 2MB are allowed."
+      length: [1, 2097152]
