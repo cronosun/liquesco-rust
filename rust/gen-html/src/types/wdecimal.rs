@@ -34,24 +34,6 @@ impl<'a> TypedElementWriter for WDecimal<'a> {
             )),
         ));
 
-        ul.append_child(list_item(
-            "Coefficient minimum (inclusive)",
-            span(format!("{value}", value = typ.coefficient_range().start(),)),
-        ));
-        ul.append_child(list_item(
-            "Coefficient maximum (inclusive)",
-            span(format!("{value}", value = typ.coefficient_range().end(),)),
-        ));
-
-        ul.append_child(list_item(
-            "Exponent minimum (inclusive)",
-            span(format!("{value}", value = typ.exponent_range().start(),)),
-        ));
-        ul.append_child(list_item(
-            "Exponent maximum (inclusive)",
-            span(format!("{value}", value = typ.exponent_range().end(),)),
-        ));
-
         Ok(ul)
     }
 }

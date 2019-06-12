@@ -4,12 +4,9 @@ use crate::identifier::Identifier;
 use crate::metadata::{Meta, MetadataSetter, WithMetadata};
 use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::range::{Inclusion, TRange};
-use crate::types::sint::TSInt;
 use crate::types::structure::{Field, TStruct};
 use liquesco_common::decimal::Decimal;
 use liquesco_common::error::LqError;
-use liquesco_common::ine_range::{I128IneRange, I8IneRange};
-use liquesco_common::range::NewFull;
 use liquesco_common::range::{LqRangeBounds, Range};
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::core::{LqReader, LqWriter, Serializer};
@@ -31,7 +28,8 @@ use std::convert::TryFrom;
 /// some rules to make sure a number is valid: The value "zero" must be written as `0*10^0`;
 /// `0*10^4` for example is invalid. The exponent must always be as close to zero as possible; so
 /// `40*10^1` for example is invalid and has to be written as `400*10^0`; `-30*10^-1` must
-/// be written as `-3*10^0`.
+/// be written as `-3*10^0`. Why this normalization: When decimals are mostly integer values,
+/// the exponent is always 0 and computations are just plain integer computations.
 ///
 /// Note: NaN ("not a number") and infinity is not supported. Those values can be represented
 /// using a wrapping enum.
@@ -39,8 +37,6 @@ use std::convert::TryFrom;
 pub struct TDecimal<'a> {
     meta: Meta<'a>,
     range: Range<Decimal>,
-    coefficient_range: I128IneRange,
-    exponent_range: I8IneRange,
 }
 
 impl<'a> TDecimal<'a> {
@@ -49,8 +45,6 @@ impl<'a> TDecimal<'a> {
         Self {
             meta: Meta::empty(),
             range,
-            coefficient_range: I128IneRange::full(),
-            exponent_range: I8IneRange::full(),
         }
     }
 
@@ -59,36 +53,12 @@ impl<'a> TDecimal<'a> {
         Ok(Self {
             meta: Meta::empty(),
             range: Range::try_new_inclusive(start, end)?,
-            coefficient_range: I128IneRange::full(),
-            exponent_range: I8IneRange::full(),
         })
     }
 
     /// The range the decimal must be within.
     pub fn range(&self) -> &Range<Decimal> {
         &self.range
-    }
-
-    /// The range the coefficient must be within.
-    pub fn coefficient_range(&self) -> &I128IneRange {
-        &self.coefficient_range
-    }
-
-    /// Can be used to narrow the coefficient range.
-    pub fn with_coefficient_range(mut self, range: I128IneRange) -> Self {
-        self.coefficient_range = range;
-        self
-    }
-
-    /// The range the exponent must be within.
-    pub fn exponent_range(&self) -> &I8IneRange {
-        &self.exponent_range
-    }
-
-    /// Can be used to narrow the exponent range.
-    pub fn with_exponent_range(mut self, range: I8IneRange) -> Self {
-        self.exponent_range = range;
-        self
     }
 }
 
@@ -106,16 +76,6 @@ impl Type for TDecimal<'_> {
                 decimal
             ));
         }
-
-        self.coefficient_range.require_within(
-            "Range of the coefficient of the given decimal (schema)",
-            &decimal.coefficient(),
-        )?;
-
-        self.exponent_range.require_within(
-            "Range of the exponent of the given decimal (schema)",
-            &decimal.exponent(),
-        )?;
 
         self.range.require_within(
             "Decimal range validation \
@@ -183,44 +143,10 @@ impl<'a> BaseTypeSchemaBuilder for TDecimal<'a> {
                 .with_doc("The range the decimal number must be contained within."),
         );
 
-        // coefficient range
-        let coefficient_range_element = builder.add_unwrap(
-            "coefficient_range_element",
-            TSInt::try_new(std::i128::MIN, std::i128::MAX)
-                .unwrap()
-                .with_doc("The start or end of the decimal coefficient range (inclusive)."),
-        );
-        let coefficient_range_field = builder.add_unwrap(
-            "coefficient_range",
-            TRange::new(coefficient_range_element, Inclusion::BothInclusive, false)
-                .with_doc("The range the decimal coefficient must be contained within."),
-        );
-
-        // exponent range
-        let exponent_range_element = builder.add_unwrap(
-            "exponent_range_element",
-            TSInt::try_new(std::i8::MIN, std::i8::MAX)
-                .unwrap()
-                .with_doc("The start or end of the decimal exponent range (inclusive)."),
-        );
-        let exponent_range_field = builder.add_unwrap(
-            "exponent_range",
-            TRange::new(exponent_range_element, Inclusion::BothInclusive, false)
-                .with_doc("The range the decimal exponent must be contained within."),
-        );
-
         TStruct::default()
             .add(Field::new(
                 Identifier::try_from("range").unwrap(),
                 range_field,
-            ))
-            .add(Field::new(
-                Identifier::try_from("coefficient_range").unwrap(),
-                coefficient_range_field,
-            ))
-            .add(Field::new(
-                Identifier::try_from("exponent_range").unwrap(),
-                exponent_range_field,
             ))
             .with_doc(
                 "A normalized decimal number. It's composed of a signed 128 bit \
