@@ -121,7 +121,6 @@ pub trait TypeContainer {
 pub trait Schema: TypeContainer {
     fn validate<'r, R: LqReader<'r>>(&self, config: Config, reader: &mut R) -> Result<(), LqError>;
 
-    // TODO
     /// Compares two values.
     ///
     /// Details:
