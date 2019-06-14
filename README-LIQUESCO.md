@@ -54,6 +54,8 @@ Naming:
  * **The** liquesco schema: Means the schema you write a schema in. E.g. like the protobuf language.
  * **A** liquesco schema: Means a schema you write - e.g. a protobuf schema written using the protobuf language.
 
+Serialization and validation:
+
  * The liquesco schema itself can be serialized using liquesco.
  * The liquesco schema (**A**) itself can be validated using liquesco (aginst the built-in schema).
  * A liquesco schema can be serialized using liquesco.
