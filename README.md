@@ -1,4 +1,4 @@
-Note, this document is about the rust implementation, read [Liquesco](REEADME-LIQUESCO.md) if you want to know more about liquesco itself.
+Note, this document is about the rust implementation, read [Liquesco](README-LIQUESCO.md) if you want to know more about liquesco itself.
 
 [![Build Status](https://travis-ci.org/cronosun/liquesco-rust.svg?branch=master)](https://travis-ci.org/cronosun/liquesco-rust)
 
