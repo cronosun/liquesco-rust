@@ -1,24 +1,44 @@
+Note, this document is about the rust implementation, read [Liquesco](REEADME-LIQUESCO.md) if you want to know more about liquesco itself.
+
+[![Build Status](https://travis-ci.org/cronosun/liquesco-rust.svg?branch=master)](https://travis-ci.org/cronosun/liquesco-rust)
+
 # Rust reference implementation
 
 This contains the Rust reference implementation of liquesco.
 
  * **serialization**: Data de-/serialization without Serde (https://serde.rs/) and with Serde; 
- * **schema**: The liquesco schema.
+ * **schema**: The liquesco schema. Schema validation.
  * **parsing**: Parse data from a textual representation (currently yaml) given a schema.
+ * **gen-schema** / **gen-html**: Generate HTML documentation given a schema.
  
-Some data processing:
- 
- * **processing**: Generic library for processing input data and output some data.
- * **gen-html**: Used to generate HTML output for a given schema.
- * **gen-schema**: A processing plugin: Generates HTML output for a given schema.
-
 # Rust version
 
 Should work with Rust 1.34+ (Rust stable as of 2019-05-09).
 
 # Tests
 
-Currently has 100+ tests covering data de-/serialization, Serde support and schema validation.
+Currently has 150+ tests covering data de-/serialization, Serde support and schema validation.
+
+# Notable tests
+
+## `parsing/tests/schemas`
+
+ * Parses a custom schema to binary. Validates that custom schema against the liquesco schema.
+ * Then parses data that conforms to the given custom schema (to binary). Then validates that data against the given custom schema.
+
+## `schema/tests/self_schema`
+
+This validates the built-in liquesco schema against itself.
+
+## `gen-schema/src/tests`
+
+Takes the liquesco schema and prints the generated HTML documentation to std out. Use
+
+```shell
+cargo test -- --nocapture
+```
+
+to see the generated HTML in the console. Note: With slight modifications it's possible to generate documentation for your custom schema.
 
 # State
 
