@@ -5,6 +5,7 @@ use liquesco_schema::core::TypeRef;
 use liquesco_schema::identifier::Identifier;
 use std::borrow::Cow;
 
+#[derive(Clone)]
 pub struct TypeInfo<'a> {
     any_type: &'a AnyType<'a>,
     reference: &'a TypeRef,

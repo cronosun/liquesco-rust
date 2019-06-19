@@ -343,3 +343,47 @@ impl<'a> Display for StrIdentifier<'a> {
         write!(f, "Id({})", &self.0)
     }
 }
+
+#[test]
+#[cfg(test)]
+fn test_valid_identifiers() {
+    Identifier::try_from("some_identifier").unwrap();
+    // even segments starting with a number is OK (this is not allowed in some languages)
+    Identifier::try_from("3_some_identifier").unwrap();
+    // minimum possible
+    Identifier::try_from("a").unwrap();
+    // maximum possible
+    Identifier::try_from("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa_\
+    aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").unwrap();
+}
+
+#[test]
+#[should_panic]
+#[cfg(test)]
+fn test_too_short() {
+    Identifier::try_from("").unwrap();
+}
+
+#[test]
+#[should_panic]
+#[cfg(test)]
+fn test_invalid_character() {
+    Identifier::try_from("good_éé").unwrap();
+}
+
+#[test]
+#[should_panic]
+#[cfg(test)]
+fn test_segment_too_long() {
+    Identifier::try_from("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa").unwrap();
+}
+
+#[test]
+#[should_panic]
+#[cfg(test)]
+fn too_many_segments() {
+    Identifier::try_from("a_a_a_a_a_a_a_a_a_a_a_a_a").unwrap();
+}
