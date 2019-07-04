@@ -8,6 +8,8 @@ pub struct Text {
     needs_indent: bool,
     single_indent: u8,
     indent: usize,
+    space : bool,
+
 }
 
 impl Default for Text {
@@ -18,6 +20,7 @@ impl Default for Text {
             needs_indent: true,
             single_indent: 2,
             indent: 0,
+            space : false,
         }
     }
 }
@@ -28,27 +31,46 @@ impl Text {
         self.just_new_line();
     }
 
-    /// Adds a space line.
-    pub fn space(&mut self) {
+    /// Adds a space line. When called multiple times, will add multiple space lines.
+    pub fn space_multiple(&mut self) {
         self.just_new_line();
         // now we're on a new line... now add add another line
         self.start_of_line = false;
-        self.new_line()
+        self.new_line();
+        self.space = true;
     }
 
+    /// Adds a single space. When called multiple times, will only add a single space line.
+    pub fn space(&mut self) {
+        if !self.space {
+            self.space_multiple();
+            self.space = true;
+        }
+    }
+
+    /// Increments indent.
     pub fn inc_indent(&mut self) {
         self.indent += 1;
     }
 
+    /// Decrements indent.
     pub fn dec_indent(&mut self) {
         if self.indent > 0 {
             self.indent -= 1;
         }
     }
 
-    pub fn add(&mut self, string: &str) {
+    /// Just adds text.
+    pub fn add<'a, TStr>(&mut self, string: TStr) where TStr : AsRef<str> {
         self.do_intent_if_required();
-        self.just_write(string);
+        self.just_write(string.as_ref());
+    }
+
+    /// First makes sure we're on a new line (does nothing if we're already on a new line,
+    /// see `new_line`). Then writes a string (see `add`).
+    pub fn line<'a, TStr>(&mut self, string : TStr) where TStr : AsRef<str> {
+        self.new_line();
+        self.add(string);
     }
 
     fn do_intent_if_required(&mut self) {
@@ -60,6 +82,7 @@ impl Text {
 
     fn just_write(&mut self, string: &str) {
         self.start_of_line = false;
+        self.space = false;
         self.vec.add_assign(string);
     }
 
@@ -85,6 +108,12 @@ impl Text {
         for _ in 0..self.indent {
             self.just_single_indent();
         }
+    }
+}
+
+impl Into<String> for Text {
+    fn into(self) -> String {
+        self.vec
     }
 }
 

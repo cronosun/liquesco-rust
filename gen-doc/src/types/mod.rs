@@ -6,10 +6,12 @@ use crate::types::woption::WOption;
 use crate::types::wrange::WRange;
 use crate::type_writer::TypeBodyWriter;
 use crate::types::wroot_map::WRootMap;
+use crate::types::wenum::WEnum;
 
 pub mod woption;
 pub mod wrange;
 pub mod wroot_map;
+pub mod wenum;
 
 pub fn write_type_body<'a, TContext>(ctx: &TContext) -> Result<Vec<Row<'static>>, LqError>
     where TContext : ContextProvider<'a>{
@@ -18,6 +20,7 @@ pub fn write_type_body<'a, TContext>(ctx: &TContext) -> Result<Vec<Row<'static>>
         AnyType::Option(value) => WOption::write(ctx, value),
         AnyType::Range(value) => WRange::write(ctx, value),
         AnyType::RootMap(value) => WRootMap::write(ctx, value),
+        AnyType::Enum(value) => WEnum::write(ctx, value),
         _ => {
             Ok(vec![
                 Row::text("Not yet implemented")

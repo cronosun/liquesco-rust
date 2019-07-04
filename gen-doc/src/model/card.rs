@@ -2,14 +2,14 @@ use std::borrow::Cow;
 use crate::model::row::Row;
 use core::convert::TryFrom;
 use liquesco_common::error::LqError;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Card<'a> {
-    pub id : Cow<'a, CardId>,
-    pub title : Cow<'a, str>,
-    pub sub_title : Option<Cow<'a, str>>,
-    pub accent : Accent,
-    pub rows : Vec<Row<'a>>,
+    id : Cow<'a, CardId>,
+    title : Cow<'a, str>,
+    accent : Accent,
+    rows : Vec<Row<'a>>,
 }
 
 impl<'a> Card<'a> {
@@ -19,26 +19,31 @@ impl<'a> Card<'a> {
         Self {
             id : id.into(),
             title : title.into(),
-            sub_title : None,
             accent,
             rows : vec![],
         }
-    }
-
-    pub fn with_sub_title<TSubTitle>(mut self, sub_title : TSubTitle) -> Self
-    where TSubTitle : Into<Cow<'a, str>>{
-        self.sub_title = Some(sub_title.into());
-        self
     }
 
     pub fn with_rows(mut self, rows : Vec<Row<'a>>) -> Self {
         self.rows = rows;
         self
     }
+
+    pub fn title(&self) -> &str {
+        &self.title
+    }
+
+    pub fn rows(&self) -> &[Row] {
+        &self.rows
+    }
+
+    pub fn accent(&self) -> Accent {
+        self.accent
+    }
 }
 
 /// Identifies a card uniquely.
-#[derive(Hash, PartialEq, Eq, Clone, Debug)]
+#[derive(Hash, PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
 pub struct CardId(String);
 
 impl CardId {
@@ -58,7 +63,7 @@ impl Into<Cow<'static, CardId>> for CardId {
 }
 
 /// One of the 255 accents.
-#[derive(Debug)]
+#[derive(Copy, Clone, Debug, Serialize, Deserialize)]
 pub struct Accent(u8);
 
 impl Accent {

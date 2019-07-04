@@ -1,11 +1,15 @@
 use serde::{Deserialize, Serialize};
 
 use crate::any_type::AnyType;
-use crate::core::TypeContainer;
+use crate::core::{TypeContainer, Type};
 use crate::core::TypeRef;
 use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use std::borrow::Cow;
+use std::hash::{Hasher, Hash};
+use crate::metadata::{Information, WithMetadata};
+use liquesco_serialization::serde::serialize_to_vec;
+use std::convert::TryInto;
 
 #[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
 pub struct DefaultTypeContainer<'a> {
@@ -72,5 +76,32 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
                 reference, references
             ))
         }
+    }
+
+    fn hash_type<H: Hasher>(&self, reference: &TypeRef,
+                       information: Information, state: &mut H) -> Result<(), LqError> {
+        let any_type = self.require_type(reference)?;
+        let vec = if let Some(reduced_metadata) = any_type.meta().reduce_information(information) {
+            let cloned_any = any_type.clone();
+            unimplemented!("TODO: Set metadata"); // TODO
+            serialize_to_vec(&cloned_any)?
+        } else {
+            serialize_to_vec(any_type)?
+        };
+
+        vec.hash(state);
+
+        // Do the same for all dependencies
+        let mut index = 0;
+        while let Some(reference) =any_type.reference(index) {
+            self.hash_type(reference, information, state)?;
+            index = index + 1;
+        }
+
+        // write number of dependencies as u64
+        let number_of_dependencies : u64 = index.try_into()?;
+        number_of_dependencies.hash(state);
+
+        Ok(())
     }
 }

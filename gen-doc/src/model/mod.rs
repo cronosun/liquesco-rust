@@ -7,4 +7,7 @@ pub trait Model {
     fn card(&self, id : &CardId) -> Option<&Card>;
     fn root(&self) -> &Card;
     fn root_id(&self) -> &CardId;
+
+    /// Title of the model.
+    fn title(&self) -> &str;
 }

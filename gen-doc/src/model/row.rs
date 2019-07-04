@@ -1,7 +1,8 @@
 use crate::model::card::CardId;
 use std::borrow::Cow;
+use serde::{Serialize, Deserialize};
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Row<'a> {
     Association(Association<'a>),
     Section(Cow<'a, str>),
@@ -15,11 +16,11 @@ impl<'a> Row<'a> {
         Row::Prim(Primitive::text_with_link(text, link))
     }
 
-    pub fn association<TKey, TValue>(key : TKey, value : TValue) -> Self
+    pub fn association_with_text<TKey, TValue>(key : TKey, value : TValue) -> Self
         where TKey : Into<Cow<'a, str>>, TValue:Into<Cow<'a, str>> {
         Row::Association(Association {
             key : key.into(),
-            value : Primitive::text(value)
+            value : vec![Primitive::text(value)]
         })
     }
 
@@ -29,8 +30,12 @@ impl<'a> Row<'a> {
               TValueLink : Into<Cow<'a, CardId>> {
         Row::Association(Association {
             key : key.into(),
-            value : Primitive::text_with_link(value_text, value_link)
+            value : vec![Primitive::text_with_link(value_text, value_link)]
         })
+    }
+
+    pub fn association(association : Association<'a>) -> Self {
+        Row::Association(association)
     }
 
     pub fn note<TValue>(value : TValue) -> Self
@@ -49,13 +54,35 @@ impl<'a> Row<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct Association<'a> {
     key: Cow<'a, str>,
-    value: Primitive<'a>,
+    value: Vec<Primitive<'a>>,
 }
 
-#[derive(Debug)]
+impl<'a> Association<'a> {
+
+    pub fn new<TKey>(key : TKey) -> Self where TKey : Into<Cow<'a, str>> {
+        Self {
+            key : key.into(),
+            value : Vec::new()
+        }
+    }
+
+    pub fn push_value(&mut self, primitive : Primitive<'a>) {
+        self.value.push(primitive);
+    }
+
+    pub fn key(&self) -> &str {
+        &self.key
+    }
+
+    pub fn value(&self) -> &[Primitive] {
+        &self.value
+    }
+}
+
+#[derive(Debug, Serialize, Deserialize)]
 pub enum Primitive<'a> {
     Text(Cow<'a, str>),
     TextWithLink(TextWithLink<'a>),
@@ -72,10 +99,10 @@ impl<'a> Primitive<'a> {
     }
 }
 
-#[derive(Debug)]
+#[derive(Debug, Serialize, Deserialize)]
 pub struct TextWithLink<'a> {
-    pub text: Cow<'a, str>,
-    pub link: Cow<'a, CardId>,
+    text: Cow<'a, str>,
+    link: Cow<'a, CardId>,
 }
 
 impl<'a> TextWithLink<'a> {
@@ -85,5 +112,13 @@ impl<'a> TextWithLink<'a> {
             text: text.into(),
             link: link.into(),
         }
+    }
+
+    pub fn text(&self) -> &str {
+        &self.text
+    }
+
+    pub fn link(&self) -> &CardId {
+        &self.link
     }
 }

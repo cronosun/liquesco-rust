@@ -5,7 +5,7 @@ use std::borrow::Cow;
 use liquesco_schema::identifier::{Identifier, Format};
 use liquesco_common::error::LqError;
 use crate::model::card::CardId;
-use crate::model::row::Row;
+use crate::model::row::{Row, Primitive};
 
 pub struct Context<'a> {
     schema: &'a TypeContainer,
@@ -63,6 +63,12 @@ impl<'a> ContextFunctions<'a> for Context<'a> {
             CardId::from(typ)
         ))
     }
+
+    fn link_to_type(&self, typ: &TypeRef) -> Result<Primitive<'static>, LqError> {
+        let type_info = TypeInfo::try_from(self.schema(), typ)?;
+        Ok(Primitive::text_with_link(self.display_name_for(&type_info),
+                                  CardId::from(typ)))
+    }
 }
 
 pub trait ContextFunctions<'a> {
@@ -70,12 +76,14 @@ pub trait ContextFunctions<'a> {
 
     fn display_name_for(&self, type_info: &TypeInfo) -> String {
         let identifier: &Identifier = type_info.identifier();
-        format!("Type[{}]", identifier.to_string(Format::SnakeCase))
+        format!("Type({})", identifier.to_string(Format::SnakeCase))
     }
 
     fn named_link_to_type<TName>(&self, name : TName, typ : &TypeRef)
     -> Result<Row<'static>, LqError>
         where TName : Into<Cow<'static, str>>;
+
+    fn link_to_type(&self, typ : &TypeRef) -> Result<Primitive<'static>, LqError>;
 }
 
 

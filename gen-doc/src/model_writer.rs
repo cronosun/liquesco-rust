@@ -39,6 +39,7 @@ impl<'a> ModelWriter<'a> {
 }
 
 pub struct CardModel {
+    title : Cow<'static, str>,
     root : CardId,
     cards : HashMap<CardId, Card<'static>>,
 }
@@ -60,6 +61,10 @@ impl Model for CardModel {
     fn root_id(&self) -> &CardId {
        &self.root
     }
+
+    fn title(&self) -> &str {
+        &self.title
+    }
 }
 
 impl<'a> ModelWriter<'a> {
@@ -70,6 +75,7 @@ impl<'a> ModelWriter<'a> {
         self.create_cards_from_bodies(root_type_ref)?;
 
         Ok(CardModel {
+            title : "Liquesco type documentation".into(),
             root : CardId::from(root_type_ref),
             cards : self.cards
         })
@@ -90,7 +96,6 @@ impl<'a> ModelWriter<'a> {
             let title = context.display_name();
 
             let mut card = Card::new(CardId::from(&type_ref),title, accent);
-            card = card.with_sub_title(type_name);
 
             // add header
             let mut rows = TypeHeader::write(&context)?;

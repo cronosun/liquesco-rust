@@ -29,9 +29,9 @@ impl<'a> TypeBodyWriter for WRange<'a> {
 
         Ok(vec![
             ctx.named_link_to_type("Range element", typ.element())?,
-            Row::association("Start inclusive", inclusion.0),
-            Row::association("End inclusive", inclusion.1),
-            Row::association("Allow empty range", if typ.allow_empty() { "Yes" } else { "No" }),
+            Row::association_with_text("Start inclusive", inclusion.0),
+            Row::association_with_text("End inclusive", inclusion.1),
+            Row::association_with_text("Allow empty range", if typ.allow_empty() { "Yes" } else { "No" }),
         ])
     }
 }

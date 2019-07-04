@@ -46,6 +46,20 @@ pub trait MetadataSetter<'m>: WithMetadata {
     }
 }
 
+/// What information a type contains.
+#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+pub enum Information {
+    /// Only the pure type, no meta data; no documentation and no conformance.
+    Type,
+
+    /// Contains only the technical information used to process the type; contains no
+    /// documentation but contains conformance.
+    Technical,
+
+    /// Full type; contains documentation and conformance. Usually used to generate documentation.
+    Full
+}
+
 /// Minimum length (utf-8 bytes) the documentation of a type must have.
 pub const DOC_MIN_LEN_UTF8_BYTES: usize = 1;
 /// Maximum length (utf-8 bytes) the documentation of a type can have.
@@ -102,6 +116,55 @@ impl<'a> Meta<'a> {
         }
         Ok(())
     }
+
+    pub fn information(&self) -> Information {
+        if let None = self.doc() {
+            if self.implements().is_empty() {
+                Information::Type
+            } else {
+                Information::Technical
+            }
+        } else {
+            Information::Full
+        }
+    }
+
+    /// Reduces information to given level. Returns the new `Meta` if information has been reduced.
+    /// Returns `None` if there's no need to reduce information (`self` has not more information).
+    pub fn reduce_information(&self, information : Information) -> Option<Meta<'a>> {
+        let given = self.information();
+        match information {
+            Information::Full => {
+                None
+            },
+            Information::Technical => {
+                match given {
+                    Information::Full => {
+                        Some(Meta {
+                            doc : None,
+                            implements : self.implements.clone()
+                        })
+                    },
+                    Information::Type |Information::Technical => {
+                        None
+                    }
+                }
+            },
+            Information::Type => {
+                match given {
+                    Information::Full | Information::Technical  => {
+                        Some(Meta {
+                            doc : None,
+                            implements : None
+                        })
+                    },
+                    Information::Type => {
+                        None
+                    }
+                }
+            },
+        }
+    }
 }
 
 impl<'a> Default for Meta<'a> {
@@ -118,8 +181,14 @@ pub const MAX_IMPLEMENTS_ELEMENTS: usize = 255;
 pub struct Implements(Vec<Uuid>);
 
 impl Implements {
+    /// New implements. Duplicate elements are removed. Needs at least one element.
     pub fn try_new(implements: &[Uuid]) -> Result<Self, LqError> {
-        let number = implements.len();
+        let mut new_vec = Vec::from(implements);
+        // always needs to be sorted
+        new_vec.sort();
+        new_vec.dedup();
+
+        let number = new_vec.len();
         if number < MIN_IMPLEMENTS_ELEMENTS {
             LqError::err_new("You need at least one element in 'implements'.")
         } else if number > MAX_IMPLEMENTS_ELEMENTS {
@@ -128,10 +197,11 @@ impl Implements {
                 MAX_IMPLEMENTS_ELEMENTS, number
             ))
         } else {
-            Ok(Implements(Vec::from(implements)))
+            Ok(Implements(new_vec))
         }
     }
 
+    /// Adds a new 'implements' - does nothing if 'implements' has already been added.
     pub fn add(&mut self, implements: Uuid) -> Result<(), LqError> {
         let number = self.0.len() + 1;
         if number > MAX_IMPLEMENTS_ELEMENTS {
@@ -140,7 +210,12 @@ impl Implements {
                 MAX_IMPLEMENTS_ELEMENTS, number
             ))
         } else {
+            if self.0.contains(&implements) {
+                return Ok(());
+            }
             self.0.push(implements);
+            // always needs to be sorted ascending
+            self.0.sort();
             Ok(())
         }
     }

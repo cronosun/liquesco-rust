@@ -10,7 +10,7 @@ use std::convert::TryFrom;
 
 /// 16 byte Universally Unique Identifier (UUID) according to RFC 4122. Does not specify which
 /// variant is allowed. Does not validate: Any 16 byte binary is allowed.
-#[derive(Debug, Clone, Eq, PartialEq, Hash)]
+#[derive(Debug, Clone, Eq, PartialEq, Hash, Ord, PartialOrd)]
 pub struct Uuid([u8; 16]);
 
 impl<'a> DeSerializer<'a> for Uuid {
@@ -61,11 +61,6 @@ impl Serializer for Uuid {
 impl Uuid {
     pub fn as_slice(&self) -> &[u8] {
         &self.0
-    }
-
-    pub fn new_v4() -> Self {
-        let new_v4 = uuid::Uuid::new_v4();
-        Self(new_v4.as_bytes().clone())
     }
 }
 

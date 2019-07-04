@@ -1,5 +1,5 @@
 use crate::context::CmpContext;
-use crate::metadata::WithMetadata;
+use crate::metadata::{WithMetadata, Information};
 use std::cmp::Ordering;
 use std::fmt::{Debug, Display};
 
@@ -13,9 +13,10 @@ use liquesco_serialization::core::LqReader;
 use serde::export::fmt::Error;
 use serde::export::Formatter;
 use std::borrow::Cow;
+use std::hash::{Hash, Hasher};
 
 /// A single type in the schema; for example an integer or a structure.
-pub trait Type: Debug + WithMetadata {
+pub trait Type: Debug + WithMetadata + Clone {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
     where
         C: ValidationContext<'c>;
@@ -115,6 +116,16 @@ pub trait TypeContainer {
             LqError::err_new(format!("There's no such type referenced by {}", reference))
         }
     }
+
+    /// Generates the hash for the given type. Technically does this:
+    ///
+    /// - Maybe reduces information of the type (depending on `information`).
+    /// - Converts the type to `AnyType`.
+    /// - Serializes the `AnyType` using liquesco. Then hashes the given binary.
+    /// - Collects all referenced types and does the same for those types.
+    fn hash_type<H : Hasher>(&self, reference : &TypeRef,
+                        information : Information, state : &mut H) -> Result<(), LqError>
+        where Self : Sized;
 }
 
 /// A schema. Can be used to validate data.
