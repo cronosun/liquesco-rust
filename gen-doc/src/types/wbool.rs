@@ -9,18 +9,17 @@ use crate::type_writer::TypeBodyWriter;
 use crate::model::row::{Row, Link};
 use crate::model::row;
 use crate::model::card::CardId;
+use liquesco_schema::types::boolean::TBool;
 
-pub struct WOption<'a> {
+pub struct WBool<'a> {
     _phantom: &'a PhantomData<()>,
 }
 
-impl<'a> TypeBodyWriter for WOption<'a> {
-    type T = TOption<'a>;
+impl<'a> TypeBodyWriter for WBool<'a> {
+    type T = TBool<'a>;
 
     fn write<'b, TContext>(ctx: &TContext, typ: &Self::T) -> Result<Vec<Row<'static>>, LqError>
         where TContext : ContextProvider<'b> {
-        Ok(vec![
-            ctx.named_link_to_type("Present type", typ.r#type())?
-        ])
+        Ok(Vec::new())
     }
 }

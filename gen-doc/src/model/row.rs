@@ -73,6 +73,11 @@ impl<'a> Association<'a> {
         self.value.push(primitive);
     }
 
+    pub fn with_value(mut self, primitive : Primitive<'a>) -> Self {
+        self.push_value(primitive);
+        self
+    }
+
     pub fn key(&self) -> &str {
         &self.key
     }
@@ -85,32 +90,37 @@ impl<'a> Association<'a> {
 #[derive(Debug, Serialize, Deserialize)]
 pub enum Primitive<'a> {
     Text(Cow<'a, str>),
-    TextWithLink(TextWithLink<'a>),
+    Code(Cow<'a, str>),
+    Link(Link<'a>),
 }
 
 impl<'a> Primitive<'a> {
     pub fn text_with_link<TText, TLink>(text: TText, link: TLink) -> Self
         where TText: Into<Cow<'a, str>>, TLink: Into<Cow<'a, CardId>> {
-        Primitive::TextWithLink(TextWithLink::new(text, link))
+        Primitive::Link(Link::new(text, link))
     }
 
     pub fn text<TText>(text : TText) -> Self where TText : Into<Cow<'a, str>> {
         Primitive::Text(text.into())
     }
+
+    pub fn code<TText>(text : TText) -> Self where TText : Into<Cow<'a, str>> {
+        Primitive::Code(text.into())
+    }
 }
 
 #[derive(Debug, Serialize, Deserialize)]
-pub struct TextWithLink<'a> {
+pub struct Link<'a> {
     text: Cow<'a, str>,
-    link: Cow<'a, CardId>,
+    target: Cow<'a, CardId>,
 }
 
-impl<'a> TextWithLink<'a> {
+impl<'a> Link<'a> {
     pub fn new<TText, TLink>(text: TText, link: TLink) -> Self
         where TText: Into<Cow<'a, str>>, TLink: Into<Cow<'a, CardId>> {
         Self {
             text: text.into(),
-            link: link.into(),
+            target: link.into(),
         }
     }
 
@@ -118,7 +128,7 @@ impl<'a> TextWithLink<'a> {
         &self.text
     }
 
-    pub fn link(&self) -> &CardId {
-        &self.link
+    pub fn target(&self) -> &CardId {
+        &self.target
     }
 }

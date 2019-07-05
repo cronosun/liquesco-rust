@@ -18,8 +18,10 @@ use liquesco_serialization::types::uint::UInt128;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use crate::types::tint::TInt;
+use liquesco_common::int_memory::IntMemory;
 
-/// A 64-bit unsigned integer.
+/// A 128-bit unsigned integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TUInt<'a> {
     meta: Meta<'a>,
@@ -45,9 +47,17 @@ impl<'a> TUInt<'a> {
             max.into(),
         )?))
     }
+}
 
-    pub fn range(&self) -> &U128IneRange {
+impl<'a> TInt<u128> for TUInt<'a> {
+    fn range(&self) -> &U128IneRange {
         &self.range
+    }
+
+    fn memory(&self) -> IntMemory {
+        let start = IntMemory::from(self.range().start());
+        let end = IntMemory::from(self.range().end());
+        start.max(end)
     }
 }
 

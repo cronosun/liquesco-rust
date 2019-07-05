@@ -14,6 +14,7 @@ use serde::export::fmt::Error;
 use serde::export::Formatter;
 use std::borrow::Cow;
 use std::hash::{Hash, Hasher};
+use crate::type_hash::TypeHash;
 
 /// A single type in the schema; for example an integer or a structure.
 pub trait Type: Debug + WithMetadata + Clone {
@@ -119,13 +120,18 @@ pub trait TypeContainer {
 
     /// Generates the hash for the given type. Technically does this:
     ///
-    /// - Maybe reduces information of the type (depending on `information`).
-    /// - Converts the type to `AnyType`.
-    /// - Serializes the `AnyType` using liquesco. Then hashes the given binary.
-    /// - Collects all referenced types and does the same for those types.
+    /// 1. Maybe reduces information of the type (depending on `information`).
+    /// 2. Converts the type to `AnyType`.
+    /// 3. Serializes the `AnyType` using liquesco. Then hashes the given binary.
+    /// 4. Collects all referenced types (dependencies) and does the same for those types (recursion; see step #1).
+    /// 5. Then writes the the number of dependencies as u64.
     fn hash_type<H : Hasher>(&self, reference : &TypeRef,
                         information : Information, state : &mut H) -> Result<(), LqError>
         where Self : Sized;
+
+    /// The same as `hash_type` but uses the default hash algorithm (blake2b, 16 bytes) and
+    /// stores the result into `TypeHash`.
+    fn type_hash(&self, reference : &TypeRef, information : Information) -> Result<TypeHash, LqError>;
 }
 
 /// A schema. Can be used to validate data.

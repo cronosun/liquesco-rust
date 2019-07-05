@@ -7,19 +7,36 @@ use crate::identifier::Identifier;
 use liquesco_common::error::LqError;
 use std::borrow::Cow;
 use std::hash::{Hasher, Hash};
-use crate::metadata::{Information, WithMetadata};
+use crate::metadata::{Information, WithMetadata, MetadataSetter};
 use liquesco_serialization::serde::serialize_to_vec;
 use std::convert::TryInto;
+use std::cell::RefCell;
+use std::collections::HashMap;
+use crate::type_hash::{TypeHash, TypeHasher};
 
-#[derive(Clone, Hash, Eq, PartialEq, Debug, Serialize, Deserialize)]
+#[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DefaultTypeContainer<'a> {
     types: Vec<(Identifier<'a>, AnyType<'a>)>,
     root: TypeRef,
+    #[serde(skip_serializing, skip_deserializing)]
+    cache: RefCell<HashCache>,
 }
+
+impl PartialEq for DefaultTypeContainer<'_> {
+    fn eq(&self, other: &Self) -> bool {
+        self.root == other.root && self.types == other.types
+    }
+}
+
+impl Eq for DefaultTypeContainer<'_> {}
 
 impl<'a> DefaultTypeContainer<'a> {
     pub(crate) fn new(types: Vec<(Identifier<'a>, AnyType<'a>)>, root: TypeRef) -> Self {
-        Self { types, root }
+        Self {
+            types,
+            root,
+            cache: RefCell::new(HashCache::default()),
+        }
     }
 }
 
@@ -79,11 +96,11 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
     }
 
     fn hash_type<H: Hasher>(&self, reference: &TypeRef,
-                       information: Information, state: &mut H) -> Result<(), LqError> {
+                            information: Information, state: &mut H) -> Result<(), LqError> {
         let any_type = self.require_type(reference)?;
         let vec = if let Some(reduced_metadata) = any_type.meta().reduce_information(information) {
-            let cloned_any = any_type.clone();
-            unimplemented!("TODO: Set metadata"); // TODO
+            let mut cloned_any = any_type.clone();
+            cloned_any.set_meta(reduced_metadata);
             serialize_to_vec(&cloned_any)?
         } else {
             serialize_to_vec(any_type)?
@@ -93,15 +110,67 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
 
         // Do the same for all dependencies
         let mut index = 0;
-        while let Some(reference) =any_type.reference(index) {
+        while let Some(reference) = any_type.reference(index) {
             self.hash_type(reference, information, state)?;
             index = index + 1;
         }
 
         // write number of dependencies as u64
-        let number_of_dependencies : u64 = index.try_into()?;
+        let number_of_dependencies: u64 = index.try_into()?;
         number_of_dependencies.hash(state);
 
         Ok(())
+    }
+
+    fn type_hash(&self, reference: &TypeRef, information: Information) -> Result<TypeHash, LqError> {
+        let entry = CacheEntry {
+            // Note: Clone should be cheap, since we have the numerical version here
+            reference: reference.clone(),
+            information,
+        };
+
+        {
+            if let Some(result) = self.cache.borrow().entries.get(&entry) {
+                return Ok(result.clone());
+            }
+        }
+
+        // not in cache: generate hash and add to cache
+        let mut hasher = TypeHasher::default();
+        self.hash_type(reference, information, &mut hasher)?;
+        let type_hash = hasher.finish();
+
+        {
+            match self.cache.try_borrow_mut() {
+                Ok(mut cache) => {
+                    cache.entries.insert(entry, type_hash);
+                    Ok(())
+                }
+                Err(err) => {
+                    Err(LqError::new(format!("Unable to borrow type hash cache: {:?}", err)))
+                }
+            }?;
+        }
+        // and try again
+        self.type_hash(reference, information)
+    }
+}
+
+#[derive(Clone, Debug)]
+struct HashCache {
+    entries: HashMap<CacheEntry, TypeHash>
+}
+
+#[derive(Hash, Eq, PartialEq, Debug, Clone)]
+struct CacheEntry {
+    reference: TypeRef,
+    information: Information,
+}
+
+impl Default for HashCache {
+    fn default() -> Self {
+        Self {
+            entries: HashMap::default()
+        }
     }
 }

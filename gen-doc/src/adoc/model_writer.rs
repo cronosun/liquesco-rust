@@ -33,10 +33,15 @@ impl<'a> ModelWriter<'a> {
         }
 
         let card_id = self.cards_to_go.remove(0);
+        if self.written_cards.contains(&card_id) {
+            return true;
+        }
+
         if let Some(card) = self.model.card(&card_id) {
+            self.written_cards.insert(card_id);
+
             let mut card_writer = CardWriter::new(self.text, card);
             card_writer.write();
-            self.written_cards.insert(card_id);
 
             // process dependencies
             for dependency in card_writer.take_dependencies() {
@@ -48,6 +53,8 @@ impl<'a> ModelWriter<'a> {
             self.text().space();
             self.text().line(format!("WARNING: Card {} not found", card_id.as_str()));
             self.text().space();
+
+            self.written_cards.insert(card_id);
         }
 
         // continue

@@ -40,6 +40,10 @@ impl<'a> Card<'a> {
     pub fn accent(&self) -> Accent {
         self.accent
     }
+
+    pub fn id(&self) -> &CardId {
+        &self.id
+    }
 }
 
 /// Identifies a card uniquely.

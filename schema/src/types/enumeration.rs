@@ -21,10 +21,17 @@ use liquesco_serialization::types::enumeration::EnumHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use core::borrow::Borrow;
+use lazy_static::lazy_static;
 
 const MIN_VALUES: usize = 1;
 const MAX_VALUES: usize = 32;
 const MIN_VARIANTS: usize = 1;
+
+lazy_static! {
+    static ref OK_IDENTIFIER : Identifier<'static> = { Identifier::try_from("ok").unwrap() };
+    static ref ERR_IDENTIFIER : Identifier<'static> = { Identifier::try_from("err").unwrap() };
+}
 
 type Variants<'a> = Vec<Variant<'a>>;
 type Values<'a> = Vec<TypeRef>;
@@ -48,6 +55,36 @@ pub struct Variant<'a> {
     ///
     /// For variants without value, this is empty.
     values: Option<Values<'a>>,
+}
+
+/// About this enum. Can give the code generator more information about the enum; can be
+/// used to choose the correct platform implementation when generating code.
+#[derive(Clone, Debug, PartialEq, Eq, Hash)]
+pub struct About {
+    value_variants: bool,
+    specialization : Specialization,
+}
+
+impl About {
+    /// This is true when at least one of the variants can have a value. This is useful for the
+    /// code generator: Some languages do not support enum variants with values.
+    pub fn value_variants(&self) -> bool {
+        self.value_variants
+    }
+
+    pub fn specialization(&self) -> Specialization {
+        self.specialization
+    }
+}
+
+#[derive(Clone, Copy, Debug, PartialEq, Eq, Hash)]
+pub enum Specialization {
+    /// No specialization; just a plain enum.
+    None,
+
+    /// Enumeration is a result type; result types always have exactly two variants where
+    /// the first variant is called 'ok' and the second variant is called 'err'.
+    Result
 }
 
 impl<'a> Variant<'a> {
@@ -109,6 +146,20 @@ impl<'a> TEnum<'a> {
         Option::None
     }
 
+    pub fn about(&self) -> About {
+        let specialization = self.specialization();
+
+        let variant_with_value = self.variants().iter().find(|candidate| {
+            !candidate.values().is_empty()
+        });
+        let value_variants = variant_with_value != None;
+
+        About {
+            value_variants,
+            specialization
+        }
+    }
+
     fn find_type_by_index(&self, index: usize) -> Option<TypePosition> {
         let mut current = 0;
         for (variant_index, variant) in self.variants().iter().enumerate() {
@@ -123,6 +174,22 @@ impl<'a> TEnum<'a> {
             }
         }
         None
+    }
+
+    fn specialization(&self) -> Specialization {
+        if self.variants().len()==2 {
+            let variant_ok = &self.variants()[0];
+            let variant_err = &self.variants()[1];
+            let ok_id : &Identifier<'static> = &OK_IDENTIFIER;
+            let err_id : &Identifier<'static> = &ERR_IDENTIFIER;
+            if variant_ok.name()==ok_id && variant_err.name()==err_id {
+                Specialization::Result
+            } else {
+                Specialization::None
+            }
+        } else {
+            Specialization::None
+        }
     }
 }
 

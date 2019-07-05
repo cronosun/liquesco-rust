@@ -18,8 +18,10 @@ use liquesco_serialization::types::sint::SInt128;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
+use liquesco_common::int_memory::IntMemory;
+use crate::types::tint::TInt;
 
-/// 64 bit signed integer.
+/// 128 bit signed integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]
 pub struct TSInt<'a> {
     meta: Meta<'a>,
@@ -45,9 +47,17 @@ impl<'a> TSInt<'a> {
             max.into(),
         )?))
     }
+}
 
-    pub fn range(&self) -> &I128IneRange {
+impl<'a> TInt<i128> for TSInt<'a> {
+    fn range(&self) -> &I128IneRange {
         &self.range
+    }
+
+    fn memory(&self) -> IntMemory {
+        let start = IntMemory::from(self.range().start());
+        let end = IntMemory::from(self.range().end());
+        start.max(end)
     }
 }
 

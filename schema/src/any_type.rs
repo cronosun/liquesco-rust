@@ -191,6 +191,31 @@ impl<'a> Type for AnyType<'a> {
     }
 }
 
+impl<'a> MetadataSetter<'a> for AnyType<'a> {
+    fn set_meta(&mut self, meta: Meta<'a>) {
+        match self {
+            AnyType::Struct(value) => value.set_meta(meta),
+            AnyType::Map(value) => value.set_meta(meta),
+            AnyType::RootMap(value) => value.set_meta(meta),
+            AnyType::KeyRef(value) => value.set_meta(meta),
+            AnyType::UInt(value) => value.set_meta(meta),
+            AnyType::SInt(value) => value.set_meta(meta),
+            AnyType::Ascii(value) => value.set_meta(meta),
+            AnyType::Bool(value) => value.set_meta(meta),
+            AnyType::Enum(value) => value.set_meta(meta),
+            AnyType::Seq(value) => value.set_meta(meta),
+            AnyType::Binary(value) => value.set_meta(meta),
+            AnyType::Float32(value) => value.set_meta(meta),
+            AnyType::Float64(value) => value.set_meta(meta),
+            AnyType::Option(value) => value.set_meta(meta),
+            AnyType::Unicode(value) => value.set_meta(meta),
+            AnyType::Uuid(value) => value.set_meta(meta),
+            AnyType::Range(value) => value.set_meta(meta),
+            AnyType::Decimal(value) => value.set_meta(meta),
+        }
+    }
+}
+
 impl BuildsOwnSchema for AnyType<'_> {
     fn build_schema<B>(builder: &mut B) -> TypeRef
     where

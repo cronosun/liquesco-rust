@@ -7,6 +7,7 @@ use liquesco_schema::types::sint::TSInt;
 use liquesco_schema::types::uint::TUInt;
 use minidom::Element;
 use std::marker::PhantomData;
+use liquesco_schema::types::tint::TInt;
 
 pub struct WUInt<'a> {
     _phantom: &'a PhantomData<()>,

@@ -11,19 +11,18 @@ use crate::model::row;
 use crate::model::card::CardId;
 use liquesco_schema::types::root_map::TRootMap;
 use crate::types::common::{Common, TxtSorting};
-use liquesco_schema::types::map::Sorting;
+use liquesco_schema::types::map::{Sorting, TMap};
 
-pub struct WRootMap<'a> {
+pub struct WMap<'a> {
     _phantom: &'a PhantomData<()>,
 }
 
-impl<'a> TypeBodyWriter for WRootMap<'a> {
-    type T = TRootMap<'a>;
+impl<'a> TypeBodyWriter for WMap<'a> {
+    type T = TMap<'a>;
 
     fn write<'b, TContext>(ctx: &TContext, typ: &Self::T) -> Result<Vec<Row<'static>>, LqError>
         where TContext : ContextProvider<'b> {
         Ok(vec![
-            ctx.named_link_to_type("Root type", typ.root())?,
             ctx.named_link_to_type("Key type", typ.key())?,
             ctx.named_link_to_type("Value type", typ.value())?,
             Row::association_with_text("Sorting",
@@ -35,6 +34,8 @@ impl<'a> TypeBodyWriter for WRootMap<'a> {
                                        Common::fmt_u32(*typ.length().start())),
             Row::association_with_text("Max length (inclusive)",
                                        Common::fmt_u32(*typ.length().end())),
+            Row::association_with_text("Anchors (can be referenced)",
+            Common::fmt_bool_yes_no(typ.anchors()))
         ])
     }
 }

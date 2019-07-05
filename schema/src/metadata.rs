@@ -47,7 +47,7 @@ pub trait MetadataSetter<'m>: WithMetadata {
 }
 
 /// What information a type contains.
-#[derive(Copy, Clone, Debug, Eq, PartialEq)]
+#[derive(Copy, Clone, Debug, Eq, PartialEq, Hash)]
 pub enum Information {
     /// Only the pure type, no meta data; no documentation and no conformance.
     Type,

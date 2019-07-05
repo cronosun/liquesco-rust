@@ -62,6 +62,14 @@ impl Uuid {
     pub fn as_slice(&self) -> &[u8] {
         &self.0
     }
+
+    pub fn as_hex_string(&self) -> String {
+        let mut result = String::with_capacity(self.0.len()*2);
+        for byte in &self.0 {
+            result = result + &format!("{:x}", byte);
+        }
+        result
+    }
 }
 
 impl From<[u8; 16]> for Uuid {

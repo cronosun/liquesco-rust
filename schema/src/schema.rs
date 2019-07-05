@@ -21,6 +21,7 @@ use std::cmp::Ordering;
 use std::convert::TryFrom;
 use std::marker::PhantomData;
 use std::hash::Hasher;
+use crate::type_hash::TypeHash;
 
 /// Builds the liquesco schema schema.
 pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
@@ -99,6 +100,10 @@ impl<'a, C: TypeContainer + Clone> TypeContainer for DefaultSchema<'a, C> {
     fn hash_type<H: Hasher>(&self, reference: &TypeRef,
                        information: Information, state: &mut H) -> Result<(), LqError> {
         self.types.hash_type(reference, information, state)
+    }
+
+    fn type_hash(&self, reference: &TypeRef, information: Information) -> Result<TypeHash, LqError> {
+        self.types.type_hash(reference, information)
     }
 }
 

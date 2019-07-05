@@ -1,6 +1,6 @@
 use crate::model::card::{Card, CardId};
 use liquesco_processing::text::Text;
-use crate::model::row::{Association, Primitive, TextWithLink, Row};
+use crate::model::row::{Association, Primitive, Link, Row};
 use std::collections::HashSet;
 
 static TABLE_LINE : &str = "|====================";
@@ -41,6 +41,11 @@ impl<'a> CardWriter<'a> {
 
     fn write_card_header(&mut self) {
         self.text().space();
+        // anchor
+        let link_id = Self::generate_link_id(self.card.id());
+        let anchor_line = format!("[[{}]]", link_id);
+        self.text().line(anchor_line);
+        // title
         let title_line = format!("= {}", self.card.title());
         self.text().line(title_line);
     }
@@ -61,7 +66,10 @@ impl<'a> CardWriter<'a> {
                     Primitive::Text(text) => {
                         self.row_write_text(text);
                     },
-                    Primitive::TextWithLink(text_and_link) => {
+                    Primitive::Code(text) => {
+                        self.row_write_code(text);
+                    },
+                    Primitive::Link(text_and_link) => {
                         self.row_write_link(text_and_link);
                     }
                 }
@@ -119,7 +127,10 @@ impl<'a> CardWriter<'a> {
             Primitive::Text(text) => {
                 self.text().add(&text);
             },
-            Primitive::TextWithLink(text_link) => {
+            Primitive::Code(text) => {
+                self.text().add(format!("`{}`", &text));
+            },
+            Primitive::Link(text_link) => {
                 self.write_link(text_link);
             }
         }
@@ -148,17 +159,26 @@ impl<'a> CardWriter<'a> {
         self.text().space();
     }
 
-    fn row_write_link(&mut self, text_with_link : &'a TextWithLink) {
+    fn row_write_code(&mut self, text : &str) {
+        self.text().space();
+        self.text().line("[literal]");
+        self.text().line("....");
+        self.text().line(text);
+        self.text().line("....");
+        self.text().space();
+    }
+
+    fn row_write_link(&mut self, text_with_link : &'a Link) {
         self.text().space();
         self.write_link( text_with_link);
         self.text().space();
     }
 
-    fn write_link(&mut self, text_with_link : &'a TextWithLink) {
+    fn write_link(&mut self, text_with_link : &'a Link) {
         self.text().add(format!("xref:{}[{}]",
-                                Self::generate_link_id(&text_with_link.link()),
+                                Self::generate_link_id(&text_with_link.target()),
                                 text_with_link.text()));
-        self.add_dependency(text_with_link.link());
+        self.add_dependency(text_with_link.target());
     }
 
     fn add_dependency(&mut self, card_id : &'a CardId) {
