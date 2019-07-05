@@ -1,0 +1,2586 @@
+= Liquesco type documentation
+Liquesco document generator
+:doctype: article
+:encoding: utf-8
+:lang: en
+:toc: left
+:numbered:
+
+[[card-num:61]]
+= Type(schema)
+
+[NOTE]
+====
+root_map: A map with a root. Keys have to be unique. The keys can be referenced. The root cannot be referenced. The root can reference keys.
+====
+
+The liquesco schema.
+
+[width="100%"]
+|====================
+| Root type | xref:card-num:62[Type(schema_root)]
+| Key type | xref:card-num:34[Type(identifier)]
+| Value type | xref:card-num:8[Type(any_type)]
+| Sorting | Ascending
+| Min length (inclusive) | 0
+| Max length (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+|====================
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `5dcdfc5faca3d8804048fc473d34c5e`
+| Technical hash | `87e3b1f7d941f130c37bfba1c825e1d`
+| Type hash | `87e3b1f7d941f130c37bfba1c825e1d`
+|====================
+
+[[card-num:8]]
+= Type(any_type)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+The any type is an enumeration of all possible types available in the type system.
+
+[width="100%"]
+|====================
+| bool | xref:card-num:16[Type(bool)]
+| option | xref:card-num:54[Type(option)]
+| seq | xref:card-num:64[Type(seq)]
+| binary | xref:card-num:13[Type(binary)]
+| unicode | xref:card-num:75[Type(unicode)]
+| uint | xref:card-num:72[Type(uint)]
+| sint | xref:card-num:67[Type(sint)]
+| f32 | xref:card-num:28[Type(float_32)]
+| f64 | xref:card-num:31[Type(float_64)]
+| enum | xref:card-num:24[Type(enum)]
+| struct | xref:card-num:71[Type(struct)]
+| map | xref:card-num:42[Type(map)]
+| root_map | xref:card-num:60[Type(root_map)]
+| key_ref | xref:card-num:39[Type(key_ref)]
+| ascii | xref:card-num:9[Type(ascii)]
+| uuid | xref:card-num:79[Type(uuid)]
+| range | xref:card-num:57[Type(range)]
+| decimal | xref:card-num:18[Type(decimal)]
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | Yes
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:61[Type(schema)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `e24e243822934cfb3d839491a8fbb4e`
+| Technical hash | `801a5d301c5093c9855b0a677923c35`
+| Type hash | `801a5d301c5093c9855b0a677923c35`
+|====================
+
+[[card-num:62]]
+= Type(schema_root)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+This references the root type. The root type is the type schema validation begins with.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:61[Type(schema)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `6e6fd07b41a21455bacd786c4d291ed`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:34]]
+= Type(identifier)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+An identifier identifies something in the system. An identifier is composed of 1-12 segments. Each segment is composed of ASCII characters (see segment for details what characters are allowed and about min/max length). These strict constraints allow simple conversions of identifiers to identifiers of the target system (e.g. Java class names, Rust trait names, Dart class names, ...).
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:63[Type(segment)]
+| Length minimum (inclusive) | 1
+| Length maximum (inclusive) | 12
+| Ordering | Undefined; any ordering is allowed.
+| Unique | No (duplicates are allowed)
+|====================
+
+*This type is used by*
+
+xref:card-num:25[Type(field)]
+
+xref:card-num:61[Type(schema)]
+
+xref:card-num:83[Type(variant)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `d38d17a030f2419bef4ba92e48f137`
+| Technical hash | `45ed4b5c1b0408ac7cc4c6cfdbe4c83`
+| Type hash | `45ed4b5c1b0408ac7cc4c6cfdbe4c83`
+|====================
+
+[[card-num:75]]
+= Type(unicode)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Arbitrary unicode text. This can be used for human readable text.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| length | xref:card-num:76[Type(unicode_length)]
+| length_type | xref:card-num:40[Type(length_type)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `4dccc8e791481bd4918f5c76b1c555`
+| Technical hash | `fc56a37c8c89227ebc344acb285ab1`
+| Type hash | `fc56a37c8c89227ebc344acb285ab1`
+|====================
+
+[[card-num:60]]
+= Type(root_map)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A map with a root. Keys have to be unique. The keys can be referenced. Keys cannot reference itself. The root cannot be referenced. The root can reference keys.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| root | xref:card-num:59[Type(root)]
+| key | xref:card-num:38[Type(key)]
+| value | xref:card-num:80[Type(value)]
+| length | xref:card-num:44[Type(map_length)]
+| sorting | xref:card-num:46[Type(map_sorting)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `4db4f74d84bac425e3cb96fbac1798f`
+| Technical hash | `c8d726fcbe57e42dc75d3c93fe07849`
+| Type hash | `c8d726fcbe57e42dc75d3c93fe07849`
+|====================
+
+[[card-num:72]]
+= Type(uint)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Unsigned integer - maximum 128 bit.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| range | xref:card-num:73[Type(uint_range)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `9dfef6a1769b1e59d831ae84afdd9bc`
+| Technical hash | `fa3fed914781c6b3432b580ea1e7429`
+| Type hash | `fa3fed914781c6b3432b580ea1e7429`
+|====================
+
+[[card-num:64]]
+= Type(seq)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A sequence contains 0-n elements of the same type.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| element | xref:card-num:23[Type(element)]
+| length | xref:card-num:65[Type(seq_length)]
+| ordering | xref:card-num:55[Type(ordering)]
+| multiple_of | xref:card-num:50[Type(maybe_multiple_of)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `2f6adefe50ac3ed29491330dd251cc2`
+| Technical hash | `9099c58e5a8882a1af73ed6467af225`
+| Type hash | `9099c58e5a8882a1af73ed6467af225`
+|====================
+
+[[card-num:57]]
+= Type(range)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A sequence contains 0-n elements of the same type.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| element | xref:card-num:58[Type(range_element)]
+| inclusion | xref:card-num:37[Type(inclusion)]
+| allow_empty | xref:card-num:0[Type(allow_empty)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `7825d69b10b38410e545c6ca1e48b744`
+| Technical hash | `358b7ffc23279861c8fa342a38cb9`
+| Type hash | `358b7ffc23279861c8fa342a38cb9`
+|====================
+
+[[card-num:71]]
+= Type(struct)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A structure is similar to a sequence but has a defined length and can contain fields of different types.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| fields | xref:card-num:27[Type(fields)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `1e94550c9a0afc22ad9629e3cea510`
+| Technical hash | `738b43491375bc388a854b923dcc6b`
+| Type hash | `738b43491375bc388a854b923dcc6b`
+|====================
+
+[[card-num:42]]
+= Type(map)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A sequence of key-value entries. Duplicate keys are not allowed. The keys can optionally be referenced to create recursive data structures.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| key | xref:card-num:43[Type(map_key)]
+| value | xref:card-num:47[Type(map_value)]
+| length | xref:card-num:44[Type(map_length)]
+| sorting | xref:card-num:46[Type(map_sorting)]
+| anchors | xref:card-num:7[Type(anchors)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `63dbe211bbb487d74699143c59a5ba`
+| Technical hash | `fe941bce50bcc5f9563d43782307c2a`
+| Type hash | `fe941bce50bcc5f9563d43782307c2a`
+|====================
+
+[[card-num:39]]
+= Type(key_ref)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| level | xref:card-num:41[Type(level)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `ff10afdf3914acca1e70e601b7c6b44`
+| Technical hash | `18de3949da3ee075c4dce78827e2daf9`
+| Type hash | `18de3949da3ee075c4dce78827e2daf9`
+|====================
+
+[[card-num:67]]
+= Type(sint)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Signed integer - maximum 128 bit.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| range | xref:card-num:68[Type(sint_range)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `c8e9bdde2e9cc5be36cc9f2ebd47`
+| Technical hash | `42fe372c8faeeb59115dc6675a9b02a`
+| Type hash | `42fe372c8faeeb59115dc6675a9b02a`
+|====================
+
+[[card-num:16]]
+= Type(bool)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A boolean: Can either be true or false.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `fefbe89e5007d57cf41b21e42a573a2`
+| Technical hash | `20e34b34238fef8b95592c9dbedcc7`
+| Type hash | `20e34b34238fef8b95592c9dbedcc7`
+|====================
+
+[[card-num:79]]
+= Type(uuid)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+16 byte UUID; RFC 4122.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `48baf6971355959812f7f1555fcf4ac`
+| Technical hash | `20e34b34238fef8b95592c9dbedcc7`
+| Type hash | `20e34b34238fef8b95592c9dbedcc7`
+|====================
+
+[[card-num:13]]
+= Type(binary)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Arbitrary binary.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| length | xref:card-num:14[Type(binary_length)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `cf582fe22caaffd5d87ee3466ede9b9`
+| Technical hash | `b5355e899066731b5f711cc9dd6e6`
+| Type hash | `b5355e899066731b5f711cc9dd6e6`
+|====================
+
+[[card-num:24]]
+= Type(enum)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+An enumeration of variants.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| variants | xref:card-num:84[Type(variants)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `99c1ad9b589c846eb5dcd6b44ae8d56`
+| Technical hash | `2caf57d1bcd95c99382dff28338fc4c`
+| Type hash | `2caf57d1bcd95c99382dff28338fc4c`
+|====================
+
+[[card-num:31]]
+= Type(float_64)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A floating point number. This should be used for technical things. When working with numbers like amount of money consider using the decimal type.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| range | xref:card-num:32[Type(float_64_range)]
+| allow_positive_zero | xref:card-num:5[Type(allow_positive_zero)]
+| allow_negative_zero | xref:card-num:3[Type(allow_negative_zero)]
+| allow_nan | xref:card-num:1[Type(allow_nan)]
+| allow_positive_infinity | xref:card-num:4[Type(allow_positive_infinity)]
+| allow_negative_infinity | xref:card-num:2[Type(allow_negative_infinity)]
+| allow_subnormal | xref:card-num:6[Type(allow_subnormal)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `7fea8c1c3f556dd8578b3c3175e731`
+| Technical hash | `bbf8a4c9b33b29184dac63ba789be17`
+| Type hash | `bbf8a4c9b33b29184dac63ba789be17`
+|====================
+
+[[card-num:54]]
+= Type(option)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Can have a value (some; present) or no value (none; empty; absent).
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| type | xref:card-num:56[Type(present_type)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `7c5aa4d3b867249a48526eaf4eb3f78`
+| Technical hash | `a9447e8ecc7431f47724afd838f68b5`
+| Type hash | `a9447e8ecc7431f47724afd838f68b5`
+|====================
+
+[[card-num:9]]
+= Type(ascii)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+The ascii type must not be used to transfer human readable text. It's to be used to transfer machine readable strings. Only characters withing the ASCII range are allowed.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| length | xref:card-num:11[Type(ascii_length)]
+| codes | xref:card-num:17[Type(codes)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `80cc34af9ed9585b32d5ce377593e56`
+| Technical hash | `3c8fbd4e7b402d2272404ce44ca277e7`
+| Type hash | `3c8fbd4e7b402d2272404ce44ca277e7`
+|====================
+
+[[card-num:18]]
+= Type(decimal)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A normalized decimal number. It's composed of a signed 128 bit coefficient and a signed 8 bit exponent (c*10^e).
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| range | xref:card-num:19[Type(decimal_range)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `2593b11e2775197afb9d98bd135617f3`
+| Technical hash | `956d24afbb58d954b33a1b3c8b3834`
+| Type hash | `956d24afbb58d954b33a1b3c8b3834`
+|====================
+
+[[card-num:28]]
+= Type(float_32)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A floating point number. This should be used for technical things. When working with numbers like amount of money consider using the decimal type.
+
+[width="100%"]
+|====================
+| meta | xref:card-num:52[Type(meta)]
+| range | xref:card-num:29[Type(float_32_range)]
+| allow_positive_zero | xref:card-num:5[Type(allow_positive_zero)]
+| allow_negative_zero | xref:card-num:3[Type(allow_negative_zero)]
+| allow_nan | xref:card-num:1[Type(allow_nan)]
+| allow_positive_infinity | xref:card-num:4[Type(allow_positive_infinity)]
+| allow_negative_infinity | xref:card-num:2[Type(allow_negative_infinity)]
+| allow_subnormal | xref:card-num:6[Type(allow_subnormal)]
+|====================
+
+*This type is used by*
+
+xref:card-num:8[Type(any_type)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `7434bc865f88345f952b6479a180f699`
+| Technical hash | `21714c35ef43f95f1a4528062cb9f`
+| Type hash | `21714c35ef43f95f1a4528062cb9f`
+|====================
+
+[[card-num:25]]
+= Type(field)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A single field in a structure. A field contains a name and a type.
+
+[width="100%"]
+|====================
+| name | xref:card-num:34[Type(identifier)]
+| type | xref:card-num:26[Type(field_type)]
+|====================
+
+*This type is used by*
+
+xref:card-num:27[Type(fields)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `c9dd21af2aca64a821ea1a59b3b6531c`
+| Technical hash | `85405ea8446f5db1fa92fc1a291e8fd3`
+| Type hash | `85405ea8446f5db1fa92fc1a291e8fd3`
+|====================
+
+[[card-num:63]]
+= Type(segment)
+
+[NOTE]
+====
+ascii: Ascii (aka ascii text) is a sequence of characters where each of them is within the ascii range (0-127 inclusive). It can be used to transfer technical text (aka string); it's not to be used to transfer human readable text (use unicode for this case).
+====
+
+A single segment of an identifier. An identifier can only contain certain ASCII characters and is limited in length.
+
+[width="100%"]
+|====================
+| Min length (inclusive; number of chars) | 1
+| Max length (inclusive; number of chars) | 30
+| Allowed code range #1 | 48 (inclusive) - 58 (exclusive); [0-9] (inclusive).
+| Allowed code range #2 | 97 (inclusive) - 123 (exclusive); [a-z] (inclusive).
+|====================
+
+*This type is used by*
+
+xref:card-num:34[Type(identifier)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `36df578bf6ecd8cca8a507bab6287ad`
+| Technical hash | `5b5f9cbc109dcb81a38a7a1caefe9f3`
+| Type hash | `5b5f9cbc109dcb81a38a7a1caefe9f3`
+|====================
+
+[[card-num:83]]
+= Type(variant)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+A single variant in an enumeration.
+
+[width="100%"]
+|====================
+| name | xref:card-num:34[Type(identifier)]
+| values | xref:card-num:51[Type(maybe_values)]
+|====================
+
+*This type is used by*
+
+xref:card-num:84[Type(variants)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `3ae8bf21c3bec731a2d69bd630fd8e2e`
+| Technical hash | `6bc867414e85dd146aef3738eb4734b`
+| Type hash | `6bc867414e85dd146aef3738eb4734b`
+|====================
+
+[[card-num:52]]
+= Type(meta)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Meta information about the type. You can optionally provide a description/documentation and information about implementation/conformance.
+
+[width="100%"]
+|====================
+| doc | xref:card-num:48[Type(maybe_doc)]
+| implements | xref:card-num:49[Type(maybe_implements)]
+|====================
+
+*This type is used by*
+
+xref:card-num:31[Type(float_64)]
+
+xref:card-num:39[Type(key_ref)]
+
+xref:card-num:24[Type(enum)]
+
+xref:card-num:67[Type(sint)]
+
+xref:card-num:60[Type(root_map)]
+
+xref:card-num:13[Type(binary)]
+
+xref:card-num:28[Type(float_32)]
+
+xref:card-num:64[Type(seq)]
+
+xref:card-num:57[Type(range)]
+
+xref:card-num:9[Type(ascii)]
+
+xref:card-num:18[Type(decimal)]
+
+xref:card-num:75[Type(unicode)]
+
+xref:card-num:72[Type(uint)]
+
+xref:card-num:54[Type(option)]
+
+xref:card-num:16[Type(bool)]
+
+xref:card-num:42[Type(map)]
+
+xref:card-num:79[Type(uuid)]
+
+xref:card-num:71[Type(struct)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `8a22e04d8dbfbc3650df5a2053119e0`
+| Technical hash | `5b1e28da3591493bcf5674d8121a56c`
+| Type hash | `5b1e28da3591493bcf5674d8121a56c`
+|====================
+
+[[card-num:40]]
+= Type(length_type)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+Specifies how the length of the unicode is measured. 'byte' can be measured very efficiently - but depends on the encoding. Note: Scalar must not be confused with unicode grapheme clusters.
+
+[width="100%"]
+|====================
+| byte |
+| utf8_byte |
+| scalar |
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | No
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:75[Type(unicode)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `764c1d2def22bb441f7050c38136d0b9`
+| Technical hash | `d01f76c1d7d4293263b9c79ae916d5`
+| Type hash | `d01f76c1d7d4293263b9c79ae916d5`
+|====================
+
+[[card-num:76]]
+= Type(unicode_length)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:77[Type(unicode_length_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:75[Type(unicode)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `d560446efa93ab67192cca877b3b6c3`
+| Technical hash | `d560446efa93ab67192cca877b3b6c3`
+| Type hash | `d560446efa93ab67192cca877b3b6c3`
+|====================
+
+[[card-num:44]]
+= Type(map_length)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The length of a map (number of elements). Both - end and start - are included.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:45[Type(map_length_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:60[Type(root_map)]
+
+xref:card-num:42[Type(map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `bbdfef69919166f7ac68f8e588c9970`
+| Technical hash | `264203cf94c1a74ffeee1f1f42521c3`
+| Type hash | `264203cf94c1a74ffeee1f1f42521c3`
+|====================
+
+[[card-num:38]]
+= Type(key)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Type of keys in this map.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:60[Type(root_map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `9abc9e7978e155c58290619f466f231`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:80]]
+= Type(value)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Type of values in this map.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:60[Type(root_map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `28687f23816205337292bf5fae81a87`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:46]]
+= Type(map_sorting)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+Determines the sort order of the keys in this map. You should usually use 'ascending' if not sure.
+
+[width="100%"]
+|====================
+| ascending |
+| descending |
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | No
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:60[Type(root_map)]
+
+xref:card-num:42[Type(map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `18cb8923e5ba67948c3c28c0bda8899`
+| Technical hash | `3b4aeac25e8ad134d5240a739d2dc`
+| Type hash | `3b4aeac25e8ad134d5240a739d2dc`
+|====================
+
+[[card-num:59]]
+= Type(root)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+The root type in this map.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:60[Type(root_map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `8423b1ca1c52d5df20c57e37aa636f9`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:73]]
+= Type(uint_range)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The range within the integer must be. Both (start and end) are inclusive.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:74[Type(uint_range_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:72[Type(uint)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `28a155f3ad71ffe2826e5fd9c292b`
+| Technical hash | `7fbbf945eef7c6350c1baf51e2528e`
+| Type hash | `7fbbf945eef7c6350c1baf51e2528e`
+|====================
+
+[[card-num:50]]
+= Type(maybe_multiple_of)
+
+[NOTE]
+====
+option: Use the option type (aka maybe; optional; nullable) to describe data that can either be there ('present'; 'some') or absent ('missing'; 'empty'). Alternatively you can also use an enum with two variants to achieve the same.
+====
+
+[width="100%"]
+|====================
+| Present type | xref:card-num:53[Type(multiple_of)]
+|====================
+
+*This type is used by*
+
+xref:card-num:64[Type(seq)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `debc4140ad50e59c4443ca31e73ae3`
+| Technical hash | `e065f5d554278e996e06c974a4f21db`
+| Type hash | `e065f5d554278e996e06c974a4f21db`
+|====================
+
+[[card-num:55]]
+= Type(ordering)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+Ordering is optional. When there's no ordering it can be irrelevant or ordering has a special meaning. It's also possible to specify a required sorting (in this case it's also possible to disallow duplicates).
+
+[width="100%"]
+|====================
+| none |
+| sorted | xref:card-num:70[Type(sorting)]
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | Yes
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:64[Type(seq)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `fbd7c3f35c7d6ecc4c4d23e52a23d927`
+| Technical hash | `f8f8fcf2c1f0a48128a1336fa6e7ade2`
+| Type hash | `f8f8fcf2c1f0a48128a1336fa6e7ade2`
+|====================
+
+[[card-num:23]]
+= Type(element)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+The element type of a sequence.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:64[Type(seq)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `e6a8d216747b7cce98ca30f5c4bb67b4`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:65]]
+= Type(seq_length)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The length of a sequence (number of elements). It's tuple of start and end. Both - end and start - are included.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:66[Type(seq_length_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:64[Type(seq)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `6320f6437249b360314a77244456c88`
+| Technical hash | `39531bd69cb297f12878fd4cac4f6a29`
+| Type hash | `39531bd69cb297f12878fd4cac4f6a29`
+|====================
+
+[[card-num:37]]
+= Type(inclusion)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+Determines whether start and end are inclusive. There's one special value: 'Supplied'. When you choose this, the data has to contain the information whether start/end are inclusive or not.
+
+[width="100%"]
+|====================
+| both_inclusive |
+| start_inclusive |
+| both_exclusive |
+| end_inclusive |
+| supplied |
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | No
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:57[Type(range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `a4b42e75374c1a16d2af23ff6a4c68a3`
+| Technical hash | `3f4ac80e511c37d3818a95e6bad0c4`
+| Type hash | `3f4ac80e511c37d3818a95e6bad0c4`
+|====================
+
+[[card-num:0]]
+= Type(allow_empty)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+General rule is start < end. When start equals end it's possible to construct empty ranges (depending on the inclusion). If this is false it's not allowed to specify a range that's empty. You usually want this to be false.
+
+*This type is used by*
+
+xref:card-num:57[Type(range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `3255a6a8ed6a21889f751b56a40af75`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:58]]
+= Type(range_element)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+The start and end type of the range.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:57[Type(range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `859b708eda8a59bb8ade6441edee4784`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:27]]
+= Type(fields)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+A sequence of fields in a structure.
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:25[Type(field)]
+| Length minimum (inclusive) | 0
+| Length maximum (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Ordering | Undefined; any ordering is allowed.
+| Unique | No (duplicates are allowed)
+|====================
+
+*This type is used by*
+
+xref:card-num:71[Type(struct)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `ceb47f3efa347c1a3bfcec37a480ca`
+| Technical hash | `2e4c4e55ee327a450f1fb5373108912`
+| Type hash | `2e4c4e55ee327a450f1fb5373108912`
+|====================
+
+[[card-num:47]]
+= Type(map_value)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Type of values in this map.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:42[Type(map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `28687f23816205337292bf5fae81a87`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:43]]
+= Type(map_key)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Type of keys in this map.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:42[Type(map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `9abc9e7978e155c58290619f466f231`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:7]]
+= Type(anchors)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+If this is true, the keys in this map can be referenced using key refs. Note: Only values can reference keys. Keys cannot reference itself.
+
+*This type is used by*
+
+xref:card-num:42[Type(map)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `78e3d717929909173632d9875eeec1e`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:41]]
+= Type(level)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+Specifies which outer map you want to reference. This is usually 0: In this case you reference keys from the next outer map. Note: Those map that do not provide anchors that can be referenced are ignored.
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Memory width | 32 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:39[Type(key_ref)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `ce8ef239a54f452cf387ad4e493925c1`
+| Technical hash | `cbecfce11dceb4b5cd779ba21964ea1`
+| Type hash | `cbecfce11dceb4b5cd779ba21964ea1`
+|====================
+
+[[card-num:68]]
+= Type(sint_range)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The range within the integer must be. Both (start and end) are inclusive.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:69[Type(sint_range_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:67[Type(sint)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `deaabc707c723cc0c83c375f3dd8fdb`
+| Technical hash | `666cb4edcec6fa9863867dbeaeb36ab`
+| Type hash | `666cb4edcec6fa9863867dbeaeb36ab`
+|====================
+
+[[card-num:14]]
+= Type(binary_length)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:15[Type(binary_length_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:13[Type(binary)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `66f1d11d1f57ab31e076484f86887691`
+| Technical hash | `66f1d11d1f57ab31e076484f86887691`
+| Type hash | `66f1d11d1f57ab31e076484f86887691`
+|====================
+
+[[card-num:84]]
+= Type(variants)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+Every enumeration has to have one or more variants (just one usually makes no sense but can be used to allow extension in future).
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:83[Type(variant)]
+| Length minimum (inclusive) | 1
+| Length maximum (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Ordering | Undefined; any ordering is allowed.
+| Unique | No (duplicates are allowed)
+|====================
+
+*This type is used by*
+
+xref:card-num:24[Type(enum)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `bbe5d9bd72e12770986a9736ffa98f15`
+| Technical hash | `1471322a2b82ad253b754395f42c4454`
+| Type hash | `1471322a2b82ad253b754395f42c4454`
+|====================
+
+[[card-num:2]]
+= Type(allow_negative_infinity)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+This is true if negative infinity is allowed. When the negative infinity is hit, range check is skipped.
+
+*This type is used by*
+
+xref:card-num:28[Type(float_32)]
+
+xref:card-num:31[Type(float_64)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `6e9143fd8a112c64c3349893992a8ba1`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:6]]
+= Type(allow_subnormal)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+If this is true, subnormal (denormal) numbers are allowed (excluding the special case for +/- zero). You usually want this to be false. Range check is also performed for subnormal numbers.
+
+*This type is used by*
+
+xref:card-num:28[Type(float_32)]
+
+xref:card-num:31[Type(float_64)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `1cdfc3143ea2b28ad88b5192b408b3a`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:4]]
+= Type(allow_positive_infinity)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+This is true if positive infinity is allowed. When the positive infinity is hit, range check is skipped.
+
+*This type is used by*
+
+xref:card-num:31[Type(float_64)]
+
+xref:card-num:28[Type(float_32)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `b4483fc128ddac5c35bb591c233e9e6d`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:3]]
+= Type(allow_negative_zero)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+If this is true, the subnormal negative zero value is allowed. This should usually be false. When e negative zero value is hit, range check is skipped.
+
+*This type is used by*
+
+xref:card-num:31[Type(float_64)]
+
+xref:card-num:28[Type(float_32)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `8c91e552d1899930786c238ae26cb76d`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:32]]
+= Type(float_64_range)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The range the float must be contained within. Note: Only normal numbers are allowed (so no subnormal numbers and NaN are supported); so for example to support floats >=0, set start to smallest positive number (inclusive), allow positive zeros and (optionally) allow subnormal numbers.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:33[Type(float_64_range_element)]
+| Start inclusive | Supplied (by data)
+| End inclusive | Supplied (by data)
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:31[Type(float_64)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `77cfd350a227fb4974727ab67018dec5`
+| Technical hash | `9ef73b286573298693ac9636e5fc74`
+| Type hash | `9ef73b286573298693ac9636e5fc74`
+|====================
+
+[[card-num:5]]
+= Type(allow_positive_zero)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+If this is true, the subnormal positive zero value is allowed. When a positive zero is hit, range check is skipped.
+
+*This type is used by*
+
+xref:card-num:28[Type(float_32)]
+
+xref:card-num:31[Type(float_64)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `3a912c26f1c0f2a7be7d29afb2398223`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:1]]
+= Type(allow_nan)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+This is true if NaN ('not a number') is allowed. This should usually be false. When a NaN is hit, range check is skipped.
+
+*This type is used by*
+
+xref:card-num:28[Type(float_32)]
+
+xref:card-num:31[Type(float_64)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `5654442fc11c25413324f8dab49270ff`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:56]]
+= Type(present_type)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Type of the present value in an option.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:54[Type(option)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `f1b3c7e5eb526e6a4f6ecb2957a77bb3`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:17]]
+= Type(codes)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+Use this sequence to supply allowed ASCII code ranges. It takes pairs of ASCII codes (start, end); start is inclusive, end is exclusive. The ASCII string is valid if every character of the ASCII string is within one of those ranges.
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:10[Type(ascii_code)]
+| Length minimum (inclusive) | 2
+| Length maximum (inclusive) | 64
+| Length multiple of | 2
+| Ordering | Ascending sorting is required
+| Unique | Yes (only unique elements)
+|====================
+
+*This type is used by*
+
+xref:card-num:9[Type(ascii)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `3d032adb549e083a649e96d4884adb`
+| Technical hash | `5f9975924b8e2c7f46fdffbc89ced588`
+| Type hash | `5f9975924b8e2c7f46fdffbc89ced588`
+|====================
+
+[[card-num:11]]
+= Type(ascii_length)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The length constraint of the ASCII string (also number of bytes). Start and end are both inclusive.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:12[Type(ascii_length_element)]
+| Start inclusive | Inclusive
+| End inclusive | Inclusive
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:9[Type(ascii)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `1751a8fff413b526302df5857c4d5b61`
+| Technical hash | `732d1de65c5ec95c28d4bb98bb25f2f`
+| Type hash | `732d1de65c5ec95c28d4bb98bb25f2f`
+|====================
+
+[[card-num:19]]
+= Type(decimal_range)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The range the decimal number must be contained within.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:20[Type(decimal_range_element)]
+| Start inclusive | Supplied (by data)
+| End inclusive | Supplied (by data)
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:18[Type(decimal)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `d14cf3a6e2d0b6afb21258f23506660`
+| Technical hash | `9b16fea92e9942d333e97fb747cc576`
+| Type hash | `9b16fea92e9942d333e97fb747cc576`
+|====================
+
+[[card-num:29]]
+= Type(float_32_range)
+
+[NOTE]
+====
+range: A range (start - end); start/end with configurable inclusion/exclusion.
+====
+
+The range the float must be contained within. Note: Only normal numbers are allowed (so no subnormal numbers and NaN are supported); so for example to support floats >=0, set start to smallest positive number (inclusive), allow positive zeros and (optionally) allow subnormal numbers.
+
+[width="100%"]
+|====================
+| Range element | xref:card-num:30[Type(float_32_range_element)]
+| Start inclusive | Supplied (by data)
+| End inclusive | Supplied (by data)
+| Allow empty range | No
+|====================
+
+*This type is used by*
+
+xref:card-num:28[Type(float_32)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `1e5ec0151f1ea1fe15eef9c1b0a8f5c6`
+| Technical hash | `b5289aa53535b95b3ef475693e7411`
+| Type hash | `b5289aa53535b95b3ef475693e7411`
+|====================
+
+[[card-num:26]]
+= Type(field_type)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:25[Type(field)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:51]]
+= Type(maybe_values)
+
+[NOTE]
+====
+option: Use the option type (aka maybe; optional; nullable) to describe data that can either be there ('present'; 'some') or absent ('missing'; 'empty'). Alternatively you can also use an enum with two variants to achieve the same.
+====
+
+Enumeration variants have usually either no value (in this case this is absent) or one value.
+
+[width="100%"]
+|====================
+| Present type | xref:card-num:82[Type(values)]
+|====================
+
+*This type is used by*
+
+xref:card-num:83[Type(variant)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `c94627ac58b4ae8925e350495b22e1f6`
+| Technical hash | `3f5dd4f9fcbead7465b3f906dbc98ab`
+| Type hash | `3f5dd4f9fcbead7465b3f906dbc98ab`
+|====================
+
+[[card-num:48]]
+= Type(maybe_doc)
+
+[NOTE]
+====
+option: Use the option type (aka maybe; optional; nullable) to describe data that can either be there ('present'; 'some') or absent ('missing'; 'empty'). Alternatively you can also use an enum with two variants to achieve the same.
+====
+
+Optional type description / documentation.
+
+[width="100%"]
+|====================
+| Present type | xref:card-num:22[Type(documentation)]
+|====================
+
+*This type is used by*
+
+xref:card-num:52[Type(meta)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `b2e011ef2154265d2e63a18a75e4e521`
+| Technical hash | `d6449c6ec399a0d7ad8a5babf25ad49e`
+| Type hash | `d6449c6ec399a0d7ad8a5babf25ad49e`
+|====================
+
+[[card-num:49]]
+= Type(maybe_implements)
+
+[NOTE]
+====
+option: Use the option type (aka maybe; optional; nullable) to describe data that can either be there ('present'; 'some') or absent ('missing'; 'empty'). Alternatively you can also use an enum with two variants to achieve the same.
+====
+
+[width="100%"]
+|====================
+| Present type | xref:card-num:35[Type(implements)]
+|====================
+
+*This type is used by*
+
+xref:card-num:52[Type(meta)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `cfdb86a51a88de613568fc51fe7eab`
+| Technical hash | `687a3996a05189fff8c3a95a1dad41d9`
+| Type hash | `687a3996a05189fff8c3a95a1dad41d9`
+|====================
+
+[[card-num:77]]
+= Type(unicode_length_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 64 maximum (18,446,744,073,709,551,615)
+| Memory width | 64 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:76[Type(unicode_length)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Technical hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Type hash | `b0d9d03c2c1d187310a3a1737df547ad`
+|====================
+
+[[card-num:45]]
+= Type(map_length_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Memory width | 32 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:44[Type(map_length)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `cbecfce11dceb4b5cd779ba21964ea1`
+| Technical hash | `cbecfce11dceb4b5cd779ba21964ea1`
+| Type hash | `cbecfce11dceb4b5cd779ba21964ea1`
+|====================
+
+[[card-num:74]]
+= Type(uint_range_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 128 maximum
+| Memory width | 128 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:73[Type(uint_range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `5f4f647c4659f346d163823e8496f22`
+| Technical hash | `5f4f647c4659f346d163823e8496f22`
+| Type hash | `5f4f647c4659f346d163823e8496f22`
+|====================
+
+[[card-num:53]]
+= Type(multiple_of)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+It's possible to specify another requirement on the length of the list (number of elements). If this is for example 2, only lengths of 0, 2, 4, 6, 8, ... are allowed.
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 2
+| Max value (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Memory width | 32 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:50[Type(maybe_multiple_of)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `1cc42d16b987e542d642ed4b63d6c31`
+| Technical hash | `230488e96b46bcb6fd74ba58715651`
+| Type hash | `230488e96b46bcb6fd74ba58715651`
+|====================
+
+[[card-num:70]]
+= Type(sorting)
+
+[NOTE]
+====
+structure: A structure (aka struct) contains 0-n fields. The fields do not need to be of the same type.
+====
+
+Determines how the sequence needs to be sorted and whether duplicate elements are allowed.
+
+[width="100%"]
+|====================
+| direction | xref:card-num:21[Type(direction)]
+| unique | xref:card-num:78[Type(unique)]
+|====================
+
+*This type is used by*
+
+xref:card-num:55[Type(ordering)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `76920861a4f43f437cff93f4ed4398`
+| Technical hash | `cef9efb1e1c9ec8c493d6813f940b1`
+| Type hash | `cef9efb1e1c9ec8c493d6813f940b1`
+|====================
+
+[[card-num:66]]
+= Type(seq_length_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 32 maximum (4,294,967,295)
+| Memory width | 32 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:65[Type(seq_length)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `cbecfce11dceb4b5cd779ba21964ea1`
+| Technical hash | `cbecfce11dceb4b5cd779ba21964ea1`
+| Type hash | `cbecfce11dceb4b5cd779ba21964ea1`
+|====================
+
+[[card-num:69]]
+= Type(sint_range_element)
+
+[NOTE]
+====
+signed integer: Data of signed integer (aka sint or signed int) holds a single (positive or negative) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | Unsigned int 128 minimum
+| Max value (inclusive) | Unsigned int 128 maximum
+| Memory width | 128 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:68[Type(sint_range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `dc5363a0a3ee52735155ac48f31f2ab`
+| Technical hash | `dc5363a0a3ee52735155ac48f31f2ab`
+| Type hash | `dc5363a0a3ee52735155ac48f31f2ab`
+|====================
+
+[[card-num:15]]
+= Type(binary_length_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 64 maximum (18,446,744,073,709,551,615)
+| Memory width | 64 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:14[Type(binary_length)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Technical hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Type hash | `b0d9d03c2c1d187310a3a1737df547ad`
+|====================
+
+[[card-num:33]]
+= Type(float_64_range_element)
+
+[NOTE]
+====
+float64: A IEEE 754 64 bit float number. Do not use this to transfer decimal values.
+====
+
+The start or end of the float range bounds. Note: Whether this is included or not can be defined.
+
+[width="100%"]
+|====================
+| Min value | Float minimum value
+| Min included | Yes
+| Max value | Float maximum value
+| Max included | Yes
+| Allow positive zero | No
+| Allow negative zero | No
+| Allow NaN (not a number) | No
+| Allow positive infinity | No
+| Allow negative infinity | No
+| Allow subnormal | No
+|====================
+
+*This type is used by*
+
+xref:card-num:32[Type(float_64_range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `53dfa570bc3c98d5369af785154724`
+| Technical hash | `6e26556030c0598d5efa8ee65b7d8f6`
+| Type hash | `6e26556030c0598d5efa8ee65b7d8f6`
+|====================
+
+[[card-num:10]]
+= Type(ascii_code)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | 128
+| Memory width | 8 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:17[Type(codes)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `bc25d3c7047b869ac3d09f4e77e042`
+| Technical hash | `bc25d3c7047b869ac3d09f4e77e042`
+| Type hash | `bc25d3c7047b869ac3d09f4e77e042`
+|====================
+
+[[card-num:12]]
+= Type(ascii_length_element)
+
+[NOTE]
+====
+unsigned integer: Data of an unsigned integer (aka uint or unsigned int) holds a single (positive) integer value (within a defined range).
+====
+
+[width="100%"]
+|====================
+| Min value (inclusive) | 0
+| Max value (inclusive) | Unsigned int 64 maximum (18,446,744,073,709,551,615)
+| Memory width | 64 bits
+|====================
+
+*This type is used by*
+
+xref:card-num:11[Type(ascii_length)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Technical hash | `b0d9d03c2c1d187310a3a1737df547ad`
+| Type hash | `b0d9d03c2c1d187310a3a1737df547ad`
+|====================
+
+[[card-num:20]]
+= Type(decimal_range_element)
+
+[NOTE]
+====
+decimal: A normalized decimal number. It's composed of a signed 128 bit coefficient (at max) and a signed 8 bit exponent (at max) (c*10^e).
+====
+
+The start or end of the decimal range bounds. Note: Whether this is included or not can be defined.
+
+[width="100%"]
+|====================
+| Minimum (inclusive) | Decimal minimum value
+| Maximum (inclusive) | Decimal maximum value
+|====================
+
+*This type is used by*
+
+xref:card-num:19[Type(decimal_range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `2b274f8dee394496817d36085a8f4fb`
+| Technical hash | `bc3cca88cf6f33be214c9d41f688dc4d`
+| Type hash | `bc3cca88cf6f33be214c9d41f688dc4d`
+|====================
+
+[[card-num:30]]
+= Type(float_32_range_element)
+
+[NOTE]
+====
+float32: A IEEE 754 32 bit float number. Do not use this to transfer decimal values.
+====
+
+The start or end of the float range bounds. Note: Whether this is included or not can be defined.
+
+[width="100%"]
+|====================
+| Min value | Float minimum value
+| Min included | Yes
+| Max value | Float maximum value
+| Max included | Yes
+| Allow positive zero | No
+| Allow negative zero | No
+| Allow NaN (not a number) | No
+| Allow positive infinity | No
+| Allow negative infinity | No
+| Allow subnormal | No
+|====================
+
+*This type is used by*
+
+xref:card-num:29[Type(float_32_range)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `cbb096fd45ac3ac339d8635769f5d8c`
+| Technical hash | `e0b597279c6b1ce74e15499bc44c1ca`
+| Type hash | `e0b597279c6b1ce74e15499bc44c1ca`
+|====================
+
+[[card-num:82]]
+= Type(values)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+Defines the one (or in rare cases more) value the enumeration variant takes. You should only have two or more values when variant got extended - do not use more than one value in the initial schema design.
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:81[Type(value_type)]
+| Length minimum (inclusive) | 1
+| Length maximum (inclusive) | 32
+| Ordering | Undefined; any ordering is allowed.
+| Unique | No (duplicates are allowed)
+|====================
+
+*This type is used by*
+
+xref:card-num:51[Type(maybe_values)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `9630a4b9286c5536c2850f85e15b42c`
+| Technical hash | `38f82cabda334d9d2aab1312983957`
+| Type hash | `38f82cabda334d9d2aab1312983957`
+|====================
+
+[[card-num:22]]
+= Type(documentation)
+
+[NOTE]
+====
+unicode: The unicode type (aka string) can be used to describe arbitrary human readable text.
+====
+
+Describes / documents the type. Use human readable text. No markup is allowed.
+
+[width="100%"]
+|====================
+| Length type | Number of UTF-8 bytes (needs to compute the length when encoding is not UTF-8)
+| Minimum length (inclusive) | 1
+| Maximum length (inclusive) | 4,000
+|====================
+
+*This type is used by*
+
+xref:card-num:48[Type(maybe_doc)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `fdcd4d90a0d9c38b6ad856ea8185c1`
+| Technical hash | `80c21f1979a1ac5502665a368d23c38`
+| Type hash | `80c21f1979a1ac5502665a368d23c38`
+|====================
+
+[[card-num:35]]
+= Type(implements)
+
+[NOTE]
+====
+sequence: A sequence (aka seq; list; vector; array) describes a sequence of 0-n elements. Unlike struct fields, each element in a sequence has to be of the same type.
+====
+
+A sequence of 'things' this type implements. What can this be used for? Say for example your type is an ASCII type. With that information we can't really say what ASCII is for. Say for example that ASCII has a special meaning in your company: It's a part number. So you can give that ASCII type a UUID to declare 'this type is a part number'. This makes it possible to find part numbers company wide.
+
+[width="100%"]
+|====================
+| Element type | xref:card-num:36[Type(implements_uuid)]
+| Length minimum (inclusive) | 1
+| Length maximum (inclusive) | Unsigned int 8 maximum (255)
+| Ordering | Ascending sorting is required
+| Unique | Yes (only unique elements)
+|====================
+
+*This type is used by*
+
+xref:card-num:49[Type(maybe_implements)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `dd10c3cebaae87f730c677354fd5122`
+| Technical hash | `5493cedb8e21ad350bb9a84ce458c2`
+| Type hash | `5493cedb8e21ad350bb9a84ce458c2`
+|====================
+
+[[card-num:78]]
+= Type(unique)
+
+[NOTE]
+====
+boolean: Data of type boolean (aka bool) can hold the value 'true' or the value 'false' (1 or 0; on or off; enabled or disabled). It's like a single bit of information. As an alternative you an also use an enum with 2 variants (it's usually better suited in most cases)
+====
+
+When this is true, no duplicate elements are allowed in the sequence. This automatically implies a sorted sequence.
+
+*This type is used by*
+
+xref:card-num:70[Type(sorting)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `e07269514d18b6b63fb8425208f16ea`
+| Technical hash | `e6d2c2f352512bc9c7dedff188d68b`
+| Type hash | `e6d2c2f352512bc9c7dedff188d68b`
+|====================
+
+[[card-num:21]]
+= Type(direction)
+
+[NOTE]
+====
+enumeration: An enumeration (aka enum; tagged union; variant record; discriminated union) contains 1-n variants; Each variant can (optionally) have a value.
+====
+
+Determines how the elements in the sequence need to be sorted for the sequence to be valid.
+
+[width="100%"]
+|====================
+| ascending |
+| descending |
+|====================
+
+*About*
+
+[width="100%"]
+|====================
+| Has variants with value(s) | No
+| Specialization | None
+|====================
+
+*This type is used by*
+
+xref:card-num:70[Type(sorting)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `67d2cbd6e8b8ecb2eafda6c6a7ca55`
+| Technical hash | `3b4aeac25e8ad134d5240a739d2dc`
+| Type hash | `3b4aeac25e8ad134d5240a739d2dc`
+|====================
+
+[[card-num:81]]
+= Type(value_type)
+
+[NOTE]
+====
+key_ref: Key references can reference keys from outer types that supports references (provide anchors that can be referenced): Maps and RootMaps.
+====
+
+Value type in an enum variant.
+
+[width="100%"]
+|====================
+| Level | 0
+|====================
+
+*This type is used by*
+
+xref:card-num:82[Type(values)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `91956f3ebc142225d16ee5ebafcdfc`
+| Technical hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+| Type hash | `bf9fa7ae9a70e94526d4426dfe43d352`
+|====================
+
+[[card-num:36]]
+= Type(implements_uuid)
+
+[NOTE]
+====
+uuid: 16 byte UUID; RFC 4122.
+====
+
+UUID to describe the conformance / implementation / protocol of this type uniquely.
+
+*This type is used by*
+
+xref:card-num:35[Type(implements)]
+
+*Hashes*
+
+[width="100%"]
+|====================
+| Full hash | `13885e617f43457dcaff242da2f781c0`
+| Technical hash | `f8544f9b2b9cabef19b1e55bc16dd46`
+| Type hash | `f8544f9b2b9cabef19b1e55bc16dd46`
+|====================
