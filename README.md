@@ -9,7 +9,7 @@ This contains the Rust reference implementation of liquesco.
  * **serialization**: Data de-/serialization without Serde (https://serde.rs/) and with Serde; 
  * **schema**: The liquesco schema. Schema validation.
  * **parsing**: Parse data from a textual representation (currently yaml) given a schema.
- * **gen-doc**: Generates documentation. Example documentation (for the schema schema): [Example Schema Doc](doc/SCHEMA.html)
+ * **gen-doc**: Generates documentation. Example documentation (for the schema schema): [Example Schema Doc](https://cronosun.github.io/liquesco-rust/doc/SCHEMA.html)
  
 # Rust version
 
