@@ -1,2 +1,2 @@
 [workspace]
-members = ["common", "serialization", "schema", "processing", "gen-html", "gen-schema", "parsing", "gen-doc"]
+members = ["common", "serialization", "schema", "processing", "parsing", "gen-doc"]
