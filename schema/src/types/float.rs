@@ -38,13 +38,13 @@ const NO_POSITIVE_INFINITY: &str = "Positive infinity is not allowed for \
 const NO_NEGATIVE_INFINITY: &str = "Negative infinity is not allowed for \
                                     this float value according to the schema.";
 const NO_POSITIVE_ZERO: &str = "Negative zeros are not allowed according to the schema. \
-This float \
-value is a negative zero.";
+                                This float \
+                                value is a negative zero.";
 const NO_NEGATIVE_ZERO: &str = "Positive zeros are not allowed according to \
-the schema. This float \
-value is a positive zero.";
+                                the schema. This float \
+                                value is a positive zero.";
 const NO_SUBNORMAL: &str = "The given float value is a subnormal value. Subnormal values are \
-not allowed according to the schema.";
+                            not allowed according to the schema.";
 
 /// A 32- or 64-bit floating point number.
 #[derive(Clone, Debug, Deserialize, Serialize, PartialEq, Eq, Hash)]
@@ -145,11 +145,7 @@ impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
         self.allow_subnormal
     }
 
-    fn validate(
-        &self,
-        value: F,
-        info: ValidationInfo,
-    ) -> Result<(), LqError> {
+    fn validate(&self, value: F, info: ValidationInfo) -> Result<(), LqError> {
         let need_range_check = match info.category {
             FpCategory::Nan => {
                 if !self.allow_nan {
@@ -188,9 +184,7 @@ impl<F: Eq + PartialOrd + Debug> TFloat<'_, F> {
                 }
                 true
             }
-            FpCategory::Normal => {
-                true
-            }
+            FpCategory::Normal => true,
         };
 
         if need_range_check {
@@ -212,16 +206,13 @@ struct ValidationInfo {
 
 impl Type for TFloat32<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: ValidationContext<'c>,
+    where
+        C: ValidationContext<'c>,
     {
         let float_value = Float32::de_serialize(context.reader())?;
         let category = float_value.classify();
         let negative = float_value.is_sign_negative();
-        let info = ValidationInfo {
-            category,
-            negative,
-        };
+        let info = ValidationInfo { category, negative };
         self.validate(float_value.into(), info)
     }
 
@@ -231,8 +222,8 @@ impl Type for TFloat32<'_> {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: CmpContext<'c>,
+    where
+        C: CmpContext<'c>,
     {
         let float1 = Float32::de_serialize(r1)?;
         let float2 = Float32::de_serialize(r2)?;
@@ -263,16 +254,13 @@ impl<'a> MetadataSetter<'a> for TFloat32<'a> {
 
 impl Type for TFloat64<'_> {
     fn validate<'c, C>(&self, context: &mut C) -> Result<(), LqError>
-        where
-            C: ValidationContext<'c>,
+    where
+        C: ValidationContext<'c>,
     {
         let float_value = Float64::de_serialize(context.reader())?;
         let category = float_value.classify();
         let negative = float_value.is_sign_negative();
-        let info = ValidationInfo {
-            category,
-            negative,
-        };
+        let info = ValidationInfo { category, negative };
         self.validate(float_value.into(), info)
     }
 
@@ -282,8 +270,8 @@ impl Type for TFloat64<'_> {
         r1: &mut C::Reader,
         r2: &mut C::Reader,
     ) -> Result<Ordering, LqError>
-        where
-            C: CmpContext<'c>,
+    where
+        C: CmpContext<'c>,
     {
         let float1 = Float64::de_serialize(r1)?;
         let float2 = Float64::de_serialize(r2)?;
@@ -312,8 +300,8 @@ impl<'a> MetadataSetter<'a> for TFloat64<'a> {
 }
 
 fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
-    where
-        B: SchemaBuilder<'static>,
+where
+    B: SchemaBuilder<'static>,
 {
     // range
     let range_item = if float_32 {
@@ -331,7 +319,6 @@ fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
             "float_64_range_element",
             TFloat64::try_new(std::f64::MIN.into(), std::f64::MAX.into())
                 .unwrap()
-
                 .with_doc(
                     "The start or end of the float range bounds. Note: Whether this is \
                      included or not can be defined.",
@@ -345,11 +332,12 @@ fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
         } else {
             "float_64_range"
         },
-        TRange::new(range_item, Inclusion::Supplied, false)
-            .with_doc("The range the float must be contained within. Note: Only normal \
-            numbers are allowed (so no subnormal numbers and NaN are supported); so for \
-            example to support floats >=0, set start to smallest positive number (inclusive), \
-            allow positive zeros and (optionally) allow subnormal numbers."),
+        TRange::new(range_item, Inclusion::Supplied, false).with_doc(
+            "The range the float must be contained within. Note: Only normal \
+             numbers are allowed (so no subnormal numbers and NaN are supported); so for \
+             example to support floats >=0, set start to smallest positive number (inclusive), \
+             allow positive zeros and (optionally) allow subnormal numbers.",
+        ),
     );
 
     // other config
@@ -358,14 +346,14 @@ fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
         "allow_positive_zero",
         TBool::default().with_doc(
             "If this is true, the subnormal positive zero value is allowed. When a positive \
-            zero is hit, range check is skipped.",
+             zero is hit, range check is skipped.",
         ),
     );
     let allow_negative_zero = builder.add_unwrap(
         "allow_negative_zero",
         TBool::default().with_doc(
             "If this is true, the subnormal negative zero value is allowed. This should \
-            usually be false. When e negative zero value is hit, range check is skipped.",
+             usually be false. When e negative zero value is hit, range check is skipped.",
         ),
     );
     let allow_nan_field = builder.add_unwrap(
@@ -377,19 +365,25 @@ fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
     );
     let allow_positive_infinity_field = builder.add_unwrap(
         "allow_positive_infinity",
-        TBool::default().with_doc("This is true if positive infinity is allowed. When \
-        the positive infinity is hit, range check is skipped."),
+        TBool::default().with_doc(
+            "This is true if positive infinity is allowed. When \
+             the positive infinity is hit, range check is skipped.",
+        ),
     );
     let allow_negative_infinity_field = builder.add_unwrap(
         "allow_negative_infinity",
-        TBool::default().with_doc("This is true if negative infinity is allowed. When \
-        the negative infinity is hit, range check is skipped."),
+        TBool::default().with_doc(
+            "This is true if negative infinity is allowed. When \
+             the negative infinity is hit, range check is skipped.",
+        ),
     );
     let allow_subnormal = builder.add_unwrap(
         "allow_subnormal",
-        TBool::default().with_doc("If this is true, subnormal (denormal) \
-        numbers are allowed (excluding the special case for +/- zero). You usually want \
-        this to be false. Range check is also performed for subnormal numbers."),
+        TBool::default().with_doc(
+            "If this is true, subnormal (denormal) \
+             numbers are allowed (excluding the special case for +/- zero). You usually want \
+             this to be false. Range check is also performed for subnormal numbers.",
+        ),
     );
 
     // just an empty struct (but more fields will be added by the system)
@@ -430,8 +424,8 @@ fn build_schema<B>(builder: &mut B, float_32: bool) -> TStruct<'static>
 
 impl BaseTypeSchemaBuilder for Float32 {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder<'static>,
+    where
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, true)
     }
@@ -439,8 +433,8 @@ impl BaseTypeSchemaBuilder for Float32 {
 
 impl BaseTypeSchemaBuilder for TFloat<'_, F32Ext> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder<'static>,
+    where
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, true)
     }
@@ -448,8 +442,8 @@ impl BaseTypeSchemaBuilder for TFloat<'_, F32Ext> {
 
 impl BaseTypeSchemaBuilder for Float64 {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder<'static>,
+    where
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, false)
     }
@@ -457,8 +451,8 @@ impl BaseTypeSchemaBuilder for Float64 {
 
 impl BaseTypeSchemaBuilder for TFloat<'_, F64Ext> {
     fn build_schema<B>(builder: &mut B) -> TStruct<'static>
-        where
-            B: SchemaBuilder<'static>,
+    where
+        B: SchemaBuilder<'static>,
     {
         build_schema(builder, false)
     }

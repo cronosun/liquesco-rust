@@ -10,10 +10,9 @@ pub mod option;
 pub mod range;
 pub mod root_map;
 pub mod seq;
+pub mod sint;
 pub mod structure;
 pub mod tint;
 pub mod uint;
-pub mod sint;
 pub mod unicode;
 pub mod uuid;
-

@@ -7,8 +7,9 @@ use crate::core::TypeContainer;
 use crate::core::TypeRef;
 use crate::core::{Config, Type};
 use crate::identifier::Identifier;
-use crate::metadata::{MetadataSetter, Information};
+use crate::metadata::{Information, MetadataSetter};
 use crate::schema_builder::{BuildsOwnSchema, SchemaBuilder};
+use crate::type_hash::TypeHash;
 use crate::types::key_ref::TKeyRef;
 use crate::types::root_map::TRootMap;
 use liquesco_common::error::LqError;
@@ -19,9 +20,8 @@ use smallvec::SmallVec;
 use std::borrow::Cow;
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use std::marker::PhantomData;
 use std::hash::Hasher;
-use crate::type_hash::TypeHash;
+use std::marker::PhantomData;
 
 /// Builds the liquesco schema schema.
 pub fn schema_schema<B>(mut builder: B) -> Result<B::TTypeContainer, LqError>
@@ -97,12 +97,20 @@ impl<'a, C: TypeContainer + Clone> TypeContainer for DefaultSchema<'a, C> {
         self.types.require_type(reference)
     }
 
-    fn hash_type<H: Hasher>(&self, reference: &TypeRef,
-                       information: Information, state: &mut H) -> Result<(), LqError> {
+    fn hash_type<H: Hasher>(
+        &self,
+        reference: &TypeRef,
+        information: Information,
+        state: &mut H,
+    ) -> Result<(), LqError> {
         self.types.hash_type(reference, information, state)
     }
 
-    fn type_hash(&self, reference: &TypeRef, information: Information) -> Result<TypeHash, LqError> {
+    fn type_hash(
+        &self,
+        reference: &TypeRef,
+        information: Information,
+    ) -> Result<TypeHash, LqError> {
         self.types.type_hash(reference, information)
     }
 }

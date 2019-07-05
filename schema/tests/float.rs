@@ -56,7 +56,6 @@ fn schema1_64() {
     // err: zero
     assert_invalid_strict(0.0f64, &schema);
     assert_invalid_strict(-0.0f64, &schema);
-
 }
 
 #[test]
@@ -67,9 +66,9 @@ fn schema2_32() {
     .with_allow_nan(true)
     .with_allow_positive_infinity(true)
     .with_allow_negative_infinity(true)
-        .with_allow_positive_zero(true)
-        .with_allow_negative_zero(true)
-        .with_allow_subnormal(true);
+    .with_allow_positive_zero(true)
+    .with_allow_negative_zero(true)
+    .with_allow_subnormal(true);
 
     let schema = single_schema(float);
 
@@ -99,9 +98,9 @@ fn schema2_64() {
     .with_allow_nan(true)
     .with_allow_positive_infinity(true)
     .with_allow_negative_infinity(true)
-        .with_allow_positive_zero(true)
-        .with_allow_negative_zero(true)
-        .with_allow_subnormal(true);
+    .with_allow_positive_zero(true)
+    .with_allow_negative_zero(true)
+    .with_allow_subnormal(true);
 
     let schema = single_schema(float);
 

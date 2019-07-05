@@ -64,7 +64,7 @@ impl Uuid {
     }
 
     pub fn as_hex_string(&self) -> String {
-        let mut result = String::with_capacity(self.0.len()*2);
+        let mut result = String::with_capacity(self.0.len() * 2);
         for byte in &self.0 {
             result = result + &format!("{:x}", byte);
         }

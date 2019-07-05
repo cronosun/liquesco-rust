@@ -10,16 +10,16 @@ use crate::schema_builder::{BaseTypeSchemaBuilder, SchemaBuilder};
 use crate::types::range::{Inclusion, TRange};
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
+use crate::types::tint::TInt;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U128IneRange;
+use liquesco_common::int_memory::IntMemory;
 use liquesco_common::range::LqRangeBounds;
 use liquesco_serialization::core::DeSerializer;
 use liquesco_serialization::types::uint::UInt128;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use crate::types::tint::TInt;
-use liquesco_common::int_memory::IntMemory;
 
 /// A 128-bit unsigned integer.
 #[derive(Clone, Debug, PartialEq, Eq, Hash, Serialize, Deserialize)]

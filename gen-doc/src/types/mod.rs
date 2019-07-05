@@ -1,47 +1,48 @@
 use crate::context::ContextProvider;
 use crate::model::row::Row;
-use liquesco_common::error::LqError;
-use liquesco_schema::any_type::AnyType;
+use crate::type_writer::TypeBodyWriter;
+use crate::types::wascii::WAscii;
+use crate::types::wbinary::WBinary;
+use crate::types::wbool::WBool;
+use crate::types::wdecimal::WDecimal;
+use crate::types::wenum::WEnum;
+use crate::types::wfloat::{WFloat32, WFloat64};
+use crate::types::wint::{WSInt, WUInt};
+use crate::types::wkey_ref::WKeyRef;
+use crate::types::wmap::WMap;
 use crate::types::woption::WOption;
 use crate::types::wrange::WRange;
-use crate::type_writer::TypeBodyWriter;
 use crate::types::wroot_map::WRootMap;
-use crate::types::wenum::WEnum;
-use crate::types::wstruct::WStruct;
 use crate::types::wseq::WSeq;
-use crate::types::wbinary::WBinary;
-use crate::types::wascii::WAscii;
-use crate::types::wbool::WBool;
-use crate::types::wfloat::{WFloat32, WFloat64};
-use crate::types::wint::{WUInt, WSInt};
+use crate::types::wstruct::WStruct;
 use crate::types::wunicode::WUnicode;
 use crate::types::wuuid::WUuid;
-use crate::types::wmap::WMap;
-use crate::types::wkey_ref::WKeyRef;
-use crate::types::wdecimal::WDecimal;
+use liquesco_common::error::LqError;
+use liquesco_schema::any_type::AnyType;
 
+pub mod wascii;
+pub mod wbinary;
+pub mod wbool;
+pub mod wdecimal;
+pub mod wenum;
+pub mod wfloat;
+pub mod wint;
+pub mod wkey_ref;
+pub mod wmap;
 pub mod woption;
 pub mod wrange;
 pub mod wroot_map;
-pub mod wenum;
-pub mod wstruct;
 pub mod wseq;
-pub mod wbinary;
-pub mod wascii;
-pub mod wbool;
-pub mod wfloat;
-pub mod wint;
+pub mod wstruct;
 pub mod wunicode;
 pub mod wuuid;
-pub mod wmap;
-pub mod wkey_ref;
-pub mod wdecimal;
 
 pub(crate) mod common;
 
 pub fn write_type_body<'a, TContext>(ctx: &TContext) -> Result<Vec<Row<'static>>, LqError>
-    where TContext : ContextProvider<'a>{
-
+where
+    TContext: ContextProvider<'a>,
+{
     match ctx.type_info().any_type() {
         AnyType::Option(value) => WOption::write(ctx, value),
         AnyType::Range(value) => WRange::write(ctx, value),

@@ -1,9 +1,9 @@
-use std::hash::Hasher;
-use blake2::VarBlake2b;
 use blake2::digest::{Input, VariableOutput};
+use blake2::VarBlake2b;
 use std::fmt::{Display, Error, Formatter};
+use std::hash::Hasher;
 
-const TH_LEN : usize = 16;
+const TH_LEN: usize = 16;
 
 /// The hash of a type.
 #[derive(Eq, PartialEq, Debug, Clone)]
@@ -29,7 +29,7 @@ impl Into<String> for &TypeHash {
 // TODO: From<String> (lower hex)
 
 pub(crate) struct TypeHasher {
-    blake2 : VarBlake2b
+    blake2: VarBlake2b,
 }
 
 impl Hasher for TypeHasher {
@@ -55,8 +55,7 @@ impl TypeHasher {
 impl Default for TypeHasher {
     fn default() -> Self {
         Self {
-            blake2 : VarBlake2b::new(TH_LEN).unwrap()
+            blake2: VarBlake2b::new(TH_LEN).unwrap(),
         }
     }
 }
-

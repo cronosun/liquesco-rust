@@ -5,7 +5,9 @@ use serde_bytes;
 
 #[test]
 fn uuid_serde() {
-    assert_serde(Uuid::from([1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16]));
+    assert_serde(Uuid::from([
+        1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16,
+    ]));
 }
 
 /// By default serde serializes binary as vector of u8; we want compact serialization for uuid.

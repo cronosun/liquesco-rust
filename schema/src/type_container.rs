@@ -1,18 +1,18 @@
 use serde::{Deserialize, Serialize};
 
 use crate::any_type::AnyType;
-use crate::core::{TypeContainer, Type};
 use crate::core::TypeRef;
+use crate::core::{Type, TypeContainer};
 use crate::identifier::Identifier;
+use crate::metadata::{Information, MetadataSetter, WithMetadata};
+use crate::type_hash::{TypeHash, TypeHasher};
 use liquesco_common::error::LqError;
-use std::borrow::Cow;
-use std::hash::{Hasher, Hash};
-use crate::metadata::{Information, WithMetadata, MetadataSetter};
 use liquesco_serialization::serde::serialize_to_vec;
-use std::convert::TryInto;
+use std::borrow::Cow;
 use std::cell::RefCell;
 use std::collections::HashMap;
-use crate::type_hash::{TypeHash, TypeHasher};
+use std::convert::TryInto;
+use std::hash::{Hash, Hasher};
 
 #[derive(Clone, Debug, Serialize, Deserialize)]
 pub struct DefaultTypeContainer<'a> {
@@ -95,8 +95,12 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
         }
     }
 
-    fn hash_type<H: Hasher>(&self, reference: &TypeRef,
-                            information: Information, state: &mut H) -> Result<(), LqError> {
+    fn hash_type<H: Hasher>(
+        &self,
+        reference: &TypeRef,
+        information: Information,
+        state: &mut H,
+    ) -> Result<(), LqError> {
         let any_type = self.require_type(reference)?;
         let vec = if let Some(reduced_metadata) = any_type.meta().reduce_information(information) {
             let mut cloned_any = any_type.clone();
@@ -122,7 +126,11 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
         Ok(())
     }
 
-    fn type_hash(&self, reference: &TypeRef, information: Information) -> Result<TypeHash, LqError> {
+    fn type_hash(
+        &self,
+        reference: &TypeRef,
+        information: Information,
+    ) -> Result<TypeHash, LqError> {
         let entry = CacheEntry {
             // Note: Clone should be cheap, since we have the numerical version here
             reference: reference.clone(),
@@ -146,9 +154,10 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
                     cache.entries.insert(entry, type_hash);
                     Ok(())
                 }
-                Err(err) => {
-                    Err(LqError::new(format!("Unable to borrow type hash cache: {:?}", err)))
-                }
+                Err(err) => Err(LqError::new(format!(
+                    "Unable to borrow type hash cache: {:?}",
+                    err
+                ))),
             }?;
         }
         // and try again
@@ -158,7 +167,7 @@ impl<'a> TypeContainer for DefaultTypeContainer<'a> {
 
 #[derive(Clone, Debug)]
 struct HashCache {
-    entries: HashMap<CacheEntry, TypeHash>
+    entries: HashMap<CacheEntry, TypeHash>,
 }
 
 #[derive(Hash, Eq, PartialEq, Debug, Clone)]
@@ -170,7 +179,7 @@ struct CacheEntry {
 impl Default for HashCache {
     fn default() -> Self {
         Self {
-            entries: HashMap::default()
+            entries: HashMap::default(),
         }
     }
 }

@@ -13,6 +13,7 @@ use crate::types::option::TOption;
 use crate::types::seq::TSeq;
 use crate::types::structure::Field;
 use crate::types::structure::TStruct;
+use lazy_static::lazy_static;
 use liquesco_common::error::LqError;
 use liquesco_common::ine_range::U32IneRange;
 use liquesco_serialization::core::DeSerializer;
@@ -21,16 +22,14 @@ use liquesco_serialization::types::enumeration::EnumHeader;
 use serde::{Deserialize, Serialize};
 use std::cmp::Ordering;
 use std::convert::TryFrom;
-use core::borrow::Borrow;
-use lazy_static::lazy_static;
 
 const MIN_VALUES: usize = 1;
 const MAX_VALUES: usize = 32;
 const MIN_VARIANTS: usize = 1;
 
 lazy_static! {
-    static ref OK_IDENTIFIER : Identifier<'static> = { Identifier::try_from("ok").unwrap() };
-    static ref ERR_IDENTIFIER : Identifier<'static> = { Identifier::try_from("err").unwrap() };
+    static ref OK_IDENTIFIER: Identifier<'static> = { Identifier::try_from("ok").unwrap() };
+    static ref ERR_IDENTIFIER: Identifier<'static> = { Identifier::try_from("err").unwrap() };
 }
 
 type Variants<'a> = Vec<Variant<'a>>;
@@ -62,7 +61,7 @@ pub struct Variant<'a> {
 #[derive(Clone, Debug, PartialEq, Eq, Hash)]
 pub struct About {
     value_variants: bool,
-    specialization : Specialization,
+    specialization: Specialization,
 }
 
 impl About {
@@ -84,7 +83,7 @@ pub enum Specialization {
 
     /// Enumeration is a result type; result types always have exactly two variants where
     /// the first variant is called 'ok' and the second variant is called 'err'.
-    Result
+    Result,
 }
 
 impl<'a> Variant<'a> {
@@ -149,14 +148,15 @@ impl<'a> TEnum<'a> {
     pub fn about(&self) -> About {
         let specialization = self.specialization();
 
-        let variant_with_value = self.variants().iter().find(|candidate| {
-            !candidate.values().is_empty()
-        });
+        let variant_with_value = self
+            .variants()
+            .iter()
+            .find(|candidate| !candidate.values().is_empty());
         let value_variants = variant_with_value != None;
 
         About {
             value_variants,
-            specialization
+            specialization,
         }
     }
 
@@ -177,12 +177,12 @@ impl<'a> TEnum<'a> {
     }
 
     fn specialization(&self) -> Specialization {
-        if self.variants().len()==2 {
+        if self.variants().len() == 2 {
             let variant_ok = &self.variants()[0];
             let variant_err = &self.variants()[1];
-            let ok_id : &Identifier<'static> = &OK_IDENTIFIER;
-            let err_id : &Identifier<'static> = &ERR_IDENTIFIER;
-            if variant_ok.name()==ok_id && variant_err.name()==err_id {
+            let ok_id: &Identifier<'static> = &OK_IDENTIFIER;
+            let err_id: &Identifier<'static> = &ERR_IDENTIFIER;
+            if variant_ok.name() == ok_id && variant_err.name() == err_id {
                 Specialization::Result
             } else {
                 Specialization::None

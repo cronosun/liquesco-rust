@@ -57,7 +57,7 @@ pub enum Information {
     Technical,
 
     /// Full type; contains documentation and conformance. Usually used to generate documentation.
-    Full
+    Full,
 }
 
 /// Minimum length (utf-8 bytes) the documentation of a type must have.
@@ -131,37 +131,23 @@ impl<'a> Meta<'a> {
 
     /// Reduces information to given level. Returns the new `Meta` if information has been reduced.
     /// Returns `None` if there's no need to reduce information (`self` has not more information).
-    pub fn reduce_information(&self, information : Information) -> Option<Meta<'a>> {
+    pub fn reduce_information(&self, information: Information) -> Option<Meta<'a>> {
         let given = self.information();
         match information {
-            Information::Full => {
-                None
+            Information::Full => None,
+            Information::Technical => match given {
+                Information::Full => Some(Meta {
+                    doc: None,
+                    implements: self.implements.clone(),
+                }),
+                Information::Type | Information::Technical => None,
             },
-            Information::Technical => {
-                match given {
-                    Information::Full => {
-                        Some(Meta {
-                            doc : None,
-                            implements : self.implements.clone()
-                        })
-                    },
-                    Information::Type |Information::Technical => {
-                        None
-                    }
-                }
-            },
-            Information::Type => {
-                match given {
-                    Information::Full | Information::Technical  => {
-                        Some(Meta {
-                            doc : None,
-                            implements : None
-                        })
-                    },
-                    Information::Type => {
-                        None
-                    }
-                }
+            Information::Type => match given {
+                Information::Full | Information::Technical => Some(Meta {
+                    doc: None,
+                    implements: None,
+                }),
+                Information::Type => None,
             },
         }
     }
@@ -275,15 +261,15 @@ impl<T: BaseTypeSchemaBuilder> BaseTypeSchemaBuilder for WithMetaSchemaBuilder<T
         let field_implements = builder.add_unwrap("maybe_implements", TOption::new(uuid_seq));
 
         let meta_struct = TStruct::default()
-            .add(Field::new(
-                Identifier::try_from("doc").unwrap(),
-                 field_doc,
-        ))
+            .add(Field::new(Identifier::try_from("doc").unwrap(), field_doc))
             .add(Field::new(
                 Identifier::try_from("implements").unwrap(),
                 field_implements,
-            )).with_doc( "Meta information about the type. You can optionally specify a name, a description/\
-        documentation and information about implementation/conformance.");
+            ))
+            .with_doc(
+                "Meta information about the type. You can optionally provide a description/\
+                 documentation and information about implementation/conformance.",
+            );
         let meta_ref = builder.add_unwrap("meta", meta_struct);
 
         let mut inner_struct = T::build_schema(builder);

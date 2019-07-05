@@ -1,18 +1,11 @@
-use crate::context::{Context, ContextProvider};
-use crate::context::ContextFunctions;
-use liquesco_common::error::LqError;
-use liquesco_processing::type_info::TypeInfo;
-use liquesco_schema::types::option::TOption;
-use minidom::Element;
-use std::marker::PhantomData;
+use crate::context::ContextProvider;
+use crate::model::row::Row;
 use crate::type_writer::TypeBodyWriter;
-use crate::model::row::{Row, Link};
-use crate::model::row;
-use crate::model::card::CardId;
-use liquesco_schema::types::binary::TBinary;
 use crate::types::common::Common;
-use liquesco_schema::types::unicode::TUnicode;
+use liquesco_common::error::LqError;
 use liquesco_schema::types::unicode;
+use liquesco_schema::types::unicode::TUnicode;
+use std::marker::PhantomData;
 
 pub struct WUnicode<'a> {
     _phantom: &'a PhantomData<()>,
@@ -21,9 +14,10 @@ pub struct WUnicode<'a> {
 impl<'a> TypeBodyWriter for WUnicode<'a> {
     type T = TUnicode<'a>;
 
-    fn write<'b, TContext>(ctx: &TContext, typ: &Self::T) -> Result<Vec<Row<'static>>, LqError>
-        where TContext : ContextProvider<'b> {
-
+    fn write<'b, TContext>(_: &TContext, typ: &Self::T) -> Result<Vec<Row<'static>>, LqError>
+    where
+        TContext: ContextProvider<'b>,
+    {
         let length_str = match typ.length_type() {
             unicode::LengthType::Byte => "Number of bytes (actual text length depends on encoding)",
             unicode::LengthType::Utf8Byte => {
@@ -35,12 +29,15 @@ impl<'a> TypeBodyWriter for WUnicode<'a> {
         };
 
         Ok(vec![
-            Row::association_with_text("Length type",
-                                       length_str),
-            Row::association_with_text("Minimum length (inclusive)",
-                Common::fmt_u64(*typ.length().start())),
-            Row::association_with_text("Maximum length (inclusive)",
-                                       Common::fmt_u64(*typ.length().end()))
+            Row::association_with_text("Length type", length_str),
+            Row::association_with_text(
+                "Minimum length (inclusive)",
+                Common::fmt_u64(*typ.length().start()),
+            ),
+            Row::association_with_text(
+                "Maximum length (inclusive)",
+                Common::fmt_u64(*typ.length().end()),
+            ),
         ])
     }
 }

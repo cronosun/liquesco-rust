@@ -9,8 +9,6 @@ liquesco-common = { path = "../common" }
 liquesco-processing = { path = "../processing" }
 liquesco-schema = { path = "../schema" }
 derive_more = "0.13.0"
-quick-xml = "0.14.0"
-minidom = "0.10.0"
 lazy_static = "1.3.0"
 serde = {version = "1.0.91", features = ["derive"]}
 num-format = "0.4.0"

@@ -1,30 +1,30 @@
-use std::borrow::Cow;
 use crate::model::row::Row;
-use core::convert::TryFrom;
-use liquesco_common::error::LqError;
-use serde::{Serialize, Deserialize};
+use serde::{Deserialize, Serialize};
+use std::borrow::Cow;
 
 #[derive(Debug, Serialize, Deserialize)]
 pub struct Card<'a> {
-    id : Cow<'a, CardId>,
-    title : Cow<'a, str>,
-    accent : Accent,
-    rows : Vec<Row<'a>>,
+    id: Cow<'a, CardId>,
+    title: Cow<'a, str>,
+    accent: Accent,
+    rows: Vec<Row<'a>>,
 }
 
 impl<'a> Card<'a> {
-
-    pub fn new<TCardId, TTitle>(id : TCardId, title : TTitle, accent : Accent) -> Self
-    where TCardId : Into<Cow<'a, CardId>>, TTitle : Into<Cow<'a, str>>{
+    pub fn new<TCardId, TTitle>(id: TCardId, title: TTitle, accent: Accent) -> Self
+    where
+        TCardId: Into<Cow<'a, CardId>>,
+        TTitle: Into<Cow<'a, str>>,
+    {
         Self {
-            id : id.into(),
-            title : title.into(),
+            id: id.into(),
+            title: title.into(),
             accent,
-            rows : vec![],
+            rows: vec![],
         }
     }
 
-    pub fn with_rows(mut self, rows : Vec<Row<'a>>) -> Self {
+    pub fn with_rows(mut self, rows: Vec<Row<'a>>) -> Self {
         self.rows = rows;
         self
     }
@@ -51,7 +51,10 @@ impl<'a> Card<'a> {
 pub struct CardId(String);
 
 impl CardId {
-    pub fn new<T>(string : T) -> Self  where T : Into<String>{
+    pub fn new<T>(string: T) -> Self
+    where
+        T: Into<String>,
+    {
         Self(string.into())
     }
 
@@ -61,7 +64,7 @@ impl CardId {
 }
 
 impl Into<Cow<'static, CardId>> for CardId {
-    fn into(self) -> Cow<'static, CardId>  {
+    fn into(self) -> Cow<'static, CardId> {
         Cow::Owned(self)
     }
 }
@@ -71,7 +74,7 @@ impl Into<Cow<'static, CardId>> for CardId {
 pub struct Accent(u8);
 
 impl Accent {
-    pub fn new(num : u8) -> Accent {
+    pub fn new(num: u8) -> Accent {
         Accent(num)
     }
 }

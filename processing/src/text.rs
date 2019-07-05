@@ -8,8 +8,7 @@ pub struct Text {
     needs_indent: bool,
     single_indent: u8,
     indent: usize,
-    space : bool,
-
+    space: bool,
 }
 
 impl Default for Text {
@@ -20,7 +19,7 @@ impl Default for Text {
             needs_indent: true,
             single_indent: 2,
             indent: 0,
-            space : false,
+            space: false,
         }
     }
 }
@@ -61,14 +60,20 @@ impl Text {
     }
 
     /// Just adds text.
-    pub fn add<'a, TStr>(&mut self, string: TStr) where TStr : AsRef<str> {
+    pub fn add<'a, TStr>(&mut self, string: TStr)
+    where
+        TStr: AsRef<str>,
+    {
         self.do_intent_if_required();
         self.just_write(string.as_ref());
     }
 
     /// First makes sure we're on a new line (does nothing if we're already on a new line,
     /// see `new_line`). Then writes a string (see `add`).
-    pub fn line<'a, TStr>(&mut self, string : TStr) where TStr : AsRef<str> {
+    pub fn line<'a, TStr>(&mut self, string: TStr)
+    where
+        TStr: AsRef<str>,
+    {
         self.new_line();
         self.add(string);
     }

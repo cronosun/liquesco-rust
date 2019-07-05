@@ -1,29 +1,26 @@
 use crate::usage::Usage;
 use liquesco_common::error::LqError;
-use minidom::Element;
 
+use crate::context::{Context, ContextFunctions};
+use crate::model::card::{Accent, Card, CardId};
+use crate::model::row::Row;
+use crate::model::Model;
+use crate::type_description::type_description;
+use crate::type_parts::{TypeFooter, TypeHeader};
+use crate::type_writer::TypePartWriter;
+use crate::types::write_type_body;
 use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::core::Type;
 use liquesco_schema::core::TypeContainer;
 use liquesco_schema::core::TypeRef;
-use std::collections::HashMap;
-use crate::model::card::{Card, Accent, CardId};
-use crate::model::row::Row;
-use crate::type_description::type_description;
-use crate::context::{Context, ContextFunctions};
-use crate::types::write_type_body;
-use std::mem;
-use crate::model::Model;
-use std::convert::TryFrom;
 use std::borrow::Cow;
-use std::marker::PhantomData;
-use crate::type_parts::{TypeHeader, TypeFooter};
-use crate::type_writer::TypePartWriter;
+use std::collections::HashMap;
+use std::mem;
 
 pub struct ModelWriter<'a> {
     schema: &'a TypeContainer,
     bodies: HashMap<TypeRef, Vec<Row<'static>>>,
-    cards : HashMap<CardId, Card<'static>>,
+    cards: HashMap<CardId, Card<'static>>,
     usage: Usage,
 }
 
@@ -32,34 +29,37 @@ impl<'a> ModelWriter<'a> {
         Self {
             schema,
             bodies: HashMap::default(),
-            cards : HashMap::default(),
+            cards: HashMap::default(),
             usage: Usage::default(),
         }
     }
 }
 
 pub struct CardModel {
-    title : Cow<'static, str>,
-    root : CardId,
-    cards : HashMap<CardId, Card<'static>>,
+    title: Cow<'static, str>,
+    root: CardId,
+    cards: HashMap<CardId, Card<'static>>,
 }
 
 impl Model for CardModel {
     fn card(&self, id: &CardId) -> Option<&Card> {
-         self.cards.get(id)
+        self.cards.get(id)
     }
 
     fn root(&self) -> &Card {
         if let Some(root) = self.cards.get(&self.root) {
             root
         } else {
-            panic!(format!("Root card not found. This is an implementation errors. All \
-            cards I have: {:?}. Root id is {:?}.", self.cards, self.root))
+            panic!(format!(
+                "Root card not found. This is an implementation errors. All \
+                 cards I have: {:?}. Root id is {:?}.",
+                self.cards, self.root
+            ))
         }
     }
 
     fn root_id(&self) -> &CardId {
-       &self.root
+        &self.root
     }
 
     fn title(&self) -> &str {
@@ -68,20 +68,19 @@ impl Model for CardModel {
 }
 
 impl<'a> ModelWriter<'a> {
-
-    pub fn process(mut self, root_type_ref : &TypeRef) -> Result<CardModel, LqError> {
+    pub fn process(mut self, root_type_ref: &TypeRef) -> Result<CardModel, LqError> {
         // First add all bodies (will also compute "usage")
         self.compute_bodies_recursively(root_type_ref)?;
-        self.create_cards_from_bodies(root_type_ref)?;
+        self.create_cards_from_bodies()?;
 
         Ok(CardModel {
-            title : "Liquesco type documentation".into(),
-            root : CardId::from(root_type_ref),
-            cards : self.cards
+            title: "Liquesco type documentation".into(),
+            root: CardId::from(root_type_ref),
+            cards: self.cards,
         })
     }
 
-    fn create_cards_from_bodies(&mut self, root_type_ref : &TypeRef) -> Result<(), LqError> {
+    fn create_cards_from_bodies(&mut self) -> Result<(), LqError> {
         let bodies = mem::replace(&mut self.bodies, HashMap::new());
 
         // now create cards
@@ -89,20 +88,20 @@ impl<'a> ModelWriter<'a> {
             let type_info = TypeInfo::try_from(self.schema, &type_ref)?;
             let context = Context::new(self.schema, type_info.clone(), &mut self.usage);
 
-            let (accent_num, type_name, _) = type_description(type_info.any_type());
+            let (accent_num, _, _) = type_description(type_info.any_type());
             // accent
             let accent = Accent::new(accent_num);
             // title
             let title = context.display_name();
 
-            let mut card = Card::new(CardId::from(&type_ref),title, accent);
+            let mut card = Card::new(CardId::from(&type_ref), title, accent);
 
             // add header
             let mut rows = TypeHeader::write(&context)?;
             rows.append(&mut body);
 
             // add footer
-            let mut footer_rows  = TypeFooter::write(&context)?;
+            let mut footer_rows = TypeFooter::write(&context)?;
             rows.append(&mut footer_rows);
 
             card = card.with_rows(rows);
@@ -143,5 +142,3 @@ impl<'a> ModelWriter<'a> {
         Ok(())
     }
 }
-
-

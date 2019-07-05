@@ -1,8 +1,8 @@
+use crate::adoc::card_writer::CardWriter;
+use crate::model::card::CardId;
 use crate::model::Model;
 use liquesco_processing::text::Text;
-use crate::model::card::CardId;
 use std::collections::HashSet;
-use crate::adoc::card_writer::CardWriter;
 
 pub(crate) struct ModelWriter<'a> {
     model: &'a Model,
@@ -51,7 +51,8 @@ impl<'a> ModelWriter<'a> {
             }
         } else {
             self.text().space();
-            self.text().line(format!("WARNING: Card {} not found", card_id.as_str()));
+            self.text()
+                .line(format!("WARNING: Card {} not found", card_id.as_str()));
             self.text().space();
 
             self.written_cards.insert(card_id);

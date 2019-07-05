@@ -4,15 +4,15 @@ use crate::core::Parser;
 use crate::types::identifier::PIdentifier;
 use crate::value::TextValue;
 use liquesco_common::error::LqError;
-use liquesco_schema::types::seq::{TSeq, Ordering, Direction};
-use liquesco_serialization::core::Serializer;
-use liquesco_serialization::types::seq::SeqHeader;
-use liquesco_serialization::slice_reader::SliceReader;
-use std::convert::TryFrom;
-use liquesco_schema::core::TypeRef;
-use std::io::Write;
 use liquesco_schema::core::Schema;
+use liquesco_schema::core::TypeRef;
+use liquesco_schema::types::seq::{Direction, Ordering, TSeq};
+use liquesco_serialization::core::Serializer;
+use liquesco_serialization::slice_reader::SliceReader;
+use liquesco_serialization::types::seq::SeqHeader;
 use std::cmp;
+use std::convert::TryFrom;
+use std::io::Write;
 
 pub struct PSeq;
 
@@ -25,8 +25,8 @@ impl<'a> Parser<'a> for PSeq {
         value: &TextValue,
         r#type: &Self::T,
     ) -> Result<(), LqError>
-        where
-            C: Context<'c>,
+    where
+        C: Context<'c>,
     {
         // Maybe it's a special case (seq -> ascii)
         let parsed_as_identifier = PIdentifier::maybe_parse(context, writer, value, r#type)?;
@@ -41,12 +41,10 @@ impl<'a> Parser<'a> for PSeq {
 
         let (sorted, ascending) = match r#type.ordering() {
             Ordering::None => (false, false),
-            Ordering::Sorted(sorted) => {
-                match sorted.direction {
-                    Direction::Ascending => (true, true),
-                    Direction::Descending => (true, false)
-                }
-            }
+            Ordering::Sorted(sorted) => match sorted.direction {
+                Direction::Ascending => (true, true),
+                Direction::Descending => (true, false),
+            },
         };
 
         if !sorted {
@@ -57,7 +55,7 @@ impl<'a> Parser<'a> for PSeq {
             // sorted: in this case first parse to a vec and then sort that
             let mut elements = Vec::with_capacity(len);
             for item in seq {
-                let element_vec = context.parse_to_vec( r#type.element(), item)?;
+                let element_vec = context.parse_to_vec(r#type.element(), item)?;
                 elements.push(element_vec);
             }
             sort(context, r#type.element(), ascending, &mut elements)?;
@@ -73,9 +71,11 @@ fn sort<'c, C>(
     context: &mut C,
     element_type: &TypeRef,
     ascending: bool,
-    elements : &mut Vec<Vec<u8>>) -> Result<(), LqError>
-    where
-        C: Context<'c>, {
+    elements: &mut Vec<Vec<u8>>,
+) -> Result<(), LqError>
+where
+    C: Context<'c>,
+{
     let mut error = false;
 
     elements.sort_by(|a, b| {

@@ -15,21 +15,11 @@ pub enum IntMemory {
 impl IntMemory {
     pub fn number_of_bytes(&self) -> u8 {
         match self {
-            &IntMemory::M8 => {
-                1
-            }
-            &IntMemory::M16 => {
-                2
-            }
-            &IntMemory::M32 => {
-                4
-            }
-            &IntMemory::M64 => {
-                8
-            }
-            &IntMemory::M128 => {
-                16
-            }
+            &IntMemory::M8 => 1,
+            &IntMemory::M16 => 2,
+            &IntMemory::M32 => 4,
+            &IntMemory::M64 => 8,
+            &IntMemory::M128 => 16,
         }
     }
 
@@ -38,7 +28,7 @@ impl IntMemory {
     }
 
     /// Computes the maximum of the two.
-    pub fn max(self, other : Self) -> Self {
+    pub fn max(self, other: Self) -> Self {
         max(self, other)
     }
 }

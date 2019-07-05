@@ -9,5 +9,5 @@ pub mod metadata;
 pub mod schema;
 pub mod schema_builder;
 pub mod type_container;
-pub mod types;
 pub mod type_hash;
+pub mod types;
