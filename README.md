@@ -30,9 +30,9 @@ Currently has 150+ tests covering data de-/serialization, Serde support and sche
 
 This validates the built-in liquesco schema against itself.
 
-## `gen-schema/src/tests`
+## `gen-doc/src/tests`
 
-Takes the liquesco schema and prints the generated HTML documentation to std out. Use
+Takes the liquesco schema and prints the generated ascii doc to std out. Use
 
 ```shell
 cargo test -- --nocapture
