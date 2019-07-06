@@ -10,8 +10,5 @@ fn test_schema_to_model() {
     let schema = schema_schema(builder).unwrap();
     let type_container: &TypeContainer = &schema;
 
-    let model = create_model(type_container).unwrap();
-    let root_card = model.root();
-
-    println!("{:?}", root_card);
+    create_model(type_container).unwrap();
 }

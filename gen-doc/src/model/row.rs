@@ -1,8 +1,7 @@
 use crate::model::card::CardId;
-use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub enum Row<'a> {
     Association(Association<'a>),
     Section(Cow<'a, str>),
@@ -11,10 +10,9 @@ pub enum Row<'a> {
 }
 
 impl<'a> Row<'a> {
-    pub fn text_with_link<TText, TLink>(text: TText, link: TLink) -> Self
+    pub fn text_with_link<TText>(text: TText, link: CardId) -> Self
     where
         TText: Into<Cow<'a, str>>,
-        TLink: Into<Cow<'a, CardId>>,
     {
         Row::Prim(Primitive::text_with_link(text, link))
     }
@@ -30,15 +28,14 @@ impl<'a> Row<'a> {
         })
     }
 
-    pub fn association_with_link<TKey, TValueText, TValueLink>(
+    pub fn association_with_link<TKey, TValueText>(
         key: TKey,
         value_text: TValueText,
-        value_link: TValueLink,
+        value_link: CardId,
     ) -> Self
     where
         TKey: Into<Cow<'a, str>>,
         TValueText: Into<Cow<'a, str>>,
-        TValueLink: Into<Cow<'a, CardId>>,
     {
         Row::Association(Association {
             key: key.into(),
@@ -72,7 +69,7 @@ impl<'a> Row<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Association<'a> {
     key: Cow<'a, str>,
     value: Vec<Primitive<'a>>,
@@ -107,7 +104,7 @@ impl<'a> Association<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub enum Primitive<'a> {
     Text(Cow<'a, str>),
     Code(Cow<'a, str>),
@@ -115,10 +112,9 @@ pub enum Primitive<'a> {
 }
 
 impl<'a> Primitive<'a> {
-    pub fn text_with_link<TText, TLink>(text: TText, link: TLink) -> Self
+    pub fn text_with_link<TText>(text: TText, link: CardId) -> Self
     where
         TText: Into<Cow<'a, str>>,
-        TLink: Into<Cow<'a, CardId>>,
     {
         Primitive::Link(Link::new(text, link))
     }
@@ -138,21 +134,20 @@ impl<'a> Primitive<'a> {
     }
 }
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Link<'a> {
     text: Cow<'a, str>,
-    target: Cow<'a, CardId>,
+    target: CardId,
 }
 
 impl<'a> Link<'a> {
-    pub fn new<TText, TLink>(text: TText, link: TLink) -> Self
+    pub fn new<TText>(text: TText, link: CardId) -> Self
     where
-        TText: Into<Cow<'a, str>>,
-        TLink: Into<Cow<'a, CardId>>,
+        TText: Into<Cow<'a, str>>
     {
         Self {
             text: text.into(),
-            target: link.into(),
+            target : link,
         }
     }
 

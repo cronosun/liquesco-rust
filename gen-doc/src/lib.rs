@@ -8,6 +8,7 @@ use liquesco_common::error::LqError;
 use liquesco_schema::core::{TypeContainer, TypeRef};
 use liquesco_schema::schema::schema_schema;
 use liquesco_schema::schema_builder::DefaultSchemaBuilder;
+use std::convert::TryFrom;
 
 pub mod adoc;
 pub mod context;
@@ -18,6 +19,8 @@ pub mod type_parts;
 pub mod type_writer;
 pub mod types;
 pub mod usage;
+
+static CARD_ID_FROM_TYPE_REF : &str = "card_id_from_type_ref";
 
 pub fn create_model(schema: &TypeContainer) -> Result<impl Model, LqError> {
     let writer = ModelWriter::new(schema);
@@ -32,11 +35,14 @@ pub fn create_model_from_schema_schema() -> Result<impl Model, LqError> {
     create_model(type_container)
 }
 
-impl From<&TypeRef> for CardId {
-    fn from(reference: &TypeRef) -> Self {
-        match reference {
-            TypeRef::Numerical(num) => CardId::new(format!("num:{}", num)),
-            TypeRef::Identifier(id) => CardId::new(format!("id:{}", id.as_string())),
+impl TryFrom<&TypeRef> for CardId {
+    type Error = LqError;
+
+    fn try_from(value: &TypeRef) -> Result<Self, Self::Error> {
+        match value {
+            TypeRef::Numerical(num) => Ok(CardId::new(CARD_ID_FROM_TYPE_REF,*num as usize)),
+            TypeRef::Identifier(id) => Err(LqError::new(format!("Unable to \
+            convert identifier type ref to card id (can only convert identifier type refs): {:?}", value))),
         }
     }
 }

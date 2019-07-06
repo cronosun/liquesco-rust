@@ -4,7 +4,7 @@ use liquesco_common::error::LqError;
 use crate::context::{Context, ContextFunctions};
 use crate::model::card::{Accent, Card, CardId};
 use crate::model::row::Row;
-use crate::model::Model;
+use crate::model::{Model, SectionId};
 use crate::type_description::type_description;
 use crate::type_parts::{TypeFooter, TypeHeader};
 use crate::type_writer::TypePartWriter;
@@ -16,71 +16,41 @@ use liquesco_schema::core::TypeRef;
 use std::borrow::Cow;
 use std::collections::HashMap;
 use std::mem;
+use crate::model::builder::ModelBuilder;
+use std::convert::TryFrom;
 
 pub struct ModelWriter<'a> {
+    builder : ModelBuilder,
     schema: &'a TypeContainer,
     bodies: HashMap<TypeRef, Vec<Row<'static>>>,
-    cards: HashMap<CardId, Card<'static>>,
     usage: Usage,
 }
 
 impl<'a> ModelWriter<'a> {
     pub fn new(schema: &'a TypeContainer) -> Self {
         Self {
+            builder : ModelBuilder::default(),
             schema,
             bodies: HashMap::default(),
-            cards: HashMap::default(),
             usage: Usage::default(),
         }
     }
 }
 
-pub struct CardModel {
-    title: Cow<'static, str>,
-    root: CardId,
-    cards: HashMap<CardId, Card<'static>>,
-}
-
-impl Model for CardModel {
-    fn card(&self, id: &CardId) -> Option<&Card> {
-        self.cards.get(id)
-    }
-
-    fn root(&self) -> &Card {
-        if let Some(root) = self.cards.get(&self.root) {
-            root
-        } else {
-            panic!(format!(
-                "Root card not found. This is an implementation errors. All \
-                 cards I have: {:?}. Root id is {:?}.",
-                self.cards, self.root
-            ))
-        }
-    }
-
-    fn root_id(&self) -> &CardId {
-        &self.root
-    }
-
-    fn title(&self) -> &str {
-        &self.title
-    }
-}
-
 impl<'a> ModelWriter<'a> {
-    pub fn process(mut self, root_type_ref: &TypeRef) -> Result<CardModel, LqError> {
+
+    pub fn process(mut self, root_type_ref: &TypeRef) -> Result<impl Model, LqError> {
+        let types_section = self.builder.add_section("Types");
+
         // First add all bodies (will also compute "usage")
         self.compute_bodies_recursively(root_type_ref)?;
-        self.create_cards_from_bodies()?;
+        self.create_cards_from_bodies(&types_section)?;
 
-        Ok(CardModel {
-            title: "Liquesco type documentation".into(),
-            root: CardId::from(root_type_ref),
-            cards: self.cards,
-        })
+        self.builder.set_title("Liquesco type documentation");
+        Ok(self.builder.into_model())
     }
 
-    fn create_cards_from_bodies(&mut self) -> Result<(), LqError> {
+    fn create_cards_from_bodies(&mut self, types_section : &SectionId) -> Result<(), LqError> {
         let bodies = mem::replace(&mut self.bodies, HashMap::new());
 
         // now create cards
@@ -94,7 +64,7 @@ impl<'a> ModelWriter<'a> {
             // title
             let title = context.display_name();
 
-            let mut card = Card::new(CardId::from(&type_ref), title, accent);
+            let mut card = Card::new(CardId::try_from(&type_ref)?, title, accent);
 
             // add header
             let mut rows = TypeHeader::write(&context)?;
@@ -106,7 +76,11 @@ impl<'a> ModelWriter<'a> {
 
             card = card.with_rows(rows);
 
-            self.cards.insert(CardId::from(&type_ref), card);
+            let card_id = CardId::try_from(&type_ref)?;
+            self.builder.add_card(&card_id, card);
+
+            // add that card to types section
+            self.builder.add_to_section(types_section, &card_id);
         }
         Ok(())
     }

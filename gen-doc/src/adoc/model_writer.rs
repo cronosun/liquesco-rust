@@ -3,6 +3,8 @@ use crate::model::card::CardId;
 use crate::model::Model;
 use liquesco_processing::text::Text;
 use std::collections::HashSet;
+use crate::adoc::section_writer::SectionWriter;
+use liquesco_common::error::LqError;
 
 pub(crate) struct ModelWriter<'a> {
     model: &'a Model,
@@ -21,45 +23,18 @@ impl<'a> ModelWriter<'a> {
         }
     }
 
-    pub(crate) fn write(&mut self) {
+    pub(crate) fn write(&mut self) -> Result<(), LqError> {
         self.write_header();
-        self.cards_to_go.push(self.model().root_id().clone());
-        while self.write_next_card() {}
-    }
 
-    fn write_next_card(&mut self) -> bool {
-        if self.cards_to_go.is_empty() {
-            return false;
+        for section_id in self.model().sections() {
+            let mut section_writer = SectionWriter {
+                model : self.model,
+                text : self.text,
+                section : section_id.clone()
+            };
+            section_writer.write()?;
         }
-
-        let card_id = self.cards_to_go.remove(0);
-        if self.written_cards.contains(&card_id) {
-            return true;
-        }
-
-        if let Some(card) = self.model.card(&card_id) {
-            self.written_cards.insert(card_id);
-
-            let mut card_writer = CardWriter::new(self.text, card);
-            card_writer.write();
-
-            // process dependencies
-            for dependency in card_writer.take_dependencies() {
-                if !self.written_cards.contains(dependency) {
-                    self.cards_to_go.push(dependency.clone());
-                }
-            }
-        } else {
-            self.text().space();
-            self.text()
-                .line(format!("WARNING: Card {} not found", card_id.as_str()));
-            self.text().space();
-
-            self.written_cards.insert(card_id);
-        }
-
-        // continue
-        true
+        Ok(())
     }
 
     fn write_header(&mut self) {

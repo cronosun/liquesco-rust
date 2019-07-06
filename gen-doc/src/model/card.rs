@@ -2,22 +2,21 @@ use crate::model::row::Row;
 use serde::{Deserialize, Serialize};
 use std::borrow::Cow;
 
-#[derive(Debug, Serialize, Deserialize)]
+#[derive(Debug)]
 pub struct Card<'a> {
-    id: Cow<'a, CardId>,
+    id: CardId,
     title: Cow<'a, str>,
     accent: Accent,
     rows: Vec<Row<'a>>,
 }
 
 impl<'a> Card<'a> {
-    pub fn new<TCardId, TTitle>(id: TCardId, title: TTitle, accent: Accent) -> Self
+    pub fn new<TTitle>(id: CardId, title: TTitle, accent: Accent) -> Self
     where
-        TCardId: Into<Cow<'a, CardId>>,
         TTitle: Into<Cow<'a, str>>,
     {
         Self {
-            id: id.into(),
+            id,
             title: title.into(),
             accent,
             rows: vec![],
@@ -47,25 +46,22 @@ impl<'a> Card<'a> {
 }
 
 /// Identifies a card uniquely.
-#[derive(Hash, PartialEq, Eq, Clone, Debug, Serialize, Deserialize)]
-pub struct CardId(String);
-
-impl CardId {
-    pub fn new<T>(string: T) -> Self
-    where
-        T: Into<String>,
-    {
-        Self(string.into())
-    }
-
-    pub fn as_str(&self) -> &str {
-        &self.0
-    }
+#[derive(Hash, PartialEq, Eq, Clone, Copy, Debug)]
+pub struct CardId {
+    typ : &'static str,
+    number : usize,
 }
 
-impl Into<Cow<'static, CardId>> for CardId {
-    fn into(self) -> Cow<'static, CardId> {
-        Cow::Owned(self)
+impl CardId {
+    pub fn new(typ : &'static str, number: usize) -> Self {
+        Self {
+            typ,
+            number
+        }
+    }
+
+    pub fn string(&self) -> String {
+        format!("{}-{}", self.typ, self.number)
     }
 }
 

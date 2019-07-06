@@ -6,6 +6,7 @@ use crate::type_writer::TypePartWriter;
 use liquesco_common::error::LqError;
 use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::metadata::{Information, WithMetadata};
+use liquesco_schema::core::TypeRef;
 
 pub struct TypeHeader;
 
@@ -57,7 +58,7 @@ where
             let type_info = TypeInfo::try_from(ctx.schema(), used_by_item)?;
             result.push(Row::text_with_link(
                 ctx.display_name_for(&type_info),
-                CardId::from(used_by_item),
+                std::convert::TryFrom::<&TypeRef>::try_from(used_by_item)?
             ));
         }
 

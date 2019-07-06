@@ -45,7 +45,7 @@ impl<'a> CardWriter<'a> {
         let anchor_line = format!("[[{}]]", link_id);
         self.text().line(anchor_line);
         // title
-        let title_line = format!("= {}", self.card.title());
+        let title_line = format!("== {}", self.card.title());
         self.text().line(title_line);
     }
 
@@ -187,6 +187,6 @@ impl<'a> CardWriter<'a> {
     }
 
     fn generate_link_id(id: &CardId) -> String {
-        format!("card-{}", id.as_str())
+        format!("card-{}", id.string())
     }
 }

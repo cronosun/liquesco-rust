@@ -6,6 +6,7 @@ use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::core::{TypeContainer, TypeRef};
 use liquesco_schema::identifier::{Format, Identifier};
 use std::borrow::Cow;
+use std::convert::TryFrom;
 
 pub struct Context<'a> {
     schema: &'a TypeContainer,
@@ -61,7 +62,7 @@ impl<'a> ContextFunctions<'a> for Context<'a> {
         Ok(Row::association_with_link(
             name,
             self.display_name_for(&type_info),
-            CardId::from(typ),
+            CardId::try_from(typ)?,
         ))
     }
 
@@ -69,7 +70,7 @@ impl<'a> ContextFunctions<'a> for Context<'a> {
         let type_info = TypeInfo::try_from(self.schema(), typ)?;
         Ok(Primitive::text_with_link(
             self.display_name_for(&type_info),
-            CardId::from(typ),
+            CardId::try_from(typ)?,
         ))
     }
 }
