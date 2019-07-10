@@ -20,7 +20,7 @@ pub mod type_writer;
 pub mod types;
 pub mod usage;
 
-static CARD_ID_FROM_TYPE_REF : &str = "card_id_from_type_ref";
+static CARD_ID_FROM_TYPE_REF: &str = "card_id_from_type_ref";
 
 pub fn create_model(schema: &TypeContainer) -> Result<impl Model, LqError> {
     let writer = ModelWriter::new(schema);
@@ -40,9 +40,13 @@ impl TryFrom<&TypeRef> for CardId {
 
     fn try_from(value: &TypeRef) -> Result<Self, Self::Error> {
         match value {
-            TypeRef::Numerical(num) => Ok(CardId::new(CARD_ID_FROM_TYPE_REF,*num as usize)),
-            TypeRef::Identifier(id) => Err(LqError::new(format!("Unable to \
-            convert identifier type ref to card id (can only convert identifier type refs): {:?}", value))),
+            TypeRef::Numerical(num) => Ok(CardId::new(CARD_ID_FROM_TYPE_REF, *num as usize)),
+            TypeRef::Identifier(_) => Err(LqError::new(format!(
+                "Unable to \
+                 convert identifier type ref to card id (can only convert identifier \
+                 type refs): {:?}",
+                value
+            ))),
         }
     }
 }

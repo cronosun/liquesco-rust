@@ -1,16 +1,11 @@
-use crate::adoc::card_writer::CardWriter;
-use crate::model::card::CardId;
 use crate::model::Model;
 use liquesco_processing::text::Text;
-use std::collections::HashSet;
 use crate::adoc::section_writer::SectionWriter;
 use liquesco_common::error::LqError;
 
 pub(crate) struct ModelWriter<'a> {
     model: &'a Model,
     text: &'a mut Text,
-    cards_to_go: Vec<CardId>,
-    written_cards: HashSet<CardId>,
 }
 
 impl<'a> ModelWriter<'a> {
@@ -18,8 +13,6 @@ impl<'a> ModelWriter<'a> {
         Self {
             model,
             text,
-            cards_to_go: Vec::new(),
-            written_cards: HashSet::new(),
         }
     }
 

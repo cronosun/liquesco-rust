@@ -1,5 +1,4 @@
 use crate::context::ContextProvider;
-use crate::model::card::CardId;
 use crate::model::row::{Association, Primitive, Row};
 use crate::type_description::type_description;
 use crate::type_writer::TypePartWriter;

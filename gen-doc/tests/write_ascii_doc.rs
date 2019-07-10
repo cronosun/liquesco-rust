@@ -14,7 +14,7 @@ fn test_write_to_ascii_doc() {
     let model = create_model(type_container).unwrap();
 
     let mut text = Text::default();
-    AsciiDoc::write_to(&AsciiDoc::new(), &model, &mut text);
+    AsciiDoc::write_to(&AsciiDoc::new(), &model, &mut text).unwrap();
     let string: String = text.into();
 
     println!("{}", string);

@@ -13,7 +13,6 @@ use liquesco_processing::type_info::TypeInfo;
 use liquesco_schema::core::Type;
 use liquesco_schema::core::TypeContainer;
 use liquesco_schema::core::TypeRef;
-use std::borrow::Cow;
 use std::collections::HashMap;
 use std::mem;
 use crate::model::builder::ModelBuilder;
@@ -80,7 +79,7 @@ impl<'a> ModelWriter<'a> {
             self.builder.add_card(&card_id, card);
 
             // add that card to types section
-            self.builder.add_to_section(types_section, &card_id);
+            self.builder.add_to_section(types_section, &card_id)?;
         }
         Ok(())
     }

@@ -1,5 +1,4 @@
 use liquesco_gen_doc::create_model;
-use liquesco_gen_doc::model::Model;
 use liquesco_schema::core::TypeContainer;
 use liquesco_schema::schema::schema_schema;
 use liquesco_schema::schema_builder::DefaultSchemaBuilder;

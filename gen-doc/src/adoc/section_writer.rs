@@ -1,7 +1,5 @@
 use crate::model::{Model, SectionId};
 use liquesco_processing::text::Text;
-use crate::model::card::CardId;
-use std::collections::HashSet;
 use liquesco_common::error::LqError;
 use crate::adoc::card_writer::CardWriter;
 

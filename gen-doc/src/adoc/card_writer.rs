@@ -22,10 +22,6 @@ impl<'a> CardWriter<'a> {
         }
     }
 
-    pub(crate) fn take_dependencies(self) -> HashSet<&'a CardId> {
-        self.dependencies
-    }
-
     pub(crate) fn write(&mut self) {
         self.write_card_header();
         for row in self.card.rows() {
